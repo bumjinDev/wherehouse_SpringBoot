@@ -31,7 +31,7 @@
                     <link rel="stylesheet"
                         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
                     <script src="./js/index.js"></script>
-                    <title>WhereHouses</title>
+                    <title>WhereHousess</title>
                 </head>
 
                 <body class="bg-light">
