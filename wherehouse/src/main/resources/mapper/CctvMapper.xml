@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wherehouse.information.dao.ICCTVRepository">
+	<resultMap id="cctv"
+		type="com.wherehouse.information.model.CctvVO">
+		<result property="number" column="NUMBERS" />
+		<result property="address" column="ADDRESS" />
+		<result property="latitude" column="LATITUDE" />
+		<result property="longitude" column="LONGITUDE" />
+		<result property="cameraCount" column="CAMERACOUNT" />
+	</resultMap>
+	
+	<select id="getListCCTV" resultMap="cctv">
+		SELECT * 
+		FROM CCTV 
+		WHERE SQRT(POWER(ABS(LATITUDE - #{latitude}), 2) + POWER(ABS(LONGITUDE - #{longitude}), 2))
+				* (6371 * 3.14159 / 180) * 1000 &lt;= 500
+	</select>
+</mapper>
