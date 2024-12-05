@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: wherehouse
+
+  datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
+    username: SCOTT
+    password: tiger
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # Hibernate auto-DDL 설정
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl   # @Table(name="") : 기존 테이블 생성 도는 update 시 jpa 문법으로 생성 안되게 하기
+    show-sql: true     # SQL 쿼리 출력 설정
+
+  mvc:
+    view:
+      prefix: /WEB-INF/view/
+      suffix: .jsp
+
+mybatis:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  type-aliases-package: com.wherehouse.information.model
+  configuration:
+    jdbc-type-for-null: null
+
+server:
+  port: 8185
+  servlet:
+    context-path: /wherehouse
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+# 이건 설정 값이 아니라 그냥 속성 값으로 파일 위치 불러오는 것.
+
+#file:
+#  template:
+#   error: src/main/webapp/WEB-INF/view/members/loginError.html
+#file:
+#  template:
+#   error: "templates/loginError.html"
