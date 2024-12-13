@@ -1,0 +1,100 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" version="25.0.3">
+  <diagram name="페이지-1" id="VByFhdwqmidXndLwgpdP">
+    <mxGraphModel dx="992" dy="888" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-1" value="MemberMembersController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="3850" y="1530" width="660" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-2" value="- memberService : IMemberService" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-1">
+          <mxGeometry y="26" width="660" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-3" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-1">
+          <mxGeometry y="52" width="660" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-4" value="&lt;div&gt;+ redirectLoginSueccess(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, model: Model) : String&lt;/div&gt;&lt;div&gt;+ handleAuthenticationError(request: HttpServletRequest, model: Model) : String&lt;/div&gt;&lt;div&gt;+ modifiMember(httpRequest: HttpServletRequest, model: Model) : String&lt;/div&gt;&lt;div&gt;+ editMember(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, model: Model) : String&lt;/div&gt;&lt;div&gt;+ joinRequest(httpRequest: HttpServletRequest, model: Model) : String&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-1">
+          <mxGeometry y="60" width="660" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-5" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IMembersRepository&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ addMember(membersEntity: MembersEntity, userEntity: UserEntity): int&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ getMember(userId: String): MembersEntity&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ editMember(membersEntity: MembersEntity, userEntity: UserEntity): int&amp;nbsp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="5220" y="1442" width="490" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-6" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;MemberEntityRepository&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ findById(userId: String) : Optional&amp;lt;MembersVO&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ findByNickName(nickname: String) : Optional&amp;lt;MembersVO&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ findByNicknameAndNotIdNative(nickname: String, id: String) : Optional&amp;lt;MembersVO&amp;gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="5801" y="1180" width="490" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-7" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;MembersRepository&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;- memberEntityRepository: MemberEntityRepository&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;- userEntityRepository: UserEntityRepository&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ addMember(membersEntity: MembersEntity, userEntity: UserEntity): int&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ getMember(userId: String): MembersEntity&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ editMember(membersEntity: MembersEntity, userEntity: UserEntity): int&amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="5220" y="1262" width="490" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-9" value="MembersVO" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="6061" y="1400" width="230" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-10" value="&lt;div&gt;- id : String&lt;/div&gt;&lt;div&gt;- pw : String&lt;/div&gt;&lt;div&gt;- nickName : String&lt;/div&gt;&lt;div&gt;- tel : String&lt;/div&gt;&lt;div&gt;- email : String&lt;/div&gt;&lt;div&gt;- joinDate : Date&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-9">
+          <mxGeometry y="26" width="230" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-11" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-9">
+          <mxGeometry y="130" width="230" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-12" value="&lt;div&gt;+ getId() : String&lt;/div&gt;&lt;div&gt;+ setId(id: String) : void&lt;/div&gt;&lt;div&gt;+ getPw() : String&lt;/div&gt;&lt;div&gt;+ setPw(pw: String) : void&lt;/div&gt;&lt;div&gt;+ getNickName() : String&lt;/div&gt;&lt;div&gt;+ setNickName(nickName: String) : void&lt;/div&gt;&lt;div&gt;+ getTel() : String&lt;/div&gt;&lt;div&gt;+ setTel(tel: String) : void&lt;/div&gt;&lt;div&gt;+ getEmail() : String&lt;/div&gt;&lt;div&gt;+ setEmail(email: String) : void&lt;/div&gt;&lt;div&gt;+ getJoinDate() : Date&lt;/div&gt;&lt;div&gt;+ setJoinDate(joinDate: Date) : void&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-9">
+          <mxGeometry y="138" width="230" height="182" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-13" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;IMemberService&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ validLogin(httpRequest: HttpServletRequest): Map&amp;lt;String, String&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ ValidJoin(httpRequest: HttpServletRequest): int&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ searchEditMember(httpRequest: HttpServletRequest): MembersEntity&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&amp;nbsp;+ editMember(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse): int&amp;nbsp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="4570" y="1565" width="510" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-18" value="MemberService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="4530" y="1202" width="590" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-19" value="&lt;div&gt;&amp;nbsp;- membersRepository: IMembersRepository&lt;/div&gt;&lt;div&gt;&amp;nbsp;- memberEntityRepository: MemberEntityRepository&lt;/div&gt;&lt;div&gt;&amp;nbsp;- userEntityRepository: UserEntityRepository&lt;/div&gt;&lt;div&gt;&amp;nbsp;- jwtTokenRepository: JwtTokenRepository&lt;/div&gt;&lt;div&gt;&amp;nbsp;- jwtUtil: JWTUtil&lt;/div&gt;&lt;div&gt;&amp;nbsp;- passwordEncoder: BCryptPasswordEncoder&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-18">
+          <mxGeometry y="26" width="590" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-20" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-18">
+          <mxGeometry y="130" width="590" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-21" value="&lt;div&gt;&amp;nbsp;+ validLogin(httpRequest: HttpServletRequest): Map&amp;lt;String, String&amp;gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp;+ ValidJoin(httpRequest: HttpServletRequest): int\&lt;/div&gt;&lt;div&gt;&amp;nbsp;+ searchEditMember(httpRequest: HttpServletRequest): MembersEntity&lt;/div&gt;&lt;div&gt;&amp;nbsp;+ editMember(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse): int&amp;nbsp;&lt;/div&gt;&lt;div&gt;&amp;nbsp;- createMembersEntity(httpRequest: HttpServletRequest): MembersEntity&lt;/div&gt;&lt;div&gt;&amp;nbsp;- createUserEntity(httpRequest: HttpServletRequest, roles: List&amp;lt;String&amp;gt;): UserEntity&lt;/div&gt;&lt;div&gt;&amp;nbsp;- createNewJwtToken(jwtToken: String, key: Key, newUsername: String): String&lt;/div&gt;&lt;div&gt;&amp;nbsp;- updateJwtToken(oldToken: String, newToken: String, response: HttpServletResponse)&lt;/div&gt;&lt;div&gt;&amp;nbsp;- getCookie(httpRequest: HttpServletRequest): String&lt;/div&gt;&lt;div&gt;&amp;nbsp;- getKey(jwtToken: String): Key&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="OZjtMJx7cc8iNwndOhrP-18">
+          <mxGeometry y="138" width="590" height="162" as="geometry" />
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-22" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;entryX=0.501;entryY=1.002;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryPerimeter=0;dashed=1;" edge="1" parent="1" source="OZjtMJx7cc8iNwndOhrP-13" target="OZjtMJx7cc8iNwndOhrP-21">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="4880" y="1405" as="sourcePoint" />
+            <mxPoint x="5040" y="1405" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-23" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;entryX=0.496;entryY=0.998;entryDx=0;entryDy=0;exitX=0.495;exitY=-0.002;exitDx=0;exitDy=0;entryPerimeter=0;dashed=1;exitPerimeter=0;" edge="1" parent="1" source="OZjtMJx7cc8iNwndOhrP-5" target="OZjtMJx7cc8iNwndOhrP-7">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="5464.5" y="1452" as="sourcePoint" />
+            <mxPoint x="5465.5" y="1392" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-24" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.002;entryY=0.565;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="OZjtMJx7cc8iNwndOhrP-6" target="OZjtMJx7cc8iNwndOhrP-11">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="5150" y="1350" as="sourcePoint" />
+            <mxPoint x="6130" y="1526" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-26" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;exitX=1.002;exitY=0.39;exitDx=0;exitDy=0;entryX=-0.001;entryY=0.431;entryDx=0;entryDy=0;entryPerimeter=0;exitPerimeter=0;" edge="1" parent="1" source="OZjtMJx7cc8iNwndOhrP-4" target="OZjtMJx7cc8iNwndOhrP-13">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="4500" y="1630.77" as="sourcePoint" />
+            <mxPoint x="4569" y="1639" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-27" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;exitX=1;exitY=0.55;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitPerimeter=0;" edge="1" parent="1" source="OZjtMJx7cc8iNwndOhrP-7" target="OZjtMJx7cc8iNwndOhrP-6">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="5870" y="1412" as="sourcePoint" />
+            <mxPoint x="5928" y="1412" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-28" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;exitX=1;exitY=0.552;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.004;entryY=0.523;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="OZjtMJx7cc8iNwndOhrP-7" target="OZjtMJx7cc8iNwndOhrP-11">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="6095" y="1320" as="sourcePoint" />
+            <mxPoint x="6130" y="1522" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OZjtMJx7cc8iNwndOhrP-29" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;exitX=0.997;exitY=0.523;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitPerimeter=0;" edge="1" parent="1" source="OZjtMJx7cc8iNwndOhrP-20" target="OZjtMJx7cc8iNwndOhrP-7">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="5100" y="1424" as="sourcePoint" />
+            <mxPoint x="5230" y="1346" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

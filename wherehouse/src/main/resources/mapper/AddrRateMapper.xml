@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wherehouse.information.dao.IAddrRateRepository">
+	<resultMap id="addrRate"
+		type="com.wherehouse.information.model.AddrRateVO">
+		<result property="addr" column="ADDR" />
+		<result property="rate" column="RATE" />
+	</resultMap>
+	
+	<select id="getRate" resultMap="addrRate">
+		SELECT * 
+		FROM ARRESTRATE 
+		WHERE ADDR = #{address}
+	</select>
+</mapper>

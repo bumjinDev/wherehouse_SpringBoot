@@ -1,0 +1,235 @@
+@font-face {
+    font-family: 'TheJamsil5Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil5Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+body {
+    font-family: 'TheJamsil5Bold';
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+nav {
+    background-color: rgba(11, 94, 215, 1);
+    width: 88px;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+section {
+    height: 100%;
+    position: absolute;
+    left: 88px;
+    top: 0px;
+}
+
+#menu {
+    width: 100%;
+    height: 500px;
+    position: absolute;
+    left: 0px;
+    top: 10px;
+}
+
+/* 홈 아이콘 스타일 */
+#menu_home {
+    width: 88px;
+    height: 88px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+#menu_home:hover {
+    cursor: pointer;
+}
+
+#menu_home_icon img {
+    width: 66px;
+    height: 55px;
+    position: absolute;
+    left: 11px;
+    top: 9px;
+    border-radius: 5px;
+}
+
+#menu_division {
+    size: 20px;
+    width: 55px;
+    position: absolute;
+    left: 15.5px;
+    top: 70px;
+    border: 1px solid white;
+}
+
+/* 메뉴 전체 텍스트 스타일 */
+.menu_txt {
+    color: rgba(255, 255, 255, 1);
+    width: 88px;
+    height: 14px;
+    position: absolute;
+    left: 0px;
+    top: 75px;
+    font-family: Inter;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0;
+}
+
+/* 주거지 추천 선택 스타일 */
+#menu_suggest {
+    width: 88px;
+    height: 90px;
+    position: absolute;
+    left: 0px;
+    top: 90px;
+}
+
+#menu_suggest_icon {
+    background-color: rgba(34, 34, 34, 0.3);
+    width: 88px;
+    height: 88px;
+    position: absolute;
+    left: 0px;
+    top: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#menu_suggest_icon img {
+    width: 55px;
+    height: 55px;
+    position: absolute;
+    left: 16.5px;
+    top: 5.5px;
+    border-radius: 45px;
+}
+
+#menu_suggest_icon:hover img {
+    transition: 0.2s;
+    transform: scale(1.1);
+}
+
+/* 지역구 선택 스타일 */
+#menu_gu {
+    width: 88px;
+    height: 90px;
+    position: absolute;
+    left: 0px;
+    top: 180px;
+}
+
+#menu_gu_icon {
+    width: 88px;
+    height: 88px;
+    position: absolute;
+    left: 0px;
+    top: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#menu_gu_icon img {
+    width: 55px;
+    height: 55px;
+    position: absolute;
+    left: 16.5px;
+    top: 5.5px;
+    border-radius: 45px;
+}
+
+#menu_gu_icon:hover img {
+    transition: 0.2s;
+    transform: scale(1.1);
+}
+
+/* 상세 지도 선택 스타일 */
+#menu_detail {
+    width: 88px;
+    height: 90px;
+    position: absolute;
+    left: 0px;
+    top: 270px;
+}
+
+#menu_detail_icon {
+    width: 88px;
+    height: 88px;
+    position: absolute;
+    left: 0px;
+    top: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#menu_detail_icon img {
+    width: 55px;
+    height: 55px;
+    position: absolute;
+    left: 16.5px;
+    top: 5.5px;
+    border-radius: 45px;
+}
+
+#menu_detail_icon:hover img {
+    transition: 0.2s;
+    transform: scale(1.1);
+}
+
+/* 게시판 선택 스타일 */
+#menu_board {
+    width: 88px;
+    height: 90px;
+    position: absolute;
+    left: 0px;
+    top: 360px;
+}
+
+#menu_board_icon {
+    width: 88px;
+    height: 88px;
+    position: absolute;
+    left: 0px;
+    top: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#menu_board_icon img {
+    width: 55px;
+    height: 55px;
+    position: absolute;
+    left: 16.5px;
+    top: 5.5px;
+    border-radius: 45px;
+}
+
+#menu_board_icon:hover img {
+    transition: 0.2s;
+    transform: scale(1.1);
+}
+
+#iframe_section {
+    width: 1832px;
+    height: 945px;
+}
