@@ -5,7 +5,7 @@
 
 ![2](https://github.com/user-attachments/assets/84dc3382-ae6f-4856-a8f0-2a21242319d3)
 
-+ 배포 URL : http://43.202.178.156:8181/wherehouse/
++ 배포 URL : https://wherehouse.servehttp.com/wherehouse/
 
 <br><br>
 
