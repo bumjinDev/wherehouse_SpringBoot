@@ -97,22 +97,22 @@
                                 <div class="nav-item mb-2">
                                     <a class="nav-link p-0 text-muted">
                                         <i class="bi bi-telephone-fill">
-                                            010-2794-0796
+                                            010-3370-7750
                                         </i>
                                     </a>
                                 </div>
                                 <div class="nav-item mb-2">
                                     <a class="nav-link p-0 text-muted">
                                         <i class="bi bi-envelope-fill">
-                                            joonwon24@gmail.com
+                                            bumjin.dev@gmail.com
                                         </i>
                                     </a>
                                 </div>
                                 <div class="nav-item mb-2">
-                                    <a class="nav-link p-0 text-muted" href="https://github.com/joonwonh/WhereHouse"
+                                    <a class="nav-link p-0 text-muted" href="https://github.com/bumjinDev/wherehouse_SpringBoot"
                                         target="_blank">
                                         <i class="bi bi-github">
-                                            github.com/joonwonh/WhereHouse
+                                            github.com/bumJin/WhereHouse
                                         </i>
                                     </a>
                                 </div>
@@ -124,28 +124,28 @@
                             <ul class="nav-flex-column">
                                 <div class="nav-item mb-2">
                                     <a class="nav-link p-0 text-muted"
-                                        href="https://github.com/joonwonh/WhereHouse/tree/main/1.%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%ED%9A%8D%EC%84%9C"
+                                        href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/1.%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%ED%9A%8D%EC%84%9C"
                                         target='_blank'>
                                         Project Plan pres.
                                     </a>
                                 </div>
                                 <div class="nav-item mb-2">
                                     <a class="nav-link p-0 text-muted"
-                                        href="https://github.com/joonwonh/WhereHouse/tree/main/2.%EA%B0%9C%EB%B0%9C%EA%B3%84%ED%9A%8D%EC%84%9C"
+                                        href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/2.%EA%B0%9C%EB%B0%9C%EA%B3%84%ED%9A%8D%EC%84%9C"
                                         target='_blank'>
                                         Develop Plan
                                     </a>
                                 </div>
                                 <div class="nav-item mb-2">
                                     <a class="nav-link p-0 text-muted"
-                                        href="https://github.com/joonwonh/WhereHouse/tree/main/3.%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%20%EC%A0%95%EC%9D%98%EC%84%9C"
+                                        href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/3.%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%20%EC%A0%95%EC%9D%98%EC%84%9C_%EB%B6%84%EC%84%9D%EC%84%9C"
                                         target='_blank'>
                                         Function Specification
                                     </a>
                                 </div>
                                 <div class="nav-item mb-2">
                                     <a class="nav-link p-0 text-muted"
-                                        href="https://github.com/joonwonh/WhereHouse/tree/main/4.%ED%99%94%EB%A9%B4%EC%84%A4%EA%B3%84%EC%84%9C"
+                                        href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/4.%ED%99%94%EB%A9%B4%20%EC%84%A4%EA%B3%84%EC%84%9C"
                                         target='_blank'>
                                         Wire Frame
                                     </a>
