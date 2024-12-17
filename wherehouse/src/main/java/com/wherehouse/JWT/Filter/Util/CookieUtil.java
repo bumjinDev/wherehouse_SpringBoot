@@ -1,8 +1,19 @@
 package com.wherehouse.JWT.Filter.Util;
 
+import org.springframework.stereotype.Component;
 import jakarta.servlet.http.Cookie;
 
-// @Component // 스프링 컨텍스트 내에서의 di 구현이 아닌 스프링 시큐리티 컨텍스트에서 @Bean 으로 등록될 것이기 때문에 별도의 시작과 동시에 스캔되는 기능을 사용할 필요가 없음.
+/*
+ * 사용 위치 :
+ * [시큐리티 컨텍스트]
+ * 1. Login 필터 체인
+ * 2. 게시판 필터 체인
+ * 3. 로그인 성공 펠터 체인
+ * 
+ * [Spring MVC 컨텍스트]
+ * 1. BoardService.writeReply()
+ * */
+@Component 
 public class CookieUtil {
 
     /**

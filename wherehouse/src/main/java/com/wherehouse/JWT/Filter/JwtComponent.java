@@ -15,8 +15,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 
 /*
- * RequestAuthenticaiton 과 JWTAuthentication 두 클래스에 대한 공통된 메소드를 책임분리원칙(DRY) 에 근거하여 여기서
- * 	공통 구현.
+ * RequestAuthenticaiton 과 JWTAuthentication 두 클래스에 대한 공통된 메소드를 책임분리원칙(DRY) 에 근거하여 여기서 공통 메소드를 구현하기 위함.
  * */
 @Component
 public class JwtComponent {
@@ -32,7 +31,6 @@ public class JwtComponent {
 		System.out.println("JwtComponent.getSigningKey()!");
 		System.out.println("token : " + token);
 		System.out.println("jwtTokenRepository.findById(token) : " + jwtTokenRepository.findById(token).get().getHmacSha256Key());
-		
 		
 		JwtTokenEntity tokenEntity = jwtTokenRepository.findById(token)
 	                        .orElseThrow(() -> new IllegalArgumentException("토큰에 해당하는 키가 존재하지 않습니다."));

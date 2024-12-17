@@ -1,5 +1,6 @@
 package com.wherehouse.board.service;
 
+import java.security.Key;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -8,12 +9,18 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wherehouse.JWT.Filter.Util.CookieUtil;
+import com.wherehouse.JWT.Filter.Util.JWTUtil;
+import com.wherehouse.JWT.Repository.JwtTokenRepository;
+import com.wherehouse.JWT.Repository.UserEntityRepository;
+import com.wherehouse.JWT.UserDTO.JwtTokenEntity;
 import com.wherehouse.board.dao.BoardEntityRepository;
 import com.wherehouse.board.dao.IBoardRepository;
 import com.wherehouse.board.model.BoardEntity;
 import com.wherehouse.board.model.CommentEntity;
 import com.wherehouse.members.dao.IMembersRepository;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
@@ -21,13 +28,22 @@ public class BoardService implements IBoardService {
 
     @Autowired
     IBoardRepository boardRepository;
+    
+    @Autowired
+    IMembersRepository membersRepository;
 
     @Autowired
     BoardEntityRepository boardEntityRepository;
     
     @Autowired
-    IMembersRepository membersRepository;
-
+    JwtTokenRepository jwtTokenRepository;		// replyWrite() : cookieUtil.extractJwtFromCookies() 결과로 확인된 JWT 토큰으로 키 값을 포함한 Entity 가져오기.
+    
+    @Autowired
+    JWTUtil jwtUtil; // JWTUtil 의존성 주입
+    
+    @Autowired
+    CookieUtil cookieUtil;
+    
     // ======== 조회 관련 메소드 ========
 
     /**
@@ -99,16 +115,24 @@ public class BoardService implements IBoardService {
      * 요청 객체에서 댓글 내용을 추출하고 데이터베이스에 저장합니다.
      *
      * @param httpRequest 현재 요청 객체
+     * 
+     * 
      */
     @Override
     public void writeReply(HttpServletRequest httpRequest) {
+    	
+    	JwtTokenEntity jwtTokenEntity = jwtTokenRepository.findById(cookieUtil.extractJwtFromCookies(httpRequest.getCookies(), "Authorization")).get();    	
+    	Key key = jwtUtil.decodeBase64ToKey(jwtTokenEntity.getHmacSha256Key());
+    	
         CommentEntity comment = new CommentEntity();
 
+        comment.setNum(Integer.parseInt(httpRequest.getParameter("boardId")));		// 게시글 번호 : 해당 댓글 작성되는 게시글 본문 번호를 기준으로 삼은 외래키 제약조건 위함.
+        comment.setId(jwtUtil.extractUserId(jwtTokenEntity.getJwttoken(), key));					// 사용자 ID : membertbl 과의 제약 조건
+        
+        /* 실제 댓글로써 저장될 내용들. */
+        comment.setNickname(jwtUtil.extractUsername(jwtTokenEntity.getJwttoken(), key));
         comment.setContent(httpRequest.getParameter("replyContent"));
-        comment.setId((String) httpRequest.getAttribute("userId"));
-        comment.setNickname((String) httpRequest.getAttribute("userName"));
-        comment.setNum(Integer.parseInt(httpRequest.getParameter("boardId")));
-
+        
         boardRepository.replyWrite(comment);
     }
 

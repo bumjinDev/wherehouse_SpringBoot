@@ -75,12 +75,9 @@
 				<form action="/wherehouse/replyWrite" id="replyform" method="post">
 			
 					<!-- form 태그 적용되어 서버 내 요청될 내용들 -->
-					<input type="hidden" name="boardId" id="boardId" value="${content_view.connum}">						<!-- 글 번호 -->					
-					<input type="hidden" name="title" value="${content_view.title}" />								<!-- 글 제목 -->
-					<input type="hidden" name="replyContent" value="${content_view.boardcontent}" />	<!-- 글 내용 -->
-				
-					<!-- 댓글 작성되는 부분 -->
-					<textarea rows="4" cols="54" name="replyContent" class="replyvalue"></textarea>
+					
+					<input type="hidden" name="boardId" id="boardId" value="${content_view.connum}">	<!-- 글 번호 -->					
+					<textarea rows="4" cols="54" name="replyContent" class="replyvalue"></textarea>		<!-- 댓글 작성되는 부분 -->
 					
 					<button value="댓글 작성하기" type="button" class="replybutton" style="width:100px; heigth:50px;">
 						댓글 작성하기</button> 	<!-- reply.do 요청 -->

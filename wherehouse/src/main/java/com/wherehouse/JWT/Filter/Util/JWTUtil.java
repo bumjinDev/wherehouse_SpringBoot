@@ -18,6 +18,17 @@ public class JWTUtil {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(key.getEncoded());
     }
     
+    /**
+     * Base64로 인코딩된 키 문자열을 Key 객체로 디코딩합니다.
+     *
+     * @param base64Key Base64로 인코딩된 키 문자열
+     * @return Key 객체
+     */
+    public Key decodeBase64ToKey(String base64Key) {
+        byte[] decodedKey = Base64.getUrlDecoder().decode(base64Key);
+        return new SecretKeySpec(decodedKey, "HmacSHA256");
+    }
+    
     public Key getSigningKey() {
         byte[] keyBytes = new byte[32]; // HMAC SHA-256용 256비트 키
         new SecureRandom().nextBytes(keyBytes);
