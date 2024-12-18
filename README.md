@@ -27,7 +27,7 @@
 
 | 정범진 | 이재서 |
 | --- | --- |
-| <img src="https://github.com/user-attachments/assets/946612ee-7f7f-41ce-8d8c-85b578f18d2d" width="100" height="100" alt="jung"/> | <img src="https://github.com/user-attachments/assets/8b4a2dd0-166a-4e04-93eb-38482a2828fe" width="100" height="100" alt="lee"/> |
+| <img src="https://github.com/user-attachments/assets/4f66f287-8799-49fb-88f4-b67582db7b39" alt="MyIcon"  width="100" height="100" alt="jung"/> | <img src="https://github.com/user-attachments/assets/7be184e0-f8f4-4548-8fa6-f084c69f4f0b" width="100" height="100"  alt="LeeJaeseo" /> |
 | [@bumjinDev](https://github.com/bumjinDev/wherehouse) | [@N0WST4NDUP](https://github.com/N0WST4NDUP) |
 
 <br><br>
@@ -82,11 +82,11 @@ WhereHouse
 
 ### [거주지 추천]
 	- 사용자가 안전성과 편의성 비중을 선택하고 전세 및 월세 금액을 설정하면, 서울시 내에서 추천할 지역구 3곳을 추천합니다.
-  <img src="https://github.com/user-attachments/assets/6de5e888-cd4c-4145-a128-ae27b3a21203" />
- 	
+  <img src="https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37" alt="RecommandPage">
+
 ### [상세지도]
 	- 사용자가 지도 위에 핀포인트를 지정하면, 반경 500m 내의 CCTV 위치를 마커로 표시하고, 가장 가까운 파출소 거리 및 편의시설 정보를 제공합니다.
-  <img src="https://github.com/user-attachments/assets/9af6ac87-f5a7-4ec1-8c37-1033e7797be2" />
+  <img src="https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376" alt="DetailMapPage">
   	
 ### [게시판]
 	- 사용자 간의 원활한 정보 공유를 위해 마련된 공간입니다.
@@ -96,7 +96,7 @@ WhereHouse
 ### [회원 가입]
 	- 회원가입 기능으로 로그인 시 게시판 이용이 가능합니다.
  	- 유효성 검사 로직을 통해 필수 정보를 누락하거나 비밀번호 확인이 올바르지 않은 경우 회원가입이 진행되지 않습니다.
- <img src="https://github.com/user-attachments/assets/a0320fc9-9d55-413b-8c05-174e7a69f0bc" />
+ <img src="https://github.com/user-attachments/assets/db61d203-b238-4293-ad6f-be41ddc75d5e" alt="JoinPage">
 
 ### [로그인]
 	- 로그인이 완료되면 세션 정보를 포함한 페이지로 리디렉션됩니다.
