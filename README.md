@@ -1,6 +1,7 @@
 <p align="center" style="display: flex; align-items: center; gap: 10px;">
-   <img src="https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8" alt="Logo" width="120" height="120"/>
    <span style="font-size: 2.0rem; font-weight: bold;">서울시 1인 세대 위한 거주지 추천 서비스</span>
+   <img src="https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8" alt="Logo" width="1200" height="500"/>
+  
 </p>
 
 ---
