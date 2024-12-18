@@ -78,8 +78,7 @@ WhereHouse
 ### [메인 페이지]
 	- 서비스에 접속하면 가장 먼저 보이는 초기 화면입니다. 이 화면에서는 각 서비스 페이지로의 접근과 로그인/회원가입 페이지로의 이동이 가능합니다.
  	- 로그인된 경우, 페이지 내에 로그인 세션 정보(사용자 닉네임 등)가 포함된 페이지가 제공됩니다.
-  <img src="https://github.com/user-attachments/assets/08b983ad-854b-4f39-8a6f-e514a9014ebf">
-
+  <img src="https://github.com/bumjinDev/wherehouse_SpringBoot/issues/2#issue-2744170449" alt="Issue Image">
 
 ### [거주지 추천]
 	- 사용자가 안전성과 편의성 비중을 선택하고 전세 및 월세 금액을 설정하면, 서울시 내에서 추천할 지역구 3곳을 추천합니다.
