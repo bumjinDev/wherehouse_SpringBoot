@@ -1,6 +1,8 @@
-<div style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;">
+<div style="display: flex; align-items: center; gap: 10px; white-space: nowrap; max-width: 100%;">
     <img src="https://github.com/user-attachments/assets/f521acdb-4507-4aee-8abd-ac88f80318bb" width="100" height="100" alt="Icon"/>
-    <h1 style="margin: 0; white-space: nowrap;">거주지 추천 서비스 README</h1>
+    <h1 style="margin: 0; font-size: 1.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        거주지 추천 서비스 README
+    </h1>
 </div>
 
 
