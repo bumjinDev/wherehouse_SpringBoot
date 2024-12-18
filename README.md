@@ -3,7 +3,7 @@
 
 ---
 
-## Project Architecture
+# Project Architecture
 
 ![2](https://github.com/user-attachments/assets/08b983ad-854b-4f39-8a6f-e514a9014ebf)
 
