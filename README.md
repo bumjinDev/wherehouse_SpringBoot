@@ -105,4 +105,5 @@ WhereHouse
  ### [회원 수정]
 	- 회원 정보 수정 기능 입니다.
  	- 회원 수정 시 기존 아이디는 고유 값으로 수정할 수 없습니다. 그러나 비밀번호, 닉네임, 전화번호, 이메일 정보는 수정 가능합니다.
- <img src="https://github.com/user-attachments/assets/4edf769a-f30f-469e-b315-a54b813d6f7a" />
+ <img src="https://github.com/user-attachments/assets/311b4ea7-de69-46f5-9b7b-f5d7e221f0be" alt="MemberEditPage">
+
