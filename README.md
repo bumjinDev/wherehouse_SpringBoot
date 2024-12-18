@@ -54,11 +54,18 @@
 
 ### **추가 개선 작업**  
 - **[정범진]**  
-   - Spring Security 도입: JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키 적용  
-   - HTTPS 적용: JWT 토큰 탈취 방지  
-   - 데이터 접근 방식 전환: JdbcTemplate → JPA  
-   - 데이터베이스 개선: Oracle Database를 Docker 기반으로 전환  
-   - CI/CD 구축: Jenkins를 활용한 지속적 통합 및 배포 환경 구축  
+   - Spring Security 도입<br>
+   	- JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키 적용
+   	- X-CONTENT 정책 응답 헤더 따른 기존 UI 개선 작업 수행
+   	- CSP 정책 설정  
+   - HTTPS 적용<br>
+   	- WT 토큰 탈취 방지  
+   - 데이터 접근 방식 전환<br>
+   	- JdbcTemplate → JPA  
+   - 데이터베이스 개선<br>
+   	- Oracle Database를 Docker 기반으로 전환  
+   - CI/CD 구축<br>
+   - 	- Jenkins를 활용한 지속적 통합 및 배포 환경 구축  
 
 ---
 
