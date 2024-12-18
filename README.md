@@ -20,52 +20,77 @@ WHERE HOUSE는 사용자가 설정한 안전성 비중, 편의성 비중, 그리
 <br><br>
 
 ---
-# 역할 분담
+# 역할 분담  
 <br>
 
-<h3>1차 프로젝트 : UI</h3>
-
-[한준원]<br>
-전체 UI 설계 및 제작
-거주지 추천 페이지 및 지역구 정보 페이지 개발
+<h3>1차 프로젝트: UI 개발</h3>  
+<ul>
+    <li><strong>[한준원]</strong>  
+        <ul>
+            <li>전체 UI 설계 및 제작</li>
+            <li>거주지 추천 페이지 및 지역구 정보 페이지 개발</li>
+        </ul>
+    </li>
+    <li><strong>[이재서]</strong>  
+        <ul>
+            <li>행정동별 정보 페이지 개발</li>
+        </ul>
+    </li>
+    <li><strong>[정범진]</strong>  
+        <ul>
+            <li>Kakao Map API를 활용하여 사용자의 지도 클릭 이벤트를 기반으로 반경 500m 내 CCTV 좌표를 마커로 표시하는 상세지도 페이지 서비스 구현</li>
+        </ul>
+    </li>
+</ul>
 <br>
 
-[이재서]<br>
-행정동별 정보 페이지 개발
+<h3>2차 프로젝트: Servlet 기반 개발</h3>  
+<ul>
+    <li><strong>[한준원]</strong>  
+        <ul>
+            <li>주거지 추천 서비스 개발</li>
+        </ul>
+    </li>
+    <li><strong>[이재서]</strong>  
+        <ul>
+            <li>기존 상세지도 서비스를 Servlet으로 변환</li>
+        </ul>
+    </li>
+    <li><strong>[정범진]</strong>  
+        <ul>
+            <li>게시판 및 로그인/회원 가입 기능 개발</li>
+        </ul>
+    </li>
+</ul>
 <br>
 
-[정범진]<br>
-Kakao Map API를 활용하여 사용자의 지도 클릭 이벤트를 기반으로 반경 500m 내 CCTV 좌표를 마커로 표시하는 상세지도 페이지 서비스 구현.
-<br><br>
+<h3>3차 프로젝트: Spring Boot로 전환</h3>  
+<ul>
+    <li><strong>[정범진]</strong>  
+        <ul>
+            <li>Servlet 기반 주거지 추천 서비스, 회원 관리, 및 게시판 서비스를 Spring Boot로 전환</li>
+        </ul>
+    </li>
+    <li><strong>[이재서]</strong>  
+        <ul>
+            <li>Servlet 기반 상세지도 서비스를 Spring Boot로 전환</li>
+        </ul>
+    </li>
+</ul>
+<br>
 
-<h3>2차 프로젝트 : Servlet 기반 개발</h3>
-
-[한준원]<br>
-주거지 추천 서비스 개발
-
-[이재서]<br>
-기존 상세지도 서비스를 Servlet으로 변환.
-
-[정빔진]<br>
-게시판 및 로그인 / 회원 가입 기능 개발
-<br><br>
-
-<h3>3차 프로젝트 : Servlet 아키텍처를 Spring Boot 프레임워크로 전환 </h3>
-
-[정범진]<br>
-Servlet 기반 주거지 추천 서비스, 회원 관리, 및 게시판 서비스를 Spring Boot로 전환.
-
-[이재서]<br>
-Servlet 기반 상세지도 서비스를 Spring Boot로 전환.
-<br><br>
-
-<h3>추가 개선 작업</h3>
-[정범진]<br>
-Spring Security 도입: 기존 회원 관리 및 게시판 기능을 JWT 기반 인증 방식으로 전환. CSRF 방지를 위해 Host-Only 쿠키 적용.
-HTTPS 적용: JWT 토큰 탈취 방지 목적의 보안 강화.
-데이터 접근 방식 전환: JdbcTemplate을 JPA로 변환하여 유지보수성과 객체지향성을 개선.
-데이터베이스 개선: ORACLE DATABASE를 내장형에서 Docker 컨테이너 기반으로 전환.
-CI/CD 구현: Jenkins를 활용한 지속적 통합 및 배포 환경 구축
+<h3>추가 개선 작업</h3>  
+<ul>
+    <li><strong>[정범진]</strong>  
+        <ul>
+            <li>Spring Security 도입: 기존 회원 관리 및 게시판 기능을 JWT 기반 인증 방식으로 전환. CSRF 방지를 위해 Host-Only 쿠키 적용</li>
+            <li>HTTPS 적용: JWT 토큰 탈취 방지 목적의 보안 강화</li>
+            <li>데이터 접근 방식 전환: JdbcTemplate을 JPA로 변환하여 유지보수성과 객체지향성을 개선</li>
+            <li>데이터베이스 개선: ORACLE DATABASE를 내장형에서 Docker 컨테이너 기반으로 전환</li>
+            <li>CI/CD 구현: Jenkins를 활용한 지속적 통합 및 배포 환경 구축</li>
+        </ul>
+    </li>
+</ul>
 
 
 ---
