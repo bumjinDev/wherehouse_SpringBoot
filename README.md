@@ -47,15 +47,16 @@ JWT 기반 회원 관리 기능 개발 하였으며 회원 간 정보 공유를 
 - **[정범진]**  
    - 게시판 및 로그인/회원 가입 기능 개발  
 
-### **3차 프로젝트: Spring Boot로 전환**  
+### **3차 프로젝트: Spring 으로 전환**  
 - **[정범진]**  
-   - Servlet 기반 주거지 추천 서비스, 회원 관리 및 게시판을 Spring Boot로 전환  
+   - Servlet 기반 주거지 추천 서비스, 회원 관리 및 게시판을 Spring 으로 전환  
 - **[이재서]**  
-   - Servlet 기반 상세지도 서비스를 Spring Boot로 전환  
+   - Servlet 기반 상세지도 서비스를 Spring 으로 전환  
 
 ### **추가 개선 작업**
 
 - **[정범진]**
+  - **Spring 레거시 프로젝트를 Spring Boot로 전환**
   - **Spring Security 도입**
     - JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키 적용
     - X-CONTENT 정책 응답 헤더에 따른 기존 UI 개선 작업 수행
