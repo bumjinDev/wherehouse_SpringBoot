@@ -1,6 +1,6 @@
 <p style="display: flex; align-items: center; gap: 10px;">
     <img src="https://github.com/user-attachments/assets/f521acdb-4507-4aee-8abd-ac88f80318bb" width="100" height="100" alt="Icon" />
-    <span style="font-size: 1.5rem; font-weight: bold; white-space: nowrap;">거주지 추천 서비스 README</span>
+    <span style="font-size: 1.5rem; font-weight: bold; white-space: nowrap;"><h1>거주지 추천 서비스 README</h1></span>
 </p>
 
 
