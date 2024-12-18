@@ -14,7 +14,7 @@
 + 배포 URL : https://wherehouse.servehttp.com/wherehouse/
 
 ---
-
+<br><br>
 ## 프로젝트 소개
 <br>
 서울시 1인 MZ 세대의 1인 가구 비율 증가에 따른 거주지 추천 서비스입니다.<br>
