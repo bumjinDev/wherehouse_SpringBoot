@@ -133,10 +133,37 @@ WhereHouse
 </pre>
 <br><br>
 
-# 개발 기간 및 작업 관리
 ---
-## 개발 기간
-	2023.11.13~2024.03.08
+# 개발 환경  
+
+| #                       | **LANGUAGE**           |
+|-------------------------|------------------------|
+| ![JAVA](https://img.shields.io/badge/Java-007396?style=flat-square&logo=java&logoColor=white) | Java               |
+| ![JAVASCRIPT](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) | JavaScript        |
+
+| #                       | **FRAMEWORK**          |
+|-------------------------|------------------------|
+| ![SPRINGBOOT](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white) | Spring Boot        |
+
+| #                       | **DATABASE**           |
+|-------------------------|------------------------|
+| ![ORACLE](https://img.shields.io/badge/Oracle-F80000?style=flat-square&logo=oracle&logoColor=white) | Oracle             |
+| ![JPA](https://img.shields.io/badge/JPA-6DB33F?style=flat-square&logoColor=white) | JPA                |
+
+| #                       | **SECURITY**           |
+|-------------------------|------------------------|
+| ![SPRINGSECURITY](https://img.shields.io/badge/Spring%20Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white) | Spring Security    |
+| ![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white) | JWT                |
+
+| #                       | **CONTAINER**          |
+|-------------------------|------------------------|
+| ![DOCKER](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) | Docker             |
+
+| #                       | **DEPLOYMENT**         |
+|-------------------------|------------------------|
+| ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | AWS                |
+| ![JENKINS](https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white) | Jenkins            |
+
 <br>
 
 ## 작업 관리
