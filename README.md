@@ -162,4 +162,4 @@ WhereHouse
 1. 코드 리팩토링: 기존 코드를 구조적으로 개선하여 가독성과 유지보수성을 강화.
 2. 테스트 코드 작성: JUnit을 활용해 테스트 코드를 작성하고, 이를 Jenkins와 연계하여 지속적 통합(CI) 환경 구축.
 3. Redis를 활용한 세션 관리 구현
-4. SQL Injection 방지 적용: 안전한 데이터 처리를 위해 입력 값 검증 및 PreparedStatement 사용.
+4. SQL Injection 방지 적용: 안전한 데이터 처리를 위해 입력 값 검증.
