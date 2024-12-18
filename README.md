@@ -2,7 +2,14 @@
    <span style="font-size: 1.5rem; font-weight: bold; white-space: nowrap;"><h1>서울 시 1인 세대 위한 거주지 추천 서비스</h1></span>
 </p>
 <img src="https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8" alt="1" width="1200" height="500">
+<br><br>
 
+---
+# 프로젝트 소개
+<br>
+서울시 1인 MZ 세대의 1인 가구 비율 증가 추세에 따른 거주지 추천 서비스입니다.<br>
+WHERE HOUSE는 사용자가 설정한 안전성 비중, 편의성 비중, 그리고 전세 및 월세 금액 정보를 바탕으로 주거지 추천 지역구 3곳을 선정하여 제공합니다.
+<br><br>
 
 ---
 # Project Architecture
@@ -13,13 +20,6 @@
 <br><br>
 
 ---
-<br>
-# 프로젝트 소개
-<br>
-서울시 1인 MZ 세대의 1인 가구 비율 증가 추세에 따른 거주지 추천 서비스입니다.<br>
-WHERE HOUSE는 사용자가 설정한 안전성 비중, 편의성 비중, 그리고 전세 및 월세 금액 정보를 바탕으로 주거지 추천 지역구 3곳을 선정하여 제공합니다.
-<br>
-
 ## 팀원 구성
 
 | 정범진 | 이재서 |
