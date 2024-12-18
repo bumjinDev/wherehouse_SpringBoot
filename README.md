@@ -3,10 +3,7 @@
 </p>
 <img src="https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8" alt="1" width="1200" height="500">
 
----
-
-
-
+<br>
 ---
 
 # Project Architecture
