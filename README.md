@@ -154,3 +154,9 @@ WhereHouse
 - 가장 가까운 파출소 거리 확인
 - 편의성 및 안정성 점수 확인.
 <p align="left"><img src="https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376" alt="Detail Map Page" /></p>
+<br><br>
+
+---
+# 개선 목표
+1. 코드 리펙토링
+2. JUNIT 사용하여 테스트 코드 작성 및 Jenkins 적용
