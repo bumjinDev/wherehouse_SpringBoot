@@ -142,9 +142,9 @@ WhereHouse
 <p align="left"><img src="https://github.com/user-attachments/assets/8e2c3413-97a5-4380-884b-32c4bce70275" alt="Main Page" /></p>
 
 ### **[거주지 추천]**  
-사용자가 입력한 전세/월세 유형, 보증금/월세 값, 안전성 비중, 편의성 비중을 기반으로 추천 지역구 3곳의 정보를 제공합니다.<br>
-추천된 지역구의 편의성 점수와 안전성 점수를 비교하여 제공합니다.<br>
-Kakao Map API를 활용해 추천 지역구 3곳을 인구 밀집도 단계에 따른 색상으로 표시합니다.<br>
+- 사용자가 입력한 전세/월세 유형, 보증금/월세 값, 안전성 비중, 편의성 비중을 기반으로 추천 지역구 3곳의 정보를 제공합니다.<br>
+- 추천된 지역구의 편의성 점수와 안전성 점수를 비교하여 제공합니다.<br>
+- Kakao Map API를 활용해 추천 지역구 3곳을 인구 밀집도 단계에 따른 색상으로 표시합니다.<br>
 <p align="left"><img src="https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37" alt="Recommand Page" /></p>
 
 ### **[상세지도]**  
