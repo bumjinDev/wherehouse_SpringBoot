@@ -136,36 +136,42 @@ WhereHouse
 ---
 # 개발 환경  
 
-| #                       | **LANGUAGE**           |
-|-------------------------|------------------------|
-| ![JAVA](https://img.shields.io/badge/Java-007396?style=flat-square&logo=java&logoColor=white) | Java               |
-| ![JAVASCRIPT](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) | JavaScript        |
+## LANGUAGE  
+<p align="left">
+    <img src="https://img.shields.io/badge/Java-007396?style=flat-square&logo=java&logoColor=white" alt="Java"/>
+    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript"/>
+</p>
 
-| #                       | **FRAMEWORK**          |
-|-------------------------|------------------------|
-| ![SPRINGBOOT](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white) | Spring Boot        |
+## FRAMEWORK  
+<p align="left">
+    <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white" alt="Spring Boot"/>
+</p>
 
-| #                       | **DATABASE**           |
-|-------------------------|------------------------|
-| ![ORACLE](https://img.shields.io/badge/Oracle-F80000?style=flat-square&logo=oracle&logoColor=white) | Oracle             |
-| ![JPA](https://img.shields.io/badge/JPA-6DB33F?style=flat-square&logoColor=white) | JPA                |
+## DATABASE  
+<p align="left">
+    <img src="https://img.shields.io/badge/Oracle-F80000?style=flat-square&logo=oracle&logoColor=white" alt="Oracle"/>
+    <img src="https://img.shields.io/badge/JPA-6DB33F?style=flat-square&logoColor=white" alt="JPA"/>
+</p>
 
-| #                       | **SECURITY**           |
-|-------------------------|------------------------|
-| ![SPRINGSECURITY](https://img.shields.io/badge/Spring%20Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white) | Spring Security    |
-| ![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white) | JWT                |
+## SECURITY  
+<p align="left">
+    <img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white" alt="Spring Security"/>
+    <img src="https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT"/>
+</p>
 
-| #                       | **CONTAINER**          |
-|-------------------------|------------------------|
-| ![DOCKER](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) | Docker             |
+## CONTAINER  
+<p align="left">
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"/>
+</p>
 
-| #                       | **DEPLOYMENT**         |
-|-------------------------|------------------------|
-| ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | AWS                |
-| ![JENKINS](https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white) | Jenkins            |
+## DEPLOYMENT  
+<p align="left">
+    <img src="https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white" alt="AWS"/>
+    <img src="https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white" alt="Jenkins"/>
+</p>
+<br><br>
 
-<br>
-
+---
 ## 작업 관리
 	- GitHub를 사용해서 진행 상황을 공유하였습니다.
 	- 회의를 진행하며 작업 내용 및 방향성에 대한 고민을 나누고 실제 작업 계획서를 작성하여 공유하였습니다.
