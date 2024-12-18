@@ -3,7 +3,7 @@
 
 ---
 
-![2](https://github.com/user-attachments/assets/84dc3382-ae6f-4856-a8f0-2a21242319d3)
+![2]([https://github.com/user-attachments/assets/84dc3382-ae6f-4856-a8f0-2a21242319d3](https://github.com/user-attachments/assets/08b983ad-854b-4f39-8a6f-e514a9014ebf))
 
 + 배포 URL : https://wherehouse.servehttp.com/wherehouse/
 
