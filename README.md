@@ -169,3 +169,4 @@ WhereHouse
 3. Redis를 활용한 세션 관리 구현
 4. AOP 적용하여 로그 기능 개발
 5. SQL Injection 방지 적용: 안전한 데이터 처리를 위해 입력 값 검증.
+6. React 적용
