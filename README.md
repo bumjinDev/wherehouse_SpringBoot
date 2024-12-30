@@ -169,17 +169,22 @@ WhereHouse
 - REST API 설계를 통해 클라이언트-서버 간 효율적 데이터 요청/응답 구조 구축.
 <br>
 2. 테스트 코드 작성 및 CI/CD 환경 구축
+  
 - JUnit을 활용해 테스트 코드를 작성하고, Jenkins를 통한 지속적 통합(CI) 및 배포 자동화 환경 구성.
 <br>
 3. AOP 기반 로그 기능 개발
+  
 - Spring AOP로 공통 기능(로깅, 트랜잭션 관리 등)을 모듈화하여 코드 중복 제거 및 유지보수성 강화.
 <br>
 4. React 기반 프론트엔드 적용
+  
 - React를 활용해 SPA(Single Page Application) 구현 및 REST API와의 효율적 연동으로 사용자 경험 개선.
 <br>
 5. 코드 리팩토링
+  
 - SOLID 원칙과 디자인 패턴을 적용하여 코드의 가독성과 유지보수성을 높임.
 <br>
 6. SQL Injection 방지 및 보안 강화
+  
 - PreparedStatement와 입력 값 검증을 적용하여 데이터베이스 보안 강화.
 
