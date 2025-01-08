@@ -7,6 +7,6 @@ public class MyTest {
 
 	@Test
 	void addition() {
-		assertEquals(2, 1 + 1); // 이 테스트는 성공합니다.
+		assertEquals(3, 2 + 1); // 이 테스트는 성공합니다.
 	}
 }
