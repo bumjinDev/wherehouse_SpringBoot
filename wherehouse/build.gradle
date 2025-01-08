@@ -82,6 +82,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'		// jdbcTemplate 구현하기 위한 jdbc 의존성 추가
 	implementation 'com.oracle.database.jdbc:ojdbc8:19.8.0.0'				// jdbc의 ojdbc 추가
 
+	/* 테스트 코드 작성을 위한 Junit 의존성 추가 */
+	 testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'	// 테스트 작성용 api(@Test 등등) 과 테스트 엔진을 별도로 의존성 추가 안하고 하나로 추가.
+
 	/* jsp 의존성 추가 */
 	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
 	implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0'		// jsp 내 jstl 태그 인식할 수 있도록 하는 의존성 추가
@@ -95,13 +98,20 @@ dependencies {
 	
 	// 외장 톰켓 애플리케이션 실행에 필요한 의존성
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-	providedRuntime 'javax.servlet:javax.servlet-api:4.0.1'	// jsp 필dy
+	providedRuntime 'javax.servlet:javax.servlet-api:4.0.1'	// jsp 필수
+	
+
 	
 }
 
+tasks.test {
+    useJUnitPlatform() // JUnit5 플랫폼 사용 설정
+}
+/*
 tasks.named('test') {
 	useJUnitPlatform()
 }
+*/
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-parameters'
