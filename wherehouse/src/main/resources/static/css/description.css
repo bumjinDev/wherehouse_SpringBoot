@@ -1,0 +1,99 @@
+@font-face {
+    font-family: 'TheJamsil5Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil5Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+section {
+    font-family: 'TheJamsil5Bold';
+}
+
+.first_background {
+    height: 100vh;
+}
+
+.bg_control {
+    transition: 4s;
+}
+
+
+/* 사이드 바 */
+#sidenav {
+    opacity: 0;
+    color: white;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    line-height: 10%;
+}
+
+
+/* 바로가기 카테고리 */
+#menu_text {
+    text-align: center;
+}
+
+.card-body {
+    text-align: center;
+}
+
+.card-title a {
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.card-title a:hover {
+    color: rgba(0, 0, 0);
+}
+
+
+/* 첫 텍스트 */
+#first_text {
+    height: 100vh;
+    font-size: 7rem;
+    opacity: 0;
+    transition: 1.5s;
+    color: white;
+}
+
+.title {
+    color: black;
+}
+
+
+/* 섹션별 사진 */
+.img_section {
+    height: 50vh;
+}
+
+.img_section img {
+    width: 80%;
+    opacity: 0;
+    transition: all 3s;
+}
+
+.img_section p {
+    font-size: 4rem;
+}
+
+.img_text {
+    opacity: 0;
+    transition: all 5s;
+    color: black;
+    font-size: 2rem;
+}
+
+/* 설명 텍스트 */
+.descript_text {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 1.5rem;
+    text-align: right;
+}
+
+.first_background .descript_text {
+    text-align: end;
+}
+
+#formula {
+    font-size: 1.2rem;
+}
