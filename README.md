@@ -1,37 +1,73 @@
-<img src="https://github.com/user-attachments/assets/f521acdb-4507-4aee-8abd-ac88f80318bb" width="100" height="100"/>| <h1>거주지 추천 서비스 README</h1>|
----| ---|
+<p align="center" style="display: flex; align-items: center; gap: 10px;">
+   <img src="https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8" alt="Logo" width="120" height="120"/>
+   <span style="font-size: 2.0rem; font-weight: bold;">서울시 1인 세대 위한 거주지 추천 서비스</span>
+</p>
 
 ---
 
-![2](https://github.com/user-attachments/assets/84dc3382-ae6f-4856-a8f0-2a21242319d3)
+## 🚀 프로젝트 소개  
 
-+ 배포 URL : http://43.202.178.156:8181/wherehouse/
+서울시 1인 MZ 세대의 1인 가구 비율 증가 추세에 따른 거주지 추천 서비스입니다.  
+**WHERE HOUSE**는 사용자가 설정한 **안전성 비중**, **편의성 비중**, **전세 및 월세 금액** 정보를 바탕으로 주거지 추천 정보를 제공합니다.  
 
-<br><br>
-
-## 프로젝트 소개
 ---
-서울시 1인 MZ 세대의 1인 가구 비율 증가에 따른 거주지 추천 서비스입니다.
-+ 거주지 추천은 사용자 선택에 따라 각 구별 안전성 비중, 편의성 비중, 그리고 전세 및 월세 금액 기준으로 주거지 추천 지역구 3곳을 선정하여 제공합니다.
-+ 지역구 지도에서는 서울시 내 각 구를 선택하여 해당 구의 전세 또는 월세 정보를 제공하며, 핫플레이스 정보도 함께 제공합니다.
-+ 상세 지도 페이지에서는 클릭 이벤트 발생 지점 기준 반경 500m 내의 CCTV 위치를 마커로 표시하고, 가장 가까운 파출소 거리 및 편의 시설 정보를 선택적으로 확인할 수 있습니다.
-+ 게시판 기능은 회원들 간 정보 공유를 위해 작성되었습니다.
 
-<br><br>
+## 🛠 Project Architecture  
 
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/08b983ad-854b-4f39-8a6f-e514a9014ebf" alt="Architecture" width="800"/>
+</p>
 
+- **배포 URL**: [https://wherehouse.servehttp.com/wherehouse/](https://wherehouse.servehttp.com/wherehouse/)
 
-## 팀원 구성
+---
+
+## 👥 역할 분담  
+
+### **1차 프로젝트: UI 개발**  
+- **[한준원]**  
+   - 전체 UI 설계 및 제작  
+   - 거주지 추천 페이지 및 지역구 정보 페이지 개발  
+- **[이재서]**  
+   - 행정동별 정보 페이지 개발  
+- **[정범진]**  
+   - Kakao Map API를 활용한 반경 500m 내 CCTV 마커 표시  
+
+### **2차 프로젝트: Servlet 기반 개발**  
+- **[한준원]**  
+   - 주거지 추천 서비스 개발  
+- **[이재서]**  
+   - 기존 상세지도 서비스를 Servlet으로 변환  
+- **[정범진]**  
+   - 게시판 및 로그인/회원 가입 기능 개발  
+
+### **3차 프로젝트: Spring Boot로 전환**  
+- **[정범진]**  
+   - Servlet 기반 주거지 추천 서비스, 회원 관리 및 게시판을 Spring Boot로 전환  
+- **[이재서]**  
+   - Servlet 기반 상세지도 서비스를 Spring Boot로 전환  
+
+### **추가 개선 작업**  
+- **[정범진]**  
+   - Spring Security 도입: JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키 적용  
+   - HTTPS 적용: JWT 토큰 탈취 방지  
+   - 데이터 접근 방식 전환: JdbcTemplate → JPA  
+   - 데이터베이스 개선: Oracle Database를 Docker 기반으로 전환  
+   - CI/CD 구축: Jenkins를 활용한 지속적 통합 및 배포 환경 구축  
+
+---
+
+## 🧑‍💻 팀원 구성  
 
 | 정범진 | 이재서 |
-| --- | --- |
-| <img src="https://github.com/user-attachments/assets/946612ee-7f7f-41ce-8d8c-85b578f18d2d" width="100" height="100" alt="jung"/> | <img src="https://github.com/user-attachments/assets/8b4a2dd0-166a-4e04-93eb-38482a2828fe" width="100" height="100" alt="lee"/> |
+|--------|--------|
+| <img src="https://github.com/user-attachments/assets/4f66f287-8799-49fb-88f4-b67582db7b39" alt="Jung" width="100" height="100"/> | <img src="https://github.com/user-attachments/assets/7be184e0-f8f4-4548-8fa6-f084c69f4f0b" alt="Lee" width="100" height="100"/> |
 | [@bumjinDev](https://github.com/bumjinDev/wherehouse) | [@N0WST4NDUP](https://github.com/N0WST4NDUP) |
 
-<br><br>
-
-## 프로젝트 구조
 ---
+
+## 🗂 프로젝트 구조  
+
 <pre>
 WhereHouse
    └─ src
@@ -58,50 +94,45 @@ WhereHouse
 	      ├─ model
 	      └─ service
 </pre>
-<br><br>
 
-## 개발 기간 및 작업 관리
 ---
-### 개발 기간
-	2023.11.13~2024.03.08
-<br>
 
-### 작업 관리
-	- GitHub를 사용해서 진행 상황을 공유하였습니다.
-	- 회의를 진행하며 작업 내용 및 방향성에 대한 고민을 나누고 실제 작업 계획서를 작성하여 공유하였습니다.
-<br>
+## 🛠 개발 환경  
 
-## 페이지별 기능
+<p align="left">
+    <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white" alt="Java"/>
+    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript"/>
+    <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot"/>
+    <img src="https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle"/>
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
+    <img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins"/>
+    <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white" alt="AWS"/>
+    <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT"/>
+</p>
+
 ---
-### [초기화면]
-	- 서비스에 접속하면 가장 먼저 보이는 초기 화면입니다. 이 화면에서는 각 서비스 페이지로의 접근과 로그인/회원가입 페이지로의 이동이 가능합니다.
- 	- 로그인된 경우, 페이지 내에 로그인 세션 정보(사용자 닉네임 등)가 포함된 페이지가 제공됩니다.
-  
-  <img src="https://github.com/user-attachments/assets/255d06a4-7c9b-463b-a053-f3cd8354eecf" />
 
-### [거주지 추천]
-	- 사용자가 안전성과 편의성 비중을 선택하고 전세 및 월세 금액을 설정하면, 서울시 내에서 추천할 지역구 3곳을 추천합니다.
-  <img src="https://github.com/user-attachments/assets/6de5e888-cd4c-4145-a128-ae27b3a21203" />
- 	
-### [상세지도]
-	- 사용자가 지도 위에 핀포인트를 지정하면, 반경 500m 내의 CCTV 위치를 마커로 표시하고, 가장 가까운 파출소 거리 및 편의시설 정보를 제공합니다.
-  <img src="https://github.com/user-attachments/assets/9af6ac87-f5a7-4ec1-8c37-1033e7797be2" />
-  	
-### [게시판]
-	- 사용자 간의 원활한 정보 공유를 위해 마련된 공간입니다.
- 	- 로그인 하지 않았을 시 게시판 글 작성이 불가능 합니다.
-  <img src="https://github.com/user-attachments/assets/bb22056b-d08c-42b6-8872-f381ecc18cfc" />
-  
-### [회원 가입]
-	- 회원가입 기능으로 로그인 시 게시판 이용이 가능합니다.
- 	- 유효성 검사 로직을 통해 필수 정보를 누락하거나 비밀번호 확인이 올바르지 않은 경우 회원가입이 진행되지 않습니다.
- <img src="https://github.com/user-attachments/assets/a0320fc9-9d55-413b-8c05-174e7a69f0bc" />
+## 📋 작업 관리  
 
-### [로그인]
-	- 로그인이 완료되면 세션 정보를 포함한 페이지로 리디렉션됩니다.
- <img src="https://github.com/user-attachments/assets/38030b0e-45b3-49ba-b6fa-095464379e9c" />
- 
- ### [회원 수정]
-	- 회원 정보 수정 기능 입니다.
- 	- 회원 수정 시 기존 아이디는 고유 값으로 수정할 수 없습니다. 그러나 비밀번호, 닉네임, 전화번호, 이메일 정보는 수정 가능합니다.
- <img src="https://github.com/user-attachments/assets/4edf769a-f30f-469e-b315-a54b813d6f7a" />
+- GitHub를 사용해서 진행 상황을 공유하였습니다.  
+- 회의를 통해 작업 내용 및 방향성을 논의하고, 계획서를 작성해 공유하였습니다.  
+
+---
+
+## 📄 페이지별 기능  
+
+### **[메인 페이지]**  
+서비스 초기 화면으로 각 페이지 접근 및 로그인/회원가입 기능을 제공합니다.  
+<p align="left"><img src="https://github.com/user-attachments/assets/8e2c3413-97a5-4380-884b-32c4bce70275" alt="Main Page" /></p>
+
+### **[거주지 추천]**  
+사용자 설정 기반으로 추천 지역구 3곳을 제공합니다.  
+<p align="left"><img src="https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37" alt="Recommand Page" /></p>
+
+### **[상세지도]**  
+반경 500m 내 CCTV 및 주요 시설 정보를 제공합니다.  
+<p align="left"><img src="https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376" alt="Detail Map Page" /></p>
+
+---
+
+위 내용은 전체적으로 더 **시각적**이고 **고급스럽게** 보이도록 개선되었습니다. 필요에 따라 미세 조정이 가능합니다. 의견 주세요! 😊
