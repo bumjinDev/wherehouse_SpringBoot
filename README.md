@@ -131,18 +131,41 @@ WhereHouse
 
 ---
 
-## 📄 페이지별 기능  
+## 📄 페이지별 기능
 
 ### **[메인 페이지]**  
-서비스 초기 화면으로 각 페이지 접근 및 로그인/회원가입 기능을 제공합니다.  
-<p align="left"><img src="https://github.com/user-attachments/assets/8e2c3413-97a5-4380-884b-32c4bce70275" alt="Main Page" /></p>
+- **기능**: 서비스의 첫 화면으로, 사용자 로그인/회원가입 기능 및 주요 페이지로의 이동 경로를 제공합니다.  
+- **주요 구성 요소**:  
+  - 상단 네비게이션 바: 사용자가 로그인, 회원가입, 주요 서비스 접근.  
+  - 사용자 친화적 UI 설계로 편리한 초기 서비스 접근 제공.  
+
+<p align="left">
+    <img src="https://github.com/user-attachments/assets/8e2c3413-97a5-4380-884b-32c4bce70275" alt="Main Page"/>
+</p>
+
+---
 
 ### **[거주지 추천]**  
-사용자 설정 기반으로 추천 지역구 3곳을 제공합니다.  
-<p align="left"><img src="https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37" alt="Recommand Page" /></p>
+- **기능**: 사용자가 입력한 기준(안전성, 편의성, 가격대)을 기반으로 서울시 내 추천 거주지 3곳을 제공합니다.  
+- **주요 구성 요소**:  
+  - 안전성 및 편의성: 사용자 우선 비중 설정.  
+  - 가격대 필터: 전세 및 월세 조건 필터링.  
+  - 추천 결과: 상위 3개의 추천 지역구 및 주요 정보 표시.  
+
+<p align="left">
+    <img src="https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37" alt="Recommand Page"/>
+</p>
+
+---
 
 ### **[상세지도]**  
-반경 500m 내 CCTV 및 주요 시설 정보를 제공합니다.  
-<p align="left"><img src="https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376" alt="Detail Map Page" /></p>
+- **기능**: 사용자가 선택한 지역구의 상세 정보를 제공하며, 반경 500m 내 CCTV와 주요 시설 정보를 시각적으로 표시합니다.  
+- **주요 구성 요소**:  
+  - CCTV 위치 표시: 선택 지역 기준 반경 500m 내 CCTV 마커 표시.  
+  - 주요 시설 정보: 편의점, 약국, 병원 등 주요 시설의 위치 제공.  
+  - Kakao Map API 활용: 지도 기반의 직관적 정보 표시.  
 
+<p align="left">
+    <img src="https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376" alt="Detail Map Page"/>
+</p>
 
