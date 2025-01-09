@@ -145,6 +145,4 @@ WhereHouse
 반경 500m 내 CCTV 및 주요 시설 정보를 제공합니다.  
 <p align="left"><img src="https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376" alt="Detail Map Page" /></p>
 
----
 
-위 내용은 전체적으로 더 **시각적**이고 **고급스럽게** 보이도록 개선되었습니다. 필요에 따라 미세 조정이 가능합니다. 의견 주세요! 😊
