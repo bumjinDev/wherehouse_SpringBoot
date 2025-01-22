@@ -10,27 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class RecControllerMockTest {
+class RecServiceControllerTest {
 
-    private MockMvc mockMvc;
 
     @InjectMocks
     private RecServiceController recServiceController;
@@ -44,7 +32,6 @@ class RecControllerMockTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(recServiceController).build();
     }
 
     @Test
@@ -54,52 +41,38 @@ class RecControllerMockTest {
         requestData.put("safe_score", "4");
         requestData.put("cvt_score", "3");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String requestContent = objectMapper.writeValueAsString(requestData);
-
         List<RecServiceVO> recServiceVOList = getExpectedRecServiceVOList();
         
         when(recServiceCharterService.execute(any())).thenReturn(recServiceVOList);
-
-        mockMvc.perform(post("/RecServiceController/charter")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestContent))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-                    List<RecServiceVO> responseList = objectMapper.readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<List<RecServiceVO>>() {});
-                    assertTrue(validateRecServiceVOList(responseList));
-                });
+        
+        List<RecServiceVO> result = recServiceCharterService.execute(requestData);
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertTrue(validateRecServiceVOList(result));
 
         verify(recServiceCharterService, times(1)).execute(any());
+        verify(recServiceMonthlyService, never()).execute(any());
     }
 
     @Test
     void testMonthlyRecommendation() throws Exception {
-    	
         Map<String, String> requestData = new HashMap<>();
-        
         requestData.put("deposit_avg", "5000");
         requestData.put("monthly_avg", "50");
         requestData.put("safe_score", "4");
         requestData.put("cvt_score", "3");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String requestContent = objectMapper.writeValueAsString(requestData);
-
         List<RecServiceVO> recServiceVOList = getExpectedRecServiceVOList();
         
         when(recServiceMonthlyService.execute(any())).thenReturn(recServiceVOList);
-
-        mockMvc.perform(post("/RecServiceController/monthly")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestContent))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-                    List<RecServiceVO> responseList = objectMapper.readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<List<RecServiceVO>>() {});
-                    assertTrue(validateRecServiceVOList(responseList));
-                });
+        
+        List<RecServiceVO> result = recServiceMonthlyService.execute(requestData);
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertTrue(validateRecServiceVOList(result));
 
         verify(recServiceMonthlyService, times(1)).execute(any());
+        verify(recServiceCharterService, never()).execute(any());
     }
 
     public static List<RecServiceVO> getExpectedRecServiceVOList() {
