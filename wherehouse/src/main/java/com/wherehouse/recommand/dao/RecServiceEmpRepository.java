@@ -20,6 +20,11 @@ public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 	@Override
 	public List<RecServiceVO> chooseCharterRec(int inputData, int safe, int cvt) {							/* 전세 요청 담당 */
 		
+		System.out.println("RecServiceEmpRepository.chooseCharterRec()!");
+		System.out.println(inputData);
+		System.out.println(safe);
+		System.out.println(cvt);
+		
 		List<RecServiceVO> recServiceResult;
 		
 		String query = "";
@@ -59,6 +64,12 @@ public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 
 	@Override
 	public List<RecServiceVO> chooseMonthlyRec(int deposit, int monthly, int safe, int cvt) {			/* 월세 요청 담당 */		
+		
+		System.out.println("RecServiceEmpRepository.chooseMonthlyRec()!");
+		System.out.println(deposit);
+		System.out.println(monthly);
+		System.out.println(safe);
+		System.out.println(cvt);
 		
 		List<RecServiceVO> RecServiceResult;
 		String query = "";

@@ -4,12 +4,16 @@ import static org.mockito.Mockito.*;
 
 import com.wherehouse.recommand.controller.RecServiceController;
 import com.wherehouse.recommand.model.RecServiceVO;
-import com.wherehouse.recommand.service.IRecService;
+import com.wherehouse.recommand.service.RecServiceCharterService;
+import com.wherehouse.recommand.service.RecServiceMonthlyService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -28,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class RecControllerMockTest {
 
     private MockMvc mockMvc;
@@ -36,10 +41,10 @@ class RecControllerMockTest {
     private RecServiceController recServiceController;
 
     @Mock
-    private IRecService recServiceCharterService;
+    private RecServiceCharterService recServiceCharterService;
     
     @Mock
-    private IRecService recServiceMonthlyService;
+    private RecServiceMonthlyService recServiceMonthlyService;
 
     @BeforeEach
     void setUp() {

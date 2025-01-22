@@ -19,10 +19,10 @@ public class RecServiceCharterService implements IRecService{
 	
 	@Override
 	public List<RecServiceVO> execute(Map <String, String> requestAjax) {
+		System.out.println("RecServiceCharterService.execute()!");
 		
 		/* 입력받은 데이터를 각 변수안에 삽입. */
 		List<RecServiceVO> RecServiceResult = recServiceEmpRepository.chooseCharterRec(Integer.parseInt(requestAjax.get("charter_avg")), Integer.parseInt(requestAjax.get("safe_score")),  Integer.parseInt(requestAjax.get("cvt_score"))); 	/* jdbcTemplate */
-		System.out.println("RecServiceCharter in RecServiceResult.size : " + RecServiceResult.size());
 		
 		return RecServiceResult;
 	}

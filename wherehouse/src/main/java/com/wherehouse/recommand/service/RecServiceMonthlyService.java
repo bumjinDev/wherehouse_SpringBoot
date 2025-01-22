@@ -14,12 +14,13 @@ import com.wherehouse.recommand.model.RecServiceVO;
 public class RecServiceMonthlyService implements IRecService{
 
 	@Autowired
-	IRecServiceEmpRepository RecServiceEmpRepository;
+	IRecServiceEmpRepository recServiceEmpRepository;
 	
 	@Override
 	public List<RecServiceVO> execute(Map<String, String> requestAjax) {
 		
-		List<RecServiceVO> RecServiceResult = RecServiceEmpRepository.chooseMonthlyRec(Integer.parseInt(requestAjax.get("deposit_avg")), Integer.parseInt(requestAjax.get("monthly_avg")),  Integer.parseInt(requestAjax.get("safe_score")), Integer.parseInt(requestAjax.get("cvt_score")));
+		List<RecServiceVO> RecServiceResult = recServiceEmpRepository.chooseMonthlyRec(Integer.parseInt(requestAjax.get("deposit_avg")), Integer.parseInt(requestAjax.get("monthly_avg")),  Integer.parseInt(requestAjax.get("safe_score")), Integer.parseInt(requestAjax.get("cvt_score")));
+		
 		return RecServiceResult;
 	}
 }
