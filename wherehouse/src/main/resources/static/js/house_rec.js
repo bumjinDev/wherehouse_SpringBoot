@@ -536,9 +536,9 @@ function showResult() {
         contentType: 'application/json',	/* JSON 데이터 전송 */
         data : JSON.stringify({
             deposit_avg: deposit_avg,			// 월세 보증금
-            monthly_avg: monthly_avg,		// 월세금
+            monthly_avg: monthly_avg,			// 월세금
             safe_score: safe_score,				// 안전 점수 비중치
-            cvt_score: cvt_score					// 편의 점수 비중치
+            cvt_score: cvt_score				// 편의 점수 비중치
         }),
         success: function (data) {
             displayMonthly(data);		 /* 사용자가 입력한 금액 등의 기준으로 3개 구를 알려주는 HTML 태그 내 표현할 데이터들 */

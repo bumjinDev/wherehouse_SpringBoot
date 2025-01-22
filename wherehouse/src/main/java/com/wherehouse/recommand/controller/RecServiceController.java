@@ -41,7 +41,8 @@ public class RecServiceController {
 		if(requestAjax.get("charter_avg").equals("")) {
 			return null;
 		} else {
-			List<RecServiceVO> RecServiceResult = recServiceCharterService.execute(requestAjax);			/* ServiceBean으로 분기하여 작업 */
+			
+			List<RecServiceVO> RecServiceResult = recServiceCharterService.execute(requestAjax);			/* ServiceBean으로 분기하여 `작업 */
 			return RecServiceResult;
 		}
 	}

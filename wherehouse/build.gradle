@@ -107,6 +107,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform() // JUnit5 플랫폼 사용 설정
 }
+
 /*
 tasks.named('test') {
 	useJUnitPlatform()
