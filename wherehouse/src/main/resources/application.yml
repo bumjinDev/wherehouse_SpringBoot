@@ -1,9 +1,20 @@
 spring:
   application:
     name: wherehouse
- # config:
- #   activate:
- #     on-profile: default
+
+  data:
+    redis:
+      host: 43.202.178.156
+      port: 6379
+#      username: root
+#      password: afUxjkhqIJf6aCnGB8K2I99x4gvKuxXG2ZAIFWUpT61IIUD1qyr3Bi6wzvzWwcWYj/EFikwt/qq/jpn0
+      timeout: 6000  # 연결 타임아웃 (ms)
+      lettuce:
+        pool:
+          max-active: 10   # 최대 연결 수
+          max-idle: 5      # 유휴 커넥션 수
+          min-idle: 2      # 최소 유휴 커넥션 수
+          time-between-eviction-runs: 10s  # 커넥션 풀 점검 간격
 
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver

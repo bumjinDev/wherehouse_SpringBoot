@@ -96,6 +96,9 @@ dependencies {
 	/* 서버 재 부팅 없이도 저장만으로 자동 재 실행 */
 	//developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	
+	/* redis 의존성 추가 */
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	
 	// 외장 톰켓 애플리케이션 실행에 필요한 의존성
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	providedRuntime 'javax.servlet:javax.servlet-api:4.0.1'	// jsp 필수
