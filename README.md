@@ -54,7 +54,7 @@
 
 - **[정범진]**
   - **Spring Security 도입**
-    - JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키 적용
+    - JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키와 Redis를 활용하여 보안 강화
     - X-CONTENT 정책 응답 헤더에 따른 기존 UI 개선 작업 수행
     - CSP 정책 설정
   - **HTTPS 적용**
