@@ -5,8 +5,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.wherehouse.rest.redius.dao.IMapDataRepository;
+
 import com.wherehouse.rest.redius.model.MapDataENtity;
+import com.wherehouse.restapi.dao.IMapDataRepository;
 
 @Service
 public class MapService implements IMapService {

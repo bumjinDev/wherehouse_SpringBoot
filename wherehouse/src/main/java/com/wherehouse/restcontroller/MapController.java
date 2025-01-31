@@ -1,4 +1,4 @@
-package com.wherehouse.rest.redius.controller;
+package com.wherehouse.restcontroller;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.wherehouse.rest.redius.dao;
+package com.wherehouse.restapi.dao;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

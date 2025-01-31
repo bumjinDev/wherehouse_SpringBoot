@@ -28,28 +28,27 @@ public class PageResponseController  {
 	 * 	"JWTAuthenticationFilter" 에서 다른 요청과 마찬가지로 HTTPRequest 내 설정한 것으로
 	 * 	Model 객체 삽입.*/
 	 @GetMapping("/")
-	    public String pageIndex(Model model, HttpServletRequest httpRequest) {
-		 
-	        System.out.println("pageIndex()!");
+    public String pageIndex(Model model, HttpServletRequest httpRequest) {
+	 
+        System.out.println("pageIndex()!");
 
-	        // 쿠키에서 Authorization 값 추출
-	        Cookie[] cookies = httpRequest.getCookies();
-	        String Authorization = null;
+        // 쿠키에서 Authorization 값 추출
+        Cookie[] cookies = httpRequest.getCookies();
+        String Authorization = null;
 
-	        if (cookies != null) {
-	            for (Cookie cookie : cookies) {
-	                if ("Authorization".equals(cookie.getName())) { // 쿠키 이름이 "Authorization"인지 확인
-	                	Authorization = cookie.getValue(); // 쿠키 값 가져오기
-	                    break;
-	                }
-	            }
-	        }
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("Authorization".equals(cookie.getName())) { // 쿠키 이름이 "Authorization"인지 확인
+                	Authorization = cookie.getValue(); // 쿠키 값 가져오기
+                    break;
+                }
+            }
+        }
 
-	        model.addAttribute("Authorization", Authorization);
+        model.addAttribute("Authorization", Authorization);
 
-	        return "recommand/index"; // JSP 또는 템플릿 엔진 경로 반환
-	    }
-	
+        return "recommand/index"; // JSP 또는 템플릿 엔진 경로 반환
+    }
 	
 	/* main.jsp 페이지 제공 */
 	@GetMapping("/main")
