@@ -3,7 +3,6 @@ package com.wherehouse.JWT.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -20,7 +19,7 @@ import com.wherehouse.JWT.Filter.RequestAuthenticationFilter;
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.JWT.Provider.UserAuthenticationProvider;
-import com.wherehouse.JWT.Repository.JwtTokenRepository;
+import com.wherehouse.redis.handler.RedisHandler;
 
 
 @Configuration
@@ -33,10 +32,9 @@ public class SecurityConfig {
     @Autowired
     CookieLogoutHandler cookieLogoutHandler;
     
-    @Autowired
-    private JwtTokenRepository jwtTokenRepository;
 
-   
+   @Autowired
+   RedisHandler redisHandler;
 
     @Bean
     public UserAuthenticationProvider userAuthenticationProvider() {
@@ -78,12 +76,49 @@ public class SecurityConfig {
         http.securityMatcher("/login")
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-            .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration, userAuthenticationProvider()), loadJwtUtil(), jwtTokenRepository, cookieUtil()),
+            .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration, userAuthenticationProvider()), redisHandler, loadJwtUtil(), cookieUtil()),
                          UsernamePasswordAuthenticationFilter.class)
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
+    
+    /* 로그인 성공 페이지 요청 : 'apiFilterChain' 와 기능이 거의 동일하나 단순 로그인 관련 처리는 각 jsp 에서 담당하므로 별도의 필터 클래스로 작성 */
+    @Bean
+    public DefaultSecurityFilterChain loginSuccessFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/loginSuccess")
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().hasAuthority("ROLE_USER")
+            )
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
+            /* 현재 요청들에 대해서는 로그인 폼이 아닌, 단순 JWT 전처리 및 시그니처 검증만 수행 하므로 대신 필터 체인 적용.  */
+            .addFilterAt(new JWTAuthenticationFilter(cookieUtil(), jwtComponent()),
+                         UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+    
+    /* Logout 요청 : 'HttpSecurity.logout' 를 설정해서 "LogoutFilter"가 별도의 필터 체인으로써 등록되어 실행된다. 그렇기 때문에
+     * 별도로 설정을 한다. */
+    @Bean
+    public DefaultSecurityFilterChain LogOutFilterChain(HttpSecurity http, CookieLogoutHandler cookieLogoutHandler) throws Exception {
+        http.securityMatcher("/logout")
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .logout(logout -> logout
+                    // 로그아웃 요청을 처리할 URL 설정
+                    .logoutUrl("/logout")
+                    // 로그아웃 성공 시 리다이렉트할 URL 설정
+                    .addLogoutHandler(cookieLogoutHandler)
+                    .logoutSuccessUrl("/")
+                    // 로그아웃 성공 핸들러 추가 (리다이렉션 처리)
+            );
+        return http.build();
+    }
+    
+    /* ===== 여기서 부터는 로그인 / 로그 아웃 이 아닌 실제 서비스 이용 시 권한이 필요한 요청 경로에 대한 필터링 설정 ===== */
     
     /* 단순 게시판 띄우는 것들은 별도의 필터를 적용 받을 필요 없으므로 별도의 요청으로 빼 놓는 다. */
     @Bean
@@ -139,43 +174,5 @@ public class SecurityConfig {
               .frameOptions(frameOptions -> frameOptions.sameOrigin()) // SAMEORIGIN으로 설정
         		);
         return http.build();
-    }
-    
-    
-    /* 로그인 성공 페이지 요청 : 'apiFilterChain' 와 기능이 거의 동일하나 단순 로그인 관련 처리는 각 jsp 에서 담당하므로 별도의 필터 클래스로 작성 */
-    @Bean
-    public DefaultSecurityFilterChain loginSuccessFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/loginSuccess")
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().hasAuthority("ROLE_USER")
-            )
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            /* 현재 요청들에 대해서는 로그인 폼이 아닌, 단순 JWT 전처리 및 시그니처 검증만 수행 하므로 대신 필터 체인 적용.  */
-            .addFilterAt(new JWTAuthenticationFilter(cookieUtil(), jwtComponent()),
-                         UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
-    
-    /* Logout 요청 : 'HttpSecurity.logout' 를 설정해서 "LogoutFilter"가 별도의 필터 체인으로써 등록되어 실행된다. 그렇기 때문에
-     * 별도로 설정을 한다. */
-    @Bean
-    public DefaultSecurityFilterChain LogOutFilterChain(HttpSecurity http, CookieLogoutHandler cookieLogoutHandler) throws Exception {
-        http.securityMatcher("/logout")
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .logout(logout -> logout
-                    // 로그아웃 요청을 처리할 URL 설정
-                    .logoutUrl("/logout")
-                    // 로그아웃 성공 시 리다이렉트할 URL 설정
-                    .logoutSuccessUrl("/")
-                    .addLogoutHandler(cookieLogoutHandler)
-                    // 로그아웃 성공 핸들러 추가 (리다이렉션 처리)
-                    //.deleteCookies("Authorization")	// ..
-            );
-        return http.build();
-    }
-    
+    }    
 }

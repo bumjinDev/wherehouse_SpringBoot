@@ -10,8 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
-import com.wherehouse.JWT.Repository.JwtTokenRepository;
-import com.wherehouse.JWT.UserDTO.JwtTokenEntity;
+import com.wherehouse.redis.handler.RedisHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -45,16 +44,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
 	JWTUtil jwtUtil;
 	CookieUtil cookieUtil;
 	
-	JwtTokenRepository jwtTokenRepository;
+	RedisHandler redisHandler;
+	
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	
-	public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, JwtTokenRepository jwtAccessTokenEntity, CookieUtil cookieUtil) {
+	public LoginFilter(AuthenticationManager authenticationManager, RedisHandler redisHandler, JWTUtil jwtUtil, CookieUtil cookieUtil) {
 		
 		this.authenticationManager = authenticationManager;
+		this.redisHandler = redisHandler;
 		this.jwtUtil = jwtUtil;
-		this.jwtTokenRepository = jwtAccessTokenEntity;
 		this.cookieUtil = cookieUtil;
 	}
 	
@@ -63,14 +63,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
 		
 		System.out.println("LoginFilter.attemptAuthentication()");
 		
-		String password = obtainPassword(request);
-		
 		return authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken (
 						request.getParameter("userid"),    	// 사용자 아이디 : private final Object principal;
-						password    	// 비밀번호(자격 증명): private Object credentials;
+						obtainPassword(request)    	// 비밀번호(자격 증명): private Object credentials;
 						/* null */));
-
 	}
 	
 	/* 인증 성공 시 스프링 시큐리티에 의해 자동으로 호출되는 메소드
@@ -121,15 +118,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
 		    roles.add(authority.getAuthority()); // 권한 이름을 roles 리스트에 추가
 		}
 		
+		/* 랜덤 값으로 sha256 키 값을 만들고, 이 키 값과 "Authentication" 내 가져온 권한 목록들을 roles 값으로써 jwt 토큰을 생성 */
 		Key key = jwtUtil.getSigningKey();
 		String jwtToken = jwtUtil.generateToken(username, userId, roles, key);
 		
+		
+		/* 생성된 토큰을 redis 서버에 저장, 이때 키 값을 jwtTolen 값, value 는 키 값을 인코딩 한 문자열 결과 값. */
+		redisHandler.getValueOperations().set(jwtToken, jwtUtil.encodeKeyToBase64(key), jwtUtil.getRemainingDuration(jwtToken, key));
+		
+		/* 생성된 토큰을 jwt 에 저장 : 옛날 방식으로 더 이상 쓰지 않을 것이며 redis 구현 전까지만 유지!*/
+		/*
 		jwtTokenRepository.save(
 				new JwtTokenEntity(
 						jwtToken,
 						jwtUtil.encodeKeyToBase64(key))
 				);
-		
+		*/
 		return jwtToken;
 	}
 }

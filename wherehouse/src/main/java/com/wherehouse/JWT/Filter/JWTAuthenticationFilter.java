@@ -36,6 +36,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         String token = cookieUtil.extractJwtFromCookies(httpRequest.getCookies(), "Authorization");
 
+        System.out.println("token : " + token);
+        
         // 로그인 시 JWT 토큰이 없을 경우 처리
         if (token == null) {
             handleInvalidToken(response, "JWT 토큰이 쿠키에 존재하지 않음!");
@@ -49,11 +51,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         catch (Exception e) {
         	
         	handleInvalidToken(response, "JWT 서명 키 없음.");
-        	
             return;
         }
 
-        // Key 객체를 사용해서 서명을 검증하고 JWT 토큰 유효성을 확인
+        // Key 객체를 사용해서 서명을 검증하고 JWT 토큰 유효성을 확인, 이때 유효기간은 검증을 하지 않음.
         try {
         	
             if (!jwtComponent.validateToken(token, key, httpRequest)) {
@@ -69,8 +70,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             		roles.get(0),
             		(String) httpRequest.getAttribute("jwtToken"));
             
-           
-            
             // 사용자 인증 객체 생성
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
             	(String) httpRequest.getAttribute("userId"), // 사용자 ID
@@ -82,6 +81,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             
         } catch (Exception e) {
+        	
             handleInvalidToken(response, "JWT 토큰 검증 실패!");
             return;
         }
@@ -90,7 +90,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpRequest, response);
     }
 
-    /* handleInvalidToken() : 만약 JWT (로그인 상태) 요청이 들어올 시 내부 쿠키 ㄱ밧ㅇ */ 
+    /* handleInvalidToken() : 만약 JWT (로그인 상태) 요청이 들어올 시 내부 쿠키 값이 잘못된 것일 경우 해당 쿠키 값을 부러우저에서 아에 없애버리도록 response 객체에 전달. */ 
     private void handleInvalidToken(HttpServletResponse response, String message) throws IOException {
     	
         System.out.println(message);

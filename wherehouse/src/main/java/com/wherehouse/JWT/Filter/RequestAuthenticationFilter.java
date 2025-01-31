@@ -14,9 +14,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/*
- * RequestAuthenticationFilter는 인증이 필요한 리소스에 대한 검증과 인증 상태 관리
- * */
 /**
  * RequestAuthenticationFilter는 인증이 필요한 리소스에 대한 JWT 검증 및 인증 상태 관리.
  */
@@ -40,11 +37,12 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
 
         // 쿠키에서 JWT 토큰 추출
         String token = cookieUtil.extractJwtFromCookies(request.getCookies(), "Authorization");
+        
         if (token == null) {
             handleInvalidToken(request, response, "JWT 토큰이 존재하지 않음!");
             return;
         }
-
+        
         try {
             // JWT 서명 키 가져오기
             Key signingKey = jwtComponent.getSigningKey(token);

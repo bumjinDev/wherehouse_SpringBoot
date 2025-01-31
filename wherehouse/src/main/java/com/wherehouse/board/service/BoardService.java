@@ -11,16 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
-import com.wherehouse.JWT.Repository.JwtTokenRepository;
-import com.wherehouse.JWT.Repository.UserEntityRepository;
-import com.wherehouse.JWT.UserDTO.JwtTokenEntity;
 import com.wherehouse.board.dao.BoardEntityRepository;
 import com.wherehouse.board.dao.IBoardRepository;
 import com.wherehouse.board.model.BoardEntity;
 import com.wherehouse.board.model.CommentEntity;
 import com.wherehouse.members.dao.IMembersRepository;
-
-import io.jsonwebtoken.Claims;
+import com.wherehouse.redis.handler.RedisHandler;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
@@ -36,7 +32,7 @@ public class BoardService implements IBoardService {
     BoardEntityRepository boardEntityRepository;
     
     @Autowired
-    JwtTokenRepository jwtTokenRepository;		// replyWrite() : cookieUtil.extractJwtFromCookies() 결과로 확인된 JWT 토큰으로 키 값을 포함한 Entity 가져오기.
+    RedisHandler redisHandler;
     
     @Autowired
     JWTUtil jwtUtil; // JWTUtil 의존성 주입
@@ -121,16 +117,17 @@ public class BoardService implements IBoardService {
     @Override
     public void writeReply(HttpServletRequest httpRequest) {
     	
-    	JwtTokenEntity jwtTokenEntity = jwtTokenRepository.findById(cookieUtil.extractJwtFromCookies(httpRequest.getCookies(), "Authorization")).get();    	
-    	Key key = jwtUtil.decodeBase64ToKey(jwtTokenEntity.getHmacSha256Key());
+    	String JWT = cookieUtil.extractJwtFromCookies(httpRequest.getCookies(), "Authorization");
+    	Key key = jwtUtil.decodeBase64ToKey(
+    			(String) redisHandler.getValueOperations().get((JWT)));
     	
         CommentEntity comment = new CommentEntity();
 
         comment.setNum(Integer.parseInt(httpRequest.getParameter("boardId")));		// 게시글 번호 : 해당 댓글 작성되는 게시글 본문 번호를 기준으로 삼은 외래키 제약조건 위함.
-        comment.setId(jwtUtil.extractUserId(jwtTokenEntity.getJwttoken(), key));					// 사용자 ID : membertbl 과의 제약 조건
+        comment.setId(jwtUtil.extractUserId(JWT, key));					// 사용자 ID : membertbl 과의 제약 조건
         
         /* 실제 댓글로써 저장될 내용들. */
-        comment.setNickname(jwtUtil.extractUsername(jwtTokenEntity.getJwttoken(), key));
+        comment.setNickname(jwtUtil.extractUsername(JWT, key));
         comment.setContent(httpRequest.getParameter("replyContent"));
         
         boardRepository.replyWrite(comment);

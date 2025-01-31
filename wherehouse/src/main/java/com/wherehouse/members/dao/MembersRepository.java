@@ -19,7 +19,7 @@ public class MembersRepository implements IMembersRepository {
     MemberEntityRepository memberEntityRepository; // 회원 관리 테이블의 데이터 접근 객체
 
     @Autowired
-    UserEntityRepository userEntityRepository; // JWT 인증 정보를 관리하는 테이블의 데이터 접근 객체
+    UserEntityRepository userEntityRepository; // JWT 인증을 위해 관리하는 회원 인증 테이블의 데이터 접근 객체
 
     /**
      * 회원 추가:

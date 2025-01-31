@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-
+import java.time.Duration;
 import javax.crypto.spec.SecretKeySpec;
 
 public class JWTUtil {
@@ -104,8 +104,17 @@ public class JWTUtil {
         return extractAllClaims(token, key).getIssuedAt();
     }
 
+    /* 토큰 만료 시간 추출. */
     public Date extractExpiration(String token, Key key) {
         return extractAllClaims(token, key).getExpiration();
+    }
+    
+    /* "extractExpiration" 호출해서 만료 시간을 "Date" 로 뽑아내고 이를 duration 으로 반환. */
+    public Duration getRemainingDuration(String token, Key key) {
+        Date expiration = extractExpiration(token, key);
+        long remainingMillis = expiration.getTime() - System.currentTimeMillis();
+        
+        return remainingMillis > 0 ? Duration.ofMillis(remainingMillis) : Duration.ZERO;
     }
 
     public Boolean isTokenExpired(String token, Key key) {
@@ -120,6 +129,7 @@ public class JWTUtil {
                 .parseClaimsJws(token); // 유효한 서명인지 검증
             return true;
         } catch (Exception e) {
+        	System.out.println("JWTUitil : 서명이 유효하지 않음!");
             return false; // 유효하지 않은 서명일 경우
         }
     }
