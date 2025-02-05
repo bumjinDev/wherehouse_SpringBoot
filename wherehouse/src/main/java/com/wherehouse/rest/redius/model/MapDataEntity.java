@@ -1,31 +1,28 @@
 package com.wherehouse.rest.redius.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@Builder
-@Data
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "MAPDATA")
-public class MapDataENtity {
+@Getter
+@Setter
+public class MapDataEntity {
 
     @Id
-    private int guid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    @Column(name = "GUNAME")
+    @Column(name = "GUID", nullable = false)
+    private Double guid;	// 필수 데이터는 아니지만 js 에서 디버깅 용으로 사용.
+
+    @Column(name = "GUNAME", nullable = false)
     private String guname;
 
-    @Column(name = "LATITUDE")
+    @Column(name = "LATITUDE", nullable = false)
     private Double latitude;
 
-    @Column(name = "LONGITUDE")
+    @Column(name = "LONGITUDE", nullable = false)
     private Double longitude;
 }

@@ -1,39 +1,23 @@
 var guInfo = [];
 var mapData = []; // 최종 데이터를 저장할 배열
-var areas = [];
 
 //카카오맵 커스텀 오버레이
 var customOverlay;
 
 window.onload = async function () {
 
-    // try {
-    //     // 1. JSON 데이터 요청 및 로드
-    //     const response = await fetch('./json/mapData.json');
-    //     if (!response.ok) {
-    //         throw new Error(`HTTP error! status: ${response.status}`);
-    //     }
-    //     const geoData = await response.json();
-    //     mapData = geoData.features; // "features" 추출
-    //     console.log("JSON 데이터 로드 완료:", mapData);
-    // } catch (error) {
-    //     console.error('Error fetching GeoJSON:', error);
-    //     return; // 에러 발생 시 초기화 작업 중단
-    // }
-
-    /* REST API를 통해 JSON 데이터 요청 및 처리 */
     try {
-    // 📌 API 호출
-    const response = await fetch('./getAllMapData');
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    // 📌 JSON 데이터 변환
-    var geoData = await response.json();
-
+        // 1. JSON 데이터 요청 및 로드
+        const response = await fetch('./json/mapData.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const geoData = await response.json();
+        mapData = geoData.features; // "features" 추출
+        console.log("JSON 데이터 로드 완료:", mapData);
     } catch (error) {
-        console.error('❌ 데이터 로드 중 오류 발생:', error);
+        console.error('Error fetching GeoJSON:', error);
+        return; // 에러 발생 시 초기화 작업 중단
     }
 	
     var container = document.getElementById("map");				// map : KakaoMap API 보여지는 js
@@ -56,37 +40,6 @@ window.onload = async function () {
         initInfo(selected_name);														// 핫플레이스 정보 제공 함수.
     });
 
-
-     // 2️⃣ populationArea에 있는 지역명 순서대로 정렬을 위한 기준 배열
-     const populationOrder = [
-        "강동구", "송파구", "강남구", "서초구", "관악구", "동작구", "영등포구", "금천구", "구로구", "강서구",
-        "양천구", "마포구", "서대문구", "은평구", "노원구", "도봉구", "강북구", "성북구", "중랑구", "동대문구",
-        "광진구", "성동구", "용산구", "중구", "종로구"
-    ];
-
-    // 3️⃣ JSON 데이터를 배열로 변환 (순서 조정 전)
-    let unorderedAreas = Object.keys(geoData).map(guName => {
-        let path = [];
-
-        geoData[guName].forEach(point => {
-            var latLng = new kakao.maps.LatLng(point.latitude, point.longitude);
-            path.push(latLng);
-        });
-
-        return {
-            name: guName, // 지역명
-            path: path    // 폴리곤 좌표 배열
-        };
-    });
-
-    // 4️⃣ populationArea 기준으로 필터링된 정렬 적용
-    let sortedAreas = populationOrder
-        .map(name => unorderedAreas.find(area => area.name === name))  // 이름이 일치하는 데이터 찾기
-        .filter(area => area !== undefined && area.path.length > 0);   // ❗undefined이거나 path가 비어 있는 경우 제거
-
-    // 6️⃣ areas에 저장
-    areas = sortedAreas;
-
 	/*
     // json 파싱 및 전처리
     var locate = JSON.parse(JSON.stringify(mapData));
@@ -105,18 +58,18 @@ window.onload = async function () {
     });
 	*/
 	
-	
-	// mapData.forEach(element => {
-	//     var geo = element.geometry;
-	//     var coor = geo.coordinates;
-	//     var name = element.properties.SIG_KOR_NM;
-	//     var path = [];
-	//     coor[0].forEach(point => {
-	//         path.push(new kakao.maps.LatLng(point[1], point[0]));
-	//     });
-	//     var area = { name, path };
-	//     areas.push(area);
-	// });
+	var areas = [];
+	mapData.forEach(element => {
+	    var geo = element.geometry;
+	    var coor = geo.coordinates;
+	    var name = element.properties.SIG_KOR_NM;
+	    var path = [];
+	    coor[0].forEach(point => {
+	        path.push(new kakao.maps.LatLng(point[1], point[0]));
+	    });
+	    var area = { name, path };
+	    areas.push(area);
+	});
 
     // 구 별 인구 밀집도 데이터 초기화
     var populationArea = initPopulation();

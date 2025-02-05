@@ -6,12 +6,36 @@ var guName = ["강동구", "송파구", "강남구", "서초구", "관악구",
     "광진구", "성동구", "용산구", "중구", "종로구"];
 
 var map;
+// 📌 각 구(지역)의 인구 밀집도 데이터를 저장하는 변수
+// - initPopulation() 함수에서 초기화됨
+// - 각 구의 안전성, 편의성, 인구 밀집도 등의 정보 포함
 var populationArea;
+
+// 📌 각 구(지역)의 폴리곤(다각형) 데이터를 구현하기 위해 각 구 이름 별로 KakaoMap API 좌표 객체 배열들을 참조 저장하는 배열
+// - 지도에 표시할 구역들의 경로(path) 정보를 저장
+// - { name: "구 이름", path: [LatLng, LatLng, ...] } 형태로 저장됨
+// ** populationArea 내 저장된 순서대로 동일한 순서로 매핑되어서 사용되어야 하기 때문에 저장되는 순서를 잘 관리해야됨.
 var areas = [];
+
+// 📌 현재 지도에 표시된 폴리곤(다각형) 객체를 저장하는 배열
+// - showMap() 실행 시 기존 폴리곤을 제거하고 새로운 폴리곤을 추가하는 용도로 사용
 var polygons = [];
+
+// 📌 추천된 지역(상위 3개)의 인덱스를 저장하는 배열
+// - areas 배열에서 몇 번째 구가 추천되었는지 저장
 var recommendIdx = [];
+
+// 📌 폴리곤(다각형) 투명도 설정 변수 (0.0 ~ 1.0)
+// - 기본값은 0.7이며, displayArea()에서 사용됨
 var opacity = 0.7;
+
+// 📌 폴리곤 깜빡임 애니메이션에서 투명도 증가/감소 방향을 설정하는 변수
+// - true: 투명도 증가 방향
+// - false: 투명도 감소 방향
 var isIncrease = true;
+
+// 📌 폴리곤 깜빡임(애니메이션) 효과를 위한 setInterval() ID를 저장하는 변수
+// - showMap()에서 설정되고, 필요 시 clearInterval()을 호출하여 중지할 수 있음
 var polygon_interval;
 let mapData = []; // JSON 데이터를 저장할 변수
 
@@ -20,20 +44,36 @@ var customOverlay;
 
 window.onload = async function () {
 	
+   // 기존 JSON 파일 요청 (주석 처리)
+//    try {
+//         // 1. JSON 데이터 요청 및 로드
+//         const response = await fetch('./json/mapData.json');
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+//         const geoData = await response.json();
+//         mapData = geoData.features; // "features" 추출
+//         console.log("JSON 데이터 로드 완료:", mapData);
+//     } catch (error) {
+//         console.error('Error fetching GeoJSON:', error);
+//         return; // 에러 발생 시 초기화 작업 중단
+//     }
+
+    /* REST API를 통해 JSON 데이터 요청 및 처리 */
     try {
-        // 1. JSON 데이터 요청 및 로드
-        const response = await fetch('./json/mapData.json');
+        // 📌 API 호출
+        const response = await fetch('./getAllMapData');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const geoData = await response.json();
-        mapData = geoData.features; // "features" 추출
-        console.log("JSON 데이터 로드 완료:", mapData);
+    
+        // 📌 JSON 데이터 변환
+        var geoData = await response.json();
+    
     } catch (error) {
-        console.error('Error fetching GeoJSON:', error);
-        return; // 에러 발생 시 초기화 작업 중단
+        console.error('❌ 데이터 로드 중 오류 발생:', error);
     }
-
+    
     initGuSpec();
     var container = document.getElementById("map");
     var options = {
@@ -44,47 +84,76 @@ window.onload = async function () {
         disableDoubleClickZoom: true // 더블 클릭 확대 잠금
     };
 
-    map = new kakao.maps.Map(container, options);
+    map = await new kakao.maps.Map(container, options);
+	
 
-	/*
-    //json 파싱 및 전처리
-	var locate = JSON.parse(JSON.stringify(mapData));
-    var feat = locate.features;
-    feat.forEach(element => {
+    // 📌 JSON 데이터 전처리 및 파싱 (areas 내부 데이터 저장 순서와 population 배열 내 guid 기준 저장 순서가 다르므로 이를 정렬 함으로써 해결)
+    // Object.keys(geoData).forEach(guName => {
 
-		console.log('element : ');
-		console.log(element);
-		
-        var geo = element.geometry;
-        var coor = geo.coordinates;
-        var name = element.properties.SIG_KOR_NM;
-        var path = [];
-        coor[0].forEach(point => {
-            path.push(new kakao.maps.LatLng(point[1], point[0]));
-        })
-        var area = { name, path };
-        areas.push(area);
+    //     var path = [];
+        
+    //     console.log('area - name : ' + guName);
+    //     geoData[guName].forEach(point => {
+
+    //         var latLng = new kakao.maps.LatLng(point.latitude, point.longitude);
+    //         path.push(latLng);
+    //         console.log('area - path : ' + latLng.getLat() + ', ' + latLng.getLng() + ', guId : ' + point.guid);
+    //     });
+    //     // 🔹 지역 데이터 객체 생성 및 추가
+    //     var area = { name: guName, path: path};
+        
+    //     areas.push(area);
+    // });
+
+
+    // 2️⃣ populationArea에 있는 지역명 순서대로 정렬을 위한 기준 배열
+    const populationOrder = [
+        "강동구", "송파구", "강남구", "서초구", "관악구", "동작구", "영등포구", "금천구", "구로구", "강서구",
+        "양천구", "마포구", "서대문구", "은평구", "노원구", "도봉구", "강북구", "성북구", "중랑구", "동대문구",
+        "광진구", "성동구", "용산구", "중구", "종로구"
+    ];
+
+    // 3️⃣ JSON 데이터를 배열로 변환 (순서 조정 전)
+    let unorderedAreas = Object.keys(geoData).map(guName => {
+        let path = [];
+
+        geoData[guName].forEach(point => {
+            var latLng = new kakao.maps.LatLng(point.latitude, point.longitude);
+            path.push(latLng);
+        });
+
+        return {
+            name: guName, // 지역명
+            path: path    // 폴리곤 좌표 배열
+        };
     });
-	*/
-	
-	mapData.forEach(element => {
 
-		console.log('element : ');
-		console.log(element);
+    // 4️⃣ populationArea 기준으로 필터링된 정렬 적용
+    let sortedAreas = populationOrder
+        .map(name => unorderedAreas.find(area => area.name === name))  // 이름이 일치하는 데이터 찾기
+        .filter(area => area !== undefined && area.path.length > 0);   // ❗undefined이거나 path가 비어 있는 경우 제거
+
+    // 6️⃣ areas에 저장
+    areas = sortedAreas;
+
+    // mapData.forEach(element => {
+
+	// 	console.log('element : ');
+	// 	console.log(element);
 		
-	       var geo = element.geometry;
-	       var coor = geo.coordinates;
-	       var name = element.properties.SIG_KOR_NM;
-	       var path = [];
-	       coor[0].forEach(point => {
-	           path.push(new kakao.maps.LatLng(point[1], point[0]));
-	       })
-	       var area = { name, path };
-	       areas.push(area);
-	   });
-	
-    // 구 별 인구 밀집도 데이터 초기화
-    // static 데이터이며 각 구별 빅데이터 분석 데이터 따른 안전성 점수, 편의성 점수 및 리뷰를 미리 등록 해 놓음.
+    //     var geo = element.geometry;
+    //     var coor = geo.coordinates;
+    //     var name = element.properties.SIG_KOR_NM;
+    //     var path = [];
+    //     coor[0].forEach(point => {
+    //         path.push(new kakao.maps.LatLng(point[1], point[0]));
+    //     })
+    //     var area = { name, path };
+    //     areas.push(area);
+	// });
+
+    /* populationArea[] : 구 별 인구 밀집도 데이터 초기화 받는 배열, static 데이터이며 각 구별 빅데이터 분석 데이터 따른
+        안전성 점수, 편의성 점수 및 리뷰를 미리 등록 해 놓음. */
     populationArea = initPopulation();
 
     // 패널 열고 닫기
@@ -266,8 +335,6 @@ window.onload = async function () {
         document.getElementById('safe-info').style.display = 'none';
         document.getElementById('conv-info').style.display = 'block';
     });
-
-
 }
 // window.onload 끝
 function initSafety(num) {
@@ -336,6 +403,9 @@ function selectModal(num) {
 
 
 function displayArea(area, population, isRecommend) {
+
+    console.log('displayArea()!');
+
     var polygon = new kakao.maps.Polygon({
         map: map,
         path: area.path,
@@ -542,7 +612,9 @@ function showResult() {
         }),
         success: function (data) {
             displayMonthly(data);		 /* 사용자가 입력한 금액 등의 기준으로 3개 구를 알려주는 HTML 태그 내 표현할 데이터들 */
-            showMap(data);
+            showMap(data);               /* 기존에 생성된 폴리곤 객체를 초기화한 후, 새로운 추천 지역의 폴리곤을 다시 생성함. 즉, DBMS에서 조회한
+                                            추천 지역 3개(`List<RecServiceVO>`)를 JSON 형식으로 변환하여 HTTP 응답 본문으로 전달받고,
+                                            이를 기반으로 지도에 추천된 지역을 시각적으로 표시함. */
             chart(data);
             chart_update(data);
         },
@@ -563,7 +635,7 @@ function showResult() {
         }),
         success: function (data) {			/* 정상적인 응답 일 시 DBMS 내 조회된 거주지 지역구 3개('List<RecServiceVO>') 데이터를 @ResponseBody 로써 구성된 응답 데이터를 포함.
         								    			(String으로 반환된 Json 데이터) */
-            displayCharter(data);				// 사용자가 데이터 입력 후 버튼 "추천결과확인" 버튼 눌러서 보여지는 거주치 추천 결과(지역구3개) 데이터를 section 내 보여지는 함수. 
+            displayCharter(data);			// 위와 동일.
             showMap(data);
             chart(data);			// chart.js 그리기
             chart_update(data);
@@ -833,21 +905,26 @@ function showResult() {
     }
 
     
-    // 추천 지역 다시 그리기
+    /* showMap(data) : 이전의 추천지역을 폴리곤 그렸던 것을 초기화하고 다시 폴리곤 생성하는 역할.
+        1. showMap() 에서 주거지 추천 3곳 요청에 대한 HTTP Response Body 내 각 3곳 지역구의 ID 를 배열에 저장. 
+        2. 저장한 배열을 가지고 'mapMatch(rand)' 을 호출하여 내부적으로 실제 폴리곤을 그리는 'displayArea(rand)' 와
+            해당 폴리곤 내 색상을 3초마다 깜박거리는 'intervalFunc()' 을 호출하여 내부적으로 setInterval 을 조정. */
     function showMap(data) {
-        var rand = [];
-        recommendIdx = [];
-        clearInterval(polygon_interval);
+        var rand = [];   // 주거지 추천 3곳 요청에 대한 HTTP Response Body 내 각 3곳 지역구의 ID 를 저장하는 배열, 'mapMatch(rand)' 을 위한 초기화 ('recommendIdx' 한개의 배열로 처리해도 문제 없음..)
+        recommendIdx = []; // 주거지 추천 3곳 요청에 대한 HTTP Response Body 내 각 3곳 지역구의 ID 를 저장하는 배열, intervalFunc()' 을 위한 초기화.
+        clearInterval(polygon_interval); // 'clearInterval(intervalID)' : 이전의 'setInterval()' 로 지정된 간격 및 지정된 동작을 반복하는 것을 ID('intervalID', 함수명 또는 변수 이름 등으로 식별) 로 식별하여 취소함(js 자체 라이브러리.)
 
+        /* 기존 kakaomap 폴리곤 객체를 참조하고 있던 배열 "polygons" 를 순회하면서 모든 기존 폴리곤 객체를 null로써 해제함. */
         polygons.forEach(polygon => {
             polygon.setMap(null);
         })
 
-        polygons = []; //다각형 초기화
+        polygons = []; // polygons 배열을 새로운 배열 객체를 참조 시킴.
 
+        /* 배열 'rand' 와 'recommendIdx' 내 주거치 추천 결과 3곳 요청에 대한 결과로써 반환 받은 Http Response 내 body 내 순차적으로 지역구 id 를 저장.  */
         for (var i = 0; i < 3; i++) {
             var num = data[i].gu_id;
-            if (rand.indexOf(num) == -1) {
+            if (rand.indexOf(num) == -1) {  // Array.indexOf() : 배열에서 주어진 값을 반환할 수 있는 첫번째 위치에 대한 인덱스 값 반환. 없으면 -1을 반환.
                 rand.push(num);
                 recommendIdx.push(num);
             }
@@ -855,7 +932,13 @@ function showResult() {
         mapMatch(rand);
     }
 
+    /* function mapMatch(rand) : 'showMap(data)' 으로부터 호출되어 내부적으로 'displayArea()' 와 'intervalFunc()' 을 호출하여 각각 폴리곤을 생성 후 폴리곤을
+        주기적으로 깜박 거림 구현.
+        */
     function mapMatch(rand) {
+
+        console.log('mapMatch(rand)');
+
         var randIdx = 0;
         for (var i = 0; i < areas.length; i++) {
             if (rand.indexOf(i) != -1) {

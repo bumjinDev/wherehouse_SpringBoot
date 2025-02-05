@@ -36,7 +36,7 @@ public class RecServiceController {
 	/* 전세 요청 처리 */
 	@PostMapping("/charter")
 	public @ResponseBody List<RecServiceVO> ControllerRecServiceCharter(@RequestBody Map<String, String>requestAjax) {
-		System.out.println("/charter.do 메소드 실행!");
+		System.out.println("/charter 요청 컨트롤러 실행!");
 		
 		if(requestAjax.get("charter_avg").equals("")) {
 			return null;
@@ -50,11 +50,15 @@ public class RecServiceController {
 	/* 월세 요청 처리 */
 	@PostMapping("/monthly")
 	public @ResponseBody List<RecServiceVO> ControllerRecServiceMothly(@RequestBody Map<String, String>requestAjax) {	
-		System.out.println("/monthly 메소드 실행 !");
+		System.out.println("/monthly 요청 컨트롤러 실행 !");
 		
+		System.out.println("requestAjax.get('deposit_avg') : " + requestAjax.get("deposit_avg"));
+
 		if(requestAjax.get("deposit_avg").equals("")) {
+			System.out.println("/monthly 요청 컨트롤러 기능 수행하지 않음 !");
 			return null;
 		} else {
+			System.out.println("/monthly 요청 컨트롤러 기능 수행 !");
 			List<RecServiceVO> RecServiceResult = recServiceMonthlyService.execute(requestAjax);		/* ServiceBean으로 분기하여 작업 */
 			return RecServiceResult;
 		}

@@ -42,12 +42,17 @@ public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 		/* 편의 점수 비중 == 안정성 점수 비중  : 편의 점수와 안전성 점수 비중이 같을 때는 입력 받은 전세금 기준으로 쿼리 결과에 대해서 "(전세금+1)*10 < 60" 일 시 전세금 기준으로
 		 * 내림차순 정렬하고 "(전세금+1)*10 > 60" 일시 안전성 비중 점수로 정렬한다. */
 		else if(cvt == safe)	{
-			query = "SELECT * FROM (SELECT * FROM gu_info WHERE charter_avg <= ?  ORDER BY CASE"
-					+ "WHEN (?+1)*10 < 60"
-					+ "	THEN charter_avg"
-					+ "	ELSE cvt_score  END DESC,"
-					+ "	charter_avg DESC)"
-					+ "WHERE ROWNUM <= 3";
+			
+			query = "SELECT * FROM ( " +
+			        "   SELECT * FROM gu_info " +
+			        "   WHERE charter_avg <= ? " +
+			        "   ORDER BY " +
+			        "       CASE " +
+			        "           WHEN (?+1)*10 < 60 THEN charter_avg " +
+			        "           ELSE cvt_score " +
+			        "       END DESC, " +
+			        "       charter_avg DESC " +
+			        ") WHERE ROWNUM <= 3";
 		}
 		
 		if(cvt != safe) {

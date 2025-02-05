@@ -1,22 +1,25 @@
 package com.wherehouse.restcontroller;
 
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.wherehouse.rest.redius.service.MapDataService;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import com.wherehouse.rest.redius.service.MapService;
 
 @RestController
-public class MapController {
+public class MapDataController {
 
     @Autowired
-    private MapService mapService;
+    private MapDataService mapDataService;
 
-    @PostMapping("/loadGuCoordinates")
-    public Map<String, List<Map<String, Double>>> getAllCoordinates(@RequestBody List<Integer> guIds) {
-        System.out.println("MapController.getAllCoordinates()!");
-        return mapService.getLocations(guIds);
+    @GetMapping("/getAllMapData")
+    public  Map<String, List<Map<String, Double>>> getAllMapData() {
+        return mapDataService.getAllMapData();
     }
 }

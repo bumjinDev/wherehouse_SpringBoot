@@ -1,38 +1,53 @@
 package com.wherehouse.rest.redius.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wherehouse.rest.redius.model.MapDataENtity;
-import com.wherehouse.restapi.dao.IMapDataRepository;
+import com.wherehouse.rest.redius.model.MapDataEntity;
+import com.wherehouse.restapi.dao.MapDataRepository;
+
+import java.util.*;
 
 @Service
-public class MapService implements IMapService {
+public class MapDataService {
 
     @Autowired
-    private IMapDataRepository mapDataRepository;
+    private MapDataRepository mapDataRepository;
 
-    @Override
-    public Map<String, List<Map<String, Double>>> getLocations(List<Integer> guIds) {
-        System.out.println("MapService.getLocations()!");
+    public Map<String, List<Map<String, Double>>> getAllMapData() {
+        // DB에서 데이터를 가져옴 (순서 유지)
+        List<MapDataEntity> respositoryData = mapDataRepository.searchRecommandGuAll();
 
-        List<MapDataENtity> entities = mapDataRepository.searchRecommandGu(guIds);
+        // 결과 데이터 저장 (순서 유지)
+        Map<String, List<Map<String, Double>>> restDataSet = new LinkedHashMap<>();
 
-        if (entities.isEmpty()) {
-            System.out.println("조회 결과가 없습니다.");
-            return Map.of(); // 빈 맵 반환
+        /*
+         * JSON 구조 (DB 순서 유지)
+         * {
+         *   "강북구": [
+         *     { "guid": 1, "latitude": 37.5665, "longitude": 126.9780 },
+         *     { "guid": 2, "latitude": 35.1796, "longitude": 129.0756 }
+         *   ],
+         *   "강남구": [
+         *     { "guid": 3, "latitude": 36.3504, "longitude": 127.3845 }
+         *   ]
+         * }
+         */
+
+        for (MapDataEntity mapDataEntity : respositoryData) {
+            // 좌표 정보를 저장할 LinkedHashMap (순서 유지)
+            Map<String, Double> address = new LinkedHashMap<>();
+            address.put("guid", mapDataEntity.getGuid());
+            address.put("latitude", mapDataEntity.getLatitude());
+            address.put("longitude", mapDataEntity.getLongitude());
+
+            // 해당 구(guname)의 리스트가 없으면 새로 생성 (순서 유지)
+            restDataSet.computeIfAbsent(mapDataEntity.getGuname(), k -> new ArrayList<>());
+
+            // 리스트의 맨 뒤에 추가하여 원래 순서 유지
+            restDataSet.get(mapDataEntity.getGuname()).add(address);
         }
 
-        return entities.stream()
-            .collect(Collectors.groupingBy(
-                MapDataENtity::getGuname,
-                Collectors.mapping(entity -> Map.of(
-                    "latitude", entity.getLatitude(),
-                    "longitude", entity.getLongitude()
-                ), Collectors.toList())
-            ));
+        return restDataSet;
     }
 }
