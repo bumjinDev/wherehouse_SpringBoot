@@ -59,14 +59,15 @@
     - CSP 정책 설정
   - **HTTPS 적용**
     - JWT 토큰 탈취 방지
+    - JWT 토큰 저장 방식을 기존의 ORACLE RDBMS 저장 방식에서 Redis 로 전환.
   - **데이터 접근 방식 전환**
     - JdbcTemplate → JPA
   - **데이터베이스 개선**
     - Oracle Database를 Docker 기반으로 전환
   - **CI/CD 구축**
     - Jenkins를 활용한 지속적 통합 및 배포 환경 구축
-
-
+  - ** Polygon Json DataSource 개선 **
+    - 기존 .json 파일을 직접 요청하는 방식에서 Rest API 요청으로 변경.
 ---
 
 ## 🧑‍💻 팀원 구성  
