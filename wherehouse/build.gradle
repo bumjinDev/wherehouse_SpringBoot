@@ -1,0 +1,122 @@
+/* sts4 자체는 내부적으로 필요한 기능을 플러그인 형태로 확장(추가) 하여 구성한다. 그리고 이때 사용하는 grove 문법이 'plugins {..}' 이다
+*   id : 각 플러그인 고유 식별자
+*      - 'org.springframework.boot' version '3.3.3' : sts4 내부에서 실행될 환경 요소를 spring boot 로 지정하기 위한 확장하는 플러그인
+*      - java : 'org.springframework.boot' version '3.3.3' 가 내부 코드를 바라볼 때에 java 라는 언어로 해석하기 위해서 확장하는 플러그인
+*      - 'io.spring.dependency-management' version '1.1.6' : 플러그인으로 확장된 spring boot 내 필요해서 외부 라이브러리를 특정 저장소로부터 가져오며 버전 등의 의존성 관리 또한 하는 매니지먼트 프로그램이다.
+*/
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'war' // <-- 추가 
+}
+
+bootWar{			// war 배포 파일명
+	archiveBaseName = 'wherehouse'
+    archiveFileName = 'wherehouse.war'
+    archiveVersion = "0.0.0"
+}
+
+/*
+    - group : 해당 프로젝트 개발하는 회사의 도메인(url)
+    - version : 그냥 프로젝트 버전 관리
+*/
+
+group = 'com.wherehouse'
+version = ''
+
+/*
+    - java { ... } : 'org.springframework.boot' 가 실제로 'java' 플러그인을 사용해서 java 언어를 해석 및 내부적으로 실행할 때에 필요한 환경 요소를 설정 해야 되며, 이를 위해서
+       플러그인과 동일한 이름으로 설정하며 'toolchain' 옵션 내 jdk 를 설정한것.
+*/
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+/* repositories :
+    자바 의존성 관리 매니지먼트 프로그램(플러그인 'id 'io.spring.dependency-management' version '1.1.6')에서
+    실제로 참조할 레포지토리를 지정한다.
+*/
+repositories {
+	mavenCentral()
+}
+
+/* - dependencies : 실제 필요한 외부 라이브러리를 의존성을 고려('io.spring.dependency-management')하며 가져오기 위해 사용하는 환경 설정으로, 기존 spring 내 pom.xml 은 Artifact, group 및 버전 정보를
+	*      기록하였으나 grove 는 자체적인 dsl 문법을 사용해서 버전 정보등을 별도로 설정하지 않으면 해당 매니지먼트 플러그인이 레포지토리를 보고 해당 외부 라이브러리를 가져올 때에 최신으로 가져온다.
+*/
+
+dependencies {
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0' // Jakarta Persistence API
+    implementation 'org.hibernate:hibernate-core:6.2.2.Final' // Hibernate Core 명시적 추가
+
+	// implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	
+	/* spring boot 의 spring mvc 시작 의존성(내장 tomcat 등등) */
+	implementation 'org.springframework.boot:spring-boot-starter-web'		/* 부트 내 스타터 의존성으로써 톰켓 내장 서버, 디스패처 서블릿 및 디스패처 서블릿 컨텍스트 또한 디스패처 서블릿이 Spring MVC를 사용할 수 있게 해주는 것
+																			(/src/main/resource 내 설정은 @Configuration 등의 빈이나 application.properties 파일로 재 설정 가능) */
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	/* spring secuiry 관련 의존성 */
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	//testImplementation 'org.springframework.security:spring-security-test'
+	
+	/* rombok 설정 */
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+	
+	/* mybatis를 위한 의존성 추가 */
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2' // 스프링 부트용 Mybatis 스타터
+    implementation 'org.mybatis:mybatis-spring:3.0.3'
+    /* ORACLE DB 연결 위한 JDBC 의존성 추가 */
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'		// jdbcTemplate 구현하기 위한 jdbc 의존성 추가
+	implementation 'com.oracle.database.jdbc:ojdbc8:19.8.0.0'				// jdbc의 ojdbc 추가
+
+	/* 테스트 코드 작성을 위한 Junit 의존성 추가 */
+	 testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'	// 테스트 작성용 api(@Test 등등) 과 테스트 엔진을 별도로 의존성 추가 안하고 하나로 추가.
+
+	/* jsp 의존성 추가 */
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0'		// jsp 내 jstl 태그 인식할 수 있도록 하는 의존성 추가
+	/* 클래스 "Jwts" 생성 및 빌드 패턴 적용. */
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 파싱을 위한 추가 의존성
+    implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
+	/* 서버 재 부팅 없이도 저장만으로 자동 재 실행 */
+	//developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	
+	/* redis 의존성 추가 */
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	
+	// 외장 톰켓 애플리케이션 실행에 필요한 의존성
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	providedRuntime 'javax.servlet:javax.servlet-api:4.0.1'	// jsp 필수
+	
+
+	
+}
+
+tasks.test {
+    useJUnitPlatform() // JUnit5 플랫폼 사용 설정
+}
+
+/*
+tasks.named('test') {
+	useJUnitPlatform()
+}
+*/
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-parameters'
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wherehouse.information.dao.IPoliceOfficeRepository">
+	<resultMap id="policeOffice"
+		type="com.wherehouse.information.model.PoliceOfficeVO">
+		<result property="address" column="ADDRESS" />
+		<result property="latitude" column="LATITUDE" />
+		<result property="longitude" column="LONGITUDE" />
+	</resultMap>
+	
+	<select id="getListPO" resultMap="policeOffice">
+		Select * 
+		FROM POLICEOFFICE
+	</select>
+	
+	<select id="getClosestPO" resultMap="policeOffice">
+		SELECT * 
+		FROM (SELECT * FROM POLICEOFFICE ORDER BY ABS(LATITUDE - #{latitude}) + ABS(LONGITUDE - #{longitude})) 
+		WHERE ROWNUM = 1
+	</select>
+</mapper>

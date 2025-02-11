@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+body {
+    display: block;
+    position: static;
+
+    background-image: url('./../images/city1.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
