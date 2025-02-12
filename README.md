@@ -57,17 +57,18 @@
     - JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키와 Redis를 활용하여 보안 강화
     - X-CONTENT 정책 응답 헤더에 따른 기존 UI 개선 작업 수행
     - CSP 정책 설정
-  - **HTTPS 적용**
-    - JWT 토큰 탈취 방지
-    - JWT 토큰 저장 방식을 기존의 ORACLE RDBMS 저장 방식에서 Redis 로 전환.
+  - ** 보안 설계 **
+    - 기존 인증 방식을 HttpSession 객체에서 JWT 토큰으로 전환
+    - JWT 스푸핑 방지 위한 HTTPS 적용
   - **데이터 접근 방식 전환**
     - JdbcTemplate → JPA
   - **데이터베이스 개선**
     - Oracle Database를 Docker 기반으로 전환
   - **CI/CD 구축**
     - Jenkins를 활용한 지속적 통합 및 배포 환경 구축
-  - ** Polygon Json DataSource 개선 **
-    - 기존 .json 파일을 직접 요청하는 방식에서 Rest API 요청으로 변경.
+  - ** Chaching Redis 적용 **
+    - JWT 토큰 저장 방식을 기존의 ORACLE RDBMS 저장 방식에서 Redis 로 전환 및 이를 위해 기존 .json 파일을 직접 요청하는 방식에서 Rest API 요청으로 변경.
+    - 주거지 추천 페이지와 지역구 지도 내 필요한 지역구 별 좌표 데이터를 Rest API 요청 방식으로 변경.
 ---
 
 ## 🧑‍💻 팀원 구성  
