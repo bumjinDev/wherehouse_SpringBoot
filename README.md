@@ -16,7 +16,7 @@
 ## 🛠 Project Architecture  
 
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/16aac9e1-6ff3-4617-8461-ee534cfa8522" alt="Architecture" width="800"/>
+    <img src="https://github.com/user-attachments/assets/f060943c-d9a3-4088-b0c1-6d5d683f2f14" alt="Architecture" width="800"/>
 </p>
 
 - **배포 URL**: [https://wherehouse.servehttp.com/wherehouse/](https://wherehouse.servehttp.com/wherehouse/)
