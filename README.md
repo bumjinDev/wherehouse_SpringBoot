@@ -1,10 +1,8 @@
-<p align="left" style="display: flex; align-items: center; gap: 10px;">
-   <span style="font-size: 2.0rem; font-weight: bold;"><h2>서울시 1인 세대 위한 거주지 추천 서비스</h2></span>
-</p>
+# 서울시 1인 세대를 위한 거주지 추천 서비스
+
 <p align="center">
    <img src="https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8" alt="Logo" width="1200" height="500"/>
 </p>
-
 
 ---
 
@@ -50,24 +48,43 @@
 - **[이재서]**  
    - Servlet 기반 상세지도 서비스를 Spring Boot로 전환  
 
-### **추가 개선 작업**
+---
 
-- **[정범진]**
-  - **Spring Security 도입**
-    - JWT 기반 인증 및 CSRF 방지를 위해 Host-Only 쿠키와 Redis를 활용하여 보안 강화
-    - X-CONTENT 정책 응답 헤더에 따른 기존 UI 개선 작업 수행
-    - CSP 정책 설정
-  - **HTTPS 적용**
-    - JWT 토큰 탈취 방지
-    - JWT 토큰 저장 방식을 기존의 ORACLE RDBMS 저장 방식에서 Redis 로 전환.
-  - **데이터 접근 방식 전환**
-    - JdbcTemplate → JPA
-  - **데이터베이스 개선**
-    - Oracle Database를 Docker 기반으로 전환
-  - **CI/CD 구축**
-    - Jenkins를 활용한 지속적 통합 및 배포 환경 구축
-  - ** Polygon Json DataSource 개선 **
-    - 기존 .json 파일을 직접 요청하는 방식에서 Rest API 요청으로 변경.
+## 🔥 추가 개선 작업
+
+### **1. Spring Security 도입**
+- **JWT 기반 인증 및 CSRF 방지**를 위해 **Host-Only 쿠키와 Redis 활용**하여 보안 강화  
+- **X-Content-Type-Options** 응답 헤더 정책에 따른 **기존 UI 개선 작업 수행**  
+- **CSP(Content Security Policy) 정책 설정**을 통한 보안 강화  
+
+### **2. 보안 설계**
+- 기존 **HttpSession 기반 인증 방식**을 **JWT 토큰 방식**으로 전환  
+- **JWT 스푸핑 방지**를 위해 **HTTPS 적용** 및 보안 정책 강화  
+
+### **3. 데이터 접근 방식 전환**
+- 기존 **JdbcTemplate**을 **JPA 기반으로 전환**하여 유지보수성 및 확장성 개선  
+
+### **4. 데이터베이스 개선**
+- 기존 **Oracle Database**를 **Docker 기반 환경으로 전환**하여 운영 효율성 향상  
+
+### **5. CI/CD 구축**
+- **Jenkins 기반 지속적 통합 및 배포 환경 구축**  
+- 자동 빌드 및 배포 프로세스를 최적화하여 안정적인 운영 환경 제공  
+
+### **6. Redis 기반 캐싱 적용**
+#### ✅ JWT 토큰 저장 방식 변경
+- 기존 **Oracle RDBMS에 저장하던 JWT 토큰을 Redis 기반 저장 방식으로 전환**  
+- 기존 `.json` 파일을 직접 요청하는 방식에서 **Rest API 요청 방식으로 변경**  
+
+#### ✅ 주거지 추천 페이지 및 지역구 지도 최적화
+- 지역구별 좌표 데이터를 **Rest API 요청 방식으로 전환**  
+- 각 데이터에 **TTL(Time-To-Live) 설정 적용**  
+- **LRU(Least Recently Used) 정책 적용**을 통한 메모리 관리 최적화  
+
+#### ✅ Redis 고가용성(HA) 및 Sentinel 구성
+- **Failover 대비**를 위해 **Redis Sentinel을 이용한 고가용성 아키텍처 구축**  
+- 장애 발생 시 **자동 복구 메커니즘 적용**  
+
 ---
 
 ## 🧑‍💻 팀원 구성  
@@ -79,7 +96,7 @@
 
 ---
 
-## 🗂 프로젝트 구조  
+## 📂 프로젝트 구조  
 
 <pre>
 WhereHouse
@@ -186,14 +203,10 @@ WhereHouse
 - CI/CD 환경과 연계하여 테스트 자동화를 도입하고, 코드 커버리지를 분석하여 품질을 높이는 데 집중할 예정입니다.
 
 ### 3. Redis 심화 및 성능 최적화
-- TTL 설정을 조정하고, LRU 정책을 적용하여 Redis 캐싱 전략을 개선할 계획입니다.
 - 성능 모니터링 도구를 활용해 Redis의 작업 부하를 분석하고, 클러스터링을 통해 확장성을 확보할 예정입니다.
-- `SLOWLOG`와 같은 명령어를 적극 활용하여 성능 병목 구간을 파악하고 최적화를 진행할 계획입니다.
+- SLOWLOG와 같은 명령어를 적극 활용하여 성능 병목 구간을 파악하고 최적화를 진행할 계획입니다.
 
 ### 4. 프론트엔드 React 적용 및 UI 개선
-- 현재 JSP으로 구현된 하면을 Thymeleaf로 전환 예정 입니다.
 - React로 전환함으로써 컴포넌트 기반 아키텍처를 도입해 재사용성을 높이고, 상태 관리를 효율적으로 처리하여 사용자 경험을 향상할 계획입니다.
-- REST API와의 연동 최적화를 통해 서버와의 통신 효율을 높이고, 성능을 개선할 계획입니다.
-- 반응형 디자인을 적용해 모바일 환경에서도 최적의 사용자 경험을 제공할 예정입니다.
 
 ---
