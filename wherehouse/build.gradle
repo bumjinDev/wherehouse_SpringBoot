@@ -103,6 +103,9 @@ dependencies {
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	providedRuntime 'javax.servlet:javax.servlet-api:4.0.1'	// jsp 필수
 	
+	// Srping Boot Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	
 
 	
 }

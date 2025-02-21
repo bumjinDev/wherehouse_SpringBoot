@@ -2,23 +2,29 @@ spring:
   application:
     name: wherehouse
 
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL
+    username: SCOTT
+    password: tiger
+
+    hikari:
+      auto-commit: false
+      idle-timeout: 30000  # 30초 후 미사용 커넥션 종료
+      max-lifetime: 1800000  # 30분 후 커넥션 강제 종료
+
   data:
     redis:
-      host: 43.202.178.156
+      host: localhost
       port: 6379
       timeout: 6000  # 연결 타임아웃 (ms)
       lettuce:
         pool:
-          max-active: 10   # 최대 연결 수
-          max-idle: 5      # 유휴 커넥션 수
-          min-idle: 2      # 최소 유휴 커넥션 수
-          time-between-eviction-runs: 10s  # 커넥션 풀 점검 간격
-
-  datasource:
-    driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@127.0.0.1:1521:xe # SID 기반 URL
-    username: SCOTT
-    password: tiger
+          max-active: 100   # 요청을 보내기 위해 생성되는 스레드 개수가 아닌 해당 스레드들이 동시에 요청을 보내고 응답을 대기할 수 있는 한꺼번의 개수
+          max-idle: 50       # 최대 유휴 커넥션 수 (풀에서 유지할 수 있는 최대 유휴 커넥션 개수)
+          min-idle: 10       # 최소 유휴 커넥션 수 (이 개수만큼은 항상 유지)
+          max-wait: -1ms     # 커넥션 풀에서 커넥션을 얻을 때 최대 대기 시간 (-1이면 무제한 대기)
+          #time-between-eviction-runs: 10s  # 유휴 커넥션 정리 스레드 실행 주기 (10초)
 
   jpa:
     show-sql: true # 실행된 SQL 출력
@@ -26,14 +32,13 @@ spring:
       ddl-auto: none # 개발 환경에서는 update, 운영 환경에서는 none 추천
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.OracleDialect # 명시적으로 Hibernate Dialect 설정
+        dialect: org.hibernate.dialect.OracleDialect # Hibernate Dialect 설정
         format_sql: true # SQL 포맷 정리
-        #use_sql_comments: true # Hibernate SQL 주석 활성화
-        default_batch_fetch_size: 50 # Batch Fetch 설정
+        default_batch_fetch_size: 50 # Batch Fetch 최적화
         jdbc.fetch_size: 100 # JDBC fetch size 설정
         cache.use_query_cache: false # Hibernate Query 캐시 비활성화
-        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # Naming Strategy 수정
-    open-in-view: false # Lazy Loading 오류 방지
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # Naming Strategy 설정
+    open-in-view: false # Lazy Loading 오류 방지 (OSIV OFF)
 
   mvc:
     view:
@@ -57,3 +62,12 @@ logging:
       hibernate:
         SQL: debug # SQL 로그 디버깅 활성화
         type.descriptor.sql: trace # SQL 바인딩 값 디버깅
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,loggers"
+  metrics:
+    enable:
+      http: true

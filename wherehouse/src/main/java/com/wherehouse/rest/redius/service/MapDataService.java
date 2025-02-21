@@ -33,6 +33,7 @@ public class MapDataService implements IMapService {
 
         // 1. Redis 캐시 조회
         Map<String, List<Map<String, Double>>> usedData = redisTemplateAllMapData.opsForValue().get(cacheKey);
+
         if (usedData != null) {
             return usedData; // 캐시가 있으면 즉시 반환
         }

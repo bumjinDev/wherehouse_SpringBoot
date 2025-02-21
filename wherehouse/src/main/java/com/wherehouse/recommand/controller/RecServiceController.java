@@ -4,19 +4,17 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import com.wherehouse.recommand.model.RecServiceVO;
 import com.wherehouse.recommand.service.IRecService;
-
 import jakarta.annotation.PostConstruct;
 
 /* 월세 및 전세에 대한 AJAX 요청 처리하는 컨트롤러. */
 
-@Controller
+@RestController
 @RequestMapping(value="/RecServiceController")
 public class RecServiceController {
 	
@@ -35,7 +33,7 @@ public class RecServiceController {
 	
 	/* 전세 요청 처리 */
 	@PostMapping("/charter")
-	public @ResponseBody List<RecServiceVO> ControllerRecServiceCharter(@RequestBody Map<String, String>requestAjax) {
+	public List<RecServiceVO> ControllerRecServiceCharter(@RequestBody Map<String, String>requestAjax) {
 		System.out.println("/charter 요청 컨트롤러 실행!");
 		
 		if(requestAjax.get("charter_avg").equals("")) {
@@ -49,7 +47,7 @@ public class RecServiceController {
 	
 	/* 월세 요청 처리 */
 	@PostMapping("/monthly")
-	public @ResponseBody List<RecServiceVO> ControllerRecServiceMothly(@RequestBody Map<String, String>requestAjax) {	
+	public List<RecServiceVO> ControllerRecServiceMothly(@RequestBody Map<String, String>requestAjax) {	
 		System.out.println("/monthly 요청 컨트롤러 실행 !");
 		
 		System.out.println("requestAjax.get('deposit_avg') : " + requestAjax.get("deposit_avg"));
