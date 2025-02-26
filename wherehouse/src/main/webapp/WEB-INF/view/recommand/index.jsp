@@ -1,7 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-	   	<% System.out.println("getAttribute('Authorization') : " + (String) request.getAttribute("Authorization")); %>
-		
+	   	<%
+	   		System.out.println("getAttribute('Authorization') : " + (String) request.getAttribute("Authorization"));
+	   	%>
 		<% if((String) request.getAttribute("Authorization") != null) {%>
 		   <jsp:forward page="/loginSuccess"/>
 		<% }

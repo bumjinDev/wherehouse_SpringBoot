@@ -3,11 +3,16 @@ package com.wherehouse.JWT.Filter;
 import java.io.IOException;
 import java.security.Key;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
+import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -15,89 +20,104 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * RequestAuthenticationFilter는 인증이 필요한 리소스에 대한 JWT 검증 및 인증 상태 관리.
+ * RequestAuthenticationFilter는 JWT 기반 인증을 수행하는 필터
+ */
+/*
+ * "LoginFilter 클래스의 AuthenticationManager는 Provider를 필요로 하므로, 순환 참조 문제로 인해
+ * LoginFilter를 @Component로 등록할 수 없다. 따라서 모든 필터 클래스를 SecurityConfig에서 @Bean으로
+ * 등록하여 일관성을 유지한다."
  */
 public class RequestAuthenticationFilter extends OncePerRequestFilter {
 
-    private CookieUtil cookieUtil;
-    private JwtComponent jwtComponent;
-	
-    public RequestAuthenticationFilter(CookieUtil cookieUtil, JwtComponent jwtComponent) {
+    private static final Logger logger = LoggerFactory.getLogger(RequestAuthenticationFilter.class);
+    private static final String AUTH_COOKIE_NAME = "Authorization";
+
+    private final CookieUtil cookieUtil;
+    private final JWTUtil jwtUtil;
+
+    public RequestAuthenticationFilter(CookieUtil cookieUtil, JWTUtil jwtUtil) {
     	
     	this.cookieUtil = cookieUtil;
-    	this.jwtComponent = jwtComponent;
+        this.jwtUtil = jwtUtil;
+        
     }
-    
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+                                    throws ServletException, IOException {
 
-        System.out.println("RequestAuthenticationFilter.doFilterInternal()");
-        System.out.printf("HTTP Method: %s, URL: %s%n", request.getMethod(), request.getRequestURL());
+        logger.info("RequestAuthenticationFilter - 요청 처리 시작");
+        logger.info("HTTP Method: {}, URL: {}", request.getMethod(), request.getRequestURL());
 
-        // 쿠키에서 JWT 토큰 추출
-        String token = cookieUtil.extractJwtFromCookies(request.getCookies(), "Authorization");
-        
+        // 1. JWT 추출
+        String token = extractToken(request);
         if (token == null) {
-            handleInvalidToken(request, response, "JWT 토큰이 존재하지 않음!");
-            return;
-        }
-        
-        try {
-            // JWT 서명 키 가져오기
-            Key signingKey = jwtComponent.getSigningKey(token);
-
-            // JWT 토큰 검증 및 사용자 정보 설정
-            jwtComponent.validateToken(token, signingKey, request);
-
-            // 사용자 권한 가져오기
-            @SuppressWarnings("unchecked")
-            List<String> roles = (List<String>) request.getAttribute("roles");
-
-            // 인증 객체 생성 및 SecurityContextHolder 설정
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                request.getAttribute("userId"), // 사용자 ID
-                null, // 비밀번호는 필요 없음
-                roles.stream().map(SimpleGrantedAuthority::new).toList()
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        } catch (Exception e) {
-            handleInvalidToken(request, response, "JWT 검증 실패!");
+            handleInvalidToken(response, "JWT 토큰이 존재하지 않음!");
             return;
         }
 
-        // 필터 체인 계속 실행
+        // 2. JWT Key(String)을 Redis 조회 후 검증 및 사용자 인증 처리
+        Optional<Key> signingKeyOpt = jwtUtil.getSigningKeyFromToken(token);
+        if (signingKeyOpt.isEmpty() || !jwtUtil.isValidToken(token, signingKeyOpt.get())) {
+            handleInvalidToken(response, "JWT 검증 실패!");
+            return;
+        }
+
+        // 3. SecurityContext에 인증 정보 설정
+        authenticateUser(token, signingKeyOpt.get());
+
+        // 4. 필터 체인으로 요청을 전달
         filterChain.doFilter(request, response);
     }
 
     /**
-     * 유효하지 않은 JWT 토큰 처리: 쿠키 삭제 및 JS 응답 반환
+     * HTTP 요청에서 "Authorization" 쿠키를 통해 JWT 토큰을 추출
      */
-    private void handleInvalidToken(HttpServletRequest httpRequest, HttpServletResponse response, String errorMessage) throws IOException {
-        System.out.println(errorMessage);
+    private String extractToken(HttpServletRequest request) {
+        return cookieUtil.extractJwtFromCookies(request.getCookies(), AUTH_COOKIE_NAME);
+    }
+
+    /**
+     * JWT 토큰에서 사용자 정보를 추출하여 SecurityContext에 설정
+     */
+    private void authenticateUser(String token, Key key) {
+        String userId = jwtUtil.extractUserId(token, key);
+        List<String> roles = jwtUtil.extractRoles(token, key);
+
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken(
+                userId,
+                null,
+                roles.stream()
+                     .map(SimpleGrantedAuthority::new)
+                     .collect(Collectors.toList())
+            );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        logger.info("JWT 인증 성공: 사용자 ID = {}", userId);
+    }
+
+    /**
+     * 유효하지 않은 JWT 처리: 쿠키 삭제 후 클라이언트에 안내
+     */
+    private void handleInvalidToken(HttpServletResponse response, String errorMessage) throws IOException {
+        logger.warn(errorMessage);
 
         // Authorization 쿠키 삭제
-        Cookie cookie = new Cookie("Authorization", null);
-        cookie.setPath("/");
-        cookie.setMaxAge(0); // 즉시 만료
-        response.addCookie(cookie);
+        Cookie expiredCookie = new Cookie(AUTH_COOKIE_NAME, null);
+        expiredCookie.setPath("/");
+        expiredCookie.setMaxAge(0);
+        response.addCookie(expiredCookie);
 
-        // 이전 페이지로 리다이렉트 (Referer 헤더 사용)
-        String referer = httpRequest.getHeader("Referer");
-        if (referer == null || referer.isEmpty()) {
-            referer = "/"; // Referer가 없으면 기본 경로로 리다이렉트
-        }
-
-        System.out.println("referer : " + referer);
-        // JavaScript 응답 작성
+        // 사용자에게 안내 스크립트 반환
         response.setContentType("text/html; charset=UTF-8");
         response.getWriter().write(
             "<script>" +
-            "alert('권한이 없습니다.');" +
-            "window.location.href = '" + referer + "';" +
+                "alert('접근 권한이 없습니다.');" +
+                "window.location.href = '/wherehouse/list/0';" +
             "</script>"
         );
     }
 }
-

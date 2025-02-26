@@ -1,8 +1,6 @@
 package com.wherehouse.JWT.Provider;
 
 import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,23 +8,28 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import com.wherehouse.JWT.Repository.UserEntityRepository;
 import com.wherehouse.JWT.UserDTO.UserEntity;
 import com.wherehouse.JWT.UserDetailService.UserEntityDetailService;
 import com.wherehouse.JWT.UserDetails.UserEntityDetails;
 
-
 public class UserAuthenticationProvider implements AuthenticationProvider{
-
-	@Autowired
-	private UserEntityDetailService userEntityDetailService;
 	
-	@Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+	private final UserEntityDetailService userEntityDetailService;
+	private final UserEntityRepository userEntityRepository;
+	private final BCryptPasswordEncoder passwordEncoder;
 	
-	@Autowired
-	private UserEntityRepository userEntityRepository;
+	public UserAuthenticationProvider(
+			
+			UserEntityDetailService userEntityDetailService,
+			UserEntityRepository userEntityRepository,
+			BCryptPasswordEncoder passwordEncoder
+			) {
+		
+		this.userEntityDetailService = userEntityDetailService;
+		this.passwordEncoder = passwordEncoder;
+		this.userEntityRepository = userEntityRepository;
+	}
 	
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -94,7 +97,6 @@ public class UserAuthenticationProvider implements AuthenticationProvider{
 			/* "@GetMapping("/loginSuccess")" 등에서 jsp 랜더링 시 필요한 정보이므로 jwt 토큰 내 삽입할 정보.
 			 * 생성자로써 초기화하는 Token 정보(사용자 이름, 자격증명(비번), 권한((Collection<? extends GrantedAuthority>) 외
 			 * 별도의 정상적인 필터 검증 후 JWT 클레임 내 포함될 id 값을 넣는 다. */
-
 			returnAuthenticationToken.setDetails(((UserEntityDetails) userDetails).getuserId());	
 			
 			return returnAuthenticationToken;

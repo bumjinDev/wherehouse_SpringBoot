@@ -38,8 +38,8 @@ public class UserEntityDetailService implements UserDetailsService{
 		
 		//UserEntity membersEntity = membersRepository.setUsername(username);
 		System.out.println("userEntity : \n" + 
-							"\n " + userEntity.getUsername() +
 							"\n " + userEntity.getUserid() +
+							"\n " + userEntity.getUsername() +
 							"\n " + userEntity.getPassword() +
 							"\n " + userEntity.getRoles());
 		

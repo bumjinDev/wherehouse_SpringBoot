@@ -4,7 +4,7 @@ spring:
 
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL
+    url: jdbc:oracle:thin:@43.202.178.156:1521:xe # Oracle SID 기반 URL
     username: SCOTT
     password: tiger
 
@@ -15,7 +15,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: 43.202.178.156
       port: 6379
       timeout: 6000  # 연결 타임아웃 (ms)
       lettuce:

@@ -141,7 +141,7 @@ public class MemberService implements IMemberService {
 
     // 기존 JWT 토큰에 대해서 변경된 클레임을 수정해서 새로운 JWT 토큰으로 생성
     private String createNewJwtToken(String cueentToken, Key key, String newUsername) {
-        return jwtUtil.modifyUsername(cueentToken, key, newUsername);
+        return jwtUtil.modifyClaim(cueentToken, key, "username", newUsername);
     }
 
     // JWT 토큰 업데이트 처리

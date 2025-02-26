@@ -2,135 +2,189 @@ package com.wherehouse.JWT.Filter.Util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import com.wherehouse.redis.handler.RedisHandler;
 import java.security.Key;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.time.Duration;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.stereotype.Component;
+
+/**
+ * JWT 토큰의 생성, 검증, 서명 키 관리 및 클레임(Claims) 조작 기능을 담당하는 유틸 클래스.
+ */
+@Component
 public class JWTUtil {
 
-    private final long expirationTime = 3600000; // 1시간 유효
+    private static final long EXPIRATION_TIME = 3600000;
 
+    private final RedisHandler redisHandler;
+
+    /**
+     * 생성자 주입 방식으로 RedisHandler를 초기화
+     */
+    public JWTUtil(RedisHandler redisHandler) {
+        this.redisHandler = redisHandler;
+    }
+
+    /**
+     * HMAC-SHA256 서명 키를 생성
+     */
+    public Key generateSigningKey() {
+        byte[] keyBytes = new byte[32];
+        new SecureRandom().nextBytes(keyBytes);
+        return new SecretKeySpec(keyBytes, "HmacSHA256");
+    }
+
+    /**
+     * Key 객체를 Base64 문자열로 변환
+     */
     public String encodeKeyToBase64(Key key) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(key.getEncoded());
     }
-    
+
     /**
-     * Base64로 인코딩된 키 문자열을 Key 객체로 디코딩합니다.
-     *
-     * @param base64Key Base64로 인코딩된 키 문자열
-     * @return Key 객체
+     * Base64 문자열을 Key 객체로 변환
      */
     public Key decodeBase64ToKey(String base64Key) {
         byte[] decodedKey = Base64.getUrlDecoder().decode(base64Key);
         return new SecretKeySpec(decodedKey, "HmacSHA256");
     }
-    
-    public Key getSigningKey() {
-        byte[] keyBytes = new byte[32]; // HMAC SHA-256용 256비트 키
-        new SecureRandom().nextBytes(keyBytes);
-        return new SecretKeySpec(keyBytes, "HmacSHA256");
-    }
 
-    // JWT 토큰 생성 (username, userId, roles, 발급 시간, 만료 시간 포함)
+    /**
+     * JWT 토큰을 생성
+     */
     public String generateToken(String username, String userId, List<String> roles, Key key) {
         Date now = new Date();
         return Jwts.builder()
-                .claim("username", username)                  // 사용자 이름 클레임 추가
-                .claim("userId", userId)                      // 사용자 ID 클레임 추가
-                .claim("roles", roles)                        // 역할(roles) 클레임 추가
-                .setIssuedAt(now)                             // 발급 시간 설정
-                .setExpiration(new Date(now.getTime() + expirationTime)) // 만료 시간 설정
-                .signWith(key)                                // Key 객체로 서명
+                .claim("username", username)
+                .claim("userId", userId)
+                .claim("roles", roles)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + EXPIRATION_TIME))
+                .signWith(key)
                 .compact();
     }
 
-    // JWT 토큰에서 모든 클레임(Claims) 추출
+    /**
+     * JWT 검증
+     */
+    public boolean isValidToken(String token, Key key) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * JWT 토큰에서 서명 키 가져오기
+     */
+    public Optional<Key> getSigningKeyFromToken(String token) {
+        try {
+            String jwtInKey = (String) redisHandler.getValueOperations().get(token);
+            
+            return Optional.of(
+            		new SecretKeySpec(
+                Base64.getUrlDecoder().decode(jwtInKey), SignatureAlgorithm.HS256.getJcaName()
+            ));
+            
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * JWT 토큰에서 모든 Claims 추출
+     */
     public Claims extractAllClaims(String token, Key key) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key) // 서명 확인용 키 설정
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
-    // 클레임 수정 메소드
+    /**
+     * JWT 토큰에서 특정 클레임 수정 후 새로운 토큰 생성
+     */
     public String modifyClaim(String token, Key key, String claimKey, Object newValue) {
-        Claims claims = extractAllClaims(token, key); // 기존 클레임 추출
-        claims.put(claimKey, newValue); // 수정된 값으로 클레임 추가 또는 갱신
+        Claims claims = extractAllClaims(token, key);
+        claims.put(claimKey, newValue);
 
-        // 새로운 토큰 생성
         return Jwts.builder()
-                .setClaims(claims) // 수정된 클레임 사용
-                .setIssuedAt(new Date()) // 재발급 시간 갱신
-                .setExpiration(new Date(new Date().getTime() + expirationTime)) // 만료 시간 갱신
-                .signWith(key) // 동일한 키로 서명
+                .setClaims(claims)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + EXPIRATION_TIME))
+                .signWith(key)
                 .compact();
     }
-
-    // username 클레임 수정
-    public String modifyUsername(String token, Key key, String newUsername) {
-        return modifyClaim(token, key, "username", newUsername);
-    }
-
-    // userId 클레임 수정
-    public String modifyUserId(String token, Key key, String newUserId) {
-        return modifyClaim(token, key, "userId", newUserId);
-    }
-
-    // roles 클레임 수정
-    public String modifyRoles(String token, Key key, List<String> newRoles) {
-        return modifyClaim(token, key, "roles", newRoles);
-    }
-
-    // 기존 메소드들...
-    public String extractUsername(String token, Key key) {
-        return extractAllClaims(token, key).get("username", String.class);
-    }
-
+    
+    /**
+     * JWT 토큰에서 사용자 ID 추출
+     */
     public String extractUserId(String token, Key key) {
         return extractAllClaims(token, key).get("userId", String.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<String> extractRoles(String token, Key key) {
-        return extractAllClaims(token, key).get("roles", List.class);
+    /**
+     * JWT 토큰에서 사용자 이름 추출
+     */
+    public String extractUsername(String token, Key key) {
+        return extractAllClaims(token, key).get("username", String.class);
     }
 
+    /**
+     * JWT 토큰에서 역할 리스트 추출
+     */
+    public List<String> extractRoles(String token, Key key) {
+        Claims claims = extractAllClaims(token, key);
+        Object rolesObj = claims.get("roles");
+
+        if (rolesObj instanceof List<?>) {
+            return ((List<?>) rolesObj).stream()
+                    .map(Object::toString) // 안전하게 String 변환
+                    .collect(Collectors.toList());
+        }
+        return List.of(); // 빈 리스트 반환
+    }
+
+
+    
+    
+    /**
+     * JWT 토큰의 발급 시간 추출
+     */
     public Date extractIssuedAt(String token, Key key) {
         return extractAllClaims(token, key).getIssuedAt();
     }
 
-    /* 토큰 만료 시간 추출. */
+    /**
+     * JWT 토큰의 만료 시간 추출
+     */
     public Date extractExpiration(String token, Key key) {
         return extractAllClaims(token, key).getExpiration();
     }
-    
-    /* "extractExpiration" 호출해서 만료 시간을 "Date" 로 뽑아내고 이를 duration 으로 반환. */
-    public Duration getRemainingDuration(String token, Key key) {
-        Date expiration = extractExpiration(token, key);
-        long remainingMillis = expiration.getTime() - System.currentTimeMillis();
-        
-        return remainingMillis > 0 ? Duration.ofMillis(remainingMillis) : Duration.ZERO;
-    }
 
+    /**
+     * JWT 토큰이 만료되었는지 확인
+     */
     public Boolean isTokenExpired(String token, Key key) {
         return extractExpiration(token, key).before(new Date());
     }
-
-    public boolean validateToken(String token, Key key) {
-        try {
-            Jwts.parserBuilder()
-                .setSigningKey(key) // 서명 검증용 키 설정
-                .build()
-                .parseClaimsJws(token); // 유효한 서명인지 검증
-            return true;
-        } catch (Exception e) {
-        	System.out.println("JWTUitil : 서명이 유효하지 않음!");
-            return false; // 유효하지 않은 서명일 경우
-        }
+    
+    /**
+     * JWT 토큰의 남은 유효 기간을 반환
+     * @param token JWT 토큰
+     * @param key 서명 키
+     * @return 남은 유효 시간 (Duration)
+     */
+    public Duration getRemainingDuration(String token, Key key) {
+        Date expiration = extractExpiration(token, key);
+        long remainingMillis = expiration.getTime() - System.currentTimeMillis();
+        return remainingMillis > 0 ? Duration.ofMillis(remainingMillis) : Duration.ZERO;
     }
 }

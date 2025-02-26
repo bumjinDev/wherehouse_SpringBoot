@@ -2,106 +2,115 @@ package com.wherehouse.JWT.Filter;
 
 import java.io.IOException;
 import java.security.Key;
-import java.util.List;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
+import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/* "/loginSucces" 를 위한 JWT 처리 */
-/* "/loginSuccess" 요청에 대한 JWT 인증 필터 */
+/**
+ * JWT 인증 필터 - "/loginSuccess" 요청을 처리
+ */
+
+/*
+ * "LoginFilter 클래스의 AuthenticationManager는 Provider를 필요로 하므로, 순환 참조 문제로 인해
+ * LoginFilter를 @Component로 등록할 수 없다. 따라서 모든 필터 클래스를 SecurityConfig에서 @Bean으로
+ * 등록하여 일관성을 유지한다."
+ */
+
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
-    private CookieUtil cookieUtil;
-    private JwtComponent jwtComponent;
+    private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
+    private static final String AUTH_COOKIE_NAME = "Authorization";
 
-	public JWTAuthenticationFilter(CookieUtil cookieUtil, JwtComponent jwtComponent) {
-	
-		this.cookieUtil = cookieUtil;
-		this.jwtComponent = jwtComponent;
-	}
-	
-    @Override
-    protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    private final CookieUtil cookieUtil;
+    private final JWTUtil jwtUtil;
 
-        System.out.println("JWTAuthenticationFilter.doFilterInternal()! ");
-        System.out.printf("HTTP Method: %s, URL: %s%n", httpRequest.getMethod(), httpRequest.getRequestURL());
-
-        String token = cookieUtil.extractJwtFromCookies(httpRequest.getCookies(), "Authorization");
-
-        System.out.println("token : " + token);
-        
-        // 로그인 시 JWT 토큰이 없을 경우 처리
-        if (token == null) {
-            handleInvalidToken(response, "JWT 토큰이 쿠키에 존재하지 않음!");
-            return;
-        }
-
-        // 데이터베이스에서 JWT 토큰의 HMAC 서명 키 가져오기
-        Key key = null;
-        
-        try { key = jwtComponent.getSigningKey(token); }
-        catch (Exception e) {
-        	
-        	handleInvalidToken(response, "JWT 서명 키 없음.");
-            return;
-        }
-
-        // Key 객체를 사용해서 서명을 검증하고 JWT 토큰 유효성을 확인, 이때 유효기간은 검증을 하지 않음.
-        try {
-        	
-            if (!jwtComponent.validateToken(token, key, httpRequest)) {
-                throw new SecurityException("검증 결과 토큰이 유효하지 않음");
-            }
-
-            @SuppressWarnings("unchecked")
-            List<String> roles = (List<String>) httpRequest.getAttribute("roles");
-            
-            System.out.printf("JWT Claims: UserId=%s, UserName=%s, Roles=%s%n",
-            		(String) httpRequest.getAttribute("userId"),
-            		(String) httpRequest.getAttribute("userName"),
-            		roles.get(0),
-            		(String) httpRequest.getAttribute("jwtToken"));
-            
-            // 사용자 인증 객체 생성
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-            	(String) httpRequest.getAttribute("userId"), // 사용자 ID
-                null,   // 자격 증명 (패스워드)
-                roles.stream().map(SimpleGrantedAuthority::new).toList() // 권한
-            );
-
-            // SecurityContextHolder에 인증 객체 저장
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-        } catch (Exception e) {
-        	
-            handleInvalidToken(response, "JWT 토큰 검증 실패!");
-            return;
-        }
-
-        System.out.println("jwtToken Authentication success! \n");
-        filterChain.doFilter(httpRequest, response);
+    public JWTAuthenticationFilter(CookieUtil cookieUtil, JWTUtil jwtUtil) {
+        this.cookieUtil = cookieUtil;
+        this.jwtUtil = jwtUtil;
     }
 
-    /* handleInvalidToken() : 만약 JWT (로그인 상태) 요청이 들어올 시 내부 쿠키 값이 잘못된 것일 경우 해당 쿠키 값을 부러우저에서 아에 없애버리도록 response 객체에 전달. */ 
-    private void handleInvalidToken(HttpServletResponse response, String message) throws IOException {
-    	
-        System.out.println(message);
-        
-        // Authorization 쿠키 삭제 (쿠키 만료 처리)
-        Cookie cookie = new Cookie("Authorization", null);
-        cookie.setPath("/"); // 쿠키 경로 설정
-        cookie.setMaxAge(0); // 즉시 만료
-        response.addCookie(cookie);
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+                                    throws ServletException, IOException {
 
-        // 메인 페이지로 리다이렉트
+        logger.info("JWTAuthenticationFilter - 요청 처리 시작");
+        logger.info("HTTP Method: {}, URL: {}", request.getMethod(), request.getRequestURL());
+
+        // 1. 쿠키에서 JWT 추출
+        Optional<String> tokenOpt = Optional.ofNullable(
+            cookieUtil.extractJwtFromCookies(request.getCookies(), AUTH_COOKIE_NAME)
+        );
+
+        if (tokenOpt.isEmpty()) {
+            logger.warn("JWT 토큰이 존재하지 않음");
+            invalidateSessionAndRedirect(response);
+            return;
+        }
+
+        String token = tokenOpt.get();
+
+        // 2. JWT 서명 키 가져오기
+        Optional<Key> keyOpt = jwtUtil.getSigningKeyFromToken(token);
+        if (keyOpt.isEmpty()) {
+            logger.warn("JWT 서명 키 없음");
+            invalidateSessionAndRedirect(response);
+            return;
+        }
+
+        Key key = keyOpt.get();
+
+        // 3. JWT 검증
+        if (!jwtUtil.isValidToken(token, key)) {
+            logger.warn("JWT 토큰 검증 실패");
+            invalidateSessionAndRedirect(response);
+            return;
+        }
+
+        // 4. 사용자 ID 및 권한 추출
+        String userId = jwtUtil.extractUserId(token, key);
+        var authorities = jwtUtil.extractRoles(token, key).stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+
+        // 5. SecurityContext에 Authentication 설정
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userId, null, authorities);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        logger.info("JWT 인증 성공: 사용자 ID = {}", userId);
+
+        // 필터 체인 계속 실행
+        filterChain.doFilter(request, response);
+    }
+
+    /**
+     * JWT 토큰이 없거나 유효하지 않을 때, 쿠키 무효화 후 특정 경로로 리다이렉트.
+     */
+    private void invalidateSessionAndRedirect(HttpServletResponse response) throws IOException {
+        
+        logger.warn("JWT 토큰이 없거나 유효하지 않음. 세션 무효화 후 리다이렉트");
+
+        // 만료된 쿠키로 설정
+        Cookie expiredCookie = new Cookie(AUTH_COOKIE_NAME, null);
+        expiredCookie.setPath("/");
+        expiredCookie.setMaxAge(0);
+        response.addCookie(expiredCookie);
+
         response.sendRedirect("/wherehouse/");
+        
+        logger.info("redirection : /wherehouse/");
     }
 }

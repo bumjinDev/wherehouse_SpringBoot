@@ -27,6 +27,8 @@ public class MapDataController {
         
     	System.out.println("MapDataController.getChoiceMapData()!");
     	
+    	System.out.println("MapDataController.getChoiceMapData() - guNames: " + guNames);
+    	
         return mapDataService.getChoiceMapDataService(guNames);
     }
 

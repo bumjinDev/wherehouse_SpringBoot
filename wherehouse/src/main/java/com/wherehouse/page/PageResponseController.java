@@ -46,7 +46,7 @@ public class PageResponseController  {
         }
 
         model.addAttribute("Authorization", Authorization);
-
+        
         return "recommand/index"; // JSP 또는 템플릿 엔진 경로 반환
     }
 	
