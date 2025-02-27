@@ -21,6 +21,7 @@ import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.JWT.Provider.UserAuthenticationProvider;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
 import com.wherehouse.JWT.UserDetailService.UserEntityDetailService;
+import com.wherehouse.JWT.exceptionHandler.LoginAuthenticationEntryPoint;
 import com.wherehouse.redis.handler.RedisHandler;
 
 @Configuration
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final RedisHandler redisHandler;
 
     public SecurityConfig(
+    		
         AuthenticationConfiguration authenticationConfiguration,
         UserEntityDetailService userEntityDetailService,
         UserEntityRepository userEntityRepository,
@@ -71,22 +73,6 @@ public class SecurityConfig {
         return authenticationManager;
     }
 
-    /* == Filter 등록 유지 == */
-//    @Bean
-//    public LoginFilter loginFilter() throws Exception {
-//        return new LoginFilter(authenticationManager(), redisHandler, jwtUtil);
-//    }
-//
-//    @Bean
-//    public JWTAuthenticationFilter jwtAuthenticationFilter() {    
-//        return new JWTAuthenticationFilter(cookieUtil, jwtUtil);
-//    }
-//
-//    @Bean
-//    public RequestAuthenticationFilter requestAuthenticationFilter() {    
-//        return new RequestAuthenticationFilter(cookieUtil, jwtUtil);
-//    }
-
     /* == Security FilterChain 설정 == */
 
     @Bean
@@ -95,6 +81,8 @@ public class SecurityConfig {
         http.securityMatcher("/login")
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exception ->
+            						exception.authenticationEntryPoint(new LoginAuthenticationEntryPoint()))	// "인증" 예외 발생 시 그에 대한 핸들러("AuthenticationEntryPoint" 인터페이스 구현체) 호출.
             .addFilterAt(new LoginFilter(authenticationManager(), redisHandler, jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

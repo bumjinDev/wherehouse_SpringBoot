@@ -13,7 +13,6 @@ public class UserEntityDetails implements UserDetails {
 	private static final long serialVersionUID = 1L;
 	
 	UserEntity userEntity;
-
 	
 	public UserEntityDetails (UserEntity userEntity) {
 		this.userEntity = userEntity;
@@ -35,8 +34,10 @@ public class UserEntityDetails implements UserDetails {
 	 */
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-	    // 역할을 GrantedAuthority 리스트로 변환
+	    
+		// 역할을 GrantedAuthority 리스트로 변환
 	    List<GrantedAuthority> authorities = new ArrayList<>();
+	    
 	    for (String role : userEntity.getRoles()) {  // userEntity의 roles는 String의 리스트입니다.
 	        authorities.add(new SimpleGrantedAuthority(role));
 	    }
@@ -68,6 +69,4 @@ public class UserEntityDetails implements UserDetails {
 		
 		return true;
 	}
-	
-	
 }

@@ -13,7 +13,13 @@ import com.wherehouse.JWT.UserDTO.UserEntity;
 import com.wherehouse.JWT.UserDetailService.UserEntityDetailService;
 import com.wherehouse.JWT.UserDetails.UserEntityDetails;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UserAuthenticationProvider implements AuthenticationProvider{
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserAuthenticationProvider.class);
+
 	
 	private final UserEntityDetailService userEntityDetailService;
 	private final UserEntityRepository userEntityRepository;
@@ -24,7 +30,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider{
 			UserEntityDetailService userEntityDetailService,
 			UserEntityRepository userEntityRepository,
 			BCryptPasswordEncoder passwordEncoder
-			) {
+		) {
 		
 		this.userEntityDetailService = userEntityDetailService;
 		this.passwordEncoder = passwordEncoder;
@@ -34,87 +40,67 @@ public class UserAuthenticationProvider implements AuthenticationProvider{
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		
-		System.out.println("UserAuthenticationProvider.authenticate() 실행!");
+		logger.info("UserAuthenticationProvider.authenticate()!");
 		
-		String userId = (String) authentication.getPrincipal() ;		// interface Principal
+		String userId = authentication.getPrincipal().toString() ;		// interface Principal
 		String password = authentication.getCredentials().toString();	// interface Authentication
+		
+		UserEntity userEntity = userEntityRepository.findByUserid(userId)
+				.orElseThrow(() -> {
+                    logger.warn("User ID '{}'를 찾을 수 없음", userId);
+                    return new BadCredentialsException("Invalid User ID or Password");
+                });
+	
+		String username = userEntity.getUsername();
+		
+		UserDetails userDetails = userEntityDetailService.loadUserByUsername(username);	// UserEntity
 			
-		String username = "";
-		Optional<UserEntity> userEntity = userEntityRepository.findByUserid(userId);
 		
-		if(userEntity.isPresent())
-			username = userEntity.get().getUsername();
-		
-		System.out.println("username : " + username);
-		
-		UserDetails userDetails = new UserEntityDetails(new UserEntity());
-		userDetails = userEntityDetailService.loadUserByUsername(username);	// UserEntity
-			
-		
-		/** 
-		 * if 문 내부: 인증 수행 과정에서, DB에 암호화되어 저장된 비밀번호와 비교하여 인증 결과로 객체를 반환한다. 이때 필요한 값들을 인증 객체에 설정한다.
-		 * 
-		 * 인증 성공 시 설정하는 값들은 아래와 같다. (principal, credentials 은 이미 필터에서 설정 했으니 제외)
+		/**
+		 * 🔹 인증 과정 설명 🔹
 		 *
-		 * 1. AbstractAuthenticationToken.setAuthenticated(boolean): 
-		 *    - `AuthenticationProvider`에서 `UserDetailsService`를 사용하여 DB에서 사용자 정보를 조회한 후
-		 *      인증이 성공하면 `setAuthenticated(true)`로 설정.
-		 *    - 이 값은 `AuthenticationManager.authenticate()`에서 반환되는 인증 객체의 `isAuthenticated()`를 통해 
-		 *      필터에서 확인하고, 인증 성공 여부에 따라 다음 메서드(`successfulAuthentication` 또는 `unsuccessfulAuthentication`)로 분기.
+		 * 사용자가 입력한 ID와 비밀번호를 검증한다.
+		 * 인증이 성공하면 `UsernamePasswordAuthenticationToken`을 생성하여 반환한다.
+		 * 반환된 인증 객체는 `AuthenticationManager.authenticate()`에서 검증되고, 
+		 *    Spring Security 필터 체인에서 다음 단계로 전달된다.
 		 *
-		 * 2. AbstractAuthenticationToken.Collection<GrantedAuthority> authorities:
-		 *    - `UserDetailsService`에서 가져온 `UserDetails`의 권한 목록을 `Authentication` 객체의 `authorities`에 저장.
+		 * [인증 성공 시 설정되는 값]
+		 *    - `principal`  : 사용자 ID (username)
+		 *    - `credentials`: 사용자의 입력한 비밀번호
+		 *    - `authorities`: 사용자의 권한 목록
+		 *    - `details`    : 추가적인 사용자 정보 (예: userId)
 		 *
-		 * 3. AbstractAuthenticationToken.Object details:
-		 *    - 인증에 필요한 부가 정보를 저장 (예: 클라이언트 IP).
+		 * [인증 객체(Token) 관련 사항]
+		 *    - `AbstractAuthenticationToken.setAuthenticated(true)`: 인증 성공 여부 설정
+		 *    - `isAuthenticated()`: 인증 여부 확인 (true: 인증됨, false: 인증 안됨)
+		 *    - `details` 필드에 추가 정보를 저장하여 이후 JWT 생성에 활용 가능
 		 *
-		 * 	이후 인증 객체(Token)는 클라이언트 측의 공격을 방지하기 위해 인증 객체 자체는 불변성으로써 설계되므로
-		 * 	새로운 Token을 생성해서 반환한다.
-		 *  반환함으로써 현재 호출한 지점인 "AbstractAuthenticationToken.authenticated()" 으로 반환하고 인증 매니저가 해당 인증 객체인 Token(AbstractAuthenticationToken.isAuthenticated()) 내
-		 * 	boolean authenticated 을 확인 해서 필터 내부적으로 다음 실행할 메소드를 결정한다.
+		 *  주의: 
+		 *    - `Authentication` 객체는 불변(immutable) 상태이므로, 
+		 *      인증이 완료되면 새 `UsernamePasswordAuthenticationToken`을 생성하여 반환해야 한다.
 		 */
 
-		/*
-		 	public UsernamePasswordAuthenticationToken(Object principal, Object credentials,
-				Collection<? extends GrantedAuthority> authorities) { ... }
-		 * */
-		if(passwordEncoder.matches(password, userDetails.getPassword())) {
-			
-			System.out.println("올바른 사용자 확인!");
-			System.out.println("userDetails.getAuthorities() : " + userDetails.getAuthorities());
-			/* 반환 될 토큰 내 super.setAuthenticated(true) 및 권한(AbstractAuthenticationToken.authorities)을
-			   설정 후 반환.
-			*/
-			UsernamePasswordAuthenticationToken returnAuthenticationToken = 
-					new UsernamePasswordAuthenticationToken(
-					username,
-					password,
-					userDetails.getAuthorities()
-					// super(authorities);
-					// super.setAuthenticated(true); // must use super, as we override
-			);
-			
-			/* "@GetMapping("/loginSuccess")" 등에서 jsp 랜더링 시 필요한 정보이므로 jwt 토큰 내 삽입할 정보.
-			 * 생성자로써 초기화하는 Token 정보(사용자 이름, 자격증명(비번), 권한((Collection<? extends GrantedAuthority>) 외
-			 * 별도의 정상적인 필터 검증 후 JWT 클레임 내 포함될 id 값을 넣는 다. */
-			returnAuthenticationToken.setDetails(((UserEntityDetails) userDetails).getuserId());	
-			
-			return returnAuthenticationToken;
-			
-		} else {
-			
-			System.out.println("올바른 사용자가 아님!");
-			
-			/* 그냥 fail 발생 시킴. */
-			UsernamePasswordAuthenticationToken returnAuthenticationToken =
-					new UsernamePasswordAuthenticationToken(
-						username,
-						password
-					);
-			
-			System.out.println("returnAuthenticationToken.isAuthenticated() : " + returnAuthenticationToken.isAuthenticated());
-			throw new BadCredentialsException("BadCredentialsExceptoin"); // 인증 실패 시 예외 발생
+		// 비밀번호 검증 후, 인증 객체 반환
+		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+		    logger.warn("잘못된 비밀번호 입력: 사용자 '{}'", userEntity.getUsername());
+		    throw new BadCredentialsException("Invalid User ID or Password");
 		}
+
+		logger.info("인증 성공: 사용자 '{}'", userEntity.getUsername());
+
+		/**
+		 * 🔹 인증 성공 시 반환되는 객체 (`UsernamePasswordAuthenticationToken`)
+		 *    - `principal`  : 사용자 ID
+		 *    - `credentials`: 사용자의 입력한 비밀번호
+		 *    - `authorities`: 사용자 권한 목록
+		 */
+		UsernamePasswordAuthenticationToken authenticationToken =
+		        new UsernamePasswordAuthenticationToken(userEntity.getUsername(), password, userDetails.getAuthorities());
+
+		// 추가적인 사용자 정보를 details 필드에 저장 (JWT 생성 시 활용)
+		authenticationToken.setDetails(((UserEntityDetails) userDetails).getuserId());
+
+		return authenticationToken;
 	}
 
 	/* SpringFilterChain 내 이미 폼로그인을 막아 둠으로써  */
