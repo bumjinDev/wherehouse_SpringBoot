@@ -1,6 +1,5 @@
 package com.wherehouse.JWT.Provider;
 
-import java.util.Optional;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,7 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
-import com.wherehouse.JWT.UserDTO.UserEntity;
+import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
 import com.wherehouse.JWT.UserDetailService.UserEntityDetailService;
 import com.wherehouse.JWT.UserDetails.UserEntityDetails;
 
@@ -45,7 +44,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider{
 		String userId = authentication.getPrincipal().toString() ;		// interface Principal
 		String password = authentication.getCredentials().toString();	// interface Authentication
 		
-		UserEntity userEntity = userEntityRepository.findByUserid(userId)
+		AuthenticationEntity userEntity = userEntityRepository.findByUserid(userId)
 				.orElseThrow(() -> {
                     logger.warn("User ID '{}'를 찾을 수 없음", userId);
                     return new BadCredentialsException("Invalid User ID or Password");
@@ -53,9 +52,8 @@ public class UserAuthenticationProvider implements AuthenticationProvider{
 	
 		String username = userEntity.getUsername();
 		
-		UserDetails userDetails = userEntityDetailService.loadUserByUsername(username);	// UserEntity
+		UserDetails userDetails = userEntityDetailService.loadUserByUsername(username);	// 테이블 "UserEntity" 으로부터 생성한 "AuthenticationEntity" 객체
 			
-		
 		/**
 		 * 🔹 인증 과정 설명 🔹
 		 *
@@ -95,9 +93,12 @@ public class UserAuthenticationProvider implements AuthenticationProvider{
 		 *    - `authorities`: 사용자 권한 목록
 		 */
 		UsernamePasswordAuthenticationToken authenticationToken =
-		        new UsernamePasswordAuthenticationToken(userEntity.getUsername(), password, userDetails.getAuthorities());
+		        new UsernamePasswordAuthenticationToken(
+		        		userEntity.getUsername(),
+		        		password,
+		        		userDetails.getAuthorities());
 
-		// 추가적인 사용자 정보를 details 필드에 저장 (JWT 생성 시 활용)
+		// 추가적인 기타 사용자 정보를 details 필드에 저장 (JWT 생성 시 활용)
 		authenticationToken.setDetails(((UserEntityDetails) userDetails).getuserId());
 
 		return authenticationToken;

@@ -51,8 +51,8 @@ public class BoardServiceController {
      */
     @GetMapping("/choiceboard/{boardNumber}")
     public String choiceboard(@PathVariable("boardNumber") int boardNumber, Model model) {
-        Map<String, Object> contentView = boardService.sarchView(boardNumber);
-
+        // Map<String, Object> contentView = boardService.sarchView(boardNumber);
+    	Map<String, Object> contentView = boardService.sarchView(boardNumber);
         model.addAttribute("content_view", contentView.get("content_view"));
         model.addAttribute("comments", contentView.get("comments"));
         model.addAttribute("AuthorNickname", contentView.get("AuthorNickname"));

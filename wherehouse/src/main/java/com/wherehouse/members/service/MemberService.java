@@ -7,185 +7,201 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.security.Key;
+import java.time.Duration;
 
 import javax.crypto.spec.SecretKeySpec;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
-import com.wherehouse.JWT.UserDTO.UserEntity;
+import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
+import com.wherehouse.JWT.UserDTO.MemberEditRequestDTO;
 import com.wherehouse.members.dao.IMembersRepository;
 import com.wherehouse.members.dao.MemberEntityRepository;
 import com.wherehouse.members.model.MembersEntity;
 import com.wherehouse.redis.handler.RedisHandler;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
 
 @Service
 public class MemberService implements IMemberService {
 
-    @Autowired
+	private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
+	
     IMembersRepository membersRepository;
-
-    @Autowired
+    
     MemberEntityRepository memberEntityRepository;
-
-    @Autowired
+    
     UserEntityRepository userEntityRepository;
 
-    @Autowired
     RedisHandler redisHandler;
     
-    @Autowired
     JWTUtil jwtUtil;
 
-    @Autowired
     private BCryptPasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 객체
+    
+    public final int USER_ID_DUPLICATE = 1;
+    public final int NICKNAME_DUPLICATE = 2;
 
+    public MemberService(
+    		
+    		IMembersRepository membersRepository,
+    		MemberEntityRepository memberEntityRepository,
+    		UserEntityRepository userEntityRepository,
+    		RedisHandler redisHandler,
+    		JWTUtil jwtUtil,
+    		BCryptPasswordEncoder passwordEncoder ) {
+    	
+    	this.membersRepository = membersRepository;
+    	this.memberEntityRepository = memberEntityRepository;
+    	this.userEntityRepository = userEntityRepository;
+    	this.redisHandler = redisHandler;
+    	this.jwtUtil = jwtUtil;
+    	this.passwordEncoder = passwordEncoder;
+    }
+    
     @Override
-    public Map<String, String> validLogin(HttpServletRequest httpRequest) {
+    public Map<String, String> validLoginSuccess(String jwt) {
     	
-    	System.out.println("MemberService.validLogin()!");
+    	logger.info("MemberService.validLogin()!");
     	
-        String Token = getCookieToken(httpRequest);
-        Key key = getKey(Token);
+        Key key = getKey(jwt);
 
+        
         Map<String, String> loginSuccessInfo = new HashMap<>();
         
-        loginSuccessInfo.put("userId", jwtUtil.extractUserId(Token, key));
-        loginSuccessInfo.put("userName", jwtUtil.extractUsername(Token, key));
+        loginSuccessInfo.put("userId", jwtUtil.extractUserId(jwt, key));
+        loginSuccessInfo.put("userName", jwtUtil.extractUsername(jwt, key));
 
         return loginSuccessInfo;
     }
 
     @Override
-    public int validJoin(HttpServletRequest httpRequest) {
+    public int validJoin(MemberEditRequestDTO memberEditRequestDTO) {
     	
+    	logger.info("MemberService.validJoin()!");
     	
-        if (memberEntityRepository.findById(httpRequest.getParameter("id")).isPresent()) {
-            return 1;
-        } else if (memberEntityRepository.findByNickName(httpRequest.getParameter("nickName")).isPresent()) {
-            return 2;
-        } else {
-        	
-        	List<String> roles = new ArrayList<String>(); 
-        	roles.add("ROLE_USER");
-        	
-            MembersEntity membersEntity = createMembersEntity(httpRequest);
-            UserEntity userEntity = createUserEntity(
-            		httpRequest,
-            		roles);
-            return membersRepository.addMember(membersEntity, userEntity);
+    	/* 회원 가입 요청에 따라 회원 가입이 가능한지 확인. */
+        if ( memberEntityRepository.findById(memberEditRequestDTO.getId()).isPresent() ) {	// id 중복 여부 확인
+   
+        	return USER_ID_DUPLICATE;
         }
-    }
-
-    @Override
-    public MembersEntity searchEditMember(HttpServletRequest httpRequest) {
-        return membersRepository.getMember(httpRequest.getParameter("editid"));
-    }
-
-    @Override
-    public int editMember(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        
+        if (memberEntityRepository.findByNickName(memberEditRequestDTO.getNickName()).isPresent()) {	// 닉네임 중복 여부 확인.
+        	return NICKNAME_DUPLICATE;
+        }
+        	
+        /* Id 와 닉네임 모두 중복 되지 않은 요청일 시 회원 가입 진행.
+         * 1. 회원 관리 테이블 내 회원 정보 추가
+         * 2. SpringSecurity 테이블 내 인증 정보 추가.
+ 		*/
     	
-    	 // 데이터 준비
-        List<String> roles = userEntityRepository.findById(httpRequest.getParameter("id"))
+    	List<String> roles = new ArrayList<String>(); 
+    	roles.add("ROLE_USER");
+    	
+        MembersEntity membersEntity = createMembersEntity(memberEditRequestDTO);
+        AuthenticationEntity authenticationEntity = createAuthenticationEntityEntity(
+        									memberEditRequestDTO,
+        									roles);
+        return membersRepository.addMember(membersEntity, authenticationEntity);
+    }
+    
+    
+ 
+    @Override
+    public MembersEntity searchEditMember(String editId) {
+        return membersRepository.getMember(editId);
+    }
+
+    /* editMember : 사용자 수정 요청 처리.
+     * 사용자 수정 요청 발생 시 회원 관리 테이블 뿐만 아니라 SpringSecurity 에서 인증 절차에 사용하는
+     * 별도의 테이블 또한 수정해야 되며 JWT 도 수정하여 브라우저에 응답으로 포함 한다.
+     * */
+    
+    @Override
+    public String editMember(String currentToken, MemberEditRequestDTO memberEditRequestDTO) {
+    	
+    	logger.info("MemberService.editMember()");
+    	
+    	/* SpringSecurity  */
+        List<String> roles = userEntityRepository.findById(memberEditRequestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"))
                 .getRoles();
     	
-        MembersEntity memberEntity = createMembersEntity(httpRequest);		// 전달 받은 회원 수정 요청 데이터를 가지고 회원 VO(Entity) 객체 만듬.
-        UserEntity userEntity = createUserEntity(httpRequest, roles);		// 전달 받은 회원 수정 요청 데이터를 가지고 "memberEntity" 에 대한 인증 용 객체.
+        // AuthenticationEntity(SrpingSecurity 테이블)과 MembersEntity(단순 회원관리) 테이블 모두 업데이트를 위한 JPA 용 Entity 객체 생성
+        MembersEntity memberEntity = createMembersEntity(memberEditRequestDTO);
+        AuthenticationEntity userEntity = createAuthenticationEntityEntity(memberEditRequestDTO, roles);
 
-        int result = membersRepository.editMember(memberEntity, userEntity);	// 실제 회원 정보 담고 있는 DBMS 테이블 수정.
+        // 인증 및 회원 관리에 관한 DB 테이블 갱신.
+        int result = membersRepository.editMember(memberEntity, userEntity);
 
         // 정상 적인 수정이 되었다면 변경된 컬럼이 있으니 새롭게 jwt 만들어서 db 내부 갱신하고 HttpResponse 객체 내 응답 중 쿠키 갱신
         if (result == 1) {
         	
-            String currentToken = getCookieToken(httpRequest);
-            Key currentTokenKey = getKey(currentToken);
-            
-            /* 회원 정보가 바뀌었으니 그에 따라 새로운 토큰을 만들어서 갱신 작업으로 이전 토큰을 redis 에서 삭제 및 새로운 토큰으로 저장. */
-            updateJwtToken(
-            		currentToken,	// redis 에서 삭제할 이전 토큰
-            		createNewJwtToken(currentToken, currentTokenKey, httpRequest.getParameter("nickName")),	 // redis 내 갱신할 새로운 토큰
-            		httpResponse
-            );
-        }
+        	// 현재 JWT의 키를 재 사용.
+        	Key newKey = getKey(currentToken);
+        	// 현재 토큰의 사용자 닉네임 컬럼을 수정해서 새로운 컬럼으로 반환.
+        	String newToken = editToken(currentToken, newKey, memberEditRequestDTO.getNickName());
+        	// Redis 내 JWT 정보 갱신.
+        	updateJwtToken(currentToken, newToken, newKey);
+        	
+        	return newToken;
         
-        return result;
+        } else { return String.valueOf(NICKNAME_DUPLICATE); }	// 2 를 반환 시 Repository 에서 회원 정보 수정 시 닉네임 중복으로 실패 했다는 의미므로 2를 컨트롤러에게 반환.
     }
 
     /* == 공통 메소드들 == */
     // 공통 엔티티 생성 메서드
-    private MembersEntity createMembersEntity(HttpServletRequest httpRequest) {
+    private MembersEntity createMembersEntity(MemberEditRequestDTO memberEditRequestDTO) {
         return MembersEntity.builder()
-                .id(httpRequest.getParameter("id"))
-                .pw(httpRequest.getParameter("pw"))
-                .nickName(httpRequest.getParameter("nickName"))
-                .tel(httpRequest.getParameter("tel"))
-                .email(httpRequest.getParameter("email"))
+                .id(memberEditRequestDTO.getId())
+                .pw(passwordEncoder.encode(memberEditRequestDTO.getPw()))
+                .nickName(memberEditRequestDTO.getNickName())
+                .tel(memberEditRequestDTO.getTel())
+                .email(memberEditRequestDTO.getEmail())
                 .joinDate(new java.sql.Date(new Date().getTime()))
                 .build();
     }
 
-    private UserEntity createUserEntity(HttpServletRequest httpRequest, List<String> roles) {
-        return UserEntity.builder()
-                .userid(httpRequest.getParameter("id"))
-                .username(httpRequest.getParameter("nickName"))
-                .password(passwordEncoder.encode(httpRequest.getParameter("pw")))
+    private AuthenticationEntity createAuthenticationEntityEntity(MemberEditRequestDTO memberEditRequestDTO, List<String> roles) {
+        return AuthenticationEntity.builder()
+                .userid(memberEditRequestDTO.getId())
+                .username(memberEditRequestDTO.getNickName())
+                .password(passwordEncoder.encode(memberEditRequestDTO.getPw()))
                 .roles(roles)
                 .build();
     }
 
-    // 기존 JWT 토큰에 대해서 변경된 클레임을 수정해서 새로운 JWT 토큰으로 생성
-    private String createNewJwtToken(String cueentToken, Key key, String newUsername) {
+    // 기존 JWT 토큰에 대해서 변경된 클레임을 수정해서 새로운 JWT 토큰으로 반환.
+    private String editToken(String cueentToken, Key key, String newUsername) {
         return jwtUtil.modifyClaim(cueentToken, key, "username", newUsername);
     }
 
     // JWT 토큰 업데이트 처리
-    private void updateJwtToken(String currentToken, String newToken, HttpServletResponse response) {
+    private void updateJwtToken(String currentToken, String newToken, Key tokenKey) {
     	
-    	System.out.println("\nMemberService.updateJwtToken()!");
+    	logger.info("MemberService.updateJwtToken()!");
     	
     	// 새로운 변경된 JWT 토큰 키 값 추가.
     	redisHandler.getValueOperations().set(
     			newToken,											// 새로운 JWT 문자열
-    			jwtUtil.encodeKeyToBase64(getKey(currentToken)),	// 원래 이전 JWT 의 Key 유지.
-    			jwtUtil.getRemainingDuration(currentToken, getKey(currentToken)));	// 기존 JWT 유효 시간을 "Duration" 객체로써 반환.
+    			jwtUtil.encodeKeyToBase64(tokenKey),	// 원래 이전 JWT 의 Key 재 사용 유지.
+    			Duration.ofHours(1)); // 1시간을 새롭게 갱신
     	
-    	System.out.println("newToken : " + newToken +
-    						"\n " + (String) redisHandler.getValueOperations().get(newToken));	
-    	System.out.println("currentToken : " + currentToken +
-				"\n " + (String) redisHandler.getValueOperations().get(currentToken));
+    	logger.info("Token Refresh : " + redisHandler.getValueOperations().get(newToken) + "\n"
+    			+ "old Token : " + (String) redisHandler.getValueOperations().get(currentToken));
     	
     	// 기존 JWT 토큰 키 및 값 삭제.(새로운 토큰 내 유효 시간을 설정 하려면 현재 토큰을 삭제하기 전에 수행해야 하므로 새로운 토큰 생성 및 저장 후 이전 JWT 삭제.)
-    	redisHandler.getValueOperations().getAndDelete(currentToken);	
-    	
-        Cookie cookie = new Cookie("Authorization", newToken);
-        cookie.setSecure(false); // HTTPS 환경에서만 작동
-        cookie.setHttpOnly(true); // JavaScript 접근 불가
-        cookie.setPath("/");
-        response.addCookie(cookie);
+    	redisHandler.getValueOperations().getAndDelete(currentToken);
     }
 
-    private String getCookieToken(HttpServletRequest httpRequest) {
-        Cookie[] cookies = httpRequest.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("Authorization".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
 
     /* JWT 를 가지고 redis 에서 key 문자열을 가져와서 실제 Key 객체로 반환 */
     private Key getKey(String jwtToken) {
     	
-    	System.out.println("MemberService.getKey()!");
+    	logger.info("MemberService.getKey()! " + jwtToken);
         
     	String encodedKey = (String) redisHandler.getValueOperations().get(jwtToken);
         byte[] decodedBytes = Base64.getUrlDecoder().decode(encodedKey);

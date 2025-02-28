@@ -15,7 +15,6 @@ import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -29,8 +28,8 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class RequestAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestAuthenticationFilter.class);
-    private static final String AUTH_COOKIE_NAME = "Authorization";
+    private final Logger logger = LoggerFactory.getLogger(RequestAuthenticationFilter.class);
+    private final String AUTH_COOKIE_NAME = "Authorization";
 
     private final CookieUtil cookieUtil;
     private final JWTUtil jwtUtil;
@@ -53,24 +52,33 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
 
         // 1. JWT 추출
         String token = extractToken(request);
+        
         if (token == null) {
-            handleInvalidToken(response, "JWT 토큰이 존재하지 않음!");
+        	
+            logger.warn("JWT 토큰이 존재하지 않음!");
+
+            // 인증 정보 없이 필터 체인 진행 (SecurityContextHolder는 그대로 유지)
+            filterChain.doFilter(request, response);
             return;
         }
 
         // 2. JWT Key(String)을 Redis 조회 후 검증 및 사용자 인증 처리
         Optional<Key> signingKeyOpt = jwtUtil.getSigningKeyFromToken(token);
         if (signingKeyOpt.isEmpty() || !jwtUtil.isValidToken(token, signingKeyOpt.get())) {
-            handleInvalidToken(response, "JWT 검증 실패!");
+        	
+            logger.warn("JWT 검증 실패!");
+            
+            // 인증 정보 없이 필터 체인 진행 (SecurityContextHolder는 그대로 유지)
+            filterChain.doFilter(request, response);
             return;
         }
 
         // 3. SecurityContext에 인증 정보 설정
         authenticateUser(token, signingKeyOpt.get());
-
         // 4. 필터 체인으로 요청을 전달
         filterChain.doFilter(request, response);
     }
+
 
     /**
      * HTTP 요청에서 "Authorization" 쿠키를 통해 JWT 토큰을 추출
@@ -98,26 +106,5 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         logger.info("JWT 인증 성공: 사용자 ID = {}", userId);
     }
-
-    /**
-     * 유효하지 않은 JWT 처리: 쿠키 삭제 후 클라이언트에 안내
-     */
-    private void handleInvalidToken(HttpServletResponse response, String errorMessage) throws IOException {
-        logger.warn(errorMessage);
-
-        // Authorization 쿠키 삭제
-        Cookie expiredCookie = new Cookie(AUTH_COOKIE_NAME, null);
-        expiredCookie.setPath("/");
-        expiredCookie.setMaxAge(0);
-        response.addCookie(expiredCookie);
-
-        // 사용자에게 안내 스크립트 반환
-        response.setContentType("text/html; charset=UTF-8");
-        response.getWriter().write(
-            "<script>" +
-                "alert('접근 권한이 없습니다.');" +
-                "window.location.href = '/wherehouse/list/0';" +
-            "</script>"
-        );
-    }
+  
 }

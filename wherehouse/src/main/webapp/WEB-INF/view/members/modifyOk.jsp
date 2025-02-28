@@ -24,7 +24,7 @@
 	} else {
 %>
 	<script language="javascript">
-		alert("정보 수정 실패입니다.");
+		alert("알 수 업는 이유로 정보 수정 실패 입니다.");
 		history.go(-1);
 	</script>
 <%

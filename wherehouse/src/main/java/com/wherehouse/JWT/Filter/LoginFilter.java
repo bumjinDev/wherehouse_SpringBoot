@@ -6,8 +6,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
+import com.wherehouse.JWT.exceptionHandler.LoginAuthenticationFailureHandler;
 import com.wherehouse.redis.handler.RedisHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,14 +27,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 로그인 요청을 처리하는 필터 (UsernamePasswordAuthenticationFilter 상속)
- * - 사용자가 아이디/비밀번호로 로그인하면 인증을 처리
- * - JWT 토큰을 생성하여 응답 쿠키에 저장
- */
-/*
- * "LoginFilter 클래스의 AuthenticationManager는 Provider를 필요로 하므로, 순환 참조 문제로 인해
- * LoginFilter를 @Component로 등록할 수 없다. 따라서 모든 필터 클래스를 SecurityConfig에서 @Bean으로
- * 등록하여 일관성을 유지한다."
+ * 로그인 인증 실패를 처리하는 핸들러
+ *
+ * Spring Security에서 로그인 요청(`/login` 경로)에 대한 인증이 실패했을 때 실행된다.
+ * 
+ * 실행 흐름:
+ * 1. 사용자가 `/login` 경로로 POST 요청을 보냄.
+ * 2. `LoginFilter`(`UsernamePasswordAuthenticationFilter`를 상속)가 요청을 처리하고
+ *    `attemptAuthentication()`에서 `AuthenticationManager`를 통해 인증을 수행.
+ * 3. `AuthenticationProvider`(`UserAuthenticationProvider`)에서 실제 인증을 시도.
+ * 4. 인증이 실패하면 `AuthenticationException`이 발생 (`BadCredentialsException` 등).
+ * 5. `UsernamePasswordAuthenticationFilter.unsuccessfulAuthentication()`가 호출됨.
+ * 6. `setAuthenticationFailureHandler(new LoginAuthenticationFailureHandler());`을 설정해두었기 때문에
+ *    `LoginAuthenticationFailureHandler`가 실행된다.
+ *
+ * 주요 역할:
+ * - 로그인 실패 사유를 확인하고, 적절한 메시지를 클라이언트에게 전달한다.
+ * - 기본적으로 `BadCredentialsException`이면 "아이디 또는 비밀번호가 잘못되었습니다." 메시지를 반환한다.
+ * - 비활성화된 계정(`DisabledException`) 등 다른 인증 예외도 처리할 수 있다.
+ * - 브라우저 요청이면 alert을 띄우고 `history.back();`으로 이전 페이지로 되돌아가게 할 수 있다.
+ * - AJAX 요청이라면 JSON 형식으로 응답을 반환하도록 설정할 수도 있다.
+ * 
+ * 실무 활용 예:
+ * - 로그인 실패 횟수를 기록하여 일정 횟수 초과 시 계정 잠금 처리 가능.
+ * - 인증 실패 로그를 저장하여 보안 감사를 수행할 수 있다.
+ * - 특정 시간 동안 여러 번 실패하면 보안 알람을 발생시킬 수 있다.
  */
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -46,6 +65,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public LoginFilter(AuthenticationManager authenticationManager, RedisHandler redisHandler, JWTUtil jwtUtil) {
         
     	super.setAuthenticationManager(authenticationManager);
+    	this.setAuthenticationFailureHandler(new LoginAuthenticationFailureHandler());
     	
         this.redisHandler = redisHandler;
         this.jwtUtil = jwtUtil;
@@ -59,20 +79,36 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
 
-    	logger.info("LoginFilter: 로그인 요청 받음");
-    	 
-        LoginRequest loginRequest = null;
-        
-		try {	loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class); }
-		catch (IOException e) {	 logger.warn("LoginFilter.attemptAuthentication - Login 인증 정보 Json 파싱 에러 : {}", e.getMessage());	}
-       
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                		loginRequest.getUsername(),
-                		loginRequest.getPassword());
+        logger.info("LoginFilter: 로그인 요청 받음");
 
+        // Content-Type 확인
+        String contentType = request.getContentType();
+        logger.info("Content-Type: {}", contentType);
+
+        LoginRequest loginRequest = null;
+
+        try {
+        	
+            if ("application/json".equalsIgnoreCase(contentType)) {
+				
+            	loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+            } else if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType)) {
+
+                loginRequest = new LoginRequest(
+                    request.getParameter("userid"),
+                    request.getParameter("password")); 
+            }
+            
+       } catch ( IOException e) { e.printStackTrace(); }
+            
+        
+        // 인증 토큰 생성
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(loginRequest.getUserid(), loginRequest.getPassword());
+        
         return getAuthenticationManager().authenticate(authToken);
     }
+
 
     /**
      * 인증 성공 시 JWT 생성 후 응답 쿠키에 추가
@@ -85,7 +121,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     	
         // JWT 생성 후 브러우저에 반환할 HostOnly 쿠키에 추가
         addJwtToCookie(response, generateAndStoreJwt(authResult));
-
         // 로그인 성공 후 페이지 이동
         try { response.sendRedirect("/wherehouse/loginSuccess"); }
         catch (IOException e) { e.printStackTrace(); }
@@ -93,18 +128,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     /**
      * 인증 실패 시 예외 처리 (에러 페이지로 이동)
+     * @throws ServletException 
+     * @throws IOException 
      */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                              AuthenticationException failed) {
-
-    	logger.warn("LoginFilter: 로그인 실패 - 이유: {}", failed.getMessage());
-
-        request.setAttribute("exceptionType", failed.getClass().getSimpleName());
-
-        try { request.getRequestDispatcher("/loginException").forward(request, response); }
-        catch (ServletException | IOException e) { e.printStackTrace(); }
+                                              AuthenticationException failed) throws IOException, ServletException {
+        logger.warn("로그인 실패: {}", failed.getMessage());
+        /* "LoginAuthenticationFailureHandler" 을 내부에서 자동 호출되어 처리. */
+        super.unsuccessfulAuthentication(request, response, failed);
     }
+
 
     /**
      * JWT 생성 후 Redis에 저장
@@ -122,14 +156,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // JWT 서명 키 생성하기.
         Key key = jwtUtil.generateSigningKey();
-
         // JWT 토큰 생성
         String jwtToken = jwtUtil.generateToken(username, userId, roles, key);
-
         // JWT 서명 키를 Redis에 저장 (JWT 만료 시간과 동일한 TTL 적용)
         redisHandler.getValueOperations().set(jwtToken,
                 jwtUtil.encodeKeyToBase64(key));
-
+        
         return jwtToken;
     }
 
@@ -148,8 +180,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     
     @Data
     @AllArgsConstructor
-    class LoginRequest {
-    	private String username;
-    	private String password;
+    static class LoginRequest {
+    	String userid;
+    	String password;
     }
 }

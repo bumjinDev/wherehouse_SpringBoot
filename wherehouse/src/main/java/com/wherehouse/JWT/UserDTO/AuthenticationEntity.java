@@ -25,7 +25,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder // 빌더 패턴 추가
 @Table(name = "userentity")
-public class UserEntity {
+public class AuthenticationEntity {
 
     @Id
     @Column(nullable = false)

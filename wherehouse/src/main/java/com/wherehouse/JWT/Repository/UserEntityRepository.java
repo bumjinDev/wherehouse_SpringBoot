@@ -2,10 +2,11 @@ package com.wherehouse.JWT.Repository;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.wherehouse.JWT.UserDTO.UserEntity;
 
-public interface UserEntityRepository extends JpaRepository<UserEntity, String>{
+import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
+
+public interface UserEntityRepository extends JpaRepository<AuthenticationEntity, String>{
 	
-	Optional<UserEntity> findByUsername(String nickName);
-	Optional<UserEntity> findByUserid(String userid);
+	Optional<AuthenticationEntity> findByUsername(String nickName);
+	Optional<AuthenticationEntity> findByUserid(String userid);
 }

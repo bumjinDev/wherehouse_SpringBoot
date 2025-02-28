@@ -6,21 +6,21 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.wherehouse.JWT.UserDTO.UserEntity;
+import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
 
 public class UserEntityDetails implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
 	
-	UserEntity userEntity;
+	AuthenticationEntity authenticationEntity;
 	
-	public UserEntityDetails (UserEntity userEntity) {
-		this.userEntity = userEntity;
+	public UserEntityDetails (AuthenticationEntity userEntity) {
+		this.authenticationEntity = userEntity;
 	}
 	
 	public String getuserId() {
 		
-		return (String) this.userEntity.getUserid();
+		return (String) this.authenticationEntity.getUserid();
 	}
 	
 	/* Interface - GrantedAuthority:
@@ -38,7 +38,7 @@ public class UserEntityDetails implements UserDetails {
 		// 역할을 GrantedAuthority 리스트로 변환
 	    List<GrantedAuthority> authorities = new ArrayList<>();
 	    
-	    for (String role : userEntity.getRoles()) {  // userEntity의 roles는 String의 리스트입니다.
+	    for (String role : authenticationEntity.getRoles()) {  // userEntity의 roles는 String의 리스트입니다.
 	        authorities.add(new SimpleGrantedAuthority(role));
 	    }
 	    return authorities;
@@ -48,13 +48,13 @@ public class UserEntityDetails implements UserDetails {
 	@Override
 	public String getPassword() {
 		// TODO Auto-generated method stub
-		return userEntity.getPassword();
+		return authenticationEntity.getPassword();
 	}
 
 	@Override
 	public String getUsername() {
 		// TODO Auto-generated method stub
-		return userEntity.getUsername();
+		return authenticationEntity.getUsername();
 	}
 
 	/* 자격 증명 만료 여부를 검증하고 결과를 반환하는 것(JWT 에서는 active 토큰에 대한 검증을 수정하면 될 듯)*/

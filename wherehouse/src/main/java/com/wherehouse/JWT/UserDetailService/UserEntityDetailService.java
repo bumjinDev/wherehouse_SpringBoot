@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
-import com.wherehouse.JWT.UserDTO.UserEntity;
+import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
 import com.wherehouse.JWT.UserDetails.UserEntityDetails;
 
 @Service
@@ -25,17 +25,19 @@ public class UserEntityDetailService implements UserDetailsService {
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.info("loadUserByUsername() 호출 - username: {}", username);
+        
+    	logger.info("loadUserByUsername() 호출 - username: {}", username);
 
-        UserEntity userEntity = userRepository.findByUsername(username)
+    	// 테이블 "userEntity" 내 회원을 조회 한다.(기존 회원 관리 테이블 과는 무관)
+        AuthenticationEntity authenticationEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
                     logger.warn("사용자를 찾을 수 없음: {}", username);
                     return new UsernameNotFoundException("User not found: " + username);
                 });
 
         logger.info("사용자 정보 로드 완료 - ID: {}, Username: {}, Roles: {}", 
-                userEntity.getUserid(), userEntity.getUsername(), userEntity.getRoles());
+        		authenticationEntity.getUserid(), authenticationEntity.getUsername(), authenticationEntity.getRoles());
 
-        return new UserEntityDetails(userEntity);
+        return new UserEntityDetails(authenticationEntity);
     }
 }
