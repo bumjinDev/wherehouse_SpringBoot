@@ -21,16 +21,16 @@ import lombok.NoArgsConstructor;
 public class CommentEntity {
 	
 	@Column
-	private int num;	// 테이블 'whereboard' 와의 외래키 제약 조건.
+	private int boardId;	// 테이블 'whereboard'
 	
 	@Column
-	private String id;	// 테이블 'memberstbl' 과의 외래키 제약 조건
+	private String userId;	// 테이블 'memberstbl'
 	
 	@Column
-	private String nickname;
+	private String userName;
 	
 	@Column
-	private String content;
+	private String replyContent;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "commenttbl_seq")

@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.wherehouse.JWT.UserDTO.MemberEditRequestDTO;
+
+import com.wherehouse.members.model.MemberDTO;
 import com.wherehouse.members.service.IMemberService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -102,7 +103,7 @@ public class MembersController {
     @PostMapping("/membermodifyok")
     public String editMember(
     		@CookieValue(name = "Authorization", required = true) String jwt,
-    		@ModelAttribute MemberEditRequestDTO editRequestDTO,
+    		@ModelAttribute MemberDTO editRequestDTO,
     		HttpServletResponse httpResponse,
     		Model model) {
 
@@ -146,7 +147,7 @@ public class MembersController {
     @PostMapping("/joinOk")
     public String joinRequest(
     		
-    		@ModelAttribute MemberEditRequestDTO memberEditRequestDTO,
+    		@ModelAttribute MemberDTO memberEditRequestDTO,
     		Model model) {
 
         logger.info("MemberController.joinRequest()!");

@@ -7,8 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import com.wherehouse.JWT.DTO.AuthenticationEntity;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
-import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
 import com.wherehouse.JWT.UserDetailService.UserEntityDetailService;
 import com.wherehouse.JWT.UserDetails.UserEntityDetails;
 

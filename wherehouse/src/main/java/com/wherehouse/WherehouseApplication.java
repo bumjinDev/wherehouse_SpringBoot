@@ -1,7 +1,6 @@
 package com.wherehouse;
 
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -15,16 +14,21 @@ import jakarta.annotation.PostConstruct;
 @SpringBootApplication
 public class WherehouseApplication extends SpringBootServletInitializer{
 
-	@Autowired
 	RedisHandler redisHandler;
 	
+	public WherehouseApplication(RedisHandler redisHandler) {
+		this.redisHandler = redisHandler;
+	}
+
 	@Override 
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) { 
 		return application.sources(WherehouseApplication.class);
 	}
 	
 	public static void main(String[] args) {
-		SpringApplication.run(WherehouseApplication.class, args);
+		
+		System.out.println("Temp Directory: " + System.getProperty("java.io.tmpdir"));
+	    SpringApplication.run(WherehouseApplication.class, args);
 	}
 	
 	@PostConstruct

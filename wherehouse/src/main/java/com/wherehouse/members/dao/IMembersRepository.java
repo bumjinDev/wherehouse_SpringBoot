@@ -1,6 +1,6 @@
 package com.wherehouse.members.dao;
 
-import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
+import com.wherehouse.JWT.DTO.AuthenticationEntity;
 import com.wherehouse.members.model.MembersEntity;
 
 

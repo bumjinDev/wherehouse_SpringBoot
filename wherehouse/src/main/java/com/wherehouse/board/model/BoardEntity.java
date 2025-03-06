@@ -1,22 +1,20 @@
 package com.wherehouse.board.model;
 
 import java.sql.Date;
-import java.time.LocalDate;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="whereboard")
@@ -32,5 +30,4 @@ public class BoardEntity {
 	private String region;
 	private int hit;
 	private Date bdate;
-
 }

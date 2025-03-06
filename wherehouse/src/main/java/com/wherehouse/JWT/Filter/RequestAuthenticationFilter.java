@@ -91,6 +91,7 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
      * JWT 토큰에서 사용자 정보를 추출하여 SecurityContext에 설정
      */
     private void authenticateUser(String token, Key key) {
+    	
         String userId = jwtUtil.extractUserId(token, key);
         List<String> roles = jwtUtil.extractRoles(token, key);
 

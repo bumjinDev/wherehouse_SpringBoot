@@ -15,7 +15,7 @@
 			<form action="./boardwrite" name="writefrm" method="post">
 			
 			
-				<input type="hidden" name="userid" value="${requestScope.userId}">	<!-- 사용자 ID -->
+				<input type="hidden" name="userId" value="${userId}">	<!-- 사용자 ID -->
 				<!-- 글 제목 : 본문 데이터 사용. name="title" -->
 				<!-- 지역 선택 : 본문 데이터 사용, name="regions" -->
 				<!-- 글 본문 : 본문 데이터 사용, name="boardcontent" -->
@@ -23,7 +23,7 @@
 				<h1>WhereHouse 글 쓰기</h1>
 				<tr>
 					<td class="narrow">이름</td>
-					<td>${requestScope.userName}</td>
+					<td>${userName}</td>
 				</tr>
 
 				<tr>
@@ -35,7 +35,7 @@
 						<label for="regions">지역 선택하세요</label>
 					</td>
 					<td>
-						<select name="regions" class="regions">
+						<select name="region" class="regions">
 							<option value="선택 지역 없음">지역구를 선택해주세요</option>
 							<option value="강남구">강남구</option>
 							<option value="강동구">강동구</option>
@@ -67,7 +67,7 @@
 				</tr>
 				<tr>
 					<td class="narrow">내용</td>
-					<td><textarea name="boardcontent" class="bcontent" rows="15" cols="50"></textarea></td>
+					<td><textarea name="boardContent" class="bcontent" rows="15" cols="50"></textarea></td>
 				</tr>
 				<tr>
 					<td colspan="2"><input type="button" id="writeBtn" value="글 쓰기 완료">&nbsp;&nbsp;<a href="/wherehouse/list/0">목록으로 돌아가기</a></td>

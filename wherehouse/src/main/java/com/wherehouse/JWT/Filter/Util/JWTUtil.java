@@ -88,7 +88,8 @@ public class JWTUtil {
      * JWT 토큰에서 서명 키 가져오기
      */
     public Optional<Key> getSigningKeyFromToken(String token) {
-        try {
+        
+    	try {
             String jwtInKey = (String) redisHandler.getValueOperations().get(token);
             
             return Optional.of(

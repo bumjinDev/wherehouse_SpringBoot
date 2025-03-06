@@ -17,7 +17,7 @@ public interface CommentEntityRepository extends JpaRepository<CommentEntity, In
      * @param commentId 댓글이 속한 게시글 번호
      * @return 게시글에 속한 댓글 목록
      */
-    List<CommentEntity> findByNum(int commentId);
+    List<CommentEntity> findByBoardId(int commentId);
 
     // 기본적으로 제공되는 save 메서드는 그대로 사용
 }

@@ -2,12 +2,13 @@ package com.wherehouse.board.dao;
 
 import com.wherehouse.board.model.BoardEntity;
 import com.wherehouse.board.model.CommentEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 /**
  * BoardRepository는 게시판 관련 데이터베이스 작업을 처리하는 클래스입니다.
@@ -17,12 +18,23 @@ import java.util.List;
 @Service
 public class BoardRepository implements IBoardRepository {
 
-    @Autowired
+
     BoardEntityRepository boardEntityRepository;
 
-    @Autowired
     CommentEntityRepository commentEntityManger;
 
+    
+    public BoardRepository(
+    		
+    		BoardEntityRepository boardEntityRepository,
+    		CommentEntityRepository commentEntityManger
+    	) {
+    	
+    	this.boardEntityRepository = boardEntityRepository;
+    	this.commentEntityManger = commentEntityManger;
+
+    }
+    
     /**
      * 게시글 목록 조회 및 페이지네이션 처리.
      * 
@@ -36,27 +48,32 @@ public class BoardRepository implements IBoardRepository {
     public HashMap<String, Object> searchBoardList(int pnIndex) {
 
         HashMap<String, Object> resultBoard = new HashMap<>(); 		// 결과 데이터 저장용
+        
+        //List<BoardVO> boardList = null;							// 페이지네이션 범위에 해당하는 게시글 목록
         List<BoardEntity> boardList = null;							// 페이지네이션 범위에 해당하는 게시글 목록
-
+        
         List<String> members = null;
         
         // 게시글 전체 페이지 수 계산 (페이지 당 10개 게시글 기준)
         int pnSize = ((int) Math.ceil(boardEntityRepository.count() / 10.0));
 
         // 요청받은 페이지 번호에 해당하는 게시글 데이터 가져오기
+        // boardList = boardConverter.toVOList(boardEntityRepository.findByBdateWithPagination(pnIndex * 10, 10));
         boardList = boardEntityRepository.findByBdateWithPagination(pnIndex * 10, 10);
+        
+        List<Integer> boardIdList = boardList.stream()
+                .map(BoardEntity::getConnum)
+                .collect(Collectors.toList());
 
-        /* boardList 내 조회된 결과가 없으면 게시판 내  */
-        if(boardList.size() >= 1) {
-        	System.out.println("boardList : " + boardList);
-        	members = getMembers(boardList.get(0).getConnum(), boardList.get(boardList.size() - 1).getConnum()); // 게시글 작성자 닉네임
-		} else
+        if(boardList.size() >= 1)
+        	members = getMembers(boardIdList);
+         else
 			members = null;
 			
         // 결과 데이터 구성
-        resultBoard.put("pnSize", pnSize); // 전체 페이지 수
-        resultBoard.put("boardList", boardList); // 현재 페이지 게시글 목록
-        resultBoard.put("members", members);
+        resultBoard.put("pnSize", pnSize); 			// 전체 게시글 수에 대한 페이지 네이션 개수로써 게시글 페이지 버튼을 구현.
+        resultBoard.put("boardList", boardList); 	// 게시글 전체 목록에 각 게시글 별 실제 데이터 제공.
+        resultBoard.put("members", members);		// 게시글 전체 목록에 각 게시글 별 실제 작성자 닉네임을 표기
         
         return resultBoard;
     }
@@ -79,8 +96,10 @@ public class BoardRepository implements IBoardRepository {
      * @return 조회된 게시글 데이터
      */
     public BoardEntity findBoard(int boardId) {
-        return boardEntityRepository.findById(boardId).orElse(null);
+        return boardEntityRepository.findById(boardId)
+            .orElseThrow(() -> new NoSuchElementException("해당 게시글을 찾을 수 없습니다. ID: " + boardId));
     }
+
 
     /**
      * 특정 게시글 삭제.
@@ -99,7 +118,8 @@ public class BoardRepository implements IBoardRepository {
      * @param boardId 조회수를 증가시킬 게시글 ID
      */
     public void upHit(int boardId) {
-        boardEntityRepository.findById(boardId).ifPresent(board -> {
+    	
+        boardEntityRepository.findById(boardId).ifPresent(board -> {  	
             board.setHit(board.getHit() + 1);
             boardEntityRepository.save(board);
         });
@@ -114,9 +134,11 @@ public class BoardRepository implements IBoardRepository {
      */
     public void boardModify(BoardEntity boardEntity) {
         boardEntityRepository.findById(boardEntity.getConnum()).ifPresent(board -> {
+        	
             board.setTitle(boardEntity.getTitle());
             board.setBoardcontent(boardEntity.getBoardcontent());
             board.setRegion(boardEntity.getRegion());
+            
             boardEntityRepository.save(board);
         });
     }
@@ -141,7 +163,7 @@ public class BoardRepository implements IBoardRepository {
      */
     @Override
     public List<CommentEntity> commentSearch(int commentId) {
-        return commentEntityManger.findByNum(commentId);
+        return commentEntityManger.findByBoardId(commentId);
     }
 
     /**
@@ -154,7 +176,8 @@ public class BoardRepository implements IBoardRepository {
      * @return 작성자 닉네임 목록
      */
     @Override
-    public ArrayList<String> getMembers(int start, int end) {
-        return (ArrayList<String>) boardEntityRepository.findUserIdByConnumBetween(start, end);
+    public ArrayList<String> getMembers(List<Integer> boardIdList) {
+        return (ArrayList<String>) boardEntityRepository.findUserIdByConnumIn(boardIdList);
     }
+
 }

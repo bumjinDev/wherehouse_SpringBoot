@@ -1,4 +1,4 @@
-package com.wherehouse.JWT.UserDTO;
+package com.wherehouse.JWT.DTO;
 
 //import org.springframework.data.annotation.Id;
 import jakarta.persistence.Id;

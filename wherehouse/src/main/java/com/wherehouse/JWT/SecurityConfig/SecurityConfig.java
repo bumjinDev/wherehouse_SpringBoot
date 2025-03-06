@@ -149,7 +149,7 @@ public class SecurityConfig {
 
         return http.build();
     } 
- 
+
     @Bean
     @Order(5)
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {

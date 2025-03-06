@@ -1,10 +1,11 @@
 package com.wherehouse.members.dao;
 
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Repository;
+
+import com.wherehouse.JWT.DTO.AuthenticationEntity;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
-import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
 import com.wherehouse.members.model.MembersEntity;
 
 /**
@@ -59,7 +60,9 @@ public class MembersRepository implements IMembersRepository {
      */
     @Override
     public MembersEntity getMember(String userId) {
-        return memberEntityRepository.findById(userId).get(); // 회원 ID로 데이터 검색
+
+        return memberEntityRepository.findById(userId)
+        								.orElseThrow(() -> new NoSuchElementException("해당 게시글을 찾을 수 없습니다. ID: " + userId));
     }
 
     /**
@@ -76,9 +79,6 @@ public class MembersRepository implements IMembersRepository {
     @Override
     public int editMember(MembersEntity membersEntity, AuthenticationEntity userEntity) {
     		
-    	System.out.println(membersEntity.getNickName());
-    	System.out.println(membersEntity.getId());
-  
         // 닉네임 중복 확인: 닉네임이 기존과 다르고 다른 사용자와 중복되지 않을 경우에만 수정 가능
         if (!memberEntityRepository.findByNicknameAndNotIdNative(membersEntity.getNickName(), membersEntity.getId()).isPresent()) {
             

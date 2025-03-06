@@ -1,15 +1,22 @@
 package com.wherehouse.board.controller;
 
+import java.util.HashMap;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import com.wherehouse.board.service.IBoardService;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.wherehouse.board.model.BoardVO;
+import com.wherehouse.board.model.CommandtVO;
+import com.wherehouse.board.service.IBoardService;
 
 /**
  * BoardServiceController는 게시판 기능(글 목록 조회, 글 작성, 수정, 삭제 등)을 처리하는 컨트롤러입니다.
@@ -17,10 +24,18 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @Controller
 public class BoardServiceController {
-    
-    @Autowired
-    IBoardService boardService;
-    
+
+    private final IBoardService boardService;
+
+    // JSP 경로 상수.
+    private static final String BOARD_LIST_PAGE = "board/BoardListPage";
+    private static final String CONTENT_PAGE = "board/ContentPage";
+    private static final String WRITE_PAGE = "board/WritePage";
+    private static final String CONTENT_EDIT_PAGE = "board/ContentEditPage";
+
+    public BoardServiceController(IBoardService boardService) {
+        this.boardService = boardService;
+    }
 
     // ======== 조회 관련 메소드 ========
 
@@ -33,13 +48,13 @@ public class BoardServiceController {
      */
     @GetMapping("/list/{pnIndex}")
     public String pageListPn(@PathVariable("pnIndex") int pnIndex, Model model) {
+    	
         Map<String, Object> listView = boardService.searchBoard(pnIndex);
 
-        model.addAttribute("pnSize", listView.get("pnSize"));
-        model.addAttribute("boardList", listView.get("boardList"));
-        model.addAttribute("members", listView.get("members"));
-
-        return "board/BoardListPage";
+        /*  model.addAllAttributes : pnSize / boardList / members  */
+        model.addAllAttributes(listView);
+        
+        return BOARD_LIST_PAGE;
     }
 
     /**
@@ -51,13 +66,13 @@ public class BoardServiceController {
      */
     @GetMapping("/choiceboard/{boardNumber}")
     public String choiceboard(@PathVariable("boardNumber") int boardNumber, Model model) {
-        // Map<String, Object> contentView = boardService.sarchView(boardNumber);
-    	Map<String, Object> contentView = boardService.sarchView(boardNumber);
-        model.addAttribute("content_view", contentView.get("content_view"));
-        model.addAttribute("comments", contentView.get("comments"));
-        model.addAttribute("AuthorNickname", contentView.get("AuthorNickname"));
 
-        return "board/ContentPage";
+    	Map<String, Object> contentView = boardService.sarchView(boardNumber);
+    	
+        /*  model.addAllAttributes : content_view / comments / AuthorNickname  */
+        model.addAllAttributes(contentView);
+        
+        return CONTENT_PAGE;
     }
 
     // ======== 작성 관련 메소드 ========
@@ -68,8 +83,16 @@ public class BoardServiceController {
      * @return 글 작성 페이지 경로
      */
     @GetMapping("/writepage")
-    public String WritePage() {
-        return "board/WritePage";
+    public String WritePage(
+    				@CookieValue(value = "Authorization", required = false) String token,
+    				Model model) {
+    	
+    	Map<String, String> writePageData = boardService.writePage(token);
+    	
+    	/*  model.addAllAttributes : userId / userName */
+    	model.addAllAttributes(writePageData);
+    	
+        return WRITE_PAGE;
     }
 
     /**
@@ -80,35 +103,31 @@ public class BoardServiceController {
      * @return 게시글 목록 페이지로 리다이렉트
      */
     @PostMapping("/boardwrite")
-    public String WritePage(HttpServletRequest httpRequest, Model model) {
-        try {
-        	boardService.boardWrite(httpRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error"; // 에러 페이지로 이동
-        }
-
+    public String WritePage(@ModelAttribute BoardVO boardVO) {
+        	
+        boardService.boardWrite(boardVO); // 게시글 작성 직후 전체 게시글 목록으로 리 다이렉트!
+        
         return "redirect:/list/0";
     }
 
     // ======== 삭제 관련 메소드 ========
 
     /**
-     * 게시글 삭제 요청을 처리합니다.
+     * 게시글 삭제 요청을 처리 한다. 현재 게시글 내 작성자 ID 와 현재 요청한 ID 가 같으면 삭제하고 아니면 삭제하지 않는다.
      *
      * @param boardId     삭제할 게시글 ID
      * @param httpRequest 현재 요청 객체 (사용자 정보 포함)
      * @param model       Model 객체에 리다이렉트 URL 추가
      * @return 삭제 결과 페이지 경로
      */
-    @GetMapping("/delete/{boardId}")
-    public String deletePage(@PathVariable("boardId") String boardId, HttpServletRequest httpRequest, Model model) {
-        if (boardService.deleteBoard(boardId, httpRequest).equals("/wherehouse/list/0"))
-            model.addAttribute("redirectUrl", "/wherehouse/list/0");
-        else
-            model.addAttribute("redirectUrl", "/wherehouse/choiceboard/" + boardId);
-
-        return "board/DeletePage";
+    @DeleteMapping("/delete/{boardId}")
+    public ResponseEntity<Void>  deletePage(
+    			@CookieValue(value = "Authorization", required = false) String jwt,
+    			@PathVariable("boardId") int boardId,
+    			Model model) {
+    	
+    	boardService.deleteBoard(boardId, jwt); // 삭제 수행 (예외 발생 가능)
+    	return ResponseEntity.noContent().build(); // 204 No Content 반환
     }
 
     // ======== 수정 관련 메소드 ========
@@ -122,23 +141,24 @@ public class BoardServiceController {
      * @return 수정 페이지 경로 또는 경고 페이지 경로
      */
     @PostMapping("/modifypage")
-    public String modifiyPageRequest(HttpServletRequest httpRequest, Model model) {
-        String returnPage = boardService.boardModifyPage(httpRequest);
+    public String modifiyPageRequest(
+            @CookieValue(value = "Authorization", required = false) String jwt,
+            @ModelAttribute BoardVO boardVO,
+            RedirectAttributes redirectAttributes, // Flash Attribute 추가
+            Model model) {
 
-        if (returnPage.equals("board/ContentEditPage")) {
-            model.addAttribute("boardId", httpRequest.getParameter("boardId"));
-            model.addAttribute("title", httpRequest.getParameter("title"));
-            model.addAttribute("boardContent", httpRequest.getParameter("boardContent"));
-            model.addAttribute("region", httpRequest.getParameter("region"));
-            model.addAttribute("boardDate", httpRequest.getParameter("boardDate"));
-            model.addAttribute("boardHit", httpRequest.getParameter("boardHit"));
-            model.addAttribute("AuthorNickname", httpRequest.getParameter("AuthorNickname"));
-            model.addAttribute("writerId", httpRequest.getParameter("writerId"));
+    	HashMap<String, Object> returnData = boardService.boardModifyPage(jwt, boardVO);
+
+        if (returnData.get("canModify").equals(true)) {
+        	
+            model.addAllAttributes(returnData);
+            return CONTENT_EDIT_PAGE;
+            
         } else {
-            model.addAttribute("redirectUrl", "/wherehouse/choiceboard/" + httpRequest.getParameter("boardId"));
+            // FlashAttribute를 사용하여 alert 메시지 추가
+            redirectAttributes.addFlashAttribute("alertMessage", "게시글 작성자가 아니므로 수정할 수 없습니다.");
+            return "redirect:/wherehouse/choiceboard/" + boardVO.getBoardId();
         }
-
-        return returnPage;
     }
 
     /**
@@ -148,8 +168,10 @@ public class BoardServiceController {
      * @return 게시글 목록 페이지로 리다이렉트
      */
     @PostMapping("/modify")
-    public String modifyPage(HttpServletRequest httpRequest) {
-    	boardService.modifyBoard(httpRequest);
+    public String modifyPage(@ModelAttribute BoardVO boardVO) {
+    	
+    	boardService.modifyBoard(boardVO);
+    	
         return "redirect:/list/0";
     }
 
@@ -163,8 +185,13 @@ public class BoardServiceController {
      * @return 게시글 상세 페이지로 리다이렉트
      */
     @PostMapping("/replyWrite")
-    public String replyWrite(HttpServletRequest httpRequest, Model model) {
-    	boardService.writeReply(httpRequest);
-        return "redirect:/choiceboard/" + httpRequest.getParameter("boardId");
+    
+    public String replyWrite(
+    		@CookieValue(value = "Authorization", required = false) String jwt,
+    		@ModelAttribute CommandtVO commandtVO) {
+    	
+    	boardService.writeReply(jwt, commandtVO);
+    	
+        return "redirect:/choiceboard/" + commandtVO.getBoardId();
     }
 }

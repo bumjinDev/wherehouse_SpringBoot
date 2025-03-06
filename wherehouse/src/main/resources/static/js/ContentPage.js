@@ -1,29 +1,52 @@
-window.onload = function(){
-	
-	/* 게시글 수정 페이지 "ContenteEit.jsp"로 이동. */
-	document.querySelector('.editbutton').addEventListener('click', function(){
-		
-		document.getElementById('modifyform').submit();
-	});
+document.addEventListener("DOMContentLoaded", function () {
+    
+    // Flash Attribute 메시지가 있으면 alert 실행
+    showAlertIfExists();
 
-	/* 삭제 요청 시 HostOnly Cookie 내 JWT 가 서버로 전송되어 글 삭제 요청을 처리한다.
-		현재 요청자와 동일하다면 삭제가 이루어지며, 동일하지 않을 시 별도의 alert JavaScript 포함한 간단한 페이지가 리다이렉트 된다. */
-	document.querySelector('.deletebutton').addEventListener('click', function(){
-		
-		var boardId = document.getElementById('boardId').value;
-		window.location.href = `/wherehouse/delete/${boardId}`;
-	});
-	
-	/* 게시글 전체 목록 "list.jsp" 이동. */
-	document.querySelector('.listbutton').addEventListener('click', function(){
-	
-		alert("전체 글 목록으로 이동합니다.");
-		window.location.href = '/wherehouse/list/0';
-	});
+    // 게시글 수정 버튼 클릭 이벤트
+    document.querySelector('.editbutton')?.addEventListener('click', function () {
+        document.getElementById('modifyform').submit();
+    });
 
-	document.querySelector('.replybutton').addEventListener('click', function(){
-		
-		/* db 내 댓글 추가 */
-		document.getElementById('replyform').submit();	
-	});
+    // 게시글 삭제 버튼 클릭 이벤트
+    document.querySelector('.deletebutton')?.addEventListener('click', deletePost);
+
+    // 게시글 전체 목록 이동 버튼 이벤트
+    document.querySelector('.listbutton')?.addEventListener('click', function () {
+        alert("전체 글 목록으로 이동합니다.");
+        window.location.href = '/wherehouse/list/0';
+    });
+
+    // 댓글 추가 버튼 이벤트
+    document.querySelector('.replybutton')?.addEventListener('click', function () {
+        document.getElementById('replyform').submit();
+    });
+
+});
+
+// FlashAttribute의 alert 메시지 확인 및 출력 함수
+function showAlertIfExists() {
+    let alertMessage = document.getElementById('alertMessage')?.value;
+    if (alertMessage) {
+        alert(alertMessage);
+    }
+}
+
+function deletePost() {
+    var boardId = document.getElementById('boardId').value;
+
+    fetch(`/wherehouse/delete/${boardId}`, { method: "DELETE" })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; }); // RFC 7807 기반 오류 처리
+            }
+            return response; // 성공 시 추가 데이터 없음
+        })
+        .then(() => {
+            alert("글 삭제 완료!");
+            window.location.href = "/wherehouse/list/0"; // 게시판 목록으로 이동
+        })
+        .catch(error => {
+            alert(`${error.title}: ${error.detail}`); // RFC 7807 기반 오류 메시지 출력
+        });
 }

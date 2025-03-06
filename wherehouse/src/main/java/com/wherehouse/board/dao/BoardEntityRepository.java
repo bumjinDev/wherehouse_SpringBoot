@@ -23,9 +23,8 @@ public interface BoardEntityRepository extends JpaRepository<BoardEntity, Intege
 	        @Param("pageSize") int pageSize
 	    );
 	
-    /** BoardRepository : connum 범위 내 'userid' 컬럼을 목록을 LSIT 로써 가져오기 */
-    @Query("SELECT b.userid FROM BoardEntity b WHERE b.connum BETWEEN :start AND :end")
-    List<String> findUserIdByConnumBetween(@Param("start") int start, @Param("end") int end);
+	@Query("SELECT b.userid FROM BoardEntity b WHERE b.connum IN :boardIds")
+	List<String> findUserIdByConnumIn(@Param("boardIds") List<Integer> boardIds);
 
     /** 특정 connum에 해당하는 userid 가져오기 */
     @Query("SELECT b.userid FROM BoardEntity b WHERE b.connum = :connum")

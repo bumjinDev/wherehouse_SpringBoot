@@ -14,12 +14,13 @@ import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.wherehouse.JWT.DTO.AuthenticationEntity;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
-import com.wherehouse.JWT.UserDTO.AuthenticationEntity;
-import com.wherehouse.JWT.UserDTO.MemberEditRequestDTO;
 import com.wherehouse.members.dao.IMembersRepository;
 import com.wherehouse.members.dao.MemberEntityRepository;
+import com.wherehouse.members.model.MemberDTO;
 import com.wherehouse.members.model.MembersEntity;
 import com.wherehouse.redis.handler.RedisHandler;
 
@@ -69,7 +70,6 @@ public class MemberService implements IMemberService {
     	
         Key key = getKey(jwt);
 
-        
         Map<String, String> loginSuccessInfo = new HashMap<>();
         
         loginSuccessInfo.put("userId", jwtUtil.extractUserId(jwt, key));
@@ -79,17 +79,16 @@ public class MemberService implements IMemberService {
     }
 
     @Override
-    public int validJoin(MemberEditRequestDTO memberEditRequestDTO) {
+    public int validJoin(MemberDTO memberDTO) {
     	
     	logger.info("MemberService.validJoin()!");
     	
     	/* 회원 가입 요청에 따라 회원 가입이 가능한지 확인. */
-        if ( memberEntityRepository.findById(memberEditRequestDTO.getId()).isPresent() ) {	// id 중복 여부 확인
-   
+        if ( memberEntityRepository.findById(memberDTO.getId()).isPresent() ) {	// id 중복 여부 확인
         	return USER_ID_DUPLICATE;
         }
         
-        if (memberEntityRepository.findByNickName(memberEditRequestDTO.getNickName()).isPresent()) {	// 닉네임 중복 여부 확인.
+        if (memberEntityRepository.findByNickName(memberDTO.getNickName()).isPresent()) {	// 닉네임 중복 여부 확인.
         	return NICKNAME_DUPLICATE;
         }
         	
@@ -101,9 +100,9 @@ public class MemberService implements IMemberService {
     	List<String> roles = new ArrayList<String>(); 
     	roles.add("ROLE_USER");
     	
-        MembersEntity membersEntity = createMembersEntity(memberEditRequestDTO);
+        MembersEntity membersEntity = createMembersEntity(memberDTO);
         AuthenticationEntity authenticationEntity = createAuthenticationEntityEntity(
-        									memberEditRequestDTO,
+        									memberDTO,
         									roles);
         return membersRepository.addMember(membersEntity, authenticationEntity);
     }
@@ -121,7 +120,7 @@ public class MemberService implements IMemberService {
      * */
     
     @Override
-    public String editMember(String currentToken, MemberEditRequestDTO memberEditRequestDTO) {
+    public String editMember(String currentToken, MemberDTO memberEditRequestDTO) {
     	
     	logger.info("MemberService.editMember()");
     	
@@ -154,7 +153,7 @@ public class MemberService implements IMemberService {
 
     /* == 공통 메소드들 == */
     // 공통 엔티티 생성 메서드
-    private MembersEntity createMembersEntity(MemberEditRequestDTO memberEditRequestDTO) {
+    private MembersEntity createMembersEntity(MemberDTO memberEditRequestDTO) {
         return MembersEntity.builder()
                 .id(memberEditRequestDTO.getId())
                 .pw(passwordEncoder.encode(memberEditRequestDTO.getPw()))
@@ -165,7 +164,7 @@ public class MemberService implements IMemberService {
                 .build();
     }
 
-    private AuthenticationEntity createAuthenticationEntityEntity(MemberEditRequestDTO memberEditRequestDTO, List<String> roles) {
+    private AuthenticationEntity createAuthenticationEntityEntity(MemberDTO memberEditRequestDTO, List<String> roles) {
         return AuthenticationEntity.builder()
                 .userid(memberEditRequestDTO.getId())
                 .username(memberEditRequestDTO.getNickName())

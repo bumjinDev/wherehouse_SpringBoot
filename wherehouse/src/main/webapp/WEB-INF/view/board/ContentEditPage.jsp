@@ -4,13 +4,13 @@
 
 		<%
 			String boardId= (String) request.getAttribute("boardId");
+			//String userId= (String) request.getAttribute("userId");	// writerId
 			String title= (String) request.getAttribute("title");
 			String boardContent= (String) request.getAttribute("boardContent");
 			String region= (String) request.getAttribute("region");
 			String boardDate= (String) request.getAttribute("boardDate");
 			String boardHit= (String) request.getAttribute("boardHit");
 			String AuthorNickname= (String) request.getAttribute("AuthorNickname");
-			String writerId= (String) request.getAttribute("writerId");
 		%>
 
 			<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -49,7 +49,7 @@
 						<tr>
 							<th class="attributeBox">게시글 지역</th>
 								<th class="valueBox">
-									<select name="regions" class="regions">						<!-- 게시글 선택 지역 -->
+									<select name="region" class="regions">						<!-- 게시글 선택 지역 -->
 										<option value="미 선택">지역구를 선택해주세요</option>
 										<option value="강남구">강남구</option>
 										<option value="강동구">강동구</option>
