@@ -43,7 +43,7 @@ function deletePost() {
             return response; // 성공 시 추가 데이터 없음
         })
         .then(() => {
-            alert("글 삭제 완료!");
+            alert("글 삭제 되었습니다.");
             window.location.href = "/wherehouse/list/0"; // 게시판 목록으로 이동
         })
         .catch(error => {

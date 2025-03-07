@@ -1,4 +1,4 @@
-package com.wherehouse.rest.redius.model;
+package com.wherehouse.restapi.mapdata.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

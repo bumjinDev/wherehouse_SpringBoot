@@ -6,19 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
-import com.wherehouse.redis.handler.RedisHandler;
-
-import jakarta.annotation.PostConstruct;
-
 @MapperScan("com.wherehouse.information.dao")
 @SpringBootApplication
 public class WherehouseApplication extends SpringBootServletInitializer{
 
-	RedisHandler redisHandler;
-	
-	public WherehouseApplication(RedisHandler redisHandler) {
-		this.redisHandler = redisHandler;
-	}
 
 	@Override 
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) { 
@@ -27,13 +18,8 @@ public class WherehouseApplication extends SpringBootServletInitializer{
 	
 	public static void main(String[] args) {
 		
-		System.out.println("Temp Directory: " + System.getProperty("java.io.tmpdir"));
 	    SpringApplication.run(WherehouseApplication.class, args);
 	}
 	
-	@PostConstruct
-    public void clearRedisDataOnStartup() {
-        // 모든 키 삭제
-		redisHandler.clearCurrentRedisDB();
-    }
+	
 }

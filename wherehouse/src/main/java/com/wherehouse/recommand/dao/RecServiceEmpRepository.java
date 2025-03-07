@@ -4,23 +4,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
 import com.wherehouse.recommand.model.RecServiceVO;
 
 @Repository
 public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 	
-	@Autowired
+	private final Logger logger = LoggerFactory.getLogger(RecServiceEmpRepository.class);
+	
 	JdbcTemplate jdbcTemplate;
+	
+	public RecServiceEmpRepository(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
 	
 	@Override
 	public List<RecServiceVO> chooseCharterRec(int inputData, int safe, int cvt) {							/* 전세 요청 담당 */
 		
-		System.out.println("RecServiceEmpRepository.chooseCharterRec()!");
+		logger.info("RecServiceEmpRepository.chooseCharterRec()!");
 		
 		List<RecServiceVO> recServiceResult;
 		
@@ -56,7 +61,6 @@ public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 			recServiceResult = jdbcTemplate.query(query, new EmpMapper(), inputData);
 		} else {
 			recServiceResult = jdbcTemplate.query(query, new EmpMapper(), inputData, safe);
-			System.out.println("RecServiceResult.size() : " + recServiceResult.size());
 		}
 		
 	        
@@ -66,7 +70,7 @@ public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 	@Override
 	public List<RecServiceVO> chooseMonthlyRec(int deposit, int monthly, int safe, int cvt) {			/* 월세 요청 담당 */		
 		
-		System.out.println("RecServiceEmpRepository.chooseMonthlyRec()!");
+		logger.info("RecServiceEmpRepository.chooseMonthlyRec()!");
 		
 		List<RecServiceVO> RecServiceResult;
 		String query = "";
@@ -96,6 +100,7 @@ public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 		public RecServiceVO mapRow(ResultSet rs, int rowNum) throws SQLException {
 				
 			RecServiceVO dto = new RecServiceVO();
+			
 			dto.setGu_id(rs.getInt("gu_id"));
             dto.setGu_name(rs.getString("gu_name"));	
             dto.setCvt_score(rs.getInt("cvt_score"));

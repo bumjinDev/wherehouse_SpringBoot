@@ -1,11 +1,11 @@
-package com.wherehouse.rest.redius.service;
+package com.wherehouse.restapi.mapdata.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.wherehouse.rest.redius.model.MapDataEntity;
-import com.wherehouse.restapi.dao.MapDataRepository;
+import com.wherehouse.restapi.mapdata.dao.MapDataRepository;
+import com.wherehouse.restapi.mapdata.model.MapDataEntity;
 
 import java.time.Duration;
 import java.util.*;
@@ -33,8 +33,10 @@ public class MapDataService implements IMapService {
 
         // 1. Redis 캐시 조회
         Map<String, List<Map<String, Double>>> usedData = redisTemplateAllMapData.opsForValue().get(cacheKey);
-
+        
         if (usedData != null) {
+        	
+        	System.out.println("usedData size : " + usedData.size());
             return usedData; // 캐시가 있으면 즉시 반환
         }
 

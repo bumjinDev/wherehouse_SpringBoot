@@ -1,7 +1,9 @@
-package com.wherehouse.restapi.dao;
+package com.wherehouse.restapi.mapdata.dao;
 
 import java.util.List;
-import com.wherehouse.rest.redius.model.MapDataEntity;
+
+import com.wherehouse.restapi.mapdata.model.MapDataEntity;
+
 
 public interface IMapDataRepository {
 	List<MapDataEntity> searchRecommandGuAll();

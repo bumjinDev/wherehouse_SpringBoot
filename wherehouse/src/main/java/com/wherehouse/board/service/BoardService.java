@@ -136,6 +136,19 @@ public class BoardService implements IBoardService {
      */
     @Override
     public void writeReply(String jwt, CommandtVO commandtVO) {
+    	
+    	
+    	commandtVO.setUserId(
+    			jwtUtil.extractUserId(
+    					jwt,
+    					jwtUtil.decodeBase64ToKey((String) redisHandler.getValueOperations().get(jwt)))
+    					);
+    	commandtVO.setUserName(
+    			jwtUtil.extractUsername(
+    					jwt,
+    					jwtUtil.decodeBase64ToKey((String) redisHandler.getValueOperations().get(jwt)))
+    					);
+    	
         boardRepository.replyWrite(commentConverter.toEntity(commandtVO));
     }
 
@@ -174,7 +187,6 @@ public class BoardService implements IBoardService {
         } else {
         	
         	returnData.put("canModify", false);
-
             return returnData;
         }
     }
@@ -227,7 +239,7 @@ public class BoardService implements IBoardService {
 		
 		Map<String, String> dataSet = new HashMap<String, String>();
 		Key key = jwtUtil.decodeBase64ToKey((String) redisHandler.getValueOperations().get(jwtToken));
-
+		
 		dataSet.put("userId", jwtUtil.extractUserId(jwtToken, key));
 		dataSet.put("userName", jwtUtil.extractUsername(jwtToken, key));
 	

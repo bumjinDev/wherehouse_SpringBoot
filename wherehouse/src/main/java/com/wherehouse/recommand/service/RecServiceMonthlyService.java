@@ -2,8 +2,6 @@ package com.wherehouse.recommand.service;
 
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wherehouse.recommand.dao.IRecServiceEmpRepository;
@@ -13,8 +11,11 @@ import com.wherehouse.recommand.model.RecServiceVO;
 @Service
 public class RecServiceMonthlyService implements IRecService{
 
-	@Autowired
 	IRecServiceEmpRepository recServiceEmpRepository;
+	
+	public RecServiceMonthlyService(IRecServiceEmpRepository recServiceEmpRepository) {
+		this.recServiceEmpRepository = recServiceEmpRepository;
+	}
 	
 	@Override
 	public List<RecServiceVO> execute(Map<String, String> requestAjax) {

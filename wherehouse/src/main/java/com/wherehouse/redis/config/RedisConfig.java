@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wherehouse.rest.redius.model.MapDataEntity;
+import com.wherehouse.restapi.mapdata.model.MapDataEntity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;

@@ -1,4 +1,4 @@
-package com.wherehouse.rest.redius.service;
+package com.wherehouse.restapi.mapdata.service;
 
 import java.util.List;
 import java.util.Map;

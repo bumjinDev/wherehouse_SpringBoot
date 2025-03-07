@@ -1,12 +1,13 @@
-package com.wherehouse.restapi.dao;
+package com.wherehouse.restapi.mapdata.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import com.wherehouse.rest.redius.model.MapDataEntity;
+
+
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
-
+import com.wherehouse.restapi.mapdata.model.MapDataEntity;
 @Repository
 public class MapDataRepository {
 

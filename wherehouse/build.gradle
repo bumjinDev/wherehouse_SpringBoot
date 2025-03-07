@@ -9,14 +9,16 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
-	id 'war' // <-- 추가 
+	//id 'war' // <-- 추가 
 }
 
+/*
 bootWar{			// war 배포 파일명
 	archiveBaseName = 'wherehouse'
     archiveFileName = 'wherehouse.war'
     archiveVersion = "0.0.0"
 }
+*/
 
 /*
     - group : 해당 프로젝트 개발하는 회사의 도메인(url)
@@ -24,7 +26,7 @@ bootWar{			// war 배포 파일명
 */
 
 group = 'com.wherehouse'
-version = ''
+version = '0.1.0'
 
 /*
     - java { ... } : 'org.springframework.boot' 가 실제로 'java' 플러그인을 사용해서 java 언어를 해석 및 내부적으로 실행할 때에 필요한 환경 요소를 설정 해야 되며, 이를 위해서
@@ -99,26 +101,19 @@ dependencies {
 	/* redis 의존성 추가 */
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	
-	// 외장 톰켓 애플리케이션 실행에 필요한 의존성
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-	providedRuntime 'javax.servlet:javax.servlet-api:4.0.1'	// jsp 필수
+	// 외장 톰켓 애플리케이션 실행에 필요한 의존성 : war 배포 안할 시 꺼둘 것
+	//providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	//providedRuntime 'javax.servlet:javax.servlet-api:4.0.1'	// jsp 필수
 	
 	// Srping Boot Actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	
-
-	
 }
 
 tasks.test {
-    useJUnitPlatform() // JUnit5 플랫폼 사용 설정
+	ignoreFailures = false  // 🚨 반드시 테스트 실패 시 빌드도 실패 처리
+    useJUnitPlatform() // JUnit 5 활성화
 }
 
-/*
-tasks.named('test') {
-	useJUnitPlatform()
-}
-*/
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-parameters'

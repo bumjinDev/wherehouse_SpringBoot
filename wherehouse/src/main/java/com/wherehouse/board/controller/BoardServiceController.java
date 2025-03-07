@@ -157,7 +157,7 @@ public class BoardServiceController {
         } else {
             // FlashAttribute를 사용하여 alert 메시지 추가
             redirectAttributes.addFlashAttribute("alertMessage", "게시글 작성자가 아니므로 수정할 수 없습니다.");
-            return "redirect:/wherehouse/choiceboard/" + boardVO.getBoardId();
+            return "redirect:/choiceboard/" + boardVO.getBoardId();
         }
     }
 
