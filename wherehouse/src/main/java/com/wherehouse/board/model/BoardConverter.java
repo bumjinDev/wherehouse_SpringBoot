@@ -8,17 +8,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class BoardConverter {
 
-	 public BoardEntity toEntity(BoardVO boardVO) {
-	        return new BoardEntity(boardVO.getBoardId(), boardVO.getUserId(), boardVO.getTitle(), boardVO.getBoardContent(), boardVO.getRegion(), boardVO.getBoardHit(), boardVO.getBoardDate());
+	 public BoardEntity toEntity(BoardDTO boardDTO) {
+	        return new BoardEntity(boardDTO.getBoardId(), boardDTO.getUserId(), boardDTO.getTitle(), boardDTO.getBoardContent(), boardDTO.getRegion(), boardDTO.getBoardHit(), boardDTO.getBoardDate());
 	    }
 
-    public BoardVO toVO(BoardEntity boardEntity) {
-        return new BoardVO(boardEntity.getConnum(), boardEntity.getUserid(), boardEntity.getTitle(), boardEntity.getBoardcontent(), boardEntity.getRegion(), boardEntity.getHit(), boardEntity.getBdate());
+    public BoardDTO toDTO(BoardEntity boardEntity) {
+        return new BoardDTO(boardEntity.getConnum(), boardEntity.getUserid(), boardEntity.getTitle(), boardEntity.getBoardcontent(), boardEntity.getRegion(), boardEntity.getHit(), boardEntity.getBdate());
     }
     
-    public List<BoardVO> toVOList(List<BoardEntity> boardEntities) {
+    public List<BoardDTO> toVOList(List<BoardEntity> boardEntities) {
         return boardEntities.stream()
-            .map(this::toVO) // BoardConverter의 toVO() 호출
+            .map(this::toDTO) // BoardConverter의 toVO() 호출
             .collect(Collectors.toList());
     }
 }

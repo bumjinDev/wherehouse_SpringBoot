@@ -6,13 +6,15 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.board.dao.BoardEntityRepository;
 import com.wherehouse.board.dao.IBoardRepository;
 import com.wherehouse.board.model.BoardConverter;
-import com.wherehouse.board.model.BoardVO;
+import com.wherehouse.board.model.BoardDTO;
 import com.wherehouse.board.model.CommandtVO;
 import com.wherehouse.board.model.CommentConverter;
 import com.wherehouse.exception.UnauthorizedException;
@@ -23,6 +25,8 @@ import com.wherehouse.redis.handler.RedisHandler;
 @Service
 public class BoardService implements IBoardService {
 
+	private static final Logger logger = LoggerFactory.getLogger(BoardService.class);
+	
     IBoardRepository boardRepository;
     
     IMembersRepository membersRepository;
@@ -40,6 +44,7 @@ public class BoardService implements IBoardService {
     CommentConverter commentConverter;
     
     MemberConverter memberConverter;
+    
     
     public BoardService(
     		
@@ -95,12 +100,12 @@ public class BoardService implements IBoardService {
         // 조회수 1 증가
         boardRepository.upHit(contentnum);
         // 게시글 내용 조회 (실제로 없다면 "NoSuchElementException" 예외 발생)
-        BoardVO boardVO = boardConverter.toVO(boardRepository.findBoard(contentnum));
+        BoardDTO boardVO = boardConverter.toDTO(boardRepository.findBoard(contentnum));
         resultMap.put("content_view", boardVO);
         // 게시글 댓글 조회
         resultMap.put("comments", commentConverter.toVOList(boardRepository.commentSearch(contentnum)));
         // 게시글 작성자의 ID 로 회원 관리 테이블 내 닉네임 조회. (실제로 없다면 "NoSuchElementException" 예외 발생)
-        resultMap.put("userName",  membersRepository.getMember(boardVO.getUserId()).getNickName());
+        resultMap.put("userName", memberConverter.toDTO(membersRepository.getMember(boardVO.getUserId())).getNickName());
         
         return resultMap;
     }
@@ -113,12 +118,12 @@ public class BoardService implements IBoardService {
      * @param httpRequest 현재 요청 객체
      */
     @Override
-    public void boardWrite(BoardVO boardVO) {
+    public void boardWrite(BoardDTO boardDTO) {
 	
-    	boardVO.setBoardHit(0);
-    	boardVO.setBoardDate(Date.valueOf(LocalDate.now())); // 현재 날짜를 bdate에 설정
+    	boardDTO.setBoardHit(0);
+    	boardDTO.setBoardDate(Date.valueOf(LocalDate.now())); // 현재 날짜를 bdate에 설정
     	
-        boardRepository.boardWrite(boardConverter.toEntity(boardVO));
+        boardRepository.boardWrite(boardConverter.toEntity(boardDTO));
     }
 
     /**
@@ -143,9 +148,9 @@ public class BoardService implements IBoardService {
      * @param httpRequest 현재 요청 객체
      * @return 수정 가능 시 게시글 수정 페이지 경로, 불가능 시 알림 페이지 경로
      */
-    public  HashMap<String, Object> boardModifyPage(String jwt, BoardVO boardVO) {
+    public  HashMap<String, Object> boardModifyPage(String jwt, BoardDTO boardDTO) {
     	
-        System.out.println("BoardModifyPageService.boardModifyPage()!");
+    	logger.info("BoardModifyPageService.boardModifyPage()!");
 
         HashMap<String, Object> returnData = new HashMap<String, Object>();
        
@@ -153,15 +158,15 @@ public class BoardService implements IBoardService {
         								jwt,
         								jwtUtil.decodeBase64ToKey((String) redisHandler.getValueOperations().get(jwt)));
 
-        if (sessionId.equals(boardVO.getUserId())) {
+        if (sessionId.equals(boardDTO.getUserId())) {
         	
-        	returnData.put("boardId", String.valueOf(boardVO.getBoardId()));
-        	returnData.put("title", boardVO.getTitle());
-        	returnData.put("boardContent", boardVO.getBoardContent() );
-        	returnData.put("region", boardVO.getRegion());
-        	returnData.put("boardDate", String.valueOf(boardVO.getBoardDate()));
-        	returnData.put("boardHit", String.valueOf(boardVO.getBoardHit()));
-        	returnData.put("AuthorNickname", (String) membersRepository.getMember(sessionId).getNickName());
+        	returnData.put("boardId", String.valueOf(boardDTO.getBoardId()));
+        	returnData.put("title", boardDTO.getTitle());
+        	returnData.put("boardContent", boardDTO.getBoardContent() );
+        	returnData.put("region", boardDTO.getRegion());
+        	returnData.put("boardDate", String.valueOf(boardDTO.getBoardDate()));
+        	returnData.put("boardHit", String.valueOf(boardDTO.getBoardHit()));
+        	returnData.put("AuthorNickname", memberConverter.toDTO(membersRepository.getMember(sessionId)).getNickName());
         	returnData.put("canModify", true);
         	
             return returnData;
@@ -180,8 +185,8 @@ public class BoardService implements IBoardService {
      * @param httpRequest 현재 요청 객체
      */
     @Override
-    public void modifyBoard(BoardVO boardVO) {
-        boardRepository.boardModify(boardConverter.toEntity(boardVO));
+    public void modifyBoard(BoardDTO boardDTO) {
+        boardRepository.boardModify(boardConverter.toEntity(boardDTO));
     }
 
     // ======== 삭제 관련 메소드 ========

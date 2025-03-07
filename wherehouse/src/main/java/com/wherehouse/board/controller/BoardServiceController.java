@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.wherehouse.board.model.BoardVO;
+import com.wherehouse.board.model.BoardDTO;
 import com.wherehouse.board.model.CommandtVO;
 import com.wherehouse.board.service.IBoardService;
 
@@ -103,7 +103,7 @@ public class BoardServiceController {
      * @return 게시글 목록 페이지로 리다이렉트
      */
     @PostMapping("/boardwrite")
-    public String WritePage(@ModelAttribute BoardVO boardVO) {
+    public String WritePage(@ModelAttribute BoardDTO boardVO) {
         	
         boardService.boardWrite(boardVO); // 게시글 작성 직후 전체 게시글 목록으로 리 다이렉트!
         
@@ -143,7 +143,7 @@ public class BoardServiceController {
     @PostMapping("/modifypage")
     public String modifiyPageRequest(
             @CookieValue(value = "Authorization", required = false) String jwt,
-            @ModelAttribute BoardVO boardVO,
+            @ModelAttribute BoardDTO boardVO,
             RedirectAttributes redirectAttributes, // Flash Attribute 추가
             Model model) {
 
@@ -168,7 +168,7 @@ public class BoardServiceController {
      * @return 게시글 목록 페이지로 리다이렉트
      */
     @PostMapping("/modify")
-    public String modifyPage(@ModelAttribute BoardVO boardVO) {
+    public String modifyPage(@ModelAttribute BoardDTO boardVO) {
     	
     	boardService.modifyBoard(boardVO);
     	

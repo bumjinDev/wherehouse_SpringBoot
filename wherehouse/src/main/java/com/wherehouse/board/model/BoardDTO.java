@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardVO {
+public class BoardDTO {
 	
 	private int boardId;
 	private String userId;

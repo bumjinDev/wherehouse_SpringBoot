@@ -1,8 +1,6 @@
 package com.wherehouse.members.service;
 
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +12,12 @@ import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.wherehouse.JWT.DTO.AuthenticationEntity;
+import com.wherehouse.JWT.DTO.AuthenticationEntityConverter;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
 import com.wherehouse.members.dao.IMembersRepository;
 import com.wherehouse.members.dao.MemberEntityRepository;
+import com.wherehouse.members.model.MemberConverter;
 import com.wherehouse.members.model.MemberDTO;
 import com.wherehouse.members.model.MembersEntity;
 import com.wherehouse.redis.handler.RedisHandler;
@@ -43,6 +41,9 @@ public class MemberService implements IMemberService {
 
     private BCryptPasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 객체
     
+    MemberConverter memberConverter;
+    AuthenticationEntityConverter authenticationEntityConverter;
+    
     public final int USER_ID_DUPLICATE = 1;
     public final int NICKNAME_DUPLICATE = 2;
 
@@ -53,7 +54,9 @@ public class MemberService implements IMemberService {
     		UserEntityRepository userEntityRepository,
     		RedisHandler redisHandler,
     		JWTUtil jwtUtil,
-    		BCryptPasswordEncoder passwordEncoder ) {
+    		BCryptPasswordEncoder passwordEncoder,
+    		MemberConverter memberConverter,
+    		AuthenticationEntityConverter authenticationEntityConverter) {
     	
     	this.membersRepository = membersRepository;
     	this.memberEntityRepository = memberEntityRepository;
@@ -61,6 +64,8 @@ public class MemberService implements IMemberService {
     	this.redisHandler = redisHandler;
     	this.jwtUtil = jwtUtil;
     	this.passwordEncoder = passwordEncoder;
+    	this.memberConverter = memberConverter;
+    	this.authenticationEntityConverter = authenticationEntityConverter;
     }
     
     @Override
@@ -97,18 +102,18 @@ public class MemberService implements IMemberService {
          * 2. SpringSecurity 테이블 내 인증 정보 추가.
  		*/
     	
-    	List<String> roles = new ArrayList<String>(); 
-    	roles.add("ROLE_USER");
-    	
-        MembersEntity membersEntity = createMembersEntity(memberDTO);
-        AuthenticationEntity authenticationEntity = createAuthenticationEntityEntity(
-        									memberDTO,
-        									roles);
-        return membersRepository.addMember(membersEntity, authenticationEntity);
+        /* 비밀번호 암호화 수행 */
+        String encodedPassword = passwordEncoder.encode(memberDTO.getPw());
+        memberDTO.setPw(encodedPassword);  // 암호화된 비밀번호로 변경
+        
+        List<String> roles = List.of("ROLE_USER");
+        
+        return membersRepository.addMember(
+        		memberConverter.toEntity(memberDTO),
+        		authenticationEntityConverter.toEntity(memberDTO, roles));
     }
     
-    
- 
+
     @Override
     public MembersEntity searchEditMember(String editId) {
         return membersRepository.getMember(editId);
@@ -120,21 +125,21 @@ public class MemberService implements IMemberService {
      * */
     
     @Override
-    public String editMember(String currentToken, MemberDTO memberEditRequestDTO) {
+    public String editMember(String currentToken, MemberDTO memberDTO) {
     	
     	logger.info("MemberService.editMember()");
     	
     	/* SpringSecurity  */
-        List<String> roles = userEntityRepository.findById(memberEditRequestDTO.getId())
+        List<String> roles = userEntityRepository.findById(memberDTO.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"))
                 .getRoles();
-    	
-        // AuthenticationEntity(SrpingSecurity 테이블)과 MembersEntity(단순 회원관리) 테이블 모두 업데이트를 위한 JPA 용 Entity 객체 생성
-        MembersEntity memberEntity = createMembersEntity(memberEditRequestDTO);
-        AuthenticationEntity userEntity = createAuthenticationEntityEntity(memberEditRequestDTO, roles);
-
-        // 인증 및 회원 관리에 관한 DB 테이블 갱신.
-        int result = membersRepository.editMember(memberEntity, userEntity);
+   
+        memberDTO.setPw(passwordEncoder.encode(memberDTO.getPw()));
+        
+        // 인증 및 회원 관리에 관한 2개 테이블 DB 테이블 갱신.
+        int result = membersRepository.editMember(
+        		memberConverter.toEntity(memberDTO),
+        		authenticationEntityConverter.toEntity(memberDTO, roles));
 
         // 정상 적인 수정이 되었다면 변경된 컬럼이 있으니 새롭게 jwt 만들어서 db 내부 갱신하고 HttpResponse 객체 내 응답 중 쿠키 갱신
         if (result == 1) {
@@ -142,35 +147,13 @@ public class MemberService implements IMemberService {
         	// 현재 JWT의 키를 재 사용.
         	Key newKey = getKey(currentToken);
         	// 현재 토큰의 사용자 닉네임 컬럼을 수정해서 새로운 컬럼으로 반환.
-        	String newToken = editToken(currentToken, newKey, memberEditRequestDTO.getNickName());
+        	String newToken = editToken(currentToken, newKey, memberDTO.getNickName());
         	// Redis 내 JWT 정보 갱신.
         	updateJwtToken(currentToken, newToken, newKey);
         	
         	return newToken;
         
         } else { return String.valueOf(NICKNAME_DUPLICATE); }	// 2 를 반환 시 Repository 에서 회원 정보 수정 시 닉네임 중복으로 실패 했다는 의미므로 2를 컨트롤러에게 반환.
-    }
-
-    /* == 공통 메소드들 == */
-    // 공통 엔티티 생성 메서드
-    private MembersEntity createMembersEntity(MemberDTO memberEditRequestDTO) {
-        return MembersEntity.builder()
-                .id(memberEditRequestDTO.getId())
-                .pw(passwordEncoder.encode(memberEditRequestDTO.getPw()))
-                .nickName(memberEditRequestDTO.getNickName())
-                .tel(memberEditRequestDTO.getTel())
-                .email(memberEditRequestDTO.getEmail())
-                .joinDate(new java.sql.Date(new Date().getTime()))
-                .build();
-    }
-
-    private AuthenticationEntity createAuthenticationEntityEntity(MemberDTO memberEditRequestDTO, List<String> roles) {
-        return AuthenticationEntity.builder()
-                .userid(memberEditRequestDTO.getId())
-                .username(memberEditRequestDTO.getNickName())
-                .password(passwordEncoder.encode(memberEditRequestDTO.getPw()))
-                .roles(roles)
-                .build();
     }
 
     // 기존 JWT 토큰에 대해서 변경된 클레임을 수정해서 새로운 JWT 토큰으로 반환.

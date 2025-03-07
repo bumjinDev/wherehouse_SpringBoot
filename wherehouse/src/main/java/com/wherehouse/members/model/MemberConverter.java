@@ -10,7 +10,7 @@ public class MemberConverter {
     /**
      * MemberDTO -> MembersEntity 변환
      */
-    public static MembersEntity toEntity(MemberDTO dto) {
+    public MembersEntity toEntity(MemberDTO dto) {
         if (dto == null) {
             return null;
         }
@@ -28,7 +28,7 @@ public class MemberConverter {
     /**
      * MembersEntity -> MemberDTO 변환
      */
-    public static MemberDTO toDTO(MembersEntity entity) {
+    public MemberDTO toDTO(MembersEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -46,20 +46,20 @@ public class MemberConverter {
     /**
      * List<MemberDTO> -> List<MembersEntity> 변환
      */
-    public static List<MembersEntity> toEntityList(List<MemberDTO> dtoList) {
+    public List<MembersEntity> toEntityList(List<MemberDTO> dtoList) {
         if (dtoList == null || dtoList.isEmpty()) {
             return List.of();
         }
-        return dtoList.stream().map(MemberConverter::toEntity).collect(Collectors.toList());
+        return dtoList.stream().map(dto -> this.toEntity(dto)).collect(Collectors.toList());
     }
 
     /**
      * List<MembersEntity> -> List<MemberDTO> 변환
      */
-    public static List<MemberDTO> toDTOList(List<MembersEntity> entityList) {
+    public List<MemberDTO> toDTOList(List<MembersEntity> entityList) {
         if (entityList == null || entityList.isEmpty()) {
             return List.of();
         }
-        return entityList.stream().map(MemberConverter::toDTO).collect(Collectors.toList());
+        return entityList.stream().map(entity -> this.toDTO(entity)).collect(Collectors.toList());
     }
 }
