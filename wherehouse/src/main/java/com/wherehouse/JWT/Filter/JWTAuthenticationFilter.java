@@ -13,7 +13,6 @@ import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -56,26 +55,21 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         if (tokenOpt.isEmpty()) {
             logger.warn("JWT 토큰이 존재하지 않음");
-            invalidateSessionAndRedirect(response);
             return;
         }
-
         String token = tokenOpt.get();
 
         // 2. JWT 서명 키 가져오기
         Optional<Key> keyOpt = jwtUtil.getSigningKeyFromToken(token);
         if (keyOpt.isEmpty()) {
             logger.warn("JWT 서명 키 없음");
-            invalidateSessionAndRedirect(response);
             return;
         }
-
         Key key = keyOpt.get();
 
         // 3. JWT 검증
         if (!jwtUtil.isValidToken(token, key)) {
             logger.warn("JWT 토큰 검증 실패");
-            invalidateSessionAndRedirect(response);
             return;
         }
 
@@ -84,33 +78,13 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         var authorities = jwtUtil.extractRoles(token, key).stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
-
         // 5. SecurityContext에 Authentication 설정
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         logger.info("JWT 인증 성공: 사용자 ID = {}", userId);
-
         // 필터 체인 계속 실행
         filterChain.doFilter(request, response);
-    }
-
-    /**
-     * JWT 토큰이 없거나 유효하지 않을 때, 쿠키 무효화 후 특정 경로로 리다이렉트.
-     */
-    private void invalidateSessionAndRedirect(HttpServletResponse response) throws IOException {
-        
-        logger.warn("JWT 토큰이 없거나 유효하지 않음. 세션 무효화 후 리다이렉트");
-
-        // 만료된 쿠키로 설정
-        Cookie expiredCookie = new Cookie(AUTH_COOKIE_NAME, null);
-        expiredCookie.setPath("/");
-        expiredCookie.setMaxAge(0);
-        response.addCookie(expiredCookie);
-
-        response.sendRedirect("/wherehouse/");
-        
-        logger.info("redirection : /wherehouse/");
     }
 }

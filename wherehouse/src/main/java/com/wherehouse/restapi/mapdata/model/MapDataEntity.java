@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "MAPDATA")
 @Getter
 @Setter
+@Table(name = "MAPDATA")
 public class MapDataEntity {
 
     @Id

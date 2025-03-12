@@ -80,7 +80,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throws AuthenticationException {
 
         logger.info("LoginFilter: 로그인 요청 받음");
-
         // Content-Type 확인
         String contentType = request.getContentType();
         logger.info("Content-Type: {}", contentType);
@@ -88,9 +87,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         LoginRequest loginRequest = null;
 
         try {
-        	
             if ("application/json".equalsIgnoreCase(contentType)) {
-				
+            	
             	loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
             } else if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType)) {
 
@@ -98,27 +96,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                     request.getParameter("userid"),
                     request.getParameter("password")); 
             }
-            
        } catch ( IOException e) { e.printStackTrace(); }
-            
         
         // 인증 토큰 생성
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUserid(), loginRequest.getPassword());
-        
         return getAuthenticationManager().authenticate(authToken);
     }
 
-
-    /**
-     * 인증 성공 시 JWT 생성 후 응답 쿠키에 추가
-     */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authResult) {
 
     	logger.info("LoginFilter.successfulAuthentication - 사용자 : {}", authResult.getName());
-    	
         // JWT 생성 후 브러우저에 반환할 HostOnly 쿠키에 추가
         addJwtToCookie(response, generateAndStoreJwt(authResult));
         // 로그인 성공 후 페이지 이동
@@ -126,11 +116,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         catch (IOException e) { e.printStackTrace(); }
     }
 
-    /**
-     * 인증 실패 시 예외 처리 (에러 페이지로 이동)
-     * @throws ServletException 
-     * @throws IOException 
-     */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException failed) throws IOException, ServletException {
@@ -138,7 +123,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         /* "LoginAuthenticationFailureHandler" 을 내부에서 자동 호출되어 처리. */
         super.unsuccessfulAuthentication(request, response, failed);
     }
-
 
     /**
      * JWT 생성 후 Redis에 저장
@@ -173,11 +157,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         cookie.setSecure(false);  // HTTPS에서만 사용
         cookie.setHttpOnly(true); // JavaScript 접근 방지
         cookie.setPath("/");      // 전체 경로에서 유효
-
         response.addCookie(cookie);
     }
-    
-    
     @Data
     @AllArgsConstructor
     static class LoginRequest {

@@ -56,23 +56,19 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
         if (token == null) {
         	
             logger.warn("JWT 토큰이 존재하지 않음!");
-
             // 인증 정보 없이 필터 체인 진행 (SecurityContextHolder는 그대로 유지)
             filterChain.doFilter(request, response);
             return;
         }
-
         // 2. JWT Key(String)을 Redis 조회 후 검증 및 사용자 인증 처리
         Optional<Key> signingKeyOpt = jwtUtil.getSigningKeyFromToken(token);
         if (signingKeyOpt.isEmpty() || !jwtUtil.isValidToken(token, signingKeyOpt.get())) {
         	
             logger.warn("JWT 검증 실패!");
-            
             // 인증 정보 없이 필터 체인 진행 (SecurityContextHolder는 그대로 유지)
             filterChain.doFilter(request, response);
             return;
         }
-
         // 3. SecurityContext에 인증 정보 설정
         authenticateUser(token, signingKeyOpt.get());
         // 4. 필터 체인으로 요청을 전달
@@ -103,9 +99,7 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
                      .map(SimpleGrantedAuthority::new)
                      .collect(Collectors.toList())
             );
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
         logger.info("JWT 인증 성공: 사용자 ID = {}", userId);
     }
-  
 }

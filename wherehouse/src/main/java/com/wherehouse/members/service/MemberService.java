@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.security.Key;
+import java.sql.Date;
 import java.time.Duration;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -105,6 +106,9 @@ public class MemberService implements IMemberService {
         /* 비밀번호 암호화 수행 */
         String encodedPassword = passwordEncoder.encode(memberDTO.getPw());
         memberDTO.setPw(encodedPassword);  // 암호화된 비밀번호로 변경
+
+        // 현재 시간 설정 (회원가입 시간)
+        memberDTO.setJoinDate(new Date(System.currentTimeMillis()));
         
         List<String> roles = List.of("ROLE_USER");
         
@@ -134,8 +138,12 @@ public class MemberService implements IMemberService {
                 .orElseThrow(() -> new RuntimeException("User not found"))
                 .getRoles();
    
-        memberDTO.setPw(passwordEncoder.encode(memberDTO.getPw()));
-        
+        /* 비밀번호 암호화 수행 */
+        String encodedPassword = passwordEncoder.encode(memberDTO.getPw());
+        memberDTO.setPw(encodedPassword);  // 암호화된 비밀번호로 변경
+
+        // 현재 시간 설정 (회원가입 시간)
+        memberDTO.setJoinDate(new Date(System.currentTimeMillis()));
         // 인증 및 회원 관리에 관한 2개 테이블 DB 테이블 갱신.
         int result = membersRepository.editMember(
         		memberConverter.toEntity(memberDTO),

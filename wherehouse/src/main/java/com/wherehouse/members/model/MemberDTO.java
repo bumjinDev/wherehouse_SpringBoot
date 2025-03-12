@@ -1,5 +1,6 @@
 package com.wherehouse.members.model;
 
+
 import java.sql.Date;
 
 import lombok.AllArgsConstructor;

@@ -26,11 +26,6 @@ spring:
         physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # Naming Strategy 수정
     open-in-view: false # Lazy Loading 오류 방지
 
-  mvc:
-    view:
-      prefix: /WEB-INF/view/
-      suffix: .jsp
-
 mybatis:
   mapper-locations: classpath:/mapper/*Mapper.xml
   type-aliases-package: com.wherehouse.information.model

@@ -2,7 +2,6 @@ package com.wherehouse.JWT.SecurityConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -66,46 +65,54 @@ public class SecurityConfig {
             bCryptPasswordEncoder()
         );
     }
-
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
         ((ProviderManager) authenticationManager).getProviders().add(userAuthenticationProvider());
         return authenticationManager;
     }
-
-    /* == Security FilterChain 설정 == */
-
     @Bean
-    @Order(1)
     public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/login")
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            /* exceptionHandling.authenticationEntryPoint : 인증 에러(Authentication Exception) 중 "로그인되지 않은 사용자, 즉 리소스에 접근은 요청했지만 인증정보는 없는 사용자가 보호된 리소스에
-             * 접근(401 Unauthorized)" 시 필터체인에서 핸들링 하는 메소드.
-             * BadCredentialsException : 인증 "과정 중 발생" 한 에러는 LoginFilter.setAuthenticationFailureHandler() 으로써 필터 내부에 등록된 핸들러에 의해 처리. */
             .addFilterAt(new LoginFilter(authenticationManager(), redisHandler, jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
     @Bean
-    @Order(2)
     public SecurityFilterChain loginSuccessFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/loginSuccess")
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth
             		-> auth.anyRequest().hasAuthority("ROLE_USER"))
-            .addFilterAt(new JWTAuthenticationFilter(cookieUtil, jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
+            .addFilterAt(new JWTAuthenticationFilter(cookieUtil, jwtUtil), UsernamePasswordAuthenticationFilter.class)
+	        .exceptionHandling(exception ->
+		        exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler()) // JWT 인증 실패 시 실행될 핸들러 등록
+		        		 .accessDeniedHandler(new JwtAccessDeniedHandler()));               // 인가 실패 처리
         return http.build();
     }
-
-    /* 로그 아웃 기능은 기존 Spring MVC 패턴이 아닌 SpringSecurity 의 핸들러 적용. */
     @Bean
-    @Order(3)
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/writepage", "/boardwrite", "/modifypage", "/modify", "/delete/**", "/replyWrite")
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+            		.anyRequest().authenticated())
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterAt(new RequestAuthenticationFilter(cookieUtil, jwtUtil), UsernamePasswordAuthenticationFilter.class)	   /* 인증 예외와 인가 예외 중 "인증 예외" 에 대한 핸들러 클래스(AuthenticationEntryPoint 인터페이스 구현) */
+            .exceptionHandling(exception ->
+                exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler()) // JWT 인증 실패 시 실행될 핸들러 등록
+                		 .accessDeniedHandler(new JwtAccessDeniedHandler())               // 인가 실패 처리
+            );
+        http.headers(headers -> headers
+        		.contentSecurityPolicy(csp -> csp
+        				.policyDirectives(
+        						"frame-ancestors 'self'; ")) // ifrmae 내 클릭재킹 방지
+        		.frameOptions(frameOptions -> frameOptions.sameOrigin())); // SAMEORIGIN으로 설정  
+        return http.build();
+    }
+    @Bean
     public SecurityFilterChain logoutFilterChain(HttpSecurity http, CookieLogoutHandler cookieLogoutHandler) throws Exception {
         http.securityMatcher("/logout")
             .csrf(csrf -> csrf.disable())
@@ -121,13 +128,10 @@ public class SecurityConfig {
 
     /* 게시판 목록 보는 화면은 권한이 필요 없으나 csp 정책으로 인한 필터 체인 설정 */
     @Bean
-    @Order(4)
     public SecurityFilterChain boardListFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/list/**")
             .formLogin(formLogin -> formLogin.disable()) // 폼 로그인 비활성화
             .csrf(csrf -> csrf.disable()) // CSRF 비활성화
-//          .exceptionHandling(exception ->
-//			exception.authenticationEntryPoint(new LoginAuthenticationEntryPointHandler()))	
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // CSP(Content Security Policy) 설정 업데이트
@@ -147,29 +151,6 @@ public class SecurityConfig {
             )
         );
 
-        return http.build();
-    } 
-
-    @Bean
-    @Order(5)
-    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/writepage", "/boardwrite", "/modifypage", "/modify", "/delete/**", "/replyWrite")
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-            		.anyRequest().authenticated())
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAt(new RequestAuthenticationFilter(cookieUtil, jwtUtil), UsernamePasswordAuthenticationFilter.class)	   /* 인증 예외와 인가 예외 중 "인증 예외" 에 대한 핸들러 클래스(AuthenticationEntryPoint 인터페이스 구현) */
-            .exceptionHandling(exception ->
-                exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler()) // JWT 인증 실패 시 실행될 핸들러 등록
-                		 .accessDeniedHandler(new JwtAccessDeniedHandler())               // 인가 실패 처리
-            );
-        http.headers(headers -> headers
-        		.contentSecurityPolicy(csp -> csp
-        				.policyDirectives(
-        						"frame-ancestors 'self'; ")) // ifrmae 내 클릭재킹 방지
-        		.frameOptions(frameOptions -> frameOptions.sameOrigin())); // SAMEORIGIN으로 설정
-        		
-       
         return http.build();
     }
 }

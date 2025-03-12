@@ -34,14 +34,12 @@ public class MapDataService implements IMapService {
         // 1. Redis 캐시 조회
         Map<String, List<Map<String, Double>>> usedData = redisTemplateAllMapData.opsForValue().get(cacheKey);
         
-        if (usedData != null) {
-        	
-        	System.out.println("usedData size : " + usedData.size());
+        if (usedData != null)
             return usedData; // 캐시가 있으면 즉시 반환
-        }
-
+        
         // 2. 캐시 미스 발생 → DB에서 모든 지역 데이터 조회
         List<MapDataEntity> loadRepository = mapDataRepository.searchRecommandGuAll();
+        // usedData 내 null 이므로 초기화.
         usedData = new HashMap<>();
 
         processMapDataEntities(loadRepository, usedData);
@@ -68,7 +66,6 @@ public class MapDataService implements IMapService {
         for (String guName : guNames) {
         	// chache 조회
             List<MapDataEntity> cacheLoadData = redisTemplateChoiceMapData.opsForValue().get(cacheKeyPrefix + guName);
-
             /* chache hit */
             if (cacheLoadData != null) {		// 해당 구 guId 에 대한 캐시 내용이 존재한다면 최종적으로 반환할 "usedData"내 데이터 추가.
             	processMapDataEntities(cacheLoadData, usedData); // 캐시 데이터 또는 DBMS 로드 데이터를 "usedData" 내 저장 메소드
@@ -78,7 +75,6 @@ public class MapDataService implements IMapService {
             }
         }
         
-       
         // 2. 캐시 미스 발생 시, 미스 발생한 guId 들에 한해서만 추가적으로 DB에서 조회 후 캐싱
         if (!emptyGuIdList.isEmpty()) {
 
@@ -109,12 +105,13 @@ public class MapDataService implements IMapService {
      */
 
     private void processMapDataEntities(List<MapDataEntity> loadRepositoryList, Map<String, List<Map<String, Double>>> usedData) {
+    	
         for (MapDataEntity mapDataEntity : loadRepositoryList) {
             if (mapDataEntity.getGuname() == null) {
                 continue; // guname이 null이면 저장하지 않음 (예외 방지)
             }
-            String guName = mapDataEntity.getGuname();
-            usedData.computeIfAbsent(guName, k -> new ArrayList<>()).add(
+            
+            usedData.computeIfAbsent(mapDataEntity.getGuname(), k -> new ArrayList<>()).add(
                 Map.of(
                     "guid", mapDataEntity.getGuid(),
                     "latitude", mapDataEntity.getLatitude(),
