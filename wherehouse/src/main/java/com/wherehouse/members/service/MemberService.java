@@ -26,7 +26,7 @@ import com.wherehouse.redis.handler.RedisHandler;
 import org.slf4j.Logger;
 
 @Service
-public class MemberService implements IMemberService {
+public class MemberService implements IMemberService{
 
 	private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
 	
@@ -75,7 +75,6 @@ public class MemberService implements IMemberService {
     	logger.info("MemberService.validLogin()!");
     	
         Key key = getKey(jwt);
-
         Map<String, String> loginSuccessInfo = new HashMap<>();
         
         loginSuccessInfo.put("userId", jwtUtil.extractUserId(jwt, key));
@@ -90,7 +89,7 @@ public class MemberService implements IMemberService {
     	logger.info("MemberService.validJoin()!");
     	
     	/* 회원 가입 요청에 따라 회원 가입이 가능한지 확인. */
-        if ( memberEntityRepository.findById(memberDTO.getId()).isPresent() ) {	// id 중복 여부 확인
+        if ( memberEntityRepository.findById(memberDTO.getId()).isPresent()) {	// id 중복 여부 확인
         	return USER_ID_DUPLICATE;
         }
         
@@ -112,6 +111,7 @@ public class MemberService implements IMemberService {
         
         List<String> roles = List.of("ROLE_USER");
         
+        /* 회원 관리 테이블과 SpringSecuiry 의 인증 테이블 모두 추가. */
         return membersRepository.addMember(
         		memberConverter.toEntity(memberDTO),
         		authenticationEntityConverter.toEntity(memberDTO, roles));
@@ -132,18 +132,19 @@ public class MemberService implements IMemberService {
     public String editMember(String currentToken, MemberDTO memberDTO) {
     	
     	logger.info("MemberService.editMember()");
-    	
-    	/* SpringSecurity  */
+
+    	/* Spring Security 내 사용되는 테이블 내 인증(회원) 정보 수정 위함. */
         List<String> roles = userEntityRepository.findById(memberDTO.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"))
                 .getRoles();
    
-        /* 비밀번호 암호화 수행 */
+        /* 회원 수정 요청 받은 비밀번호 암호화 수행 */
         String encodedPassword = passwordEncoder.encode(memberDTO.getPw());
         memberDTO.setPw(encodedPassword);  // 암호화된 비밀번호로 변경
 
         // 현재 시간 설정 (회원가입 시간)
         memberDTO.setJoinDate(new Date(System.currentTimeMillis()));
+        
         // 인증 및 회원 관리에 관한 2개 테이블 DB 테이블 갱신.
         int result = membersRepository.editMember(
         		memberConverter.toEntity(memberDTO),
@@ -151,13 +152,12 @@ public class MemberService implements IMemberService {
 
         // 정상 적인 수정이 되었다면 변경된 컬럼이 있으니 새롭게 jwt 만들어서 db 내부 갱신하고 HttpResponse 객체 내 응답 중 쿠키 갱신
         if (result == 1) {
-        	
         	// 현재 JWT의 키를 재 사용.
-        	Key newKey = getKey(currentToken);
+        	Key userKey = getKey(currentToken);
         	// 현재 토큰의 사용자 닉네임 컬럼을 수정해서 새로운 컬럼으로 반환.
-        	String newToken = editToken(currentToken, newKey, memberDTO.getNickName());
+        	String newToken = editToken(currentToken, userKey, memberDTO.getNickName());
         	// Redis 내 JWT 정보 갱신.
-        	updateJwtToken(currentToken, newToken, newKey);
+        	updateJwtToken(currentToken, newToken, userKey);
         	
         	return newToken;
         
@@ -176,8 +176,8 @@ public class MemberService implements IMemberService {
     	
     	// 새로운 변경된 JWT 토큰 키 값 추가.
     	redisHandler.getValueOperations().set(
-    			newToken,											// 새로운 JWT 문자열
-    			jwtUtil.encodeKeyToBase64(tokenKey),	// 원래 이전 JWT 의 Key 재 사용 유지.
+    			newToken,										// 새로운 JWT 문자열
+    			jwtUtil.encodeKeyToBase64(tokenKey),			// 원래 이전 JWT 의 Key 재 사용 유지.
     			Duration.ofHours(1)); // 1시간을 새롭게 갱신
     	
     	logger.info("Token Refresh : " + redisHandler.getValueOperations().get(newToken) + "\n"

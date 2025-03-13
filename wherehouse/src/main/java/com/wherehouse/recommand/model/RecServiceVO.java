@@ -4,7 +4,7 @@ import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder	// 테스트 코드 작성 용.
+@Builder
 @Data
 public class RecServiceVO {
 

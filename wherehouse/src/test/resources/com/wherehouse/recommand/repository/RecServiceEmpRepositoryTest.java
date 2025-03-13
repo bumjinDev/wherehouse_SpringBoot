@@ -54,8 +54,8 @@ class RecServiceEmpRepositoryTest {
         // 3건이 나올 것으로 기대 (로직 상 ROWNUM <= 3)
         assertEquals(3, recRepository.size());
         assertEquals("종로구", recRepository.get(0).getGu_name());
-        assertEquals("강북구", recRepository.get(0).getGu_name());
-        assertEquals("도봉구", recRepository.get(0).getGu_name());
+        assertEquals("강북구", recRepository.get(1).getGu_name());
+        assertEquals("도봉구", recRepository.get(2).getGu_name());
         // 나머지도 필요하다면 검증
     }
 
@@ -80,8 +80,8 @@ class RecServiceEmpRepositoryTest {
         assertFalse(recRepository.isEmpty());
         assertEquals(3, recRepository.size());
         assertEquals("종로구", recRepository.get(0).getGu_name());
-        assertEquals("노원구", recRepository.get(0).getGu_name());
-        assertEquals("강북구", recRepository.get(0).getGu_name());
+        assertEquals("노원구", recRepository.get(1).getGu_name());
+        assertEquals("강북구", recRepository.get(2).getGu_name());
     }
 
     /**
@@ -108,33 +108,38 @@ class RecServiceEmpRepositoryTest {
    
         assertEquals(3, recRepository.size());
         assertEquals("송파구", recRepository.get(0).getGu_name());
-        assertEquals("중구", recRepository.get(0).getGu_name());
-        assertEquals("마포구", recRepository.get(0).getGu_name());
+        assertEquals("중구", recRepository.get(1).getGu_name());
+        assertEquals("마포구", recRepository.get(2).getGu_name());
     }
 
+    /* =========================================== */
+    /* == 잘못된 범주의 값들에 대한 정상적인 예외 처리 여부 == */
+    
     /**
      * 4) 전세금 한계 테스트 (charter_avg 바로 근처 값)
      *    - (예: 9000, 10000, 15000 등 DB 상태에 맞춰 조정)
      */
-//    @Test
-//    void testChooseCharterRec_CharterAvgEdgeCase() {
-//        Map<String, String> requestAjax = Map.of(
-//            "charter_avg", "9000",
-//            "safe_score", "5",
-//            "cvt_score", "5"
-//        );
-//
-//        List<RecServiceVO> recRepository = recServiceEmpRepository.chooseCharterRec(
-//            Integer.parseInt(requestAjax.get("charter_avg")),
-//            Integer.parseInt(requestAjax.get("safe_score")),
-//            Integer.parseInt(requestAjax.get("cvt_score"))
-//        );
-//
-//        // 결과가 없을 수도 있으니, 그 경우 assertTrue(...isEmpty()) 등으로 검증
-//        // 또는 나올 수 있는 구들을 예측해 검증
-//        assertTrue(recRepository.isEmpty());
-//    }
+    
+    /*
+    @Test
+    void testChooseCharterRec_CharterAvgEdgeCase() {
+        Map<String, String> requestAjax = Map.of(
+            "charter_avg", "9000",
+            "safe_score", "5",
+            "cvt_score", "5"
+        );
 
+        List<RecServiceVO> recRepository = recServiceEmpRepository.chooseCharterRec(
+            Integer.parseInt(requestAjax.get("charter_avg")),
+            Integer.parseInt(requestAjax.get("safe_score")),
+            Integer.parseInt(requestAjax.get("cvt_score"))
+        );
+
+        // 결과가 없을 수도 있으니, 그 경우 assertTrue(...isEmpty()) 등으로 검증
+        // 또는 나올 수 있는 구들을 예측해 검증
+        assertTrue(recRepository.isEmpty());
+    }
+*/
     /**
      * 5) 전세금이 매우 큰 경우(실제 DB 데이터 범위를 초과)
      *    - 예: 999999, DB에는 대부분 20000 이하 라고 가정

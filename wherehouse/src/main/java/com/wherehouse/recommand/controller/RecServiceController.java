@@ -40,10 +40,9 @@ public class RecServiceController {
 		
 		logger.info("charter 요청 컨트롤러 실행!");
 		
-		if(requestAjax.get("charter_avg").equals("")) {
-			return null;
-		} else {
-			List<RecServiceVO> RecServiceResult = recServiceCharterService.execute(requestAjax);			/* ServiceBean으로 분기하여 `작업 */
+		if(requestAjax.get("charter_avg").equals("")) { return null; }
+		else {
+			List<RecServiceVO> RecServiceResult = recServiceCharterService.execute(requestAjax);	/* ServiceBean으로 분기하여 `작업 */
 			return RecServiceResult;
 		}
 	}
@@ -54,9 +53,8 @@ public class RecServiceController {
 		
 		logger.info("/monthly 요청 컨트롤러 실행 !");
 		
-		if(requestAjax.get("deposit_avg").equals("")) {
-			return null;
-		} else {
+		if(requestAjax.get("deposit_avg").equals("")) { return null; }
+		else {
 			List<RecServiceVO> RecServiceResult = recServiceMonthlyService.execute(requestAjax);		/* ServiceBean으로 분기하여 작업 */
 			return RecServiceResult;
 		}
