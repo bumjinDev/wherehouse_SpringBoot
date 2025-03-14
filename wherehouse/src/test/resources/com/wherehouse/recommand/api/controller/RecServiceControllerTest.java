@@ -1,4 +1,4 @@
-package com.wherehouse.recommand.unit;
+package com.wherehouse.recommand.api.controller;
 
 import java.util.Map;
 

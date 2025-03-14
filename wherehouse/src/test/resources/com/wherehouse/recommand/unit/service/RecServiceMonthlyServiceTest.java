@@ -1,4 +1,4 @@
-package com.wherehouse.recommand.unit;
+package com.wherehouse.recommand.unit.service;
 
 import static org.mockito.Mockito.*;
 

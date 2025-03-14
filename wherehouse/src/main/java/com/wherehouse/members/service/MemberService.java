@@ -20,7 +20,6 @@ import com.wherehouse.members.dao.IMembersRepository;
 import com.wherehouse.members.dao.MemberEntityRepository;
 import com.wherehouse.members.model.MemberConverter;
 import com.wherehouse.members.model.MemberDTO;
-import com.wherehouse.members.model.MembersEntity;
 import com.wherehouse.redis.handler.RedisHandler;
 
 import org.slf4j.Logger;
@@ -119,8 +118,8 @@ public class MemberService implements IMemberService{
     
 
     @Override
-    public MembersEntity searchEditMember(String editId) {
-        return membersRepository.getMember(editId);
+    public MemberDTO searchEditMember(String editId) {
+        return memberConverter.toDTO(membersRepository.getMember(editId));
     }
 
     /* editMember : 사용자 수정 요청 처리.
@@ -152,10 +151,11 @@ public class MemberService implements IMemberService{
 
         // 정상 적인 수정이 되었다면 변경된 컬럼이 있으니 새롭게 jwt 만들어서 db 내부 갱신하고 HttpResponse 객체 내 응답 중 쿠키 갱신
         if (result == 1) {
+        	
         	// 현재 JWT의 키를 재 사용.
         	Key userKey = getKey(currentToken);
         	// 현재 토큰의 사용자 닉네임 컬럼을 수정해서 새로운 컬럼으로 반환.
-        	String newToken = editToken(currentToken, userKey, memberDTO.getNickName());
+        	String newToken = editToken(currentToken, userKey, "username", memberDTO.getNickName());
         	// Redis 내 JWT 정보 갱신.
         	updateJwtToken(currentToken, newToken, userKey);
         	
@@ -165,19 +165,19 @@ public class MemberService implements IMemberService{
     }
 
     // 기존 JWT 토큰에 대해서 변경된 클레임을 수정해서 새로운 JWT 토큰으로 반환.
-    private String editToken(String cueentToken, Key key, String newUsername) {
-        return jwtUtil.modifyClaim(cueentToken, key, "username", newUsername);
+    private String editToken(String cueentToken, Key userKey, String claimName, String newUsername) {
+        return jwtUtil.modifyClaim(cueentToken, userKey, claimName, newUsername);
     }
 
     // JWT 토큰 업데이트 처리
-    private void updateJwtToken(String currentToken, String newToken, Key tokenKey) {
+    private void updateJwtToken(String currentToken, String newToken, Key userKey) {
     	
     	logger.info("MemberService.updateJwtToken()!");
     	
     	// 새로운 변경된 JWT 토큰 키 값 추가.
     	redisHandler.getValueOperations().set(
     			newToken,										// 새로운 JWT 문자열
-    			jwtUtil.encodeKeyToBase64(tokenKey),			// 원래 이전 JWT 의 Key 재 사용 유지.
+    			jwtUtil.encodeKeyToBase64(userKey),			// 원래 이전 JWT 의 Key 재 사용 유지.
     			Duration.ofHours(1)); // 1시간을 새롭게 갱신
     	
     	logger.info("Token Refresh : " + redisHandler.getValueOperations().get(newToken) + "\n"
@@ -189,13 +189,13 @@ public class MemberService implements IMemberService{
 
 
     /* JWT 를 가지고 redis 에서 key 문자열을 가져와서 실제 Key 객체로 반환 */
-    private Key getKey(String jwtToken) {
+    private Key getKey(String currentToken) {
     	
-    	logger.info("MemberService.getKey()! " + jwtToken);
+    	logger.info("MemberService.getKey()! " + currentToken);
         
-    	String encodedKey = (String) redisHandler.getValueOperations().get(jwtToken);
+    	String encodedKey = (String) redisHandler.getValueOperations().get(currentToken);
+    	
         byte[] decodedBytes = Base64.getUrlDecoder().decode(encodedKey);
-        
         return new SecretKeySpec(decodedBytes, "HmacSHA256");
     }
 }

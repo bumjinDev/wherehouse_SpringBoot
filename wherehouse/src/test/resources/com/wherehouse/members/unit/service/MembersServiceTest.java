@@ -1,12 +1,12 @@
-package com.wherehouse.members.unit;
+package com.wherehouse.members.unit.service;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-
-import com.wherehouse.members.service.MemberService;
-
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,27 +19,26 @@ import com.wherehouse.members.dao.MemberEntityRepository;
 import com.wherehouse.members.model.MemberConverter;
 import com.wherehouse.members.model.MemberDTO;
 import com.wherehouse.members.model.MembersEntity;
+import com.wherehouse.members.service.MemberService;
 import com.wherehouse.redis.handler.RedisHandler;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import java.sql.Date;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-@ExtendWith(MockitoExtension.class) // ✅ Mockito 테스트 환경 설정
+import java.security.Key;
+//import javax.crypto.spec.SecretKeySpec;
+//import java.util.Base64;
+
+@ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
 
     @InjectMocks
     private MemberService memberService;
-	    
+
     @Mock
     private IMembersRepository membersRepository;
 
@@ -50,23 +49,23 @@ class MemberServiceTest {
     private UserEntityRepository userEntityRepository;
 
     @Mock
-    private RedisHandler redisHandler;
+    private ValueOperations<String, Object> mockValueOperations;
 
     @Mock
-    private ValueOperations<String, Object> mockValueOperations;
-    
+    private RedisHandler redisHandler;
+
     @Mock
     private JWTUtil jwtUtil;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Mock
+    @Spy
     private MemberConverter memberConverter;
-    
-    @Mock
-    AuthenticationEntityConverter authenticationEntityConverter;
-    
+
+    @Spy
+    private AuthenticationEntityConverter authenticationEntityConverter;
+
     private MemberDTO mockMemberDTO;
     private MembersEntity mockMembersEntity;
     private AuthenticationEntity authenticationEntity;
@@ -74,145 +73,129 @@ class MemberServiceTest {
     @BeforeEach
     void setUp() {
     	
-        mockMemberDTO =  MemberDTO.builder()
-        					.id("testUser")
-        					.pw("password123")
-        					.nickName("testNick")
-        					.tel("010-1234-5678")
-        					.email("abcd@gmail.com")
-        					.joinDate(Date.valueOf("2024-03-10"))
-//        					.joinDate(new Date(System.currentTimeMillis()))
-        					.build();
-        
-       mockMembersEntity = MembersEntity.builder()
-					        .id("testUser")
-					        .pw("password123")
-					        .nickName("testNick")
-					        .tel("010-1234-5678")
-					        .email("abcd@gmail.com")
-		                    .joinDate(Date.valueOf("2024-03-10")) // 특정 날짜 지정 가능
-//					        .joinDate(new Date(System.currentTimeMillis())) // 현재 날짜로 설정
-					        .build();
-       
-       authenticationEntity = AuthenticationEntity.builder()
-				.userid(mockMemberDTO.getId())
-				.username(mockMemberDTO.getNickName())
-				.password(mockMemberDTO.getPw())
-				.roles(List.of("ROLE_USER"))
-				.build();
+        mockMemberDTO = MemberDTO.builder()
+                .id("testUser")
+                .pw("password123")
+                .nickName("testNick")
+                .tel("010-1234-5678")
+                .email("abcd@gmail.com")
+                .joinDate(Date.valueOf("2024-03-10"))
+                .build();
 
+        mockMembersEntity = MembersEntity.builder()
+                .id("testUser")
+                .pw("password123")
+                .nickName("testNick")
+                .tel("010-1234-5678")
+                .email("abcd@gmail.com")
+                .joinDate(Date.valueOf("2024-03-10"))
+                .build();
+
+        authenticationEntity = AuthenticationEntity.builder()
+                .userid(mockMemberDTO.getId())
+                .username(mockMemberDTO.getNickName())
+                .password(mockMemberDTO.getPw())
+                .roles(List.of("ROLE_USER"))
+                .build();
     }
 
-    // 로그인 성공 요청 검증
+    /** 로그인 성공 페이지 반환 - 성공 : Spring Security Filter Chain 내 "/login" 이후의 과정  */
     @Test
     void testValidLoginSuccess() {
-    	
-        String jwtToken = "mockToken";
         
-        when(jwtUtil.extractUserId(anyString(), any())).thenReturn("testUser");
-        when(jwtUtil.extractUsername(anyString(), any())).thenReturn("testNick");
+    	String currentToken = "mockToken";
+        String encodedKey = "mockBase64EncodedKey";
+    	
+        when(redisHandler.getValueOperations()).thenReturn(mockValueOperations);
+        when(mockValueOperations.get(anyString())).thenReturn(encodedKey);
+        
+        when(jwtUtil.extractUserId(anyString(), any(Key.class))).thenReturn("testUser");
+        when(jwtUtil.extractUsername(anyString(), any(Key.class))).thenReturn("testNick");
 
-        Map<String, String> result = memberService.validLoginSuccess(jwtToken);
+        var result = memberService.validLoginSuccess(currentToken);
 
         assertEquals("testUser", result.get("userId"));
         assertEquals("testNick", result.get("userName"));
     }
 
-    // 회원가입 시도 및 검증 - 중복되지 않은 상황.
+    /** 로그인 로직 검증 - 실패 케이스 작성 목록 : 
+     * 1. 로그인 시도 시 JWT TTL 만료로 인한 실패에 대한 예외 반환 : 추가적인 서비스 빈 로직 작성 이후 재 작성 예정 */
+    
+    /** 회원가입 검증 (성공) */
     @Test
     void testValidJoin_Success() {
-    	
-    	/* MembemrService.validJoin() 실제 호출 때 실행되는 Repository 빈을 Mock 객체로써 기능함으로써 실제 DBMS 와 독립된 실행 결과를 확인. */
-        when(memberEntityRepository.findById(anyString())).thenReturn(Optional.empty());
-        when(memberEntityRepository.findByNickName(anyString())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPasswordValue");
-        when(authenticationEntityConverter.toEntity(any(), any())).thenReturn(authenticationEntity);
-        when(membersRepository.addMember(
-        		any(),
-        		any())).thenReturn(1);
+        
+    	when(memberEntityRepository.findById(anyString())).thenReturn(Optional.empty());		// 아이디 중복되지 않음 확인
+        when(memberEntityRepository.findByNickName(anyString())).thenReturn(Optional.empty());	// 닉네임 중복되지 않음 확인
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");				// "Pure Unit Testing" 개념에 따라 외부 라이브러리 의존성 배제 
+        when(authenticationEntityConverter.toEntity(any(MemberDTO.class), any(List.class))).thenReturn(authenticationEntity);
+        when(membersRepository.addMember(any(MembersEntity.class), any(AuthenticationEntity.class))).thenReturn(1);
 
         int result = memberService.validJoin(mockMemberDTO);
 
-        assertEquals(1, result); // 회원가입 성공
+        assertEquals(1, result);
         verify(membersRepository, times(1)).addMember(any(), any());
     }
 
-    // 회원가입 검증 - 아이디 중복 되지 않음.
+    /** 회원가입 검증 - 실패 케이스 : 아이디 중복 */
     @Test
     void testValidJoin_UserIdDuplicate() {
     	
         when(memberEntityRepository.findById(anyString())).thenReturn(Optional.of(mockMembersEntity));
-
-        int result = memberService.validJoin(mockMemberDTO);	// MemberService.USER_ID_DUPLICATE(1) 반환.
+        
+        int result = memberService.validJoin(mockMemberDTO);
         assertEquals(memberService.USER_ID_DUPLICATE, result);
     }
 
-    // 회원가입 검증 - 닉네임 중복 : Id 조회는 중복이 아니나 닉네임 조회 시 객체를 반환하도록 함으로써 닉네임 중복 설정.
+    /** 회원가입 검증 - 실패 케이스 : 닉네임 중복 */
     @Test
     void testValidJoin_NicknameDuplicate() {
-    	
         when(memberEntityRepository.findById(anyString())).thenReturn(Optional.empty());
         when(memberEntityRepository.findByNickName(anyString())).thenReturn(Optional.of(mockMembersEntity));
 
         int result = memberService.validJoin(mockMemberDTO);
-
         assertEquals(memberService.NICKNAME_DUPLICATE, result);
     }
 
-    // 회원 조회 검증
+    /** 회원 정보 조회 로직 검증 :
+     * 	1. MemberService.searchEditMember() 호출
+     *  2. MembersRepository.getMember() 내 수정 요청자 이름으로 검색 수행, 테스트 코드이므로 'mockMembersEntity' 반환.
+     *  3. 검사.  */
     @Test
     void testSearchEditMember() {
     	
-        when(membersRepository.getMember(anyString())).thenReturn(mockMembersEntity);
+        when(membersRepository.getMember(anyString())).thenReturn(mockMembersEntity);	// 
 
-        MembersEntity result = memberService.searchEditMember("testUser");
-
-        assertNotNull(result);
-        assertEquals("testUser", result.getId());
+        MemberDTO memberDTO = memberService.searchEditMember("testUser");
+        assertNotNull(memberDTO);
+        assertEquals("testUser", memberDTO.getId());
     }
 
-    // 회원 정보 수정 - 성공
+    /** 회원 정보 수정 검증 - 성공 */
     @Test
     void testEditMember_Success() {
-
-        String currentToken = "mockCurrnetToken";
-        String newToken = "newMockToken";
-
-        // Spring Security 테이블 내 조회 시 "authenticationEntity" 반환.
-        when(userEntityRepository.findById(anyString())).thenReturn(Optional.of(authenticationEntity));
+    	
+        String currentToken = "mockToken";
+        String newToken = "mockNewToken";
+        String encodedKey = "mockBase64EncodedKey";
         
-        // DTO 상관 없이 지정 문자열 반환.
-        when(passwordEncoder.encode(anyString())).thenReturn("encodePasswordValue");
-        
-        /* 회원 수정 시도 시 반드시 성공 반환. */
-        when(membersRepository.editMember(any(), any())).thenReturn(1);
-        
-        /* "MemberService.editToken()" 내  토큰 수정 작업 시 설정된 토큰 반환. */
-        when(jwtUtil.modifyClaim(anyString(), any(), eq("username"), anyString())).thenReturn(newToken);
-        
-        /* "MemberService.updateJwtToken()" 내 redisHandler 작업 설정  */
+        when(userEntityRepository.findById(mockMemberDTO.getId())).thenReturn(Optional.of(authenticationEntity));
+        when(passwordEncoder.encode(mockMemberDTO.getPw())).thenReturn("mockEncodedPassword");
+        when(membersRepository.editMember(any(MembersEntity.class), any(AuthenticationEntity.class))).thenReturn(1);
         when(redisHandler.getValueOperations()).thenReturn(mockValueOperations);
-        when(redisHandler.getValueOperations()).thenReturn(mockValueOperations);
+        when(mockValueOperations.get(currentToken)).thenReturn(encodedKey);
+        when(jwtUtil.modifyClaim(any(String.class), any(Key.class), any(String.class), any(String.class)))
+        .thenReturn(newToken);
 
-        doNothing().when(mockValueOperations).set(anyString(), anyString(), any());
+        doNothing().when(mockValueOperations).set(anyString(), any(), any(Duration.class));
 
-        
         String resultToken = memberService.editMember(currentToken, mockMemberDTO);
 
         assertEquals(newToken, resultToken);
+        verify(membersRepository, times(1)).editMember(any(MembersEntity.class), any(AuthenticationEntity.class));
+        verify(mockValueOperations, times(1)).set(anyString(), any(), any(Duration.class));
     }
-
-    // 회원 정보 수정 실패 (닉네임 중복)
-    @Test
-    void testEditMember_NicknameDuplicate() {
-        String currentToken = "mockToken";
-
-        //when(userEntityRepository.findById(anyString())).thenReturn(Optional.of(mockMembersEntity));
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(membersRepository.editMember(any(), any())).thenReturn(2); // 닉네임 중복
-
-        String resultToken = memberService.editMember(currentToken, mockMemberDTO);
-
-        assertEquals(String.valueOf(memberService.NICKNAME_DUPLICATE), resultToken);
-    }
+    
+    /* 회원 정보 수정 검증 실패 케이스 작성 예정 :
+     * 1. 없는 사용자의 Id 반환. */
 }

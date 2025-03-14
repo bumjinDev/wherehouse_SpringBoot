@@ -112,9 +112,9 @@ public class JWTUtil {
     /**
      * JWT 토큰에서 특정 클레임 수정 후 새로운 토큰 생성
      */
-    public String modifyClaim(String token, Key key, String claimKey, Object newValue) {
+    public String modifyClaim(String token, Key key, String claimName, Object newValue) {
         Claims claims = extractAllClaims(token, key);
-        claims.put(claimKey, newValue);
+        claims.put(claimName, newValue);
 
         return Jwts.builder()
                 .setClaims(claims)
