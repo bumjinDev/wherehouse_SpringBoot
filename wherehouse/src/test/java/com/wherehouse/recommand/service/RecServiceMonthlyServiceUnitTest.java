@@ -1,11 +1,9 @@
-package com.wherehouse.recommand.unit.service;
+package com.wherehouse.recommand.service;
 
 import static org.mockito.Mockito.*;
 
 import com.wherehouse.recommand.dao.IRecServiceEmpRepository;
 import com.wherehouse.recommand.model.RecServiceVO;
-import com.wherehouse.recommand.service.RecServiceMonthlyService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +17,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class RecServiceMonthlyServiceTest {
+class RecServiceMonthlyServiceUnitTest {
 
     @Mock
     private IRecServiceEmpRepository recServiceEmpRepository;

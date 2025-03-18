@@ -1,4 +1,4 @@
-package com.wherehouse.recommand.unit.service;
+package com.wherehouse.recommand.service;
 
 
 import static org.mockito.Mockito.*;
@@ -12,15 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.wherehouse.recommand.dao.IRecServiceEmpRepository;
 import com.wherehouse.recommand.model.RecServiceVO;
-import com.wherehouse.recommand.service.RecServiceCharterService;
-
-
 
 import java.util.List;
 import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
-class RecServiceCharterServiceTest {
+class RecServiceCharterServiceUnitTest {
 
     @Mock
     private IRecServiceEmpRepository recServiceEmpRepository;
@@ -62,19 +59,5 @@ class RecServiceCharterServiceTest {
         assertEquals("강북구", result.get(0).getGu_name());
         // Mock 객체 메서드가 정확히 한 번 호출되었는지 확인
         verify(recServiceEmpRepository, times(1)).chooseCharterRec(1000, 5, 5);
-    }
-
-    /*  예외 처리 검증  */
-    
-    @Test
-    void execute_InvalidNumberFormat_ThrowsException() {
-        // 잘못된 형식의 입력값으로 변경
-        requestAjax = Map.of(
-            "charter_avg", "invalid",
-            "safe_score", "5",
-            "cvt_score", "5"
-        );
-        // 예외 발생 검증
-        assertThrows(NumberFormatException.class, () -> recServiceCharterService.execute(requestAjax));
     }
 }

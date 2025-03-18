@@ -104,6 +104,8 @@ dependencies {
 	// 외장 톰켓 애플리케이션 실행에 필요한 의존성 : war 배포 안할 시 꺼둘 것
 	//providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	
 	// Srping Boot Actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	

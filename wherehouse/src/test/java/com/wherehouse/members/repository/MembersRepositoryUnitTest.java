@@ -1,4 +1,4 @@
-package com.wherehouse.members.unit.repository;
+package com.wherehouse.members.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -21,7 +21,7 @@ import com.wherehouse.members.dao.MemberEntityRepository;
 import com.wherehouse.members.model.MembersEntity;
 
 @ExtendWith(MockitoExtension.class)
-class MembersRepositoryTest {
+class MembersRepositoryUnitTest {
 
     @InjectMocks
     private MembersRepository membersRepository; // 테스트할 대상

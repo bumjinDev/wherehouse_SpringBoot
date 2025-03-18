@@ -1,4 +1,4 @@
-package com.wherehouse.members.unit.service;
+package com.wherehouse.members.service;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -19,7 +19,6 @@ import com.wherehouse.members.dao.MemberEntityRepository;
 import com.wherehouse.members.model.MemberConverter;
 import com.wherehouse.members.model.MemberDTO;
 import com.wherehouse.members.model.MembersEntity;
-import com.wherehouse.members.service.MemberService;
 import com.wherehouse.redis.handler.RedisHandler;
 
 import org.springframework.data.redis.core.ValueOperations;
@@ -34,7 +33,7 @@ import java.security.Key;
 //import java.util.Base64;
 
 @ExtendWith(MockitoExtension.class)
-class MemberServiceTest {
+class MembersServiceUnitTest {
 
     @InjectMocks
     private MemberService memberService;

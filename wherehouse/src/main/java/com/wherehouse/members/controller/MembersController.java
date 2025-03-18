@@ -50,22 +50,25 @@ public class MembersController {
      * @param model       뷰로 전달할 데이터 추가
      * @return 로그인 성공 페이지 경로
      */
-    @GetMapping("/loginSuccess")
-    public String loginSueccess(
-    		
-    		@CookieValue(name = "Authorization", required = true) String jwt,
-    		Model model) {
+	@GetMapping("/loginSuccess")
+	public String loginSueccess(
+			@CookieValue(name = "Authorization", required = true) String jwt,
+			Model model) {
+	    logger.info("MembersController.loginSuccess()!");  // 로그 추가
+	    logger.info("JWT: {} : ", jwt);
+	    
+	    Map<String, String> sessionInfo = memberService.validLoginSuccess(jwt);
 
-    	logger.info("로그인 성공 요청 처리");
+	    if (sessionInfo == null || !sessionInfo.containsKey("userId") || !sessionInfo.containsKey("userName")) {
+	        logger.error("로그인 실패: sessionInfo가 null이거나 필수 데이터 없음");
+	    }
 
-        /* 쿠키 내 JWT 추출하여 userId 와 userName 가져와서 loginSuccess.jsp 랜더링. */
-        Map<String, String> sessionInfo = memberService.validLoginSuccess(jwt);
-        
-        model.addAttribute("userId", sessionInfo.get("userId"));
-        model.addAttribute("userName", sessionInfo.get("userName"));
-        
-        return "members/loginSuccess";
-    }
+	    model.addAttribute("userId", sessionInfo.get("userId"));
+	    model.addAttribute("userName", sessionInfo.get("userName"));
+
+	    return "members/loginSuccess";
+	}
+
 
     /**
      * 회원 정보 수정 페이지 요청 처리.
@@ -85,8 +88,8 @@ public class MembersController {
     		Model model ) {
 
         logger.info("MembersController.modifiMmeber()!");
-        
         model.addAttribute("MembersVO", memberService.searchEditMember(editId));
+        
         return "members/modify";
     }
 
@@ -146,12 +149,10 @@ public class MembersController {
     
     @PostMapping("/joinOk")
     public String joinRequest(
-    		
     		@ModelAttribute MemberDTO memberEditRequestDTO,
     		Model model) {
 
         logger.info("MemberController.joinRequest()!");
-
         model.addAttribute("resInt", String.valueOf(memberService.validJoin(memberEditRequestDTO))); // 회원 가입 요청 결과 전달
 
         return "members/joinOk";
