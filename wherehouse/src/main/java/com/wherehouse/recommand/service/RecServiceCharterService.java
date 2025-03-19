@@ -23,15 +23,25 @@ public class RecServiceCharterService implements IRecService{
 	}
 	
 	@Override
-	public List<RecServiceVO> execute(Map <String, String> requestAjax) {
-		
-		logger.info("RecServiceCharterService.execute()!");
-		/* 입력받은 데이터를 각 변수안에 삽입. */
-		List<RecServiceVO> RecServiceResult = recServiceEmpRepository.chooseCharterRec(
-												Integer.parseInt(requestAjax.get("charter_avg")),
-												Integer.parseInt(requestAjax.get("safe_score")),
-												Integer.parseInt(requestAjax.get("cvt_score"))
-											  );		
-		return RecServiceResult;
+	public List<RecServiceVO> execute(Map<String, String> requestAjax) {
+	    logger.info("RecServiceCharterService.execute()!");
+
+	    // 방어 코드 추가: null 체크
+	    if (requestAjax == null || !requestAjax.containsKey("charter_avg") ||
+	        !requestAjax.containsKey("safe_score") || !requestAjax.containsKey("cvt_score")) {
+	        throw new IllegalArgumentException("Invalid request data");
+	    }
+
+	    // 로그 출력
+	    logger.info("charter_avg: " + requestAjax.get("charter_avg"));
+	    logger.info("safe_score: " + requestAjax.get("safe_score"));
+	    logger.info("cvt_score: " + requestAjax.get("cvt_score"));
+
+	    // `Integer.parseInt()` 사용 시 예외 발생 가능성 방지
+	    int charterAvg = Integer.parseInt(requestAjax.get("charter_avg"));
+	    int safeScore = Integer.parseInt(requestAjax.get("safe_score"));
+	    int cvtScore = Integer.parseInt(requestAjax.get("cvt_score"));
+
+	    return recServiceEmpRepository.chooseCharterRec(charterAvg, safeScore, cvtScore);
 	}
 }

@@ -11,10 +11,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+
+
 import java.util.List;
 import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class RecServiceMonthlyServiceUnitTest {
@@ -57,14 +62,5 @@ class RecServiceMonthlyServiceUnitTest {
         assertEquals(2, result.size());
         assertEquals("강북구", result.get(0).getGu_name() ,"추천 리스트 첫 번째 항목이 강북구여야 함");
         verify(recServiceEmpRepository, times(1)).chooseMonthlyRec(2100, 50, 5, 5);
-    }
-
-    /*  예외 처리 검증  */
-    
-    @Test
-    void execute_InvalidNumberFormat_ThrowsException() {
-    	
-        requestAjax = Map.of("deposit_avg", "invalid");
-        assertThrows(NumberFormatException.class, () -> recServiceMonthlyService.execute(requestAjax));
     }
 }

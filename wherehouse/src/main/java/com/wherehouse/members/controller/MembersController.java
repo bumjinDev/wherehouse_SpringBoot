@@ -54,18 +54,15 @@ public class MembersController {
 	public String loginSueccess(
 			@CookieValue(name = "Authorization", required = true) String jwt,
 			Model model) {
+		
 	    logger.info("MembersController.loginSuccess()!");  // 로그 추가
 	    logger.info("JWT: {} : ", jwt);
 	    
 	    Map<String, String> sessionInfo = memberService.validLoginSuccess(jwt);
-
-	    if (sessionInfo == null || !sessionInfo.containsKey("userId") || !sessionInfo.containsKey("userName")) {
-	        logger.error("로그인 실패: sessionInfo가 null이거나 필수 데이터 없음");
-	    }
-
+	    
 	    model.addAttribute("userId", sessionInfo.get("userId"));
 	    model.addAttribute("userName", sessionInfo.get("userName"));
-
+	    
 	    return "members/loginSuccess";
 	}
 
