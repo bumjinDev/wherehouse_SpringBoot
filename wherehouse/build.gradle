@@ -107,13 +107,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	
 	// Srping Boot Actuator
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	//implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	
 	// JSP 랜더링 및 테스트 코드 작성 시 Cookie 요청
     //providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0'
-	
-
-	
 }
 
 tasks.test {

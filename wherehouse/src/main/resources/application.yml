@@ -27,7 +27,6 @@ spring:
           time-between-eviction-runs: 10s  # 유휴 커넥션 정리 주기 (10초)
 
   jpa:
-    #show-sql: true # 실행된 SQL 출력
     hibernate:
       ddl-auto: none # 개발 환경에서는 update, 운영 환경에서는 none 추천
     properties:
@@ -57,20 +56,11 @@ server:
     context-path: /wherehouse
 
 logging:
+  file:
+    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대결로로써 로그 파일 위치 설정
   level:
-    org:
-      hibernate:
-        #SQL: debug # SQL 로그 디버깅 활성화
-        #type.descriptor.sql: trace # SQL 바인딩 값 디버깅
+    root: info  # 기본 로그 레벨 설정
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health,info,metrics,loggers"
-  metrics:
-    enable:
-      http: true
 TestJWT:
-  user: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6IlRFU1RDT0RFVVNFUiIsInVzZXJJZCI6IlRFU1RDT0RFVVNFUiIsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NDIyMDYzMDYsImV4cCI6MTc0MjIwOTkwNn0.ErTGmgJ8uSkok1LuZ2OuK7TmNSrMyPRWBo5KjJXcF38"
-  secretKey: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6IlRFU1RDT0RFVVNFUiIsInVzZXJJZCI6IlRFU1RDT0RFVVNFUiIsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NDIyMDYzMDYsImV4cCI6MTc0MjIwOTkwNn0.ErTGmgJ8uSkok1LuZ2OuK7TmNSrMyPRWBo5KjJXcF384hRcmrT14B8-G4IpW4xfv_HXV_wqZy02IOC2iTqfm8o"
+  token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RVc2VyIiwidXNlcklkIjoidGVzdFVzZXJJZCIsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NDI0NTUyODIsImV4cCI6MjA1NzgxNTI4Mn0.A6_AjQFf9btisDxrJq4L2qxCTsDZv1zjyeROXdE18oI"
+  secretKey: "dEFnIT_lov0A2kRWE83Lkjh5hIZb1hyX1GbTnlhiDsI="

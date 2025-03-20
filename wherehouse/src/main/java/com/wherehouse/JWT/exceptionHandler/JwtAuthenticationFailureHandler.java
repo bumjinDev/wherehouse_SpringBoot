@@ -49,7 +49,6 @@ public class JwtAuthenticationFailureHandler implements AuthenticationEntryPoint
 		logger.warn("JwtAuthenticationFailureHandler - 인증 실패 : {}", authException.getMessage());
 		
 		/* 인증 실패 했으므로 쿠키 삭제 */
-		
 		response.setContentType("text/html; charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);	// 401 : 인증 에러 의미
 		

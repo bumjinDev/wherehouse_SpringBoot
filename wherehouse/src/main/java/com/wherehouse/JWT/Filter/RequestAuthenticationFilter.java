@@ -60,6 +60,7 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        
         // 2. JWT Key(String)을 Redis 조회 후 검증 및 사용자 인증 처리
         Optional<Key> signingKeyOpt = jwtUtil.getSigningKeyFromToken(token);
         if (signingKeyOpt.isEmpty() || !jwtUtil.isValidToken(token, signingKeyOpt.get())) {
@@ -69,6 +70,7 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
         // 3. SecurityContext에 인증 정보 설정
         authenticateUser(token, signingKeyOpt.get());
         // 4. 필터 체인으로 요청을 전달

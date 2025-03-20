@@ -55,6 +55,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         if (tokenOpt.isEmpty()) {
             logger.warn("JWT 토큰이 존재하지 않음");
+            filterChain.doFilter(request, response);
             return;
         }
         String token = tokenOpt.get();
@@ -63,6 +64,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         Optional<Key> keyOpt = jwtUtil.getSigningKeyFromToken(token);
         if (keyOpt.isEmpty()) {
             logger.warn("JWT 서명 키 없음");
+            filterChain.doFilter(request, response);
             return;
         }
         Key key = keyOpt.get();
@@ -70,6 +72,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         // 3. JWT 검증
         if (!jwtUtil.isValidToken(token, key)) {
             logger.warn("JWT 토큰 검증 실패");
+            filterChain.doFilter(request, response);
             return;
         }
 
