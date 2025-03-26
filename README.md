@@ -66,7 +66,6 @@ WhereHouse
 - 인증 필터 체인 구성: `LoginFilter`, `JwtAuthenticationFilter`, `RequestAuthenticationFilter`
 - 사용자 정보 변경 시 JWT 클레임 재발급 + Redis 재갱신으로 동기화
 - 전략 패턴 기반 추천 알고리즘 구현 (전세/월세 분기 처리)
-- RedisTemplate 이원화 및 JSON 직렬화 적용
 
 ---
 
