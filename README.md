@@ -9,7 +9,6 @@
 서울시 1인 가구, 특히 MZ 세대의 주거 선택을 지원하기 위해 전세/월세 가격 조건과 안전성, 편의성 선호도를 반영한 **행정구 단위 추천 시스템**입니다. 
 사용자 입력 기반 조건을 분석하여 최적 거주지를 추천하며, 성능 최적화와 보안 설계를 전면에 배치한 실무 수준 아키텍처를 구성하였습니다.
 
-- **GitHub**: [https://github.com/bumjinDev/wherehouse_SpringBoot](https://github.com/bumjinDev/wherehouse_SpringBoot)
 - **배포 URL**: [https://wherehouse.servehttp.com/wherehouse/](https://wherehouse.servehttp.com/wherehouse/)
 
 ---
