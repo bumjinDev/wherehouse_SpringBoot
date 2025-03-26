@@ -61,7 +61,7 @@
 ### 3. Redis 캐싱 설계 및 직렬화 안정화
 - 지도 데이터 TTL 분리 저장 (전체 24h / 지역별 1h)
 
-### 4. Jenkins 기반 무중단 배포 자동화
+### 4. Jenkins 기반 배포 자동화
 - GitHub Webhook → Jenkins Build → EC2 배포
 - Docker 기반 Oracle DB 운영환경 구성
 
