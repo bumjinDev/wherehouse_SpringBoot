@@ -67,7 +67,7 @@
 - RedisTemplate 이원화 및 Jackson2JsonRedisSerializer 적용
 
 ### 5. Jenkins 기반 무중단 배포 자동화
-- GitHub Webhook → Jenkins Build → EC2 `fuser -k`, `nohup` 롤링 배포
+- GitHub Webhook → Jenkins Build → EC2 롤링 배포
 - Docker 기반 Oracle DB 운영환경 구성
 
 
