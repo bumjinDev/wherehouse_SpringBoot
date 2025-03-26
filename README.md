@@ -115,8 +115,6 @@ WhereHouse
 | 인증/인가 예외 처리 충돌 | 401/403 구분 실패 | `AuthenticationEntryPoint` + `AccessDeniedHandler` 분리 적용 |
 | JWT 클레임 동기화 실패 | 사용자 정보 수정 후 미반영 | `modifyClaim` + Redis 삭제 후 재등록 + 쿠키 재설정 |
 | 인증 필터 미작동 | 필터 순서/경로 누락 | `addFilterAt()` + 경로별 SecurityFilterChain 분리 |
-| Redis 직렬화 오류 | 복잡한 Map/List 구조 처리 실패 | Jackson2JsonRedisSerializer + TypeReference 적용 |
-| 배포 실패 | 기존 프로세스 충돌 | `fuser -k` + `nohup` 기반 롤링 배포 구성 |
 
 ---
 
