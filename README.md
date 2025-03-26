@@ -145,7 +145,7 @@ WhereHouse
 
 | 정범진 | 이재서 |
 |--------|--------|
-| ![정범진](https://github.com/user-attachments/assets/4f66f287-8799-49fb-88f4-b67582db7b39) | ![이재서](https://github.com/user-attachments/assets/7be184e0-f8f4-4548-8fa6-f084c69f4f0b) |
+| <img src="https://github.com/user-attachments/assets/4f66f287-8799-49fb-88f4-b67582db7b39" width="100" height="100"> | <img src="https://github.com/user-attachments/assets/7be184e0-f8f4-4548-8fa6-f084c69f4f0b" width="100" height="100"> |
 | [@bumjinDev](https://github.com/bumjinDev) | [@N0WST4NDUP](https://github.com/N0WST4NDUP) |
 
 ---
