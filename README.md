@@ -58,15 +58,11 @@
 - 닉네임 변경 등의 사용자 정보 수정 시 JWT 클레임 내 반영
 - Redis 기존 키 삭제 후 토큰 재생성 → 쿠키 재설정
 
-### 3. 추천 알고리즘 설계 및 전략 패턴 적용
-- 전세/월세 분기 로직을 전략 패턴으로 구성 (`RecServiceCharterService`, `MonthlyService`)
-- JDBC 기반 조건 정렬 → 행정구 단위 Top 3 추천
-
-### 4. Redis 캐싱 설계 및 직렬화 안정화
+### 3. Redis 캐싱 설계 및 직렬화 안정화
 - 지도 데이터 TTL 분리 저장 (전체 24h / 지역별 1h)
 - RedisTemplate 이원화 및 Jackson2JsonRedisSerializer 적용
 
-### 5. Jenkins 기반 무중단 배포 자동화
+### 4. Jenkins 기반 무중단 배포 자동화
 - GitHub Webhook → Jenkins Build → EC2 롤링 배포
 - Docker 기반 Oracle DB 운영환경 구성
 
