@@ -48,28 +48,28 @@
 
 ## 🔥 주요 기능 및 구현 기여
 
-- **JWT 기반 인증 필터 체인 구성 및 무상태 보안 구조 설계**  
-  `LoginFilter`, `JwtAuthenticationFilter`, `RequestAuthenticationFilter`를 직접 구현하여 요청 흐름에 따른 인증 단계를 분리하였고, JWT를 HttpOnly 쿠키에 저장하여 클라이언트 접근을 차단하는 구조를 설계했습니다.  
-  Redis에 서명 키를 저장하는 방식으로 토큰 위조 및 탈취에 대응하며, 클라이언트 상태와 서버 상태를 동시에 제어하는 하이브리드 무상태 인증 환경을 구성하였습니다.  
-  예외 발생 시 `AuthenticationEntryPoint`(401)와 `AccessDeniedHandler`(403)를 명확히 분기 처리하여 인증/인가 오류를 세분화하고,  
-  `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options` 등 보안 응답 헤더를 설정함으로써 XSS, 클릭재킹 등의 클라이언트 공격에 대한 대응까지 포함된 보안 강화 구조를 구현했습니다.
+### 1. JWT 기반 인증 필터 체인 및 보안 구조 설계
+- 커스텀 인증 필터 (`LoginFilter`, `JwtAuthenticationFilter`, `RequestAuthenticationFilter`) 직접 구현
+- HttpOnly 쿠키 + Redis 서명 키 → 무상태 보안 인증 설계
+- `AuthenticationEntryPoint`, `AccessDeniedHandler`로 인증/인가 예외 분리 처리
+- CSP, X-Frame-Options 등 보안 응답 헤더 구성
 
-- **JWT 클레임 동기화 및 인증 상태 자동 갱신 구조 구현**  
-  회원 정보 수정 시 기존 JWT에 반영되지 않는 문제를 해결하기 위해 `modifyClaim()`을 통해 클레임을 수정하고, 기존 Redis 키 제거 후 새로운 서명 키와 함께 JWT를 재발급하는 구조를 설계했습니다.  
-  수정된 JWT는 다시 HttpOnly 쿠키로 설정되어 클라이언트와 서버 간 인증 상태의 일관성을 유지하며, 무상태 환경에서도 인증 동기화가 실시간으로 반영되는 구조를 완성했습니다.
+### 2. 사용자 정보 변경 시 JWT 클레임 동기화
+- `modifyClaim()`을 통한 닉네임 변경 등 사용자 정보 반영
+- Redis 기존 키 삭제 후 토큰 재생성 → 쿠키 재설정
 
-- **조건 기반 추천 알고리즘 설계 및 전략 패턴 적용**  
-  사용자의 전세/월세 조건, 선호 점수(safety, convenience)를 기반으로 행정구 단위 추천 알고리즘을 설계했습니다.  
-  조건 분기에 따라 `RecServiceCharterService`, `RecServiceMonthlyService`를 전략 패턴으로 분리하여 가독성과 유지보수성을 개선하였고, JDBC 기반 행정구 데이터 쿼리를 통해 Top 3 추천 지역을 도출하였습니다.
+### 3. 추천 알고리즘 설계 및 전략 패턴 적용
+- 전세/월세 분기 로직을 전략 패턴으로 구성 (`RecServiceCharterService`, `MonthlyService`)
+- JDBC 기반 조건 정렬 → 행정구 단위 Top 3 추천
 
-- **지도 기반 좌표 데이터 Redis 캐싱 구조 설계**  
-  전체 지도 데이터 및 지역별 좌표 데이터를 `RedisTemplate`을 이원화하여 분리 저장하고, Jackson2JsonRedisSerializer를 통해 Map/List 구조를 안정적으로 직렬화하였습니다.  
-  TTL(Time-To-Live)을 전체 데이터 24시간, 지역별 데이터 1시간으로 분리하여 캐시 적중률을 높이고, 불필요한 DB 조회를 최소화한 구조로 성능 최적화를 달성했습니다.
+### 4. Redis 캐싱 설계 및 직렬화 안정화
+- 지도 데이터 TTL 분리 저장 (전체 24h / 지역별 1h)
+- RedisTemplate 이원화 및 Jackson2JsonRedisSerializer 적용
 
-- **CI/CD 자동화 및 무중단 배포 파이프라인 구현**  
-  Jenkins, GitHub Webhook, EC2 기반 파이프라인을 구성하여 코드 Push → 자동 Build → EC2 배포까지 자동화하였습니다.  
-  `fuser -k`, `nohup` 명령어 기반 롤링 재시작 구조를 구현하여 서비스 중단 없이 배포 가능한 구조를 구성했습니다.  
-  도커를 이용한 Oracle DB 컨테이너 관리로 로컬/운영 환경의 일관성도 확보했습니다.
+### 5. Jenkins 기반 무중단 배포 자동화
+- GitHub Webhook → Jenkins Build → EC2 `fuser -k`, `nohup` 롤링 배포
+- Docker 기반 Oracle DB 운영환경 구성
+
 
 ---
 
