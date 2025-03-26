@@ -6,8 +6,8 @@
 
 ## 📌 프로젝트 개요
 
-서울시 1인 가구, 특히 MZ 세대의 주거 선택을 지원하기 위해 전세/월세 가격 조건과 안전성, 편의성 선호도를 반영한 **행정구 단위 추천 시스템**입니다. 
-사용자 입력 기반 조건을 분석하여 최적 거주지를 추천하며, 성능 최적화와 보안 설계를 전면에 배치한 실무 수준 아키텍처를 구성하였습니다.
+서울시 1인 가구, 특히 MZ 세대의 주거 선택을 지원하기 위해 전세/월세 가격 조건과 안전성, 편의성 선호도를 반영한 **행정구 단위 추천 시스템**입니다.  
+사용자 입력 기반 조건을 분석하여 최적 거주지를 추천하며, 성능 최적화와 보안 설계를 전면에 배치한 아키텍처를 구성하였습니다.
 
 - **배포 URL**: [https://wherehouse.servehttp.com/wherehouse/](https://wherehouse.servehttp.com/wherehouse/)
 
@@ -21,12 +21,12 @@
 - **정범진**: 상세지도 클릭 이벤트 기반 좌표 처리, CCTV 마커 표시 구현
 
 ### **2차 프로젝트: Servlet 기반 개발**
-- **한준원**: 주거지 추천 알고리즘  구현
+- **한준원**: 주거지 추천 알고리즘 구현
 - **이재서**: 상세지도 서비스 Servlet 전환
 - **정범진**: 로그인/회원가입 및 게시판 기능 구현
 
 ### **3차 프로젝트: Spring Boot 전환 및 인프라 구성**
-- **정범진**: 전체 백엔드 구조(Spring Boot), 추천 알고리즘, 인증 시스템, 배포 자동화 담당
+- **정범진**: 전체 백엔드 구조(Spring Boot), 인증 시스템, 배포 자동화 담당
 - **이재서**: 상세지도 기능 Spring Boot 전환
 
 ---
@@ -43,6 +43,24 @@
 
 ---
 
+## 📁 프로젝트 구조
+
+<pre>
+WhereHouse
+├── board
+│   ├── controller / dao / model / service
+├── information
+│   ├── controller / dao / model / service
+├── mainpage
+│   └── controller
+├── members
+│   ├── controller / dao / model / service
+└── recommand
+    ├── controller / dao / model / service
+</pre>
+
+---
+
 ## 🔥 주요 기능 및 구현 기여
 
 - 인증 필터 체인 구성: `LoginFilter`, `JwtAuthenticationFilter`, `RequestAuthenticationFilter`
@@ -55,19 +73,39 @@
 ## 📄 페이지별 주요 기능
 
 ### **[메인 페이지]**
-- 로그인/회원가입 진입점 제공, 네비게이션 구성
+- 로그인/회원가입 진입점 역할을 수행하며, 전체 서비스의 라우팅 중심 역할을 합니다.
+- 상단 네비게이션 바를 통해 게시판, 추천 서비스, 마이페이지 등으로 접근이 가능하며,
+  로그인 상태에 따라 사용자 맞춤 UI가 표시됩니다.
+
+![메인 페이지](https://github.com/user-attachments/assets/8e2c3413-97a5-4380-884b-32c4bce70275)
 
 ### **[거주지 추천 페이지]**
-- 사용자 입력 기반 (안전/편의 점수 + 가격 필터) 추천 결과 제공 (Top 3)
+- 사용자로부터 안전성/편의성 선호 비중 및 전세/월세 금액 조건을 입력받습니다.
+- 입력값을 기반으로 전략 패턴 기반 추천 서비스가 호출되며, 행정구 단위 Top 3 지역이 추천됩니다.
+- 추천 결과는 지역 이름, 평균 시세, 안전/편의 점수를 포함하여 표시됩니다.
+- KakaoMap을 기반으로 각 추천 지역 위치를 시각적으로 함께 제공합니다.
+
+![추천 페이지](https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37)
 
 ### **[상세 지도 페이지]**
-- 클릭 위치 기반 500m 내 CCTV 및 편의시설 시각화 (KakaoMap API 활용)
+- 지도 위 특정 지역 클릭 시, 반경 500m 이내 CCTV 위치 및 생활 편의시설(약국, 편의점 등)을 시각적으로 표시합니다.
+- KakaoMap API를 기반으로 동작하며, 지역에 따라 마커 데이터가 동적으로 갱신됩니다.
+- 마커 클릭 시 관련 정보(시설명, 유형 등)를 확인할 수 있습니다.
+- 사용자 경험을 고려해 각 요소는 레이어 방식으로 표시됩니다.
+
+![상세지도 페이지](https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376)
 
 ### **[게시판]**
-- 게시글 CRUD, 댓글 작성/삭제, 작성자 인증 처리
+- 인증된 사용자만 접근 가능한 게시판 기능으로, 게시글 등록, 수정, 삭제, 조회 기능을 지원합니다.
+- 게시글 상세 페이지에서 댓글 기능을 통해 사용자 간 상호작용이 가능합니다.
+- 게시자 정보는 JWT에서 추출된 userId를 기준으로 자동 저장됩니다.
+- 삭제/수정 시 작성자 검증 로직이 포함되어 있습니다.
 
 ### **[회원 관리]**
-- 회원가입, 로그인, 정보 수정 시 JWT 클레임 수정/동기화
+- 회원가입, 로그인, 정보 수정 기능 제공
+- 로그인 시 JWT가 쿠키로 발급되며, Redis에 서명 키가 저장됩니다.
+- 정보 수정(예: 닉네임 변경) 시 기존 토큰은 폐기되며, 새로운 JWT가 재발급됩니다.
+- JWT 기반으로 사용자 인증 상태를 유지하면서도 동기화를 보장하는 구조입니다.
 
 ---
 
@@ -78,6 +116,8 @@
 | 인증/인가 예외 처리 충돌 | 401/403 구분 실패 | `AuthenticationEntryPoint` + `AccessDeniedHandler` 분리 적용 |
 | JWT 클레임 동기화 실패 | 사용자 정보 수정 후 미반영 | `modifyClaim` + Redis 삭제 후 재등록 + 쿠키 재설정 |
 | 인증 필터 미작동 | 필터 순서/경로 누락 | `addFilterAt()` + 경로별 SecurityFilterChain 분리 |
+| Redis 직렬화 오류 | 복잡한 Map/List 구조 처리 실패 | Jackson2JsonRedisSerializer + TypeReference 적용 |
+| 배포 실패 | 기존 프로세스 충돌 | `fuser -k` + `nohup` 기반 롤링 배포 구성 |
 
 ---
 
@@ -101,24 +141,6 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker)
 ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens)
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-232F3E?style=for-the-badge&logo=amazonaws)
-
----
-
-## 📁 프로젝트 구조
-
-<pre>
-WhereHouse
-├── board
-│   ├── controller / dao / model / service
-├── information
-│   ├── controller / dao / model / service
-├── mainpage
-│   └── controller
-├── members
-│   ├── controller / dao / model / service
-└── recommand
-    ├── controller / dao / model / service
-</pre>
 
 ---
 
