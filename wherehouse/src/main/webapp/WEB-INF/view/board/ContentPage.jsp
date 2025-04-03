@@ -17,14 +17,14 @@
 					
 					<!-- form 태그 적용되어 서버 내 요청될 내용들.(현재 페이지를 요청하는 이전 단계에서 이미 가져온 데이터들.) -->
 					<input type="hidden" name="boardId" id="boardId" value="${content_view.boardId}">		<!-- 글 번호 -->	
-					<input type="hidden" name="userId" id="userId" value="${content_view.userId}">					<!-- 글 작성자 "Id" -->
-					<input type="hidden" name="title" value="${content_view.title}" />								<!-- 글 제목 -->
-					<input type="hidden" name="boardContent"value="${content_view.boardContent}" />							<!-- 글 내용 -->
-					<input type="hidden" name="region" value="${content_view.region}" />							<!-- 게시글 지역 -->
-					<input type="hidden" name="boardHit" value="${content_view.boardHit}" />						<!-- 게시글 조회수 -->
-					<input type="hidden" name="boardDate" value="${content_view.boardDate}" />						<!-- 게시글 작성 날짜 -->
+					<input type="hidden" name="userId" id="userId" value="${content_view.userId}">			<!-- 글 작성자 "Id" -->
+					<input type="hidden" name="title" value="${content_view.title}" />						<!-- 글 제목 -->
+					<input type="hidden" name="boardContent"value="${content_view.boardContent}" />			<!-- 글 내용 -->
+					<input type="hidden" name="region" value="${content_view.region}" />					<!-- 게시글 지역 -->
+					<input type="hidden" name="boardHit" value="${content_view.boardHit}" />				<!-- 게시글 조회수 -->
+					<input type="hidden" name="boardDate" value="${content_view.boardDate}" />				<!-- 게시글 작성 날짜 -->
 					
-					<input type="hidden" name="userName" value="${userName}">							<!-- 글 작성자 "닉네임" -->
+					<input type="hidden" name="userName" value="${userName}">								<!-- 글 작성자 "닉네임" -->
 
 						<!-- 게시글 제목 : 게시글 제목 -->
 						<div class="headerTitle">
@@ -78,7 +78,7 @@
 					<!-- form 태그 적용되어 서버 내 댓글 작성 요청으로 전달 될 내용들 -->
 					<input type="hidden" name="boardId" id="boardId" value="${content_view.boardId}">	<!-- 글 번호 -->	
 					<input type="hidden" name="userId" id="userId" value="${content_view.userId}">		<!-- 글 작성자 "Id" -->
-					<input type="hidden" name="userName" value="${userName}">				<!-- 글 작성자 "닉네임" -->				
+					<input type="hidden" name="userName" value="${userName}">							<!-- 글 작성자 "닉네임" -->				
 					<textarea rows="4" cols="54" name="replyContent" class="replyvalue"></textarea>		<!-- 댓글 작성되는 부분 -->
 					
 					<button value="댓글 작성하기" type="button" class="replybutton" style="width:100px; heigth:50px;">

@@ -1,5 +1,6 @@
 package com.wherehouse.members.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +19,7 @@ public interface MemberEntityRepository extends JpaRepository<MembersEntity, Str
 
 	@Query(value = "SELECT * FROM membertbl WHERE nickname = :nickname AND id != :id", nativeQuery = true)	// MembersRepository.editMember : 회원 수정 요청을 받아 닉네임이 중복 여부 확인.
 	Optional<MembersEntity> findByNicknameAndNotIdNative(@Param("nickname") String nickname, @Param("id") String id);
+	
+	@Query("SELECT m.nickName FROM MembersEntity m WHERE m.id IN :userIds")
+	List<String> findNickNamesByIds(@Param("userIds") List<String> userIds);
 }

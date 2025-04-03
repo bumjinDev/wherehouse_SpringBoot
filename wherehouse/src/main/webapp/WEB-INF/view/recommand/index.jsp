@@ -102,10 +102,10 @@
                                             <ul class="dropdown-menu me-2 dropdown-menu-end text-end nav_btn_house_rec_dropdown"
                                                 id="">
                                                 <li><a class="dropdown-item nav_choose nav_item"
-                                                        href="./loginpage">로그인</a>
+                                                        href="./login">로그인</a>	<!-- GET 요청으로 login.jsp 페이지 요청, 해당 페이지에서 실제 로그인 요청은 post /login-->
                                                 </li>
                                                 <li><a class="dropdown-item nav_choose nav_item"
-                                                        href="./join">회원가입</a>
+                                                        href="./members/join">회원가입</a>
                                                 </li>
                                             </ul>
                                         </li>

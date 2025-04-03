@@ -2,107 +2,93 @@ package com.wherehouse.board.dao;
 
 import com.wherehouse.board.model.BoardEntity;
 import com.wherehouse.board.model.CommentEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
- * BoardRepository는 게시판 관련 데이터베이스 작업을 처리하는 클래스입니다.
- * - 데이터 조회, 추가, 수정, 삭제 기능을 제공합니다.
- * - JPA Repository 및 기타 데이터베이스 관리 객체를 활용합니다.
+ * BoardRepository
+ *
+ * - 게시판 관련 데이터베이스 작업을 처리하는 Repository 구현 클래스입니다.
+ * - 게시글 및 댓글의 조회, 작성, 수정, 삭제, 조회수 증가 등의 기능을 제공합니다.
+ * - 내부적으로 Spring Data JPA Repository를 활용하며, DB 예외 처리는 상위 계층에서 통합 관리합니다.
  */
 @Service
 public class BoardRepository implements IBoardRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(BoardRepository.class);
 
-    BoardEntityRepository boardEntityRepository;
+    private final BoardEntityRepository boardEntityRepository;
+    private final CommentEntityRepository commentEntityManger;
 
-    CommentEntityRepository commentEntityManger;
-
-    
-    public BoardRepository(
-    		
-    		BoardEntityRepository boardEntityRepository,
-    		CommentEntityRepository commentEntityManger
-    	) {
-    	
-    	this.boardEntityRepository = boardEntityRepository;
-    	this.commentEntityManger = commentEntityManger;
-
-    }
-    
-    /**
-     * 게시글 목록 조회 및 페이지네이션 처리.
-     * 
-     * - 게시글의 총 개수를 계산하고, 페이지 단위로 데이터를 가져옵니다.
-     * - 요청받은 페이지 번호에 따라 특정 범위의 게시글을 반환합니다.
-     * - 게시글 작성자 닉네임 목록도 함께 반환합니다.
-     *
-     * @param pnIndex 요청 페이지 번호 (0부터 시작)
-     * @return Map 형태로 페이지네이션 정보, 게시글 목록, 작성자 닉네임 목록 포함
-     */
-    public HashMap<String, Object> searchBoardList(int pnIndex) {
-
-        HashMap<String, Object> resultBoard = new HashMap<>(); 		// 결과 데이터 저장용
-        
-        //List<BoardVO> boardList = null;							// 페이지네이션 범위에 해당하는 게시글 목록
-        List<BoardEntity> boardList = null;							// 페이지네이션 범위에 해당하는 게시글 목록
-        
-        List<String> members = null;
-        
-        // 게시글 전체 페이지 수 계산 (페이지 당 10개 게시글 기준)
-        int pnSize = ((int) Math.ceil(boardEntityRepository.count() / 10.0));
-
-        // 요청받은 페이지 번호에 해당하는 게시글 데이터 가져오기
-        // boardList = boardConverter.toVOList(boardEntityRepository.findByBdateWithPagination(pnIndex * 10, 10));
-        boardList = boardEntityRepository.findByBdateWithPagination(pnIndex * 10, 10);
-        
-        List<Integer> boardIdList = boardList.stream()
-                .map(BoardEntity::getConnum)
-                .collect(Collectors.toList());
-
-        if(boardList.size() >= 1)
-        	members = getMembers(boardIdList);
-         else
-			members = null;
-			
-        // 결과 데이터 구성
-        resultBoard.put("pnSize", pnSize); 			// 전체 게시글 수에 대한 페이지 네이션 개수로써 게시글 페이지 버튼을 구현.
-        resultBoard.put("boardList", boardList); 	// 게시글 전체 목록에 각 게시글 별 실제 데이터 제공.
-        resultBoard.put("members", members);		// 게시글 전체 목록에 각 게시글 별 실제 작성자 닉네임을 표기
-        
-        return resultBoard;
+    public BoardRepository(BoardEntityRepository boardEntityRepository,
+                           CommentEntityRepository commentEntityManger) {
+        this.boardEntityRepository = boardEntityRepository;
+        this.commentEntityManger = commentEntityManger;
     }
 
     /**
-     * 게시글 작성.
-     * 
-     * - 새로운 게시글 데이터를 데이터베이스에 저장합니다.
+     * 게시글 목록 조회 (페이지 단위)
      *
-     * @param boardEntity 저장할 게시글 데이터
+     * - 페이지 번호에 따라 10건씩 페이징하여 최신 게시글을 반환합니다.
+     * - 예외 상황: 게시글이 없어도 빈 리스트 반환 (예외 처리 불필요)
+     *
+     * @param pnIndex 페이지 번호 (0부터 시작)
+     * @return 게시글 리스트
      */
+    @Override
+    public List<BoardEntity> searchBoardList(int pnIndex) {
+        return boardEntityRepository.findByBdateWithPagination(pnIndex * 10, 10);
+    }
+
+    /**
+     * 게시글 단건 조회
+     *
+     * - 게시글 ID에 해당하는 게시글을 조회합니다.
+     *
+     * @param boardId 게시글 ID
+     * @return 게시글 Optional
+     */
+    @Override
+    public Optional<BoardEntity> findBoard(int boardId) {
+        logger.info("boardRepository.findBoard() - boardId: {}", boardId);
+        return boardEntityRepository.findById(boardId);
+    }
+
+    /**
+     * 게시글 작성
+     *
+     * - 신규 게시글을 저장합니다.
+     * - ID가 없는 상태의 엔티티에 대해 save() 호출 시 INSERT 수행됩니다.
+     *
+     * @param boardEntity 저장할 게시글 엔티티
+     */
+    @Override
     public void boardWrite(BoardEntity boardEntity) {
         boardEntityRepository.save(boardEntity);
     }
 
     /**
-     * 특정 게시글 조회.
+     * 게시글 수정
      *
-     * @param boardId 조회할 게시글 ID
-     * @return 조회된 게시글 데이터
+     * - ID가 포함된 게시글 엔티티를 저장합니다.
+     * - JPA의 save()는 동일한 ID 존재 시 UPDATE로 동작합니다.
+     * - 컬럼 분할 업데이트는 추후 별도 메서드로 분리 예정
+     *
+     * @param boardEntity 수정할 게시글 엔티티
      */
-    public BoardEntity findBoard(int boardId) {
-        return boardEntityRepository.findById(boardId)
-            .orElseThrow(() -> new NoSuchElementException("해당 게시글을 찾을 수 없습니다. ID: " + boardId));
+    public void boardModify(BoardEntity boardEntity) {
+        boardEntityRepository.save(boardEntity);
     }
 
-
     /**
-     * 특정 게시글 삭제.
+     * 게시글 삭제
+     *
+     * - 지정한 ID의 게시글을 삭제합니다.
+     * - 대상이 존재하지 않을 경우 EmptyResultDataAccessException 발생 (컨트롤러에서 처리)
      *
      * @param boardId 삭제할 게시글 ID
      */
@@ -111,55 +97,26 @@ public class BoardRepository implements IBoardRepository {
     }
 
     /**
-     * 게시글 조회수 증가.
+     * 게시글 조회수 증가
      *
-     * - 특정 게시글의 조회수를 1 증가시킵니다.
+     * - 지정된 게시글 ID의 조회수를 1 증가시킵니다.
+     * - 내부적으로 @Modifying update 쿼리 실행
      *
-     * @param boardId 조회수를 증가시킬 게시글 ID
+     * @param boardId 조회수 증가 대상 게시글 ID
+     * @return 정상 처리 시 1, 실패 시 0
      */
-    public void upHit(int boardId) {
-    	
-        boardEntityRepository.findById(boardId).ifPresent(board -> {  	
-            board.setHit(board.getHit() + 1);
-            boardEntityRepository.save(board);
-        });
+    public int upHit(int boardId) {
+        return boardEntityRepository.updateHitByConnum(boardId, 1);
     }
 
     /**
-     * 게시글 수정.
+     * 댓글 목록 조회
      *
-     * - 특정 게시글의 내용을 수정합니다.
+     * - 특정 게시글에 대한 댓글 리스트를 반환합니다.
+     * - 게시글이 없어도 빈 리스트 반환 (예외 처리 불필요)
      *
-     * @param boardEntity 수정할 게시글 데이터 (ID 포함)
-     */
-    public void boardModify(BoardEntity boardEntity) {
-        boardEntityRepository.findById(boardEntity.getConnum()).ifPresent(board -> {
-        	
-            board.setTitle(boardEntity.getTitle());
-            board.setBoardcontent(boardEntity.getBoardcontent());
-            board.setRegion(boardEntity.getRegion());
-            
-            boardEntityRepository.save(board);
-        });
-    }
-
-    /**
-     * 댓글 작성.
-     *
-     * - 특정 게시글에 댓글을 추가합니다.
-     *
-     * @param comment 추가할 댓글 데이터
-     */
-    @Override
-    public void replyWrite(CommentEntity comment) {
-        commentEntityManger.save(comment);
-    }
-
-    /**
-     * 특정 게시글의 댓글 조회.
-     *
-     * @param commentId 댓글이 속한 게시글 ID
-     * @return 해당 게시글의 댓글 목록
+     * @param commentId 게시글 ID
+     * @return 댓글 리스트
      */
     @Override
     public List<CommentEntity> commentSearch(int commentId) {
@@ -167,17 +124,14 @@ public class BoardRepository implements IBoardRepository {
     }
 
     /**
-     * 게시글 작성자 닉네임 조회.
+     * 댓글 작성
      *
-     * - 특정 범위의 게시글 ID를 기반으로 작성자 닉네임 목록을 반환합니다.
+     * - 지정된 게시글에 댓글을 추가합니다.
      *
-     * @param start 시작 게시글 ID
-     * @param end   끝 게시글 ID
-     * @return 작성자 닉네임 목록
+     * @param comment 저장할 댓글 엔티티
      */
     @Override
-    public ArrayList<String> getMembers(List<Integer> boardIdList) {
-        return (ArrayList<String>) boardEntityRepository.findUserIdByConnumIn(boardIdList);
+    public void replyWrite(CommentEntity comment) {
+        commentEntityManger.save(comment);
     }
-
 }

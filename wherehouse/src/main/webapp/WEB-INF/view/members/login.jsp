@@ -66,13 +66,13 @@
                 <div id="inputBox" class="me-3 ms-3 row">
                 <!-- 로그인 요청 :
                 	JWT 필터인 "loginFilter" 로 요청이 전달된다. -->
-                    <form action="./login" method="post">		<!--  -->
+                    <form action="./login" method="post">
                         <div class=" mt-4 mb-4" id="login-id"><input type="text" name="userid" class="form-control" placeholder="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;아이디"></div>
                         <div class="mb-5" id="login-pw"><input type="password" name="password" class="form-control" placeholder="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;비밀번호"></div>
                         <div class="button-login-box">
-                            <input type="submit" value="로그인" class="btn btn-primary btn-xs mb-3" style="width:100%"></input>
+                            <input type="submit" value="로그인" class="btn btn-primary btn-xs mb-3" style="width:100%"></input>	<!-- POST 요청으로 Spring Security Filter 로 요청 -->
                          		  또는
-                            <input type="button" value="회원가입" class="btn btn-primary btn-xs mt-3 mb-4" style="width:100%" onclick="javascript:window.location='./join'"></input> <!-- ./page/join -->
+                            <input type="button" value="회원가입" class="btn btn-primary btn-xs mt-3 mb-4" style="width:100%" onclick="javascript:window.location='./members/join'"></input> <!-- ./page/join -->
                         </div>
                     </form>
                 </div>

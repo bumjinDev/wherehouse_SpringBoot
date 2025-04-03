@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.Column;
 
 @Entity
 @Data
@@ -20,9 +21,11 @@ import lombok.NoArgsConstructor;
 @Table(name="whereboard")
 public class BoardEntity {
 	
-	@Id
+	
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "whereboard_seq")
     @SequenceGenerator(name = "whereboard_seq", sequenceName = "whereboarder_seq", allocationSize = 1)
+	@Column(name = "CONNUM")  // 대소문자 정확히 일치
+	@Id
 	private int connum;
 	private String userid;
 	private String title;

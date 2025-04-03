@@ -87,7 +87,7 @@ public class SecurityConfig {
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth
             		-> auth.anyRequest().hasAuthority("ROLE_USER"))
-            .addFilterAt(new JWTAuthenticationFilter(cookieUtil, jwtUtil), UsernamePasswordAuthenticationFilter.class)
+            .addFilterAt(new JWTAuthenticationFilter(cookieUtil, jwtUtil, redisHandler), UsernamePasswordAuthenticationFilter.class)
 	        .exceptionHandling(exception ->
 		        exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler()) // JWT 인증 실패 시 실행될 핸들러 등록
 		        		 .accessDeniedHandler(new JwtAccessDeniedHandler()));               // 인가 실패 처리
@@ -100,7 +100,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
             		.anyRequest().authenticated())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAt(new RequestAuthenticationFilter(cookieUtil, jwtUtil), UsernamePasswordAuthenticationFilter.class)	   /* 인증 예외와 인가 예외 중 "인증 예외" 에 대한 핸들러 클래스(AuthenticationEntryPoint 인터페이스 구현) */
+            .addFilterAt(new RequestAuthenticationFilter(cookieUtil, jwtUtil, redisHandler), UsernamePasswordAuthenticationFilter.class)	   /* 인증 예외와 인가 예외 중 "인증 예외" 에 대한 핸들러 클래스(AuthenticationEntryPoint 인터페이스 구현) */
             .exceptionHandling(exception ->
                 exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler()) // JWT 인증 실패 시 실행될 핸들러 등록
                 		 .accessDeniedHandler(new JwtAccessDeniedHandler())               // 인가 실패 처리

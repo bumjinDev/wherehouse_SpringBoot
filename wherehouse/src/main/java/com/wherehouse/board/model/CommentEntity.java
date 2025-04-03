@@ -8,11 +8,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-
+@Builder
 @Data					// @ToString, @EqualsAndHashCode, @Getter, @Setter, @RequiredArgsConstructor를 자동 완성
 @AllArgsConstructor		// 생성자 생성을 대신 하는 어노테이션, 모든 멤버 변수를 매개변수로 담는 생성자를 내부적으로 자동 등록한다.
 @NoArgsConstructor		// 생성자 생성을 대신 하는 어노테이션, 매개변수가 아에 없는 생성자를 생성한다, JPA 할 때 반드시 포함해야 된다.

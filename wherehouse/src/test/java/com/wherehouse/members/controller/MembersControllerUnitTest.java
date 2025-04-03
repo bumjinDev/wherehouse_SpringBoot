@@ -26,8 +26,8 @@ import com.wherehouse.members.service.IMemberService;
 /**
  * MembersController 단위 테스트 (뷰 리졸버, 서비스, 레포지토리 로드하지 않음)
  */
-@WebMvcTest(controllers = MembersController.class)
-@ContextConfiguration(classes = {MembersController.class}) // 강제로 특정 빈만 로드
+@WebMvcTest(controllers = MembersViewController.class)
+@ContextConfiguration(classes = {MembersViewController.class}) // 강제로 특정 빈만 로드
 @AutoConfigureMockMvc(addFilters = false)  // Security 필터 비활성화// 실제 HTTP 요청 테스트(tetRestTemplate 의 실제 HTTPServletRequest 요청과 달리 "MockHttpServletRequest"요청이 디스패처 서블릿만 호출)
 class MembersControllerUnitTest {
 

@@ -102,10 +102,11 @@
                             </a>
                             <ul class="dropdown-menu me-5 dropdown-menu-end text-end nav_btn_house_rec_dropdown" id="">
                                 <li>
-                                	<form action="./membermodifypage" id ="infoeditform" method="post">
-                                		<input type="hidden" name="editid" value="<%=id %>" />		<!-- 회원 정보 수정 시 회원 정보 검색에 필요한 Id 정보. -->
-                                		<a style="cursor: pointer;" id="infoedit" class="dropdown-item nav_choose nav_item">정보수정</a>	<!-- 해당 태그 선택 시 이벤트 리스너 동작.(index.js) -->
-                                	</form>
+                                	<form action="./members/edit" method="get">
+										<input type="hidden" name="editid" value="<%=id %>" />
+									    <button type="submit" class="dropdown-item nav_choose nav_item">정보수정</button>
+									</form>
+
                                 </li>
                                 <li>
 	                                <form action="/wherehouse/logout" id="logoutform" method="post">	<!-- session으로 가져온 Id 값을 기준으로 조회. -->

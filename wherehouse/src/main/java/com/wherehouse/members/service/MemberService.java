@@ -4,6 +4,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.security.Key;
 import java.sql.Date;
 import java.time.Duration;
@@ -13,66 +14,84 @@ import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import com.wherehouse.JWT.DTO.AuthenticationEntityConverter;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
 import com.wherehouse.members.dao.IMembersRepository;
 import com.wherehouse.members.dao.MemberEntityRepository;
+import com.wherehouse.members.exception.JwtKeyNotFoundException;
+import com.wherehouse.members.exception.MemberNotFoundException;
+import com.wherehouse.members.exception.NicknameAlreadyExistsException;
+import com.wherehouse.members.exception.UserIdAlreadyExistsException;
 import com.wherehouse.members.model.MemberConverter;
 import com.wherehouse.members.model.MemberDTO;
+import com.wherehouse.members.model.MembersEntity;
 import com.wherehouse.redis.handler.RedisHandler;
 
 import org.slf4j.Logger;
 
+/**
+ * MemberService
+ *
+ * 회원 관련 핵심 비즈니스 로직을 담당하는 서비스 클래스.
+ * 회원 가입, 정보 수정, JWT 갱신 등 주요 기능을 제공하며,
+ * 인증 정보와 회원 정보를 동시에 관리한다.
+ *
+ * 기술 구성:
+ * - JWT 기반 인증 구조 (Redis 연동)
+ * - 회원 테이블 + Spring Security 인증 테이블 동시 갱신
+ * - 사용자 정의 예외를 통한 예외 흐름 제어
+ */
 @Service
-public class MemberService implements IMemberService{
+public class MemberService implements IMemberService {
 
-	private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
-	
-    IMembersRepository membersRepository;
-    
-    MemberEntityRepository memberEntityRepository;
-    
-    UserEntityRepository userEntityRepository;
+    private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
 
-    RedisHandler redisHandler;
-    
-    JWTUtil jwtUtil;
+    private final IMembersRepository membersRepository;
+    private final MemberEntityRepository memberEntityRepository;
+    private final UserEntityRepository userEntityRepository;
+    private final RedisHandler redisHandler;
+    private final JWTUtil jwtUtil;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final MemberConverter memberConverter;
+    private final AuthenticationEntityConverter authenticationEntityConverter;
 
-    private BCryptPasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 객체
-    
-    MemberConverter memberConverter;
-    AuthenticationEntityConverter authenticationEntityConverter;
-    
     public final int USER_ID_DUPLICATE = 1;
     public final int NICKNAME_DUPLICATE = 2;
 
     public MemberService(
     		
-    		IMembersRepository membersRepository,
-    		MemberEntityRepository memberEntityRepository,
-    		UserEntityRepository userEntityRepository,
-    		RedisHandler redisHandler,
-    		JWTUtil jwtUtil,
-    		BCryptPasswordEncoder passwordEncoder,
-    		MemberConverter memberConverter,
-    		AuthenticationEntityConverter authenticationEntityConverter) {
-    	
-    	this.membersRepository = membersRepository;
-    	this.memberEntityRepository = memberEntityRepository;
-    	this.userEntityRepository = userEntityRepository;
-    	this.redisHandler = redisHandler;
-    	this.jwtUtil = jwtUtil;
-    	this.passwordEncoder = passwordEncoder;
-    	this.memberConverter = memberConverter;
-    	this.authenticationEntityConverter = authenticationEntityConverter;
+        IMembersRepository membersRepository,
+        MemberEntityRepository memberEntityRepository,
+        UserEntityRepository userEntityRepository,
+        RedisHandler redisHandler,
+        JWTUtil jwtUtil,
+        BCryptPasswordEncoder passwordEncoder,
+        MemberConverter memberConverter,
+        AuthenticationEntityConverter authenticationEntityConverter) {
+
+        this.membersRepository = membersRepository;
+        this.memberEntityRepository = memberEntityRepository;
+        this.userEntityRepository = userEntityRepository;
+        this.redisHandler = redisHandler;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
+        this.memberConverter = memberConverter;
+        this.authenticationEntityConverter = authenticationEntityConverter;
     }
-    
+
+    /**
+     * 로그인 성공 시 JWT에서 사용자 ID와 닉네임을 추출하여 반환.
+     * 인증 필터 이후 호출되며, Redis에서 서명 키를 복원한 뒤 클레임을 파싱한다.
+     *
+     * @param jwt 클라이언트로부터 전달받은 JWT 토큰
+     * @return 사용자 ID 및 닉네임을 포함한 Map
+     */
     @Override
     public Map<String, String> validLoginSuccess(String jwt) {
-    	
-    	logger.info("MemberService.validLogin()!");
-    	
+        logger.info("MemberService.validLogin()");
+
         Key key = getKey(jwt);
         Map<String, String> loginSuccessInfo = new HashMap<>();
         
@@ -82,119 +101,143 @@ public class MemberService implements IMemberService{
         return loginSuccessInfo;
     }
 
+    /**
+     * 회원 가입 요청 처리
+     * ID 및 닉네임 중복 검증, 비밀번호 암호화 후
+     * 회원 테이블과 인증 테이블에 사용자 정보 등록.
+     *
+     * @param memberDTO 클라이언트로부터 전달받은 가입 요청 데이터
+     * @throws UserIdAlreadyExistsException 아이디 중복
+     * @throws NicknameAlreadyExistsException 닉네임 중복
+     */
     @Override
-    public int validJoin(MemberDTO memberDTO) {
-    	
-    	logger.info("MemberService.validJoin()!");
-    	
-    	/* 회원 가입 요청에 따라 회원 가입이 가능한지 확인. */
-        if ( memberEntityRepository.findById(memberDTO.getId()).isPresent()) {	// id 중복 여부 확인
-        	return USER_ID_DUPLICATE;
-        }
-        
-        if (memberEntityRepository.findByNickName(memberDTO.getNickName()).isPresent()) {	// 닉네임 중복 여부 확인.
-        	return NICKNAME_DUPLICATE;
-        }
-        	
-        /* Id 와 닉네임 모두 중복 되지 않은 요청일 시 회원 가입 진행.
-         * 1. 회원 관리 테이블 내 회원 정보 추가
-         * 2. SpringSecurity 테이블 내 인증 정보 추가.
- 		*/
-    	
-        /* 비밀번호 암호화 수행 */
-        String encodedPassword = passwordEncoder.encode(memberDTO.getPw());
-        memberDTO.setPw(encodedPassword);  // 암호화된 비밀번호로 변경
+    public void validJoin(MemberDTO memberDTO) {
+        logger.info("MemberService.validJoin()");
 
-        // 현재 시간 설정 (회원가입 시간)
+        if (memberEntityRepository.findById(memberDTO.getId()).isPresent()) {
+            throw new UserIdAlreadyExistsException("이미 사용 중인 아이디입니다.");
+        }
+        if (memberEntityRepository.findByNickName(memberDTO.getNickName()).isPresent()) {
+            throw new NicknameAlreadyExistsException("이미 사용 중인 닉네임입니다.");
+        }
+
+        memberDTO.setPw(passwordEncoder.encode(memberDTO.getPw()));
         memberDTO.setJoinDate(new Date(System.currentTimeMillis()));
-        
-        List<String> roles = List.of("ROLE_USER");
-        
-        /* 회원 관리 테이블과 SpringSecuiry 의 인증 테이블 모두 추가. */
-        return membersRepository.addMember(
-        		memberConverter.toEntity(memberDTO),
-        		authenticationEntityConverter.toEntity(memberDTO, roles));
-    }
-    
 
+        membersRepository.addMember(
+            memberConverter.toEntity(memberDTO),
+            authenticationEntityConverter.toEntity(memberDTO, List.of("ROLE_USER"))
+        );
+    }
+
+    /**
+     * 회원 정보 수정 페이지 요청 시, 사용자의 정보를 조회하여 DTO로 반환
+     *
+     * @param editId 조회 대상 사용자 ID
+     * @return 사용자 정보 DTO
+     * @throws MemberNotFoundException 존재하지 않는 사용자 ID
+     */
     @Override
     public MemberDTO searchEditMember(String editId) {
-        return memberConverter.toDTO(membersRepository.getMember(editId));
+        return memberConverter.toDTO(
+            membersRepository.getMember(editId)
+                .orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다"))
+        );
     }
 
-    /* editMember : 사용자 수정 요청 처리.
-     * 사용자 수정 요청 발생 시 회원 관리 테이블 뿐만 아니라 SpringSecurity 에서 인증 절차에 사용하는
-     * 별도의 테이블 또한 수정해야 되며 JWT 도 수정하여 브라우저에 응답으로 포함 한다.
-     * */
-    
+    /**
+     * 회원 정보 수정 처리
+     * 비밀번호 암호화, 닉네임 중복 검사, 테이블 갱신 및 JWT 토큰 재발급 포함.
+     *
+     * @param currentToken 기존 JWT 토큰
+     * @param memberDTO 수정 요청된 회원 정보
+     * @return 새롭게 갱신된 JWT 토큰
+     * @throws MemberNotFoundException 사용자 ID 존재하지 않을 경우
+     * @throws NicknameAlreadyExistsException 닉네임 중복 시
+     */
     @Override
     public String editMember(String currentToken, MemberDTO memberDTO) {
     	
-    	logger.info("MemberService.editMember()");
+        logger.info("MemberService.editMember()");
 
-    	/* Spring Security 내 사용되는 테이블 내 인증(회원) 정보 수정 위함. */
         List<String> roles = userEntityRepository.findById(memberDTO.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"))
-                .getRoles();
-   
-        /* 회원 수정 요청 받은 비밀번호 암호화 수행 */
-        String encodedPassword = passwordEncoder.encode(memberDTO.getPw());
-        memberDTO.setPw(encodedPassword);  // 암호화된 비밀번호로 변경
+            .orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다"))
+            .getRoles();
 
-        // 현재 시간 설정 (회원가입 시간)
+        memberDTO.setPw(passwordEncoder.encode(memberDTO.getPw()));
         memberDTO.setJoinDate(new Date(System.currentTimeMillis()));
-        
-        // 인증 및 회원 관리에 관한 2개 테이블 DB 테이블 갱신.
-        int result = membersRepository.editMember(
-        		memberConverter.toEntity(memberDTO),
-        		authenticationEntityConverter.toEntity(memberDTO, roles));
 
-        // 정상 적인 수정이 되었다면 변경된 컬럼이 있으니 새롭게 jwt 만들어서 db 내부 갱신하고 HttpResponse 객체 내 응답 중 쿠키 갱신
-        if (result == 1) {
-        	
-        	// 현재 JWT의 키를 재 사용.
-        	Key userKey = getKey(currentToken);
-        	// 현재 토큰의 사용자 닉네임 컬럼을 수정해서 새로운 컬럼으로 반환.
-        	String newToken = editToken(currentToken, userKey, "username", memberDTO.getNickName());
-        	// Redis 내 JWT 정보 갱신.
-        	updateJwtToken(currentToken, newToken, userKey);
-        	
-        	return newToken;
-        
-        } else { return String.valueOf(NICKNAME_DUPLICATE); }	// 2 를 반환 시 Repository 에서 회원 정보 수정 시 닉네임 중복으로 실패 했다는 의미므로 2를 컨트롤러에게 반환.
+        Optional<MembersEntity> membersEntity = membersRepository.isNEditickNameAllowed(
+            memberConverter.toEntity(memberDTO),
+            authenticationEntityConverter.toEntity(memberDTO, roles)  
+        );
+
+        if(membersEntity.isPresent())
+        	throw new NicknameAlreadyExistsException("닉네임이 중복되어 수정할 수 없습니다.");
+
+        membersRepository.editMember(
+            memberConverter.toEntity(memberDTO),
+            authenticationEntityConverter.toEntity(memberDTO, roles)
+        );
+
+        Key userKey = getKey(currentToken);
+        String newToken = editToken(currentToken, userKey, "username", memberDTO.getNickName());
+        updateJwtToken(currentToken, newToken, userKey);
+
+        return newToken;
     }
 
-    // 기존 JWT 토큰에 대해서 변경된 클레임을 수정해서 새로운 JWT 토큰으로 반환.
-    private String editToken(String cueentToken, Key userKey, String claimName, String newUsername) {
-        return jwtUtil.modifyClaim(cueentToken, userKey, claimName, newUsername);
+    // ======== 내부 헬퍼 메서드 ========
+
+    /**
+     * 기존 JWT 토큰의 특정 클레임을 수정하여 새로운 토큰 반환
+     *
+     * @param currentToken 기존 JWT 문자열
+     * @param userKey JWT 서명 키
+     * @param claimName 수정할 클레임 이름
+     * @param newUsername 새 닉네임
+     * @return 수정된 JWT 토큰 문자열
+     */
+    private String editToken(String currentToken, Key userKey, String claimName, String newUsername) {
+        return jwtUtil.modifyClaim(currentToken, userKey, claimName, newUsername);
     }
 
-    // JWT 토큰 업데이트 처리
+    /**
+     * Redis 내 JWT 토큰 상태를 갱신한다.
+     * - 새로운 토큰과 키를 등록 (TTL: 1시간)
+     * - 기존 토큰과 키는 제거
+     *
+     * @param currentToken 기존 JWT
+     * @param newToken 갱신된 JWT
+     * @param userKey 서명 키
+     */
     private void updateJwtToken(String currentToken, String newToken, Key userKey) {
-    	
-    	logger.info("MemberService.updateJwtToken()!");
-    	
-    	// 새로운 변경된 JWT 토큰 키 값 추가.
-    	redisHandler.getValueOperations().set(
-    			newToken,										// 새로운 JWT 문자열
-    			jwtUtil.encodeKeyToBase64(userKey),			// 원래 이전 JWT 의 Key 재 사용 유지.
-    			Duration.ofHours(1)); // 1시간을 새롭게 갱신
-    	
-    	logger.info("Token Refresh : " + redisHandler.getValueOperations().get(newToken) + "\n"
-    			+ "old Token : " + (String) redisHandler.getValueOperations().get(currentToken));
-    	
-    	// 기존 JWT 토큰 키 및 값 삭제.(새로운 토큰 내 유효 시간을 설정 하려면 현재 토큰을 삭제하기 전에 수행해야 하므로 새로운 토큰 생성 및 저장 후 이전 JWT 삭제.)
-    	redisHandler.getValueOperations().getAndDelete(currentToken);
+        logger.info("MemberService.updateJwtToken()");
+
+        redisHandler.getValueOperations().set(
+            newToken,
+            jwtUtil.encodeKeyToBase64(userKey),
+            Duration.ofHours(1)
+        );
+
+        redisHandler.getValueOperations().getAndDelete(currentToken);
     }
 
-
-    /* JWT 를 가지고 redis 에서 key 문자열을 가져와서 실제 Key 객체로 반환 */
+    /**
+     * Redis에서 현재 토큰에 대응하는 서명 키를 복원한다.
+     *
+     * @param currentToken JWT 문자열
+     * @return 복원된 서명 키 객체
+     * @throws JwtKeyNotFoundException Redis에 키 정보가 존재하지 않는 경우
+     */
     private Key getKey(String currentToken) {
-    	
-    	logger.info("MemberService.getKey()! " + currentToken);
-        
-    	String encodedKey = (String) redisHandler.getValueOperations().get(currentToken);
-    	
+        logger.info("MemberService.getKey() : {}", currentToken);
+
+        String encodedKey = (String) redisHandler.getValueOperations().get(currentToken);
+        if (encodedKey == null) {
+            throw new JwtKeyNotFoundException("JWT 토큰에 대한 키 정보를 Redis에서 찾을 수 없습니다.");
+        }
+
         byte[] decodedBytes = Base64.getUrlDecoder().decode(encodedKey);
         return new SecretKeySpec(decodedBytes, "HmacSHA256");
     }

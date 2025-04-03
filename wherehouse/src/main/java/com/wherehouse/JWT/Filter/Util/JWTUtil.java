@@ -1,9 +1,9 @@
 package com.wherehouse.JWT.Filter.Util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import com.wherehouse.redis.handler.RedisHandler;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.crypto.spec.SecretKeySpec;
-
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
-
 /**
  * JWT 토큰의 생성, 검증, 서명 키 관리 및 클레임(Claims) 조작 기능을 담당하는 유틸 클래스.
  */
@@ -23,15 +22,6 @@ import org.springframework.stereotype.Component;
 public class JWTUtil {
 
     private static final long EXPIRATION_TIME = 3600000;
-
-    private final RedisHandler redisHandler;
-
-    /**
-     * 생성자 주입 방식으로 RedisHandler를 초기화
-     */
-    public JWTUtil(RedisHandler redisHandler) {
-        this.redisHandler = redisHandler;
-    }
 
     /**
      * HMAC-SHA256 서명 키를 생성
@@ -50,13 +40,16 @@ public class JWTUtil {
     }
 
     /**
-     * Base64 문자열을 Key 객체로 변환
+     * JWT 에 해당하는 key 문자열(redis 추출)을 받아 서명 키 객체로 반환.
      */
-    public Key decodeBase64ToKey(String base64Key) {
-        byte[] decodedKey = Base64.getUrlDecoder().decode(base64Key);
-        return new SecretKeySpec(decodedKey, "HmacSHA256");
+    public Optional<Key> getSigningKeyFromToken(String keyString) {
+         
+        return Optional.of(
+        		new SecretKeySpec(
+            Base64.getUrlDecoder().decode(keyString), SignatureAlgorithm.HS256.getJcaName()
+        ));
     }
-
+    
     /**
      * JWT 토큰을 생성
      */
@@ -71,7 +64,6 @@ public class JWTUtil {
                 .signWith(key)
                 .compact();
     }
-
     /**
      * JWT 검증
      */
@@ -83,32 +75,21 @@ public class JWTUtil {
             return false;
         }
     }
-
-    /**
-     * JWT 토큰에서 서명 키 가져오기
-     */
-    public Optional<Key> getSigningKeyFromToken(String token) {
-        
-    	try {
-            String jwtInKey = (String) redisHandler.getValueOperations().get(token);
-            
-            return Optional.of(
-            		new SecretKeySpec(
-                Base64.getUrlDecoder().decode(jwtInKey), SignatureAlgorithm.HS256.getJcaName()
-            ));
-            
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
+   
     /**
      * JWT 토큰에서 모든 Claims 추출
      */
     public Claims extractAllClaims(String token, Key key) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (JwtException e) {
+            throw new AccessDeniedException("유효하지 않은 JWT입니다.");
+        }
     }
-
     /**
      * JWT 토큰에서 특정 클레임 수정 후 새로운 토큰 생성
      */

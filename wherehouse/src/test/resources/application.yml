@@ -31,13 +31,13 @@ spring:
       ddl-auto: none # 개발 환경에서는 update, 운영 환경에서는 none 추천
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.OracleDialect # Hibernate Dialect 설정
-        format_sql: true # SQL 포맷 정리
-        default_batch_fetch_size: 50 # Batch Fetch 최적화
-        jdbc.fetch_size: 100 # JDBC fetch size 설정
-        cache.use_query_cache: false # Hibernate Query 캐시 비활성화
-        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # Naming Strategy 설정
-    open-in-view: false # Lazy Loading 오류 방지 (OSIV OFF)
+        dialect: org.hibernate.dialect.OracleDialect
+        format_sql: true
+        default_batch_fetch_size: 50
+        jdbc.fetch_size: 100
+        cache.use_query_cache: false
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: false
 
   mvc:
     view:
@@ -57,9 +57,11 @@ server:
 
 logging:
   file:
-    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대결로로써 로그 파일 위치 설정
+    name: log/wherehouse.log
   level:
-    root: info  # 기본 로그 레벨 설정
+    root: info
+    org.hibernate.SQL: debug                            # ← SQL 로그 출력
+    org.hibernate.type.descriptor.sql.BasicBinder: trace  # ← 바인딩 파라미터 출력
 
 TestJWT:
   token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RVc2VyIiwidXNlcklkIjoidGVzdFVzZXJJZCIsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NDI0NTUyODIsImV4cCI6MjA1NzgxNTI4Mn0.A6_AjQFf9btisDxrJq4L2qxCTsDZv1zjyeROXdE18oI"

@@ -1,4 +1,4 @@
-package com.wherehouse.recommand.unit.repository;
+package com.wherehouse.recommand.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

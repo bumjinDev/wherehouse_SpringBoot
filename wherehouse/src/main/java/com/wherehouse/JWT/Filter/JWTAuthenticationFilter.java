@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
+import com.wherehouse.redis.handler.RedisHandler;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,10 +35,16 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final CookieUtil cookieUtil;
     private final JWTUtil jwtUtil;
+    private final RedisHandler redisHandler;
 
-    public JWTAuthenticationFilter(CookieUtil cookieUtil, JWTUtil jwtUtil) {
+    public JWTAuthenticationFilter(
+    		CookieUtil cookieUtil,
+    		JWTUtil jwtUtil,
+    		 RedisHandler redisHandler)
+    {
         this.cookieUtil = cookieUtil;
         this.jwtUtil = jwtUtil;
+        this.redisHandler = redisHandler;
     }
 
     @Override
@@ -59,9 +67,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = tokenOpt.get();
-
-        // 2. JWT 서명 키 가져오기
-        Optional<Key> keyOpt = jwtUtil.getSigningKeyFromToken(token);
+        String keyValue = (String) redisHandler.getValueOperations().get(token);
+        // 2. JWT에 대한 key 값을 가져온 후 이를 서명 키 생성 해서 가져오기
+        Optional<Key> keyOpt = jwtUtil.getSigningKeyFromToken(keyValue);
         if (keyOpt.isEmpty()) {
             logger.warn("JWT 서명 키 없음");
             filterChain.doFilter(request, response);

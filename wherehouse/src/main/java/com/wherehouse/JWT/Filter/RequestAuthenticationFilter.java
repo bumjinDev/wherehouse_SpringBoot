@@ -13,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
+import com.wherehouse.redis.handler.RedisHandler;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,12 +35,16 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
 
     private final CookieUtil cookieUtil;
     private final JWTUtil jwtUtil;
-
-    public RequestAuthenticationFilter(CookieUtil cookieUtil, JWTUtil jwtUtil) {
+    private final RedisHandler redisHandler;
+    
+    public RequestAuthenticationFilter(
+    		CookieUtil cookieUtil,
+    		JWTUtil jwtUtil,
+    		RedisHandler redisHandler) {
     	
     	this.cookieUtil = cookieUtil;
         this.jwtUtil = jwtUtil;
-        
+        this.redisHandler = redisHandler;
     }
 
     @Override
@@ -62,7 +68,9 @@ public class RequestAuthenticationFilter extends OncePerRequestFilter {
         }
         
         // 2. JWT Key(String)을 Redis 조회 후 검증 및 사용자 인증 처리
-        Optional<Key> signingKeyOpt = jwtUtil.getSigningKeyFromToken(token);
+        String keyValue = (String) redisHandler.getValueOperations().get(token);
+        // 2. JWT에 대한 key 값을 가져온 후 이를 서명 키 생성 해서 가져오기
+        Optional<Key> signingKeyOpt = jwtUtil.getSigningKeyFromToken(keyValue);
         if (signingKeyOpt.isEmpty() || !jwtUtil.isValidToken(token, signingKeyOpt.get())) {
         	
             logger.warn("JWT 검증 실패!");

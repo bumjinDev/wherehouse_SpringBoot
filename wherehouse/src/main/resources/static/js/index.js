@@ -170,12 +170,6 @@ window.onload = function () {
       document.getElementById("sixth_card").style.color = "black";
     }
   }
-
-  /* 정보수정(<a>) 클릭 시 정보 수정 페이지 요청 */
-  document.getElementById('infoedit').addEventListener('click', function () {
-
-    document.getElementById('infoeditform').submit();
-  });
 }
 
 function initStorage(target) {

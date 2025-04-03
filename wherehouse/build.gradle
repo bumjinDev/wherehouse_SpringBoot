@@ -68,7 +68,7 @@ dependencies {
 	/* spring boot 의 spring mvc 시작 의존성(내장 tomcat 등등) */
 	implementation 'org.springframework.boot:spring-boot-starter-web'		/* 부트 내 스타터 의존성으로써 톰켓 내장 서버, 디스패처 서블릿 및 디스패처 서블릿 컨텍스트 또한 디스패처 서블릿이 Spring MVC를 사용할 수 있게 해주는 것
 																			(/src/main/resource 내 설정은 @Configuration 등의 빈이나 application.properties 파일로 재 설정 가능) */
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 	/* spring secuiry 관련 의존성 */
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	//testImplementation 'org.springframework.security:spring-security-test'
@@ -111,10 +111,16 @@ dependencies {
 	
 	// JSP 랜더링 및 테스트 코드 작성 시 Cookie 요청
     //providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    
+    // @Valid 의존성 : 컨트롤러 내 null 및 정규식 대로 값 잘 요청 들어 왔는지 검증
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    /* 테스트 관련 의존성 */
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 }
 
 tasks.test {
-	ignoreFailures = false  // 🚨 반드시 테스트 실패 시 빌드도 실패 처리
     useJUnitPlatform() // JUnit 5 활성화
 }
 

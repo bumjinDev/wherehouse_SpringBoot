@@ -1,4 +1,4 @@
-package com.wherehouse.TestSetupConfig;
+package com.wherehouse.setupinitiailzerconfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
