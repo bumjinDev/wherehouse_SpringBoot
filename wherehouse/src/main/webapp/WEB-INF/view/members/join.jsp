@@ -58,7 +58,7 @@
                 </div>
 
                 <div id="logo-img">
-                    <img src="./images/home_icon.png" alt="">
+                    <img src="/wherehouse/images/home_icon.png" alt="">
                 </div>
 
                 <div class="mt-3 mb-5"></div>

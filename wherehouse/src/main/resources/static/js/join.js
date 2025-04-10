@@ -24,11 +24,13 @@ window.onload = function () {
 
             if (response.ok) {
                 alert("회원가입이 정상적으로 되었습니다.");
-                window.location.href = "/wherehouse/login";
+                window.location.href = "/wherehouse/members/login";
+				
             } else if (response.status === 400 || response.status === 401 || response.status === 404 || response.status === 409) {
-                const res = await response.json();
+                
+				const res = await response.json();
                 const messages = Object.values(res).join('\n');
-                alert("[입력 오류] : " + messages);
+                alert(messages);
                 
 				//window.location.href = "/wherehouse/members/join";
 				/* 재 입력 해야 되니 리다이렉트 대신 공백 값으로 치환 */

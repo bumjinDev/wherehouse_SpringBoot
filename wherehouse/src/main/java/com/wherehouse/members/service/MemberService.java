@@ -136,13 +136,14 @@ public class MemberService implements IMemberService {
      * @param editId 조회 대상 사용자 ID
      * @return 사용자 정보 DTO
      * @throws MemberNotFoundException 존재하지 않는 사용자 ID
+     * 
+     * JPA.update
      */
     @Override
     public MemberDTO searchEditMember(String editId) {
-        return memberConverter.toDTO(
-            membersRepository.getMember(editId)
-                .orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다"))
-        );
+    	
+        return memberConverter.toDTO(membersRepository.getMember(editId)
+                						.orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다")));
     }
 
     /**

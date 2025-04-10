@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.wherehouse.members.service.IMemberService;
 import org.slf4j.Logger;
@@ -17,8 +18,8 @@ import org.slf4j.Logger;
  * - 각 요청은 적절한 서비스 레이어로 위임되어 로직을 수행합니다.
  */
 
-//@ControllerAdvice
 @Controller
+@RequestMapping("/members")
 public class MembersViewController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MembersViewController.class);
@@ -47,14 +48,6 @@ public class MembersViewController {
      * @return 로그인 성공 페이지 경로
      */
 	
-	/* join.jsp : 회원가입 요청 페이지 */
-	@GetMapping("/members/join")
-	public String pageJoin() {
-		
-		logger.info("MembersController.pageJoin!");  // 로그 추가
-		return "members/join";
-	}
-	
 	@GetMapping("/loginSuccess")
 	public String loginSueccess(
 			@CookieValue(name = "Authorization", required = true) String jwt,
@@ -71,7 +64,14 @@ public class MembersViewController {
 	    return "members/loginSuccess";
 	}
 	
-
+	
+	/* join.jsp : 회원가입 요청 페이지 */
+	@GetMapping("/join")
+	public String pageJoin() {
+		
+		logger.info("MembersController.pageJoin!");  // 로그 추가
+		return "members/join";
+	}
 	
 	 /**
      * 회원 정보 수정 페이지 요청 처리.
@@ -84,7 +84,7 @@ public class MembersViewController {
      * @return 회원 정보 수정 페이지 경로
     
      */
-    @GetMapping("/members/edit")
+    @GetMapping("/edit")
     public String modifiMember(
     		@RequestParam("editid") String editId,
     		Model model ) {

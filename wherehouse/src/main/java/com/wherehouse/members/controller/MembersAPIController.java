@@ -16,14 +16,8 @@ import com.wherehouse.members.service.IMemberService;
 
 import java.util.Map;
 
-/**
- * MembersAPIController
- * - 회원 가입 및 회원 정보 수정 API 처리
- * - 입력값 유효성 검증 수행 (Bean Validation)
- * - JWT 재발급 및 HttpOnly 쿠키 재설정 포함
- */
-/* Exception Handler 'MemberAPIControllerExceptionHandler' 으로 위침 */
 @RestController
+@RequestMapping("/members")
 public class MembersAPIController {
 
     private static final Logger logger = LoggerFactory.getLogger(MembersAPIController.class);
@@ -38,9 +32,9 @@ public class MembersAPIController {
      * 회원 가입 요청 처리
      *
      * - @Valid를 통해 MemberDTO에 선언된 유효성 검증 애너테이션 기반 검사 수행
-     * - 실패 시 MethodArgumentNotValidException 발생 → 예외 처리기로 이동
+     * - 매개변수 입력 다 안해서 실패 시 MethodArgumentNotValidException 발생 예외 핸들러로 이동
      */
-    @PostMapping("/members/join")
+    @PostMapping("/join")
     public ResponseEntity<Map<String, Object>> joinRequest(
             @Valid @RequestBody MemberDTO memberEditRequestDTO,
             Model model) {
@@ -58,10 +52,10 @@ public class MembersAPIController {
      * - @Valid를 통해 입력값 형식 검사 수행
      * - 서비스 레벨에서는 닉네임 중복, 사용자 존재 여부 등의 도메인 검증 수행
      */
-    @PostMapping("/members/edit")
+    @PostMapping("/edit")
     public ResponseEntity<Map<String, Object>> editMember(
             @CookieValue(name = "Authorization", required = true) String jwt,
-            @Valid @RequestBody MemberDTO editRequestDTO,
+            @Valid @RequestBody MemberDTO editRequestDTO,	/* 모든 정보 빠짐 없이 전부 입력 시킴. */
             HttpServletResponse httpResponse,
             Model model) {
 

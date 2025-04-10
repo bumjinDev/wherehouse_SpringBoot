@@ -2,6 +2,7 @@ package com.wherehouse.members.model;
 
 import java.sql.Date;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -37,7 +38,7 @@ public class MemberDTO {
     private String tel;
 
     @NotBlank(message = "이메일은 필수 입력값입니다.")
-    //@Email(message = "유효한 이메일 주소 형식이 아닙니다.")
+    @Email(message = "유효한 이메일 주소 형식이 아닙니다.")
     private String email;
 
     private Date joinDate;  // 이 필드는 서버 내부에서 설정되므로 별도 검증 불필요

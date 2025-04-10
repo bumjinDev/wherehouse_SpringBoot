@@ -73,8 +73,8 @@ public class MembersRepository implements IMembersRepository {
      * @return 닉네임 목록 (userIds와 매핑 순서를 보장해야 함)
      */
     @Override
-    public List<String> getMembers(List<String> userIds) {
-        return memberEntityRepository.findNickNamesByIds(userIds);
+    public List<MembersEntity> getMembers(List<String> userIds) {
+        return memberEntityRepository.findMembersByIds(userIds);
     }
 
     /**

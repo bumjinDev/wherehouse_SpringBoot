@@ -26,7 +26,7 @@ window.onload = function () {
             if (response.ok) {
 				
                 alert("회원 정보 수정이 정상적으로 되었습니다.");
-                window.location.href = "/wherehouse/loginSuccess";
+                window.location.href = "/wherehouse/members/loginSuccess";
 				
             } else if (response.status >= 400 && response.status <= 499) {	/* 서버 측에서 요청 정보를 검증하여 아이디 누락, 핸드폰 번호 형식에 맞게 미 입력 등을 검증하여 에러를 발생 시킨 후 이에 대한 alert 을 띄운다.(400 번으로 통일) */
 				

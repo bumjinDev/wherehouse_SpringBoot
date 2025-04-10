@@ -1,79 +1,144 @@
 document.addEventListener("DOMContentLoaded", function () {
-    
-    // Flash Attribute 메시지가 있으면 alert 실행
-    showAlertIfExists();
-
-    // 게시글 수정 버튼 클릭 이벤트
-    document.querySelector('.editbutton')?.addEventListener('click', function () {
-        document.getElementById('modifyform').submit();
-    });
-
-    // 게시글 삭제 버튼 클릭 이벤트
-    document.querySelector('.deletebutton')?.addEventListener('click', deletePost);
 
     // 게시글 전체 목록 이동 버튼 이벤트
     document.querySelector('.listbutton')?.addEventListener('click', function () {
         alert("전체 글 목록으로 이동합니다.");
-        window.location.href = '/wherehouse/list/0';
+        window.location.href = '/wherehouse/boards/page/0';
     });
-
-    // 댓글 추가 버튼 이벤트
-    document.querySelector('.replybutton')?.addEventListener('click', function () {
-        document.getElementById('replyform').submit();
-    });
-
+    // 댓글 작성 버튼 이벤트 핸들러 등록
+    document.querySelector('.replybutton')?.addEventListener('click', writeReply);
+    // 게시글 수정 페이지 요청 이벤트
+    document.getElementById('editPage').addEventListener('click', requestModifyPage);
+    // 게시글 삭제 요청 이벤트
+    document.getElementById('delete').addEventListener('click', deleteBoard);
 });
 
-// FlashAttribute의 alert 메시지 확인 및 출력 함수
-function showAlertIfExists() {
-    let alertMessage = document.getElementById('alertMessage')?.value;
-    if (alertMessage) {
-        alert(alertMessage);
+
+/* 게시글 수정 페이지 요청 */
+async function requestModifyPage() {
+    const boardId = document.getElementById('boardId').value;
+
+    try {
+        const httpResponse = await fetch(`/wherehouse/boards/${boardId}/auth`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
+        if (httpResponse.ok) {
+            window.location.href = `/wherehouse/boards/edit?boardId=${boardId}`;
+        } else if (httpResponse.status === 401) {
+            alert('올바른 로그인 사용자가 아닙니다.');
+        } else if (httpResponse.status === 403 || httpResponse.status === 404) {
+            const contentType = httpResponse.headers.get("content-type") || "";
+            if (contentType.includes("application/json")) {
+                const res = await httpResponse.json();
+                const messages = Object.values(res).join(' ');
+                alert(messages);
+            } else {
+                const errorText = await httpResponse.text();
+                alert(errorText);
+            }
+        } else {
+            alert("알 수 없는 오류가 발생했습니다.");
+        }
+    } catch (error) {
+        console.error("요청 실패:", error);
+        alert("서버와 통신 중 문제가 발생했습니다.");
     }
 }
 
- async function deletePost() {
-	
-    var boardId = document.getElementById('boardId').value;
 
-	try {
-		
-		const response = await fetch("/wherehouse/delete/${boardId}", { 
-			method: "DELETE",
-		});	
-		if (response.ok) {
-			
-			alert("글 수정이 정상적으로 수행 되었습니다");
-			window.location.href = "/wherehouse/list/0";
-			
-		} else if(response.status === 403) {
-			
-			const res = await response.json();
-			const messages = Object.values(res).join('\n');
-			alert("[권한 오류] : " + messages);
-			
-		} else { alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");	}
-		
-	} catch (error) {
-		console.error("서버 오류:", error);
-		alert("서버와 통신 중 오류가 발생했습니다.");
-	}
-	
-	
-	/* 권한 확인과 실제 삭제를 별도의 2번 요청 없이 한번에 수행 : @RestController 로 요청 할 때 별도의 페이지 봔한 등 추가적인 작업이 필요 없기 때문 */
-    fetch(`/wherehouse/delete/${boardId}`, { method: "DELETE" })
-	
-        .then(response => {
-			
-            if (!response.ok) { return response.json().then(err => { throw err; }); }
-			else { return response; } // 성공 시 추가 데이터 없음
-			
-        }).then(() => {
-			
-            alert("글 삭제 되었습니다.");
-            window.location.href = "/wherehouse/list/0"; // 게시판 목록으로 이동
-			
-        }) .catch(error => {
-            alert(`${error.title}: ${error.detail}`); // RFC 7807 기반 오류 메시지 출력
+/* 게시글 삭제 */
+async function deleteBoard() {
+    const boardId = document.getElementById('boardId').value;
+    const url = "/wherehouse/boards/" + boardId;
+
+    try {
+        const httpResponse = await fetch(url, {
+            method: "DELETE",
         });
+
+        if (httpResponse.ok) {
+            alert("글 삭제 요청이 정상적으로 이루어졌습니다.");
+            window.location.href = "/wherehouse/boards/page/0";
+        } else if (httpResponse.status == 401) {
+            alert('올바른 로그인 사용자가 아니므로 글 삭제할 수 없습니다.');
+        } else if (httpResponse.status === 403 || httpResponse.status === 404) {
+            const contentType = httpResponse.headers.get("content-type") || "";
+            if (contentType.includes("application/json")) {
+                const res = await httpResponse.json();
+                const messages = Object.values(res).join(' ');
+                alert(messages);
+            } else {
+                const errorText = await httpResponse.text();
+                alert(errorText);
+            }
+        } else {
+            alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    } catch (error) {
+        console.error("서버 오류:", error);
+        alert("서버와 통신 중 오류가 발생했습니다.");
+    }
+}
+
+
+/* 댓글 작성 */
+async function writeReply() {
+    const boardId = document.getElementById('boardId').value;
+    const replyContent = document.getElementById('replyContent').value.trim();
+
+    if (!replyContent) {
+        alert("댓글 내용을 입력해주세요.");
+        return;
+    }
+
+    const payload = {
+		
+        boardId: boardId,
+        replyContent: replyContent
+    };
+
+    try {
+        const httpResponse = await fetch("/wherehouse/boards/comments", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (httpResponse.status === 401) {
+            alert('로그인된 사용자만 댓글을 작성할 수 있습니다.');
+            return;
+        }
+
+        if (httpResponse.status === 400 || httpResponse.status === 404) {
+            const contentType = httpResponse.headers.get("content-type") || "";
+            if (contentType.includes("application/json")) {
+                const res = await httpResponse.json();
+                const messages = Object.values(res).join(' ');
+                alert(messages);
+            } else {
+                const errorText = await httpResponse.text();
+                alert(errorText);
+            }
+            return;
+        }
+
+        if (!httpResponse.ok) {
+            alert("알 수 없는 오류가 발생했습니다." + httpResponse.status);
+            return;
+        }
+
+        // 댓글 작성 성공 시 현재 페이지 새로고침
+        window.location.reload();
+
+    } catch (error) {
+        console.error("요청 실패:", error);
+        alert("서버와 통신 중 문제가 발생했습니다.");
+    }
 }

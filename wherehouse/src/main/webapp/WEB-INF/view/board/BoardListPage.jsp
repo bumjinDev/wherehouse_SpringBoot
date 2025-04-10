@@ -51,7 +51,7 @@
                      <c:forEach var="boardList" items="${boardList}" varStatus="status">
                         <tr>
                            <td>${boardList.connum}</td>
-                           <td><a href="/wherehouse/choiceboard/${boardList.connum}">${boardList.title}</a></td>
+                           <td><a href="/wherehouse/boards/${boardList.connum}">${boardList.title}</a></td>
                            <td>${members[status.index]}</td>
                            <td>${boardList.region}</td>
                            <td>${boardList.hit}</td>
@@ -61,7 +61,7 @@
                   </tbody>
                </table>
           		
-          	   <button class="writebtn" id="writebtn" type="button">글 작성</button>
+          	   <button class="writebtn" id="writePage" type="button">글 작성</button>
                
                <div class="paginationbtn">
                   <c:forEach var="i" begin="1" end="<%=pnSize %>">

@@ -20,9 +20,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./images/home_icon.png">
-    <link rel="stylesheet" href="./css/index.css">
-    <script src="./js/index.js"></script>
+    <link rel="icon" href="/wherehouse/images/home_icon.png">
+    <link rel="stylesheet" href="/wherehouse/css/index.css">
+    <script src="/wherehouse/js/index.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Courgette&display=swap" rel="stylesheet">
@@ -64,9 +64,9 @@
                                 지도
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end me-4 text-end" id="nav_btn_gu_map_dropdown">
-                                <li><a class="dropdown-item nav_choose" href="./main" id="gu_btn">지역구 지도</a>
+                                <li><a class="dropdown-item nav_choose" href="/wherehouse/main" id="gu_btn">지역구 지도</a>
                                 </li>
-                                <li><a class="dropdown-item nav_choose" href="./main" id="detail_btn">상세
+                                <li><a class="dropdown-item nav_choose" href="/wherehouse/main" id="detail_btn">상세
                                         지도</a>
                                 </li>
                             </ul>
@@ -102,7 +102,7 @@
                             </a>
                             <ul class="dropdown-menu me-5 dropdown-menu-end text-end nav_btn_house_rec_dropdown" id="">
                                 <li>
-                                	<form action="./members/edit" method="get">
+                                	<form action="/wherehouse/members/edit" method="get">
 										<input type="hidden" name="editid" value="<%=id %>" />
 									    <button type="submit" class="dropdown-item nav_choose nav_item">정보수정</button>
 									</form>
@@ -127,19 +127,19 @@
         <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner main-carousel">
                 <div class="carousel-item active main-carousel-img">
-                    <img src="images/city9.jpg" class="d-block w-100" alt="...">
+                    <img src="/wherehouse/images/city9.jpg" class="d-block w-100" alt="...">
                     <div id="" class="carousel-caption mb-5 text-end inner_text">
                         <h1>MZ에게 딱 맞는 거주지가 필요할 때</h1>
                     </div>
                 </div>
                 <div class="carousel-item main-carousel-img">
-                    <img src="images/city10.jpg" class="d-block w-100" alt="...">
+                    <img src="/wherehouse/images/city10.jpg" class="d-block w-100" alt="...">
                     <div id="" class="carousel-caption mb-5 text-end inner_text">
                         <h1>오늘도 거주지를 찾아다니는 MZ에게</h1>
                     </div>
                 </div>
                 <div class="carousel-item main-carousel-img">
-                    <img src="images/city11.jpg" class="d-block w-100" alt="...">
+                    <img src="/wherehouse/images/city11.jpg" class="d-block w-100" alt="...">
                     <div id="" class="carousel-caption mb-5 text-end inner_text">
                         <h1>안전한 거주지를 찾고 싶은 당신에게</h1>
                     </div>
@@ -168,15 +168,15 @@
     <div class="row container-fluid">
         <div class="col-md-2"></div>
         <div class="col-md-2 section_logo">
-            <img src="./images/suggest_icon_preview.png" alt="">
+            <img src="/wherehouse/images/suggest_icon_preview.png" alt="">
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-2 section_logo">
-            <img src="./images/gu_icon_preview.png" alt="">
+            <img src="/wherehouse/images/gu_icon_preview.png" alt="">
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-2 section_logo">
-            <img src="./images/detail_icon_preview.png" alt="">
+            <img src="/wherehouse/images/detail_icon_preview.png" alt="">
         </div>
         <div class="col-md-2"></div>
     </div>
@@ -254,7 +254,7 @@
                 <div id="first_rec_intro">
                     <div class="row">
                         <div class="col-md-8 mb-5 img_content" id="">
-                            <img src="./images/intro6.png" id=""
+                            <img src="/wherehouse/images/intro6.png" id=""
                                 class="w-100 rounded-4 border border-secondary border-opacity-50 ani_left_to_right"
                                 alt="">
                         </div>
@@ -271,7 +271,7 @@
                 <div id="second_rec_intro">
                     <div class="row">
                         <div class="col-md-8 mb-5 img_content" id="">
-                            <img src="./images/intro11.png" id=""
+                            <img src="/wherehouse/images/intro11.png" id=""
                                 class="w-100 rounded-4 border border-secondary border-opacity-50 ani_left_to_right"
                                 alt="">
                         </div>
@@ -291,7 +291,7 @@
                 <div id="third_rec_intro">
                     <div class="row">
                         <div class="col-md-8 mb-5 img_content" id="">
-                            <img src="./images/intro8.png" id=""
+                            <img src="/wherehouse/images/intro8.png" id=""
                                 class="w-100 rounded-4 border border-secondary border-opacity-50 ani_left_to_right"
                                 alt="">
                         </div>
@@ -366,7 +366,7 @@
                             </div>
                         </div>
                         <div class="col-md-8 mb-5 img_content" id="">
-                            <img src="./images/intro1.png" id=""
+                            <img src="/wherehouse/images/intro1.png" id=""
                                 class="w-100 rounded-4 border border-secondary border-opacity-50 ani_left_to_right"
                                 alt="">
                         </div>
@@ -387,7 +387,7 @@
                             </div>
                         </div>
                         <div class="col-md-8 mb-5 img_content" id="">
-                            <img src="./images/intro9.png" id=""
+                            <img src="/wherehouse/images/intro9.png" id=""
                                 class="w-100 rounded-4 border border-secondary border-opacity-50 ani_left_to_right"
                                 alt="">
                         </div>
@@ -408,7 +408,7 @@
                             </div>
                         </div>
                         <div class="col-md-8 mb-5 img_content" id="">
-                            <img src="./images/intro10.png" id=""
+                            <img src="/wherehouse/images/intro10.png" id=""
                                 class="w-100 rounded-4 border border-secondary border-opacity-50 ani_left_to_right"
                                 alt="">
                         </div>
@@ -423,7 +423,7 @@
                 <h2 id="score_link_text">점수 산정 방식이 궁금하다면?</h2>
             </div>
             <div class="col-md-2">
-                <a href="./page/reinfo" class="btn btn-outline-dark rounded-pill">
+                <a href="/wherehouse/page/reinfo" class="btn btn-outline-dark rounded-pill">
                     <h3 id="score_link_btn">click!</h3>
                 </a>
             </div>
@@ -456,7 +456,7 @@
                             저희 WhereHouse가 <br>
                             딱맞는 거주지 총 3곳을 추천해드릴게요.
                         </p>
-                        <a href="./page/main" class="mt-3 pt-2 btn btn-light card_btn border rounded-pill"
+                        <a href="/wherehouse/page/main" class="mt-3 pt-2 btn btn-light card_btn border rounded-pill"
                             id="do_suggest_btn">
                             <h4>추천 받으러 가기!</h4>
                         </a>
@@ -474,7 +474,7 @@
                             핫플레이스도 알려드릴게요! <br>
                             <br>
                         </p>
-                        <a href="./page/main" class="mt-3 pt-2 btn btn-light card_btn border rounded-pill"
+                        <a href="/wherehouse/page/main" class="mt-3 pt-2 btn btn-light card_btn border rounded-pill"
                             id="do_map_btn">
                             <h4>지역구 정보 보러가기!</h4>
                         </a>
@@ -492,7 +492,7 @@
                             반경 내 상세 정보들을 보여드릴게요. <br>
                             <br>
                         </p>
-                        <a href="./page/main" class="mt-3 pt-2 btn btn-light card_btn border rounded-pill" id="do_detail_btn">
+                        <a href="/wherehouse/page/main" class="mt-3 pt-2 btn btn-light card_btn border rounded-pill" id="do_detail_btn">
                             <h4>상세 정보 보러가기!</h4>
                         </a>
                     </div>
@@ -585,7 +585,7 @@
                         </ul>
                     </div>
                     <div class="col-md-4 mb-3 text-center">
-                        <img src="./images/home_icon.png" alt="" class="w-50 h-75 mt-3">
+                        <img src="/wherehouse/images/home_icon.png" alt="" class="w-50 h-75 mt-3">
                     </div>
                 </div>
             </footer>

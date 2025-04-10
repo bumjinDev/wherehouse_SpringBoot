@@ -40,7 +40,7 @@ public class BoardRepository implements IBoardRepository {
      * @return 게시글 리스트
      */
     @Override
-    public List<BoardEntity> searchBoardList(int pnIndex) {
+    public List<BoardEntity> findAllByPage(int pnIndex) {
         return boardEntityRepository.findByBdateWithPagination(pnIndex * 10, 10);
     }
 
@@ -53,7 +53,7 @@ public class BoardRepository implements IBoardRepository {
      * @return 게시글 Optional
      */
     @Override
-    public Optional<BoardEntity> findBoard(int boardId) {
+    public Optional<BoardEntity> findById(int boardId) {
         logger.info("boardRepository.findBoard() - boardId: {}", boardId);
         return boardEntityRepository.findById(boardId);
     }
@@ -65,10 +65,12 @@ public class BoardRepository implements IBoardRepository {
      * - ID가 없는 상태의 엔티티에 대해 save() 호출 시 INSERT 수행됩니다.
      *
      * @param boardEntity 저장할 게시글 엔티티
+     * 
+     * 반환 값은 요청된 게시글 작성에 대한 검증 뿐만 아닌 게시글 번호를 JS 에 반환하여 JS 측에서 리다이렉 하기 위함
      */
     @Override
-    public void boardWrite(BoardEntity boardEntity) {
-        boardEntityRepository.save(boardEntity);
+    public BoardEntity createBoard(BoardEntity boardEntity) {
+        return boardEntityRepository.save(boardEntity);
     }
 
     /**
@@ -80,7 +82,7 @@ public class BoardRepository implements IBoardRepository {
      *
      * @param boardEntity 수정할 게시글 엔티티
      */
-    public void boardModify(BoardEntity boardEntity) {
+    public void updateBoard(BoardEntity boardEntity) {
         boardEntityRepository.save(boardEntity);
     }
 
@@ -105,7 +107,7 @@ public class BoardRepository implements IBoardRepository {
      * @param boardId 조회수 증가 대상 게시글 ID
      * @return 정상 처리 시 1, 실패 시 0
      */
-    public int upHit(int boardId) {
+    public int incrementHitCount(int boardId) {
         return boardEntityRepository.updateHitByConnum(boardId, 1);
     }
 
@@ -119,7 +121,7 @@ public class BoardRepository implements IBoardRepository {
      * @return 댓글 리스트
      */
     @Override
-    public List<CommentEntity> commentSearch(int commentId) {
+    public List<CommentEntity> findCommentsByBoardId(int commentId) {
         return commentEntityManger.findByBoardId(commentId);
     }
 
@@ -131,7 +133,8 @@ public class BoardRepository implements IBoardRepository {
      * @param comment 저장할 댓글 엔티티
      */
     @Override
-    public void replyWrite(CommentEntity comment) {
+    public void createComment(CommentEntity comment) {
         commentEntityManger.save(comment);
     }
+
 }

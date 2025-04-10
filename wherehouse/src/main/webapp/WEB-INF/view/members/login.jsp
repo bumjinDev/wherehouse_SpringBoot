@@ -20,21 +20,19 @@
 
     // 쿠키 값이 유효하면 loginSuccess.jsp로 리다이렉트
     if (isValid && authToken != null) {
-        System.out.println("Redirecting to /wherehouse/loginSuccess");
-        response.sendRedirect("/wherehouse/loginSuccess");
+        System.out.println("Redirecting to /wherehouse/members/loginSuccess");
+        response.sendRedirect("/wherehouse/members/loginSuccess");
     } else {
         System.out.println("No valid Authorization cookie found!");
     }
 %>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./images/home_icon.png">
-    <link rel="stylesheet" href="./css/login.css">
+    <link rel="icon" href="/wherehouse/images/home_icon.png">
+    <link rel="stylesheet" href="/wherehouse/css/login.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Courgette&display=swap" rel="stylesheet">
@@ -64,15 +62,14 @@
             <div class="mt-3 mb-5 pt-3"></div>
             <div id="login-form-border" class="pt-3 pb-3">
                 <div id="inputBox" class="me-3 ms-3 row">
-                <!-- 로그인 요청 :
-                	JWT 필터인 "loginFilter" 로 요청이 전달된다. -->
-                    <form action="./login" method="post">
+                <!-- 로그인 요청 : "loginFilter" 로 요청이 전달. -->
+                    <form action="/wherehouse/login" method="post">
                         <div class=" mt-4 mb-4" id="login-id"><input type="text" name="userid" class="form-control" placeholder="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;아이디"></div>
                         <div class="mb-5" id="login-pw"><input type="password" name="password" class="form-control" placeholder="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;비밀번호"></div>
                         <div class="button-login-box">
                             <input type="submit" value="로그인" class="btn btn-primary btn-xs mb-3" style="width:100%"></input>	<!-- POST 요청으로 Spring Security Filter 로 요청 -->
                          		  또는
-                            <input type="button" value="회원가입" class="btn btn-primary btn-xs mt-3 mb-4" style="width:100%" onclick="javascript:window.location='./members/join'"></input> <!-- ./page/join -->
+                            <input type="button" value="회원가입" class="btn btn-primary btn-xs mt-3 mb-4" style="width:100%" onclick="javascript:window.location='/wherehouse/members/join'"></input>
                         </div>
                     </form>
                 </div>
@@ -153,7 +150,7 @@
                             </ul>
                         </div>
                         <div class="col-md-4 mb-3 text-center">
-                            <img src="./images/home_icon.png" alt="" class="w-50 h-75 mt-3">
+                            <img src="/wherehouse/images/home_icon.png" alt="" class="w-50 h-75 mt-3">
                         </div>
                     </div>
                 </footer>

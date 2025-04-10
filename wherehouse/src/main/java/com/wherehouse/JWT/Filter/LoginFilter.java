@@ -112,7 +112,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // JWT 생성 후 브러우저에 반환할 HostOnly 쿠키에 추가
         addJwtToCookie(response, generateAndStoreJwt(authResult));
         // 로그인 성공 후 페이지 이동
-        try { response.sendRedirect("/wherehouse/loginSuccess"); }
+        try { response.sendRedirect("/wherehouse/members/loginSuccess"); }
         catch (IOException e) { e.printStackTrace(); }
     }
 

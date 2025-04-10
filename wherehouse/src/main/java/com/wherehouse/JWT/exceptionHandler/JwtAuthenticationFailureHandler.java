@@ -62,7 +62,7 @@ public class JwtAuthenticationFailureHandler implements AuthenticationEntryPoint
 
         // 사용자에게 안내 스크립트 반환
         response.setContentType("text/html; charset=UTF-8");
-        response.getWriter().write("<script>alert('" + "JWT 인증이 실패하여 접근할 수 없습니다." + "'); history.back();</script>");
+        response.getWriter().write("<script>alert('" + "올바른 로그인 사용자가 아닙니다." + "'); history.back();</script>");
 		
 	}
 

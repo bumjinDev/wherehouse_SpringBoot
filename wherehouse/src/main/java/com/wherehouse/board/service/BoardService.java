@@ -3,372 +3,462 @@ package com.wherehouse.board.service;
 import java.security.Key;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import com.wherehouse.JWT.Filter.Util.CookieUtil;
 import com.wherehouse.JWT.Filter.Util.JWTUtil;
 import com.wherehouse.board.dao.BoardEntityRepository;
 import com.wherehouse.board.dao.IBoardRepository;
-import com.wherehouse.board.exception.BoardAuthorizationException;
-import com.wherehouse.board.exception.BoardNotFoundException;
-import com.wherehouse.board.model.BoardConverter;
-import com.wherehouse.board.model.BoardDTO;
-import com.wherehouse.board.model.BoardEntity;
-import com.wherehouse.board.model.CommandtVO;
-import com.wherehouse.board.model.CommentConverter;
+import com.wherehouse.board.exception.*;
+import com.wherehouse.board.model.*;
 import com.wherehouse.members.dao.IMembersRepository;
-import com.wherehouse.members.model.MemberConverter;
-import com.wherehouse.members.model.MembersEntity;
+import com.wherehouse.members.model.*;
 import com.wherehouse.redis.handler.RedisHandler;
 
+/**
+ * BoardService.java
+ *
+ * 게시글 도메인 서비스 클래스
+ * - 게시글 등록, 조회, 수정, 삭제
+ * - 댓글 작성 및 조회
+ * - JWT 기반 인가 검증
+ *
+ * 실무 기준의 인증 분리 설계와 예외 처리를 포함합니다.
+ */
 @Service
 public class BoardService implements IBoardService {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardService.class);
-    
+
     IBoardRepository boardRepository;
     IMembersRepository membersRepository;
     BoardEntityRepository boardEntityRepository;
-    
+
     RedisHandler redisHandler;
-    JWTUtil jwtUtil; // JWTUtil 의존성 주입
+    JWTUtil jwtUtil;
     CookieUtil cookieUtil;
-    
+
     BoardConverter boardConverter;
     CommentConverter commentConverter;
     MemberConverter memberConverter;
-    
-    public BoardService(
-            
-            IBoardRepository boardRepository,
-            IMembersRepository membersRepository,
-            BoardEntityRepository boardEntityRepository,
-            
-            RedisHandler redisHandler,
-            JWTUtil jwtUtil,
-            CookieUtil cookieUtil,
-            
-            BoardConverter boardConverter,
-            CommentConverter commentConverter,
-            MemberConverter memberConverter
-        ) {
-        
+
+    public BoardService(IBoardRepository boardRepository,
+                        IMembersRepository membersRepository,
+                        BoardEntityRepository boardEntityRepository,
+                        RedisHandler redisHandler,
+                        JWTUtil jwtUtil,
+                        CookieUtil cookieUtil,
+                        BoardConverter boardConverter,
+                        CommentConverter commentConverter,
+                        MemberConverter memberConverter) {
         this.boardRepository = boardRepository;
         this.membersRepository = membersRepository;
         this.boardEntityRepository = boardEntityRepository;
-        
         this.redisHandler = redisHandler;
         this.jwtUtil = jwtUtil;
         this.cookieUtil = cookieUtil;
-        
         this.boardConverter = boardConverter;
         this.commentConverter = commentConverter;
         this.memberConverter = memberConverter;
     }
-    
-    /* ============================ 게시판 관련 메소드 =================================== */
+
+    // ================== JWT 공통 처리 메서드 ==================
 
     /**
-     * 지정한 페이지 번호에 해당하는 게시글 목록을 조회하고, 각 게시글의 작성자 닉네임을 함께 반환한다.
+     * Purpose:
+     *   JWT 토큰에서 Redis에 보관 중인 서명 키를 추출하여 복원.
      *
-     * @param pnIndex 조회할 페이지 번호 (0부터 시작)
-     * @return 다음 항목을 포함하는 Map 객체:
-     *         - "pnSize": 전체 게시글 수를 기준으로 계산된 전체 페이지 수 (int)
-     *         - "boardList": 해당 페이지의 게시글 엔티티 리스트 (List<BoardEntity>)
-     *         - "members": 게시글별 작성자 닉네임 리스트 (List<String>)
+     * Flow:
+     *   1. RedisHandler로 token 키를 조회
+     *   2. JWTUtil로 Key 객체 변환 (orElseThrow)
      *
-     * 동작 방식:
-     * - 전체 게시글 수를 기반으로 페이지 수 계산 (페이지당 10건 기준)
-     * - 지정 페이지 번호에 해당하는 게시글 10건 조회
-     * - 각 게시글의 작성자 ID를 추출하여 닉네임 리스트 생성
+     * @param token JWT 문자열
+     * @return 복원된 서명 Key
      */
-
-    public Map<String, Object> searchBoard(int pnIndex) {
-        
-        HashMap<String, Object> board = new HashMap<>(); // 결과 데이터 저장용
-        
-        // 전체 게시글 수를 기준으로 페이지 수 계산 (페이지당 10개 게시글 기준)
-        int pnSize = (int) Math.ceil(boardEntityRepository.count() / 10.0);
-        
-        // 요청 받은 페이지 번호에 해당하는 게시글 10건 조회
-        List<BoardEntity> boardList = boardRepository.searchBoardList(pnIndex);
-        
-        // 게시글 작성자 ID 목록 추출
-        List<String> boardUserIds = boardList.stream()
-                .map(BoardEntity::getUserid)
-                .collect(Collectors.toList());
-        // 각 게시글 별 작성자 닉네임을 가져오기
-        List<String> members = (boardList.size() >= 1) ? membersRepository.getMembers(boardUserIds) : null;
-        // 결과 데이터 구성
-        board.put("pnSize", pnSize); // 전체 게시글 수에 대한 페이지 네이션 개수
-        board.put("boardList", boardList); // 게시글 전체 목록
-        board.put("members", members); // 작성자 닉네임
-        
-        return board;
+    private Key extractSigningKey(String token) {
+        String keyValue = (String) redisHandler.getValueOperations().get(token);
+        return jwtUtil.getSigningKeyFromToken(keyValue).orElseThrow();
     }
-    
+
     /**
-     * 게시글 상세 정보를 조회하고, 관련 댓글 및 작성자 닉네임을 함께 반환한다.
+     * Purpose:
+     *   JWT 토큰에서 userId 클레임을 추출합니다.
      *
-     * @param contentnum 조회 대상 게시글 번호
-     * @return 다음 항목을 포함하는 Map 객체:
-     *         - "content_view": 조회된 게시글 DTO (BoardDTO)
-     *         - "comments": 해당 게시글에 대한 댓글 리스트 (List<CommandtVO>)
-     *         - "userName": 게시글 작성자의 닉네임 (String)
+     * Flow:
+     *   1. extractSigningKey → Key 복원
+     *   2. jwtUtil.extractUserId → userId
      *
-     * 동작 방식:
-     * 1. 게시글 번호를 기반으로 게시글을 조회한다. 존재하지 않을 경우 NoSuchElementException 발생
-     * 2. 게시글 조회수(upHit)를 증가시킨다. 실패 시 NoSuchElementException 발생
-     * 3. 게시글 DTO, 댓글 목록, 작성자 닉네임을 Map 형태로 구성하여 반환한다
-     *
-     * 예외 처리 메시지 :
-     * - 게시글이 존재하지 않는 경우: "해당 게시글을 찾을 수 없습니다."
-     * - 조회수 증가 실패 시: "게시글 선택을 실패 하였습니다."
-     * - 작성자 정보가 존재하지 않는 경우 닉네임은 "Anonymous"로 설정
-     *
-     * 인증 정보는 필요하지 않으며, 무인증 상태에서도 접근 가능한 조회 기능이다.
+     * @param token JWT
+     * @return userId (String)
      */
-    
+    private String extractUserIdFromToken(String token) {
+        return jwtUtil.extractUserId(token, extractSigningKey(token));
+    }
+
+    /**
+     * Purpose:
+     *   JWT 토큰에서 사용자 닉네임(Username) 클레임을 추출합니다.
+     *
+     * Flow:
+     *   1. extractSigningKey → Key 복원
+     *   2. jwtUtil.extractUsername → userName
+     *
+     * @param token JWT
+     * @return userName (String)
+     */
+    private String extractUserNameFromToken(String token) {
+        return jwtUtil.extractUsername(token, extractSigningKey(token));
+    }
+
+    // ================== 게시글 목록 조회 ==================
+
+    /**
+     * Purpose:
+     *   페이지 단위로 게시글 목록과 작성자 닉네임을 조회합니다.
+     *
+     * Flow:
+     *   1. 전체 게시글 수로 페이지 수 계산
+     *   2. pnIndex 기준 게시글 목록 조회
+     *   3. 작성자 ID → 닉네임 매핑
+     *   4. 결과 Map 반환
+     *
+     * @param pnIndex 페이지 인덱스 (0부터 시작)
+     * @return Map: {pnSize, boardList, members}
+     */
     @Override
-    public Map<String, Object> sarchView(int contentnum) {
-        
-        HashMap<String, Object> resultMap = new HashMap<>();
-        
-        // 존재하지 않은 게시글 번호로 조회 (존재하지 않으면 예외 발생)
-        BoardDTO boardDTO = boardConverter.toDTO(boardRepository.findBoard(contentnum)
-                                                 .orElseThrow(() -> new BoardNotFoundException("해당 게시글을 찾을 수 없습니다. ID: " + contentnum)));
-        
-        // 조회수 증가 처리 : 성공 시 1 반환, 실패 시 0 반환.(실패 시 예외 발생)
-        if(boardRepository.upHit(contentnum) == 0) { throw new BoardNotFoundException("게시글 선택을 실패 하였습니다."); }
-        
-        // 게시글 DTO 반환
-        resultMap.put("content_view", boardDTO);
-        
-        // 댓글 목록 조회 및 변환
-        resultMap.put("comments", commentConverter.toVOList(boardRepository.commentSearch(contentnum)));
-        
-        // 게시글 작성자가 현재 존재하지 않는 사용자 일 시 별도의 처리
-        Optional<MembersEntity> membersEntity = membersRepository.getMember(boardDTO.getUserId());
-        String userName = (membersEntity.get().getNickName() == null) ? "Anonymous" : membersEntity.get().getNickName();
-        
-        // 게시글 작성자 ID를 기반으로 닉네임 조회
-        resultMap.put("userName",userName);
+    public Map<String, Object> listBoards(int pnIndex) {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        // (1) 전체 게시글 수 조회 후 페이지 수 계산
+        long totalCount = boardEntityRepository.count();
+        int pnSize = (int) Math.ceil(totalCount / 10.0);
+
+        // (2) 해당 페이지의 게시글 목록
+        List<BoardEntity> boardList = boardRepository.findAllByPage(pnIndex);
+
+        // (3) 작성자 ID 목록 → 닉네임 매핑
+        List<String> userIds = boardList.stream()
+                                        .map(BoardEntity::getUserid)
+                                        .collect(Collectors.toList());
+        Map<String, String> nickMap = membersRepository.getMembers(userIds).stream()
+            .collect(Collectors.toMap(MembersEntity::getId, MembersEntity::getNickName));
+
+        // (4) 게시글 순서대로 닉네임 리스트 구성
+        List<String> members = boardList.stream()
+            .map(be -> nickMap.getOrDefault(be.getUserid(), "Anonymous"))
+            .collect(Collectors.toList());
+
+        // 결과 저장
+        resultMap.put("pnSize", pnSize);
+        resultMap.put("boardList", boardList);
+        resultMap.put("members", members);
         return resultMap;
     }
-    
-    /**
-     * 게시글 작성 페이지 진입 시, JWT 토큰을 기반으로 사용자 정보를 반환한다.
-     *
-     * @param jwtToken 클라이언트로부터 전달받은 JWT 액세스 토큰 (HttpOnly 쿠키 기반에서 추출된 값)
-     * @return 다음 항목을 포함하는 Map<String, String> 객체:
-     *         - "userId"   : JWT Payload 내 사용자 ID
-     *         - "userName" : JWT Payload 내 사용자 이름 (닉네임)
-     *
-     * 내부 동작:
-     * 1. Redis 에서 JWT 토큰 문자열에 해당하는 서명 키(Base64 문자열)를 조회한다.
-     * 2. JWTUtil을 통해 서명 키를 복원한 후, 해당 키로 토큰의 유효성을 검증하고 클레임 정보를 추출한다.
-     * 3. 추출한 사용자 식별자(userId) 및 사용자명(userName)을 Map에 담아 반환한다.
-     *
-     * 인증 처리 주석:
-     * - Spring Security FilterChain 내에서 이미 JWT 유효성 검증이 완료된 상태에서 이 메서드가 호출되므로,
-     *   본 메서드는 추가적인 인증 로직을 수행하지 않으며, 클레임 파싱만을 담당한다.
-     *
-     * 예외 처리:
-     * - Redis에 키가 존재하지 않거나 서명 키 복원 실패 시 Optional.get()에서 예외 발생 가능성 존재
-     */
-    
-    @Override
-    public Map<String, String> writePage(String jwtToken) {
-        
-    	/* 글 작성 페이지 내 포함될 데이터 셋 */
-        Map<String, String> dataSet = new HashMap<>();
-        
-        /* 별도의 추가 검증 없이 JWT 내 글 작성 페이지 제공에 필요한 userId 와 userName 만 포함 */
-        /* JWT 검증 및 JWT 클레임 인 사용자 ID 와 이름을 글 작성 페이지 내 포함 목적 */
-        String keyValue = (String) redisHandler.getValueOperations().get(jwtToken);
-        // Key 생성
-        Key key = jwtUtil.getSigningKeyFromToken(keyValue).get();
-        		
-        dataSet.put("userId", jwtUtil.extractUserId(jwtToken, key));
-        dataSet.put("userName", jwtUtil.extractUsername(jwtToken, key));
-        
-        return dataSet;
-    }
-    
-    /**
-     * 게시글 작성 요청 처리 메서드
-     *
-     * @param boardDTO 사용자가 입력한 게시글 작성 정보 (제목, 내용, 지역 등)를 포함하는 DTO 객체
-     *
-     * 처리 흐름:
-     * 1. 클라이언트로부터 전달받은 BoardDTO 객체에 대해 서버 측에서 다음 값을 강제 설정함:
-     *    - 조회수(hit): 최초 작성 시 0으로 초기화
-     *    - 작성일자(boardDate): 서버 기준 현재 일자로 설정 (LocalDate.now())
-     *    
-     * 2. DTO를 BoardEntity로 변환한 후, Repository 계층을 통해 DB에 저장 수행
-     *
-     * 설계 근거:
-     * - 클라이언트에서 임의로 조작 가능한 값(조회수, 작성일자)은 서버에서 무조건 재설정하여 데이터 무결성 보장
-     * - DTO → Entity 변환은 전용 Converter에서 처리함으로써 계층 간 명확한 역할 분리 유지
-     *
-     * 인증 관련:
-     * - 본 메서드는 JWT 인증이 사전 필터 체인 내에서 완료된 상태를 전제로 하며, 별도의 사용자 검증은 필요하지 않음
-     *   사용자 ID는 이미 DTO 내에 포함되어 있다고 간주함 (writePage 단계에서 클레임 기반 셋팅)
-     */
-    @Override
-    public void boardWrite(BoardDTO boardDTO) {
-    
-        // 게시글 작성 시 조회수 초기화 및 현재 날짜로 작성일 설정
-        boardDTO.setBoardHit(0); // 조회수 초기화
-        boardDTO.setBoardDate(Date.valueOf(LocalDate.now())); // 현재 날짜 설정
-        // 게시글을 Entity로 변환 후 저장
-        boardRepository.boardWrite(boardConverter.toEntity(boardDTO));
-    }
-    
-    /**
-     * 게시글 수정 페이지 진입 요청 처리
-     *
-     * @param token 클라이언트로부터 전달된 JWT 액세스 토큰 (쿠키 기반 전달)
-     * @param boardDTO 수정 대상 게시글 정보를 담은 DTO (boardId, 작성자 ID 포함)
-     * @return 수정 페이지 렌더링에 필요한 게시글 상세 정보를 Map 형태로 반환
-     *
-     * 처리 흐름:
-     * 1. 전달받은 JWT 토큰을 Redis에서 키 조회하여 서명 키 복원
-     * 2. 복원된 키로 JWT에서 사용자 ID 및 닉네임 추출
-     * 3. 게시글의 작성자 ID와 JWT의 사용자 ID가 일치하는지 검증
-     *    - 일치: 수정 페이지에 필요한 게시글 정보 + 작성자 닉네임 반환
-     *    - 불일치: AccessDeniedException 발생 (인가 실패 처리)
-     *
-     * 설계 근거:
-     * - 본 메서드는 필터 체인 내 인증 처리가 완료된 상태를 전제로 하며, 인증 자체는 수행하지 않음
-     * - 작성자 본인 여부에 대한 재검증만 서버에서 수행하여 불법 접근 차단
-     * - JWT에서 직접 사용자 ID/이름 추출하여 클라이언트에 의존하지 않고 신뢰성 확보
-     *
-     * 예외 발생 조건:
-     * - Redis 내 서명 키가 존재하지 않거나 JWT 파싱 실패: NoSuchElementException 또는 Optional.get() NPE
-     * - 작성자 ID 불일치: AccessDeniedException (Spring Security 인가 실패 처리 대상)
-     *
-     * 반환 형태:
-     * - key: "boardId", "title", "boardContent", "region", "boardDate", "boardHit", "AuthorNickname"
-     *   → JSP 수정 화면 렌더링에 필요한 필드만 포함
-     */
 
+    // ================== 게시글 상세 조회 ==================
+
+    /**
+     * Purpose:
+     *   게시글 상세 정보와 댓글을 조회하고, 조회수를 증가시킵니다.
+     *   존재하지 않거나 조회수 증가 실패 시 예외 발생.
+     *
+     * Flow:
+     *   1. 게시글 존재 검증(404) → DTO 변환
+     *   2. 조회수 증가(실패 시 예외)
+     *   3. 댓글 목록 + 작성자 닉네임 조회
+     *   4. Map 반환
+     *
+     * @param boardId 게시글 PK
+     * @return Map: content_view, comments, userName
+     */
     @Override
-    public HashMap<String, String> boardModifyPage(String token, BoardDTO boardDTO) {
-        
-        logger.info("BoardModifyPageService.boardModifyPage()!");
-        
-        // JWT 토큰을 기반으로 서명 키를 Redis에서 조회
-        String keyValue = (String) redisHandler.getValueOperations().get(token);
-        Key signingKey = jwtUtil.getSigningKeyFromToken(keyValue).get();
-        
-        // JWT에서 사용자 ID 추출
-        String sessionId = jwtUtil.extractUserId(token, signingKey);
-        String userName = jwtUtil.extractUsername(token, signingKey);
-        
-        // 게시글 작성자와 요청자가 일치하는지 확인
-        if (sessionId.equals(boardDTO.getUserId())) {
-            
-            // 작성자가 맞으면 수정 페이지 데이터 반환
-            HashMap<String, String> boardViewData = new HashMap<>();
-            boardViewData.put("boardId", String.valueOf(boardDTO.getBoardId()));
-            boardViewData.put("title", boardDTO.getTitle());
-            boardViewData.put("boardContent", boardDTO.getBoardContent());
-            boardViewData.put("region", boardDTO.getRegion());
-            boardViewData.put("boardDate", String.valueOf(boardDTO.getBoardDate()));
-            boardViewData.put("boardHit", String.valueOf(boardDTO.getBoardHit()));
-            boardViewData.put("AuthorNickname", userName);
-            
-            return boardViewData;
-        } else {
-        	/* 현재 발생된 예외는 이미 이전에 권한을 검증 했음에도 불구하고 게시글 작성자가 아닌 사용자가 수정 페이지 요청 한 것이므로 별도의 페이지 반환. */
-        	throw new BoardAuthorizationException("게시글 작성자가 아닙니다. 수정 접근이 거부되었습니다.");
+    public Map<String, Object> getBoardDetail(int boardId) {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        // (1) 게시글 조회(404) → DTO 변환
+        BoardDTO boardDTO = boardConverter.toDTO(
+            boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("해당 게시글을 찾을 수 없습니다. ID: " + boardId)));
+
+        // (2) 조회수 증가(실패 시 예외)
+        if (boardRepository.incrementHitCount(boardId) == 0) {
+            throw new BoardNotFoundException("게시글 조회수 증가 실패. ID: " + boardId);
         }
+
+        // (3) 댓글 목록 + 작성자 닉네임 조회
+        List<CommentVO> comments = commentConverter.toVOList(
+            boardRepository.findCommentsByBoardId(boardId)
+        );
+        Optional<MembersEntity> memberOpt = membersRepository.getMember(boardDTO.getUserId());
+        String userName = memberOpt.map(MembersEntity::getNickName).orElse("Anonymous");
+
+        // (4) 결과 Map에 담기
+        resultMap.put("content_view", boardDTO);
+        resultMap.put("comments", comments);
+        resultMap.put("userName", userName);
+
+        return resultMap;
     }
 
+    // ================== 게시글 작성 페이지 진입 ==================
+
     /**
-     * 게시글 실제 수정 요청을 받아 DBMS 에 적용.
+     * Purpose:
+     *   게시글 작성 페이지에 진입할 때, 사용자 식별자(ID)와 닉네임을 반환합니다.
      *
-     * @param boardDTO 수정된 게시글 정보 DTO
-     * !JWT 검증 자체는 Spring Security Filter Chain 내 이미 검증 완료 했으므로 별도의 로직 처리 하지 않으며
-     * 사용자가 동일한 지에 대한 여부만 검증한다.
-     */
-    @Override
-    public void modifyBoard(BoardDTO boardDTO, String token) {
-    	
-    	// JWT 토큰을 기반으로 서명 키를 Redis에서 조회
-        String keyValue = (String) redisHandler.getValueOperations().get(token);
-        Key signingKey = jwtUtil.getSigningKeyFromToken(keyValue).get();
-        
-        /* 수정된 게시글 Entity로 변환 후 저장 */
-        if(!jwtUtil.extractUserId(token, signingKey).equals(boardDTO.getUserId())) {	// JWT에서 사용자 ID 추출 : 현재 API 요청 사용자 토큰과 실제 작성자가 같은지 확인.
-        	throw new BoardAuthorizationException("게시글 작성자가 아니므로 수정할 수 없습니다.");
-        }
-        boardRepository.boardModify(boardConverter.toEntity(boardDTO));			// 수정 요청 게시글의 실제 DBMS 작업 수행.	
-    }
-
-    /**
-     * 게시글 삭제 요청
-     * 
-     * @param boardId 삭제할 게시글 ID
-     * @param jwt JWT 토큰
-     * @return 삭제 성공 시 게시판 목록 페이지 URL, 실패 시 게시글 상세 페이지 URL
-     * @throws UnauthorizedException 삭제 권한이 없는 경우
-     */
-    @Override
-    public Map<String, String> deleteBoard(int boardId, String jwt) {
-        
-        logger.info("BoardDeleteService.deleteBoard()!");
-        
-        Map<String, String> response = new HashMap<>();
-        
-        // JWT 토큰을 기반으로 사용자 ID를 추출
-        String keyValue = (String) redisHandler.getValueOperations().get(jwt);
-        String sessionId = jwtUtil.extractUserId(jwt, jwtUtil.getSigningKeyFromToken(keyValue).get());
-        
-        // 게시글 작성자와 요청자가 일치하는지 확인, 작성자가 아니라면 삭제 불가
-        if (!sessionId.equals(boardEntityRepository.findUseridByConnum(boardId))) {
-            throw new BoardAuthorizationException("게시글 작성자가 아니므로 삭제할 수 없습니다.");
-        }
-        // 게시글 삭제
-        boardRepository.deleteBoard(boardId);
-        
-        return response;
-    }
-
-    /* ============================ 댓글 관련 메소드 =================================== */
-    
-    /**
-     * 댓글 작성 요청을 처리.
-     * 
+     * Flow:
+     *   1. JWT에서 userId, userName 추출
+     *   2. 결과 Map 반환
+     *
      * @param token JWT 토큰
-     * @param commandtVO 댓글 내용 및 작성자 정보 VO
-     * @throws UnauthorizedException JWT 인증 실패 시
-     * 
-     * Spring Security 내 토큰 검증이 완료 되어서 별도의 추가 검증은 수행하지 않으며, 댓글 작성 시 사용자 구분 없으니 별도의 인증 과정은 생략.
+     * @return Map: {userId, userName}
      */
     @Override
-    public void writeReply(String token, CommandtVO commandtVO) {
-        
-        // Redis에서 JWT 토큰에 해당하는 키 값 조회
-        String keyValue = (String) redisHandler.getValueOperations().get(token);
-        // 서명 키 복원 및 유효성 검증
-        Key signingKey = jwtUtil.getSigningKeyFromToken(keyValue).get();
-        
-        // JWT에서 사용자 ID 및 이름 추출 후 댓글 VO에 설정
-        commandtVO.setUserId(jwtUtil.extractUserId(token, signingKey));
-        commandtVO.setUserName(jwtUtil.extractUsername(token, signingKey));
-        
-        // 댓글 Entity로 변환 후 저장
-        boardRepository.replyWrite(commentConverter.toEntity(commandtVO));
+    public Map<String, String> getBoardCreationInfo(String token) {
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("userId", extractUserIdFromToken(token));
+        dataMap.put("userName", extractUserNameFromToken(token));
+        return dataMap;
+    }
+
+    // ================== 게시글 신규 작성 ==================
+
+    /**
+     * Purpose:
+     *   게시글 신규 작성 처리.
+     *   서버에서 작성일, 조회수(0) 등을 강제 설정하고 생성된 ID를 반환합니다.
+     *
+     * Flow:
+     *   1. DTO에 userId, boardHit=0, boardDate=오늘 날짜 설정
+     *   2. DB에 게시글 저장 후 ID 추출
+     *   3. HTTP 201 응답
+     *
+     * @param boardDTO 사용자 입력 DTO
+     * @param token    JWT 토큰
+     * @return { boardId }
+     */
+    @Override
+    public ResponseEntity<Map<String, String>> createBoard(BoardDTO boardDTO, String token) {
+        // (1) DTO 필드 설정
+        boardDTO.setUserId(extractUserIdFromToken(token));
+        boardDTO.setBoardHit(0);
+        boardDTO.setBoardDate(Date.valueOf(LocalDate.now()));
+
+        // (2) DB 저장, 변환된 DTO에서 boardId 추출
+        String boardId = String.valueOf(
+            boardConverter.toDTO(boardRepository.createBoard(boardConverter.toEntity(boardDTO))).getBoardId());
+
+        // (3) HTTP 201 생성 응답
+        return ResponseEntity
+            .status(201)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Map.of("boardId", boardId));
+    }
+
+    // ================== 게시글 수정 페이지 진입 ==================
+
+    /**
+     * Purpose:
+     *   게시글 수정 페이지 요청 처리.
+     *   JWT 사용자 ID 인가 검증 후, 수정에 필요한 게시글 정보를 반환합니다.
+     *
+     * Flow:
+     *   1. 로그 기록
+     *   2. JWT 토큰에서 sessionId, userName 추출
+     *   3. 게시글 조회(404) → DTO 변환
+     *   4. 작성자 불일치 시 예외(403)
+     *   5. 수정 페이지 데이터 맵 반환
+     *
+     * @param token   JWT 토큰
+     * @param boardId 수정할 게시글 ID
+     * @return 수정 페이지용 데이터
+     */
+    @Override
+    public HashMap<String, String> getBoardForUpdate(String token, int boardId) {
+
+        logger.info("BoardModifyPageService.boardModifyPage()! boardId={}", boardId);
+
+        // (1) 사용자 정보 추출
+        String sessionId = extractUserIdFromToken(token);
+        String userName = extractUserNameFromToken(token);
+
+        // (2) 게시글 존재 여부 검증
+        BoardDTO boardDTO = boardConverter.toDTO(
+            boardRepository.findById(boardId)
+                .orElseThrow(() -> new InvalidBoardFoundAttemptException( "존재하지 않는 게시글에 임의적인 수정 페이지 요청 확인.")));
+
+        // (3) 작성자 불일치 시 예외
+        if (!boardDTO.getUserId().equals(sessionId)) {
+            throw new InvalidBoardAccessAttemptException("게시글 작성자가 아닌 사용자의 임의적인 수정 접근.");
+        }
+        // (4) 수정 페이지용 데이터 구성
+        HashMap<String, String> boardViewData = new HashMap<>();
+        boardViewData.put("boardId", String.valueOf(boardDTO.getBoardId()));
+        boardViewData.put("title", boardDTO.getTitle());
+        boardViewData.put("boardContent", boardDTO.getBoardContent());
+        boardViewData.put("region", boardDTO.getRegion());
+        boardViewData.put("boardDate", String.valueOf(boardDTO.getBoardDate()));
+        boardViewData.put("boardHit", String.valueOf(boardDTO.getBoardHit()));
+        boardViewData.put("AuthorNickname", userName);
+
+        return boardViewData;
+    }
+
+    // ================== 게시글 수정 ==================
+
+    /**
+     * Purpose:
+     *   게시글 수정 처리.
+     *   게시글 존재 및 작성자 검증 후, 변경된 필드를 DB에 반영합니다.
+     *
+     * Flow:
+     *   1. 게시글 존재 여부 검증(404)
+     *   2. 작성자 불일치 시 예외(403)
+     *   3. boardDTO에 변경 요청 필드 적용
+     *   4. DB에 업데이트 반영
+     *
+     * @param boardDTO 수정 요청 DTO
+     * @param token    JWT 토큰
+     */
+    @Override
+    public void updateBoard(BoardDTO boardDTO, String token) {
+
+        // (1) 게시글 존재 여부 검증
+        BoardDTO boardData = boardConverter.toDTO(
+            boardRepository.findById(boardDTO.getBoardId())
+                .orElseThrow(() -> new InvalidBoardFoundAttemptException("존재하지 않는 게시글에 임의적인 수정 페이지 요청 확인.")));
+
+        // (2) 작성자 불일치 시 예외
+        String sessionId = extractUserIdFromToken(token);
+        if (!sessionId.equals(boardData.getUserId())) {
+            throw new InvalidBoardAccessAttemptException("게시글 작성자가 아닌 사용자의 임의적인 수정 접근.");
+        }
+
+        // (3) 변경 필드 적용
+        boardData.setTitle(boardDTO.getTitle());
+        boardData.setRegion(boardDTO.getRegion());
+        boardData.setBoardContent(boardDTO.getBoardContent());
+
+        // (4) DB에 수정 반영
+        boardRepository.updateBoard(boardConverter.toEntity(boardData));
+    }
+
+    // ================== 게시글 삭제 ==================
+
+    /**
+     * Purpose:
+     *   게시글 삭제 요청 처리.
+     *   JWT 사용자와 DB 게시글 작성자가 일치해야 함.
+     *
+     * Flow:
+     *   1. 로그 기록
+     *   2. JWT에서 userId 추출
+     *   3. 게시글 존재 여부 검증(404)
+     *   4. 작성자 불일치 시 예외(403)
+     *   5. 게시글 삭제 후 204 응답
+     *
+     * @param boardId 게시글 ID
+     * @param token   JWT 토큰
+     * @return HTTP 204 No Content
+     */
+    @Override
+    public ResponseEntity<Void> deleteBoard(int boardId, String token) {
+
+        logger.info("BoardDeleteService.deleteBoard()! boardId={}", boardId);
+
+        // (1) JWT에서 userId 추출
+        String sessionId = extractUserIdFromToken(token);
+
+        // (2) 게시글 존재 여부 검증(404)
+        BoardDTO boardDTO = boardConverter.toDTO(
+            boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("선택하신 게시글은 이미 존재하지 않는 게시글 삭제 요청 입니다.")));
+
+        // (3) 작성자 불일치 시 예외(403)
+        if (!sessionId.equals(boardDTO.getUserId())) {
+            throw new BoardAuthorizationException(   "선택하신 게시글에 대한 게시글 작성자가 아니므로 삭제할 수 없습니다.");
+        }
+        // (4) 게시글 삭제
+        boardRepository.deleteBoard(boardId);
+        // (5) 204 응답
+        return ResponseEntity.noContent().build();
+    }
+
+    // ================== 댓글 작성 ==================
+
+    /**
+     * Purpose:
+     *   댓글 작성 요청 처리.
+     *   JWT 사용자 ID와 닉네임을 VO에 삽입 후 저장합니다.
+     *
+     * Flow:
+     *   1. JWT 서명 키 복원
+     *   2. 게시글 존재 여부 검증(404)
+     *   3. 댓글 VO에 userId, userName 설정
+     *   4. 댓글 저장
+     *
+     * @param token     JWT 토큰
+     * @param commentVO 댓글 정보
+     */
+    @Override
+    public void createReply(String token, CommentVO commentVO) {
+
+        // (1) JWT 서명 키 복원
+        Key signingKey = extractSigningKey(token);
+
+        // (2) 게시글 존재 여부 검증(404)
+        boardRepository.findById(commentVO.getBoardId())
+            .orElseThrow(() -> new BoardNotFoundException("댓글 작성 요청 대상 게시글이 이미 삭제되어 게시글을 작성할 수 없습니다."));
+
+        // (3) VO에 사용자 정보 설정
+        commentVO.setUserId(jwtUtil.extractUserId(token, signingKey));
+        commentVO.setUserName(jwtUtil.extractUsername(token, signingKey));
+
+        // (4) 댓글 저장
+        boardRepository.createComment(commentConverter.toEntity(commentVO));
+    }
+
+    // ================== 게시글 인가 검증 ==================
+
+    /**
+     * Purpose:
+     *   게시글 수정/삭제 요청에 대한 인가를 검증합니다.
+     *
+     * Flow:
+     *   1. JWT에서 userId 추출
+     *   2. 게시글 존재 여부 검증(404)
+     *   3. 작성자 불일치 시 예외(403)
+     *   4. 정상 시 OK 반환
+     *
+     * @param token JWT 토큰
+     * @param boardId 게시글 ID
+     * @return HTTP 200 OK
+     */
+    @Override
+    public ResponseEntity<Void> checkBoardAuthorization(String token, int boardId) {
+
+        logger.info("BoardService.boardAuthorizationService()! boardId={}", boardId);
+
+        // (1) JWT에서 userId 추출
+        String userId = extractUserIdFromToken(token);
+
+        // (2) 게시글 존재 여부 검증(404)
+        BoardDTO boardDTO = boardConverter.toDTO(
+            boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("선택하신 게시글이 존재하지 않습니다.")));
+
+        // (3) 작성자 불일치 시 예외(403)
+        if (!boardDTO.getUserId().equals(userId)) {
+            throw new BoardAuthorizationException("선택하신 게시글은 작성자만 접근 가능합니다.");
+        }
+        // (4) 정상 시 OK
+        return ResponseEntity.ok().build();
     }
 }
