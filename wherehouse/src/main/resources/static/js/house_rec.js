@@ -422,6 +422,7 @@ function resultCheck() {
     var input_charter = document.getElementById("charterInput").querySelector('input[name="charterDeposit"]');  // 전세금
     var input_deposit = document.getElementById("monthlyInput").querySelector('input[name="monthlyDeposit"]');  // 월세 보증금
     var input_monthly = document.getElementById("monthlyInput").querySelector('input[name="monthlyMonth"]');    // 월세금
+	
     console.log(input_charter.value);
     console.log(input_deposit.value);
     console.log(input_monthly.value);
@@ -435,12 +436,13 @@ function resultCheck() {
             alert("전세금의 입력 상하한선은 15000 ~ 30000 입니다.");
         }
         else {
-            showResult();
+            requestRecommandInfo();
         }
     }
     
     /* 월세 확인 : 위와 동일.  */
     else if (input_charter.value == "") {
+		
         if (input_deposit.value == "" && input_monthly.value == "") {
             alert("입력되지 않은 정보가 있습니다.");
         }
@@ -451,13 +453,124 @@ function resultCheck() {
             alert("월세금의 입력 상하한선은 40 ~ 70 입니다.");
         }
         else {
-            showResult();
+            requestRecommandInfo();
         }
     }
 }
 
-function showResult() {
-	
+function requestRecommandInfo(){
+	// 거주지 추천 ajax to servlet
+
+		/* 순서대로 각 변수 내용 :
+		 * 	1. charter_avg : 사용자가 입력한 전세금을 가져오기 위해 input 태그인 name="charterDeposit"을 가져온 변수 
+		 *  2. deposit_avg : 사용자가 입력한 월세 보증금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수 
+		 *  3. monthly_avg : 사용자가 입력한 월세금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수
+		 *  4. safe_score  : 사용자가 입력한 안전 점수 비중치.
+		 *  5. cvt_socre   : 사용자가 입력한 편의 점수 비중치 */
+		const charter_avg = $('#charterInput input[name="charterDeposit"]').val();
+		const deposit_avg = $('#monthlyInput input[name="monthlyDeposit"]').val(); 
+		const monthly_avg = $('#monthlyInput input[name="monthlyMonth"]').val();
+		const safe_score = $('#myRange_safety').val();
+		const cvt_score = $('#myRange_convenience').val();
+
+		console.log("전세금 입력값 : " + charter_avg);
+		console.log("월세 보증금 입력값 : " + deposit_avg);
+		console.log("월세금 입력값 : " + monthly_avg);
+		console.log("안전 점수 입력값 : " + safe_score);
+		console.log("편의 점수 입력값 : " + cvt_score);
+
+		if (charter_avg != '') {
+			
+		    sendCharterRequest(charter_avg, safe_score, cvt_score)
+		        .then(data => {
+
+					if(data !== null) { showResult(data, 'charter'); }
+					else { return; }
+		        });
+		}
+
+		if (monthly_avg != ''){
+			
+		    sendMonthlyRequest(deposit_avg, monthly_avg, safe_score, cvt_score)
+		        .then(data => {
+
+					console.log('월세 요청 결과 : ' + data);
+					
+					if(data !== null) { showResult(data, 'monthly') }
+					else { return; }
+		        });
+		}
+}
+
+async function sendCharterRequest(charter_avg, safe_score, cvt_score) {
+    try {
+        const response = await fetch('./RecServiceController/charter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                charter_avg: parseInt(charter_avg),
+                safe_score: parseInt(safe_score),
+                cvt_score: parseInt(cvt_score)
+            })
+        });
+
+		if(response.status === 200) { return await response.json(); } // ❗ JSON 본문 반환 추가
+		else if (response.status === 400) {
+			
+           // 유효성 검증 실패 시, 에러 메시지를 JSON 형태로 파싱
+           const errorData = await response.json();
+           const messages = Object.values(errorData).join(' ');
+           alert(messages);
+       } 
+	   else { alert('관리자에게 문의 하세요.'); }
+	   
+	   return null;
+	   
+    } catch (error) {
+		
+        console.error('전세 요청 에러 발생:', error);
+        return null;
+    }
+}
+
+async function sendMonthlyRequest(deposit_avg, monthly_avg, safe_score, cvt_score) {
+    try {
+        const response = await fetch('./RecServiceController/monthly', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                deposit_avg: parseInt(deposit_avg),
+                monthly_avg: parseInt(monthly_avg),
+                safe_score: parseInt(safe_score),
+                cvt_score: parseInt(cvt_score)
+            })
+        });
+
+		if(response.status === 200) { return await response.json(); } // ❗ JSON 본문 반환 추가
+		else if (response.status === 400) {
+			
+           // 유효성 검증 실패 시, 에러 메시지를 JSON 형태로 파싱
+           const errorData = await response.json();
+           const messages = Object.values(errorData).join(' ');
+           alert(messages);
+       }
+	   else { alert('관리자에게 문의 하세요.'); }
+	   
+	   return null;
+	   
+    } catch (error) {
+		
+        console.error('전세 요청 에러 발생:', error);
+        return null;
+    }
+}
+
+function showResult(data, detail) {
+
 	/* DOM 조작 : 1. 사용자의 거주치 추천 위한 입력 정보(전/월세 선택, 금액, 편의성 및 안정성 비중 선택)에 대한 모든 HTML 태그를 보이지 않음.
                   2. 거주지 추천 결과인 3개 구 보일 각 메뉴를 "bloack" 설정. */
     document.getElementById("recommend_first").style.display = "none";
@@ -482,76 +595,26 @@ function showResult() {
         func.innerText = "◀";					// 해당 section 보여짐에 따라 열림 버튼 아닌 닫는 버튼으로 표현.
     }
 
-
-    // 거주지 추천 ajax to servlet
-    
-    /* 순서대로 각 변수 내용 :
-	 * 	1. charter_avg : 사용자가 입력한 전세금을 가져오기 위해 input 태그인 name="charterDeposit"을 가져온 변수 
-	 *  2. deposit_avg : 사용자가 입력한 월세 보증금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수 
-	 *  3. monthly_avg : 사용자가 입력한 월세금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수
-	 *  4. safe_score  : 사용자가 입력한 안전 점수 비중치.
-	 *  5. cvt_socre   : 사용자가 입력한 편의 점수 비중치 */
-    const charter_avg = $('#charterInput input[name="charterDeposit"]').val();
-    const deposit_avg = $('#monthlyInput input[name="monthlyDeposit"]').val(); 
-    const monthly_avg = $('#monthlyInput input[name="monthlyMonth"]').val();
-    const safe_score = $('#myRange_safety').val();
-    const cvt_score = $('#myRange_convenience').val();
-
-    console.log("전세금 입력값 : " + charter_avg);
-    console.log("월세 보증금 입력값 : " + deposit_avg);
-    console.log("월세금 입력값 : " + monthly_avg);
-    console.log("안전 점수 입력값 : " + safe_score);
-    console.log("편의 점수 입력값 : " + cvt_score);
-
-    /* 월세 관련 요청 */
-    $.ajax({
-        url: './RecServiceController/monthly',
-        type: 'POST',						/* 전송 TYPE : TEXT */
-        contentType: 'application/json',	/* JSON 데이터 전송 */
-        data : JSON.stringify({
-            deposit_avg: deposit_avg,			// 월세 보증금
-            monthly_avg: monthly_avg,			// 월세금
-            safe_score: safe_score,				// 안전 점수 비중치
-            cvt_score: cvt_score				// 편의 점수 비중치
-        }),
-        success: function (data) {
-            displayMonthly(data);		 /* 사용자가 입력한 금액 등의 기준으로 3개 구를 알려주는 HTML 태그 내 표현할 데이터들 */
-            showMap(data);               /* 기존에 생성된 폴리곤 객체를 초기화한 후, 새로운 추천 지역의 폴리곤을 다시 생성함. 즉, DBMS에서 조회한
-                                            추천 지역 3개(`List<RecServiceVO>`)를 JSON 형식으로 변환하여 HTTP 응답 본문으로 전달받고,
-                                            이를 기반으로 지도에 추천된 지역을 시각적으로 표시함. */
-            chart(data);
-            chart_update(data);
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error('에러 발생:', textStatus, errorThrown);
-        }
-    });
-
-    /* 전세 관련 요청 */
-    $.ajax({
-        url: './RecServiceController/charter',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            charter_avg: charter_avg,		// 전세금
-            safe_score: safe_score,			// 안전 점수 비중치
-            cvt_score: cvt_score				// 편의 점수 비중치
-        }),
-        success: function (data) {			/* 정상적인 응답 일 시 DBMS 내 조회된 거주지 지역구 3개('List<RecServiceVO>') 데이터를 @ResponseBody 로써 구성된 응답 데이터를 포함.
-        								    			(String으로 반환된 Json 데이터) */
-            displayCharter(data);			// 위와 동일.
-            showMap(data);
-            chart(data);			// chart.js 그리기
-            chart_update(data);
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error('에러 발생:', textStatus, errorThrown);
-        }
-    });
-
     /* 거주지 추천 결과 데이터 보여줄 시 각 구 별 제목 항목을 순차적으로 구성하기 위한 배열..이 데이터로 구성되는 부분은 각 3 개구 정보를 보여주거나 감출 수 있는 구 별 이름 및 화살표 표현 위함. */
-    var orders = ["first", "second", "third"];		// 사용자가 버튼 "추천결과확인" 하여 보여지는 추천 지역구 3개에 대한 정보를 HTML에 표현하기 위한 함수.
-
+    //var orders = ["first", "second", "third"];		// 사용자가 버튼 "추천결과확인" 하여 보여지는 추천 지역구 3개에 대한 정보를 HTML에 표현하기 위한 함수.
+	var orders = ["first", "second", "third"];
+	
+	/* [전세] */
+	if(detail === 'charter') {
+		displayCharter(data);
+		showMap(data);
+		chart(data);
+		chart_update(data);
+	}
+	
+	/* [월세] */
+	if(detail === 'monthly') {
+		displayMonthly(data);
+		chart(data);
+		chart_update(data);
+	}
+	
+	
     // 'showResult()' 내부에서 실행된 ajax 결과를 가지고 실제 사용자 화면 내 거주지 추천 결과로서 3가지 지역구 내용을 화면 내 갱신한다.
     function displayCharter(data) {		// DB 조회 결과인 추천 지역구 3개에 대한 Json 데이터를 String 형으로 가져온 것.
         console.log("전세 함수 실행");
@@ -928,7 +991,7 @@ function showResult() {
             displayArea(areas[i], populationArea[i], true);
             randIdx++;
         }
-        polygon_interval = setInterval(intervalFunc, 500);
+        //polygon_interval = setInterval(intervalFunc, 500);
     }
 }      // showResult() 종료.
 

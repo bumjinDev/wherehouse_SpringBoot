@@ -110,13 +110,6 @@ public class SecurityConfig {
 				
 				.requestMatchers(HttpMethod.POST,  "/members/edit").authenticated()
 				.requestMatchers(HttpMethod.DELETE,  "/members/edit").authenticated()
-
-				/* /members/join :
-				 * 	- GET  : 회원 가입 페이지 요청, 필터 적용하지 않음.
-				 * 	- POST : 회원 수정 페이지로부터의 실제 회원 가입 요청, 인가 검증 필요하므로 필터 적용
-				*/
-				
-//				.requestMatchers(HttpMethod.GET,  "/members/join").authenticated()
 				.anyRequest().permitAll()
     		)
             .csrf(csrf -> csrf.disable())
@@ -127,32 +120,6 @@ public class SecurityConfig {
 		        		 .accessDeniedHandler(new JwtAccessDeniedHandler()));               // 인가 실패 처리
         return http.build();
     }
-//    /* [게시글 서비스 - 게시글 목록 페이지] : 별도의 권한이 필요 없으나 CSP 정책 설정 목적의 필터 체인 설정 */
-//    @Bean
-//    public SecurityFilterChain boardServicePageListFilterChain(HttpSecurity http) throws Exception {
-//        http.securityMatcher("/boards/page/{id}")
-//            .formLogin(formLogin -> formLogin.disable()) // 폼 로그인 비활성화
-//            .csrf(csrf -> csrf.disable()) // CSRF 비활성화
-//            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//
-//        // CSP(Content Security Policy) 설정 업데이트
-//        http.headers(headers -> headers
-//    		.contentSecurityPolicy(csp -> csp
-//    	            .policyDirectives(
-//    	                "default-src 'self'; " +
-//    	                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://ajax.googleapis.com https://kit.fontawesome.com; " +
-//    	                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
-//    	                "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://kit.fontawesome.com https://ka-f.fontawesome.com; " +
-//    	                "img-src 'self' data:; " +
-//    	                "connect-src 'self' https://ka-f.fontawesome.com https://cdn.jsdelivr.net; " +
-//    	                "frame-ancestors 'self'; " +
-//    	                "worker-src 'self'; " +
-//    	                "object-src 'none';"
-//    	            )
-//    	     )
-//        );
-//        return http.build();
-//    }
     /* [게시글 서비스 - 모든 요청] : 각 요청 경로 및 HTTP Method 별 권한 필요한 위치 설정 */
     @Bean
     public SecurityFilterChain boardServcieFilterChain(HttpSecurity http) throws Exception {
