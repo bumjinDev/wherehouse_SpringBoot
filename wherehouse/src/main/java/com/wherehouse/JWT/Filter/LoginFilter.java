@@ -57,7 +57,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginFilter.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-	
 	private final RedisHandler redisHandler;
     private final JWTUtil jwtUtil;
     
@@ -71,10 +70,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
     }
 
-    /**
-     * 사용자의 인증 요청을 처리
-     * @return Authentication 인증 결과 객체 반환
-     */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
@@ -148,7 +143,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         
         return jwtToken;
     }
-
     /**
      * JWT 토큰을 응답 쿠키에 추가
      */

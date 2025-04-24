@@ -56,7 +56,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {    
         return new BCryptPasswordEncoder();
     }
-
     @Bean
     public UserAuthenticationProvider userAuthenticationProvider() {
         return new UserAuthenticationProvider(
@@ -65,14 +64,14 @@ public class SecurityConfig {
             bCryptPasswordEncoder()
         );
     }
-    @Bean
+    @Bean   
     public AuthenticationManager authenticationManager() throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
         ((ProviderManager) authenticationManager).getProviders().add(userAuthenticationProvider());
         return authenticationManager;
     }
     
-    /* [회원관리 서비스 - 로그인] : 로그인 요청 처리를 'UsernamePasswordAuthenticationFilter' 가 처리 */
+    /* [회원관리 서비스 - 로그인] : 로그인 요청 처리를 처리 */
     @Bean
     public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/login")
@@ -91,27 +90,17 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .addLogoutHandler(cookieLogoutHandler)
                 .logoutSuccessUrl("/")
-            );
-
-        return http.build();
+            );  return http.build();
     }
     /* [회원관리 서비스 - 모든 요청] : Spring MVC Controller 아닌 Spring Security Handler 적용. */
     @Bean
     public SecurityFilterChain membersServiceFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/members/**")
         .authorizeHttpRequests(auth -> auth
-				.requestMatchers("/members/loginSuccess").authenticated()	// 로그인 성공('loginFilterChain') 또는 메인 페이지(index.jsp) 로부터 요청 받아 'members/loginSucess.jsp' 요청
-																			// .hasAuthority("ROLE_USER") : 별도로 구분된 권한 필요 없음.
-				/* /members/edit :
-				 * 	- GET  : 회원 수정 페이지 요청, 로그인 상태임을 검증이 되어야지만 회원 수정 페이지 요청 가능
-				 * 	- POST : 회원 수정 요청, 로그인 상태임을 검증이 되어야지만 회원 수정 요청 가능
-				 * 굳이 메소드 별 나눌 필요 없으나 가독성 위한 작성
-				*/
-				
+				.requestMatchers("/members/loginSuccess").authenticated()
 				.requestMatchers(HttpMethod.POST,  "/members/edit").authenticated()
 				.requestMatchers(HttpMethod.DELETE,  "/members/edit").authenticated()
-				.anyRequest().permitAll()
-    		)
+				.anyRequest().permitAll())
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, redisHandler), UsernamePasswordAuthenticationFilter.class)
@@ -132,16 +121,9 @@ public class SecurityConfig {
                     "/boards/*/edit",         // 게시글 수정 페이지 요청 (GET /boards/edit?boardId=)
                     "/boards/comments"        // 댓글 작성 (POST /boards/comments)
                 ).authenticated()
-                
-                /* /boards/{id} :
-                 *  - POST : 글 수정
-                 *  - DELETE : 글 삭제
-                 *  - GET : 글 단순 선택 조회, GET 요청은 포함되면 안되므로 HTTP Method 별 정책 세분화. 
-                 */
                 .requestMatchers(HttpMethod.POST, "/boards/{id}").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/boards/{id}").authenticated()
-
-                .anyRequest().permitAll()  // hasAuthority("ROLE_USER") : 별도의 인가 권한 구분 필요하지 않음.
+                .anyRequest().permitAll()
             )
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -164,7 +146,6 @@ public class SecurityConfig {
 	                "worker-src 'self'; " +
 	                "object-src 'none';"
 	            )
-	    ));
-        return http.build();
+	    ));  return http.build();
     } 
 }

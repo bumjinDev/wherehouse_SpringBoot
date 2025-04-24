@@ -23,7 +23,6 @@ import com.wherehouse.board.service.IBoardService;
 public class BoardPageController {
 
     private final IBoardService boardService;
-
     private static final String BOARD_LIST_PAGE = "board/BoardListPage";
     private static final String CONTENT_PAGE = "board/ContentPage";
     private static final String WRITE_PAGE = "board/WritePage";
@@ -32,7 +31,6 @@ public class BoardPageController {
     public BoardPageController(IBoardService boardService) {
         this.boardService = boardService;
     }
-
     /**
      * 게시글 목록 페이지 요청 (페이지네이션 포함)
      *
@@ -45,7 +43,6 @@ public class BoardPageController {
         model.addAllAttributes(boardService.listBoards(pnIndex));
         return BOARD_LIST_PAGE;
     }
-
     /**
      * 특정 게시글 상세 페이지 요청
      *
@@ -58,7 +55,6 @@ public class BoardPageController {
         model.addAllAttributes(boardService.getBoardDetail(boardId));
         return CONTENT_PAGE;
     }
-
     /**
      * 게시글 작성 페이지 요청
      *
@@ -71,7 +67,6 @@ public class BoardPageController {
         model.addAllAttributes(boardService.getBoardCreationInfo(token));
         return WRITE_PAGE;
     }
-
     /**
      * 게시글 수정 페이지 요청
      *
@@ -88,7 +83,6 @@ public class BoardPageController {
         model.addAllAttributes(boardService.getBoardForUpdate(jwt, boardId));
         return CONTENT_EDIT_PAGE;
     }
-
     /**
      * 예외 상황 발생 시 예외 View 반환
      *
