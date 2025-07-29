@@ -60,12 +60,12 @@
 | **구현 배경** | **기술 선택 이유** |
 |-------------|------------------|  
 | 서버의 메모리 확장성 문제 해결 필요 | Stateless JWT로 서버 부하 분산, Redis로 세션 통제권 확보 |
-| 보안성과 확장성을 동시에 만족하는 인증 구조 필요 | JWT + Redis 하이브리드 방식으로 양쪽 장점 활용 |
+| 보안성과 확장성을 동시에 만족하는 인증 구조 필요 | JWT + Redis 방식으로 양쪽 장점 활용 |
 
 **구체적 구현 과정:**
-- **로그인 및 토큰 발급**: `LoginFilter`에서 JSON/Form 요청 모두 처리 → `UserAuthenticationProvider`의 ID/PW 검증 → `JWTUtil`로 HMAC-SHA256 서명 키와 JWT 생성 → **JWT를 Key, Base64 인코딩된 서명 키를 Value**로 Redis 저장 → HttpOnly, Secure 쿠키로 클라이언트 전달
-- **모든 요청 JWT 검증**: `JwtAuthProcessorFilter`가 쿠키에서 JWT 추출 → Redis에서 해당 서명 키 존재 확인 → 서명 키로 JWT 유효성 검증 → `SecurityContextHolder`에 사용자 정보 등록
-- **사용자 정보 변경 시 동기화**: `MemberService`에서 닉네임 수정 시 `JWTUtil.modifyClaim`으로 새 JWT 생성 → Redis에서 기존 토큰 삭제 후 새 토큰 저장 → 재로그인 없이 즉시 정보 반영
+- **로그인 및 토큰 발급**: 1) `LoginFilter`에서 JSON/Form 요청 모두 처리 2) `UserAuthenticationProvider`의 ID/PW 검증 3) `JWTUtil`로 HMAC-SHA256 서명 키와 JWT 생성 4) **JWT를 Key, Base64 인코딩된 서명 키를 Value**로 Redis 저장 5) HttpOnly, Secure 쿠키로 클라이언트 전달
+- **모든 요청 JWT 검증**: 1) `JwtAuthProcessorFilter`가 쿠키에서 JWT 추출 2) Redis에서 해당 서명 키 존재 확인 3) 서명 키로 JWT 유효성 검증 4) `SecurityContextHolder`에 사용자 정보 등록
+- **사용자 정보 변경 시 동기화**: 1) `MemberService`에서 닉네임 수정 시 `JWTUtil.modifyClaim`으로 새 JWT 생성 2) Redis에서 기존 토큰 삭제 후 새 토큰 저장 3) 재로그인 없이 즉시 정보 반영
 
 **관련 소스:** `LoginFilter.java`, `JwtAuthProcessorFilter.java`, `JWTUtil.java`, `MemberService.java`
 
@@ -77,8 +77,8 @@
 | 인증/인가 예외 처리의 혼재 | 401/403 시나리오별 커스텀 핸들러 분리 |
 
 **상세 구현:**
-- **FilterChain 분리**: `SecurityConfig`에서 `/login`, `/logout`, `/members/**`, `/boards/**` 각각 독립적 `@Bean` 등록 → `securityMatcher`로 적용 범위 제한 → 서비스별 맞춤 보안 정책 적용
-- **예외 처리 분리**: 인증 실패 시 `JwtAuthenticationFailureHandler`(401) → 쿠키 삭제 + 안내 메시지, 인가 실패 시 `JwtAccessDeniedHandler`(403) → 권한 부족 메시지 반환
+- **FilterChain 분리**: 1) `SecurityConfig`에서 `/login`, `/logout`, `/members/**`, `/boards/**` 각각 독립적 `@Bean` 등록 2) `securityMatcher`로 적용 범위 제한 3) 서비스별 맞춤 보안 정책 적용
+- **예외 처리 분리**: 1) 인증 실패 시 `JwtAuthenticationFailureHandler`(401) 동작하여 쿠키 삭제 + 안내 메시지 2) 인가 실패 시 `JwtAccessDeniedHandler`(403) 동작하여 권한 부족 메시지 반환
 
 **관련 소스:** `SecurityConfig.java`, `JwtAuthenticationFailureHandler.java`, `JwtAccessDeniedHandler.java`
 
@@ -90,8 +90,8 @@
 | 단일 TTL의 비효율성 | 데이터 성격별 차등 TTL 적용 |
 
 **구현 세부사항:**
-- **Cache-Aside 패턴**: `MapDataService`에서 Redis 캐시 우선 확인 → 캐시 미스 시에만 DB 조회 → 조회 결과를 Redis 저장 후 클라이언트 반환
-- **이원화 TTL 전략**: 변경 빈도가 낮은 전체 지도 데이터는 **24시간 TTL**, 사용자 선택 기반 특정 지역 데이터는 **1시간 TTL** → 데이터 정합성과 캐시 효율의 균형점 확보
+- **Cache-Aside 패턴**: 1) `MapDataService`에서 Redis 캐시 우선 확인 2) 캐시 미스 시에만 DB 조회 3) 조회 결과를 Redis 저장 후 클라이언트 반환
+- **이원화 TTL 전략**: 1) 변경 빈도가 낮은 전체 지도 데이터는 **24시간 TTL** 2) 사용자 선택 기반 특정 지역 데이터는 **1시간 TTL** 3) 데이터 정합성과 캐시 효율의 균형점 확보
 
 **성과:** 평균 응답 속도 **35% 단축**, SQL 쿼리 호출 **99% 감소**
 
@@ -106,8 +106,8 @@
 
 **세부 구현:**
 - **API-View 컨트롤러 분리**: JSON 응답용 `@RestController`와 JSP 렌더링용 `@Controller` 역할 명확 구분
-- **DTO-Entity 분리**: `BoardConverter`, `MemberConverter` 등 전용 변환 클래스로 서비스↔영속성 계층 간 데이터 변환 담당 → DB 구조 변경이 프레젠테이션 계층에 미치는 영향 차단
-- **도메인-보안 모델 분리**: 핵심 `MembersEntity`와 Spring Security 전용 `AuthenticationEntity`, `UserEntityDetails` 분리 → 프레임워크 변경 시에도 핵심 도메인 로직 보호
+- **DTO-Entity 분리**: 1) `BoardConverter`, `MemberConverter` 등 전용 변환 클래스로 서비스↔영속성 계층 간 데이터 변환 담당 2) DB 구조 변경이 프레젠테이션 계층에 미치는 영향 차단
+- **도메인-보안 모델 분리**: 1) 핵심 `MembersEntity`와 Spring Security 전용 `AuthenticationEntity`, `UserEntityDetails` 분리 2) 프레임워크 변경 시에도 핵심 도메인 로직 보호
 
 **관련 소스:** `BoardConverter.java`, `MemberConverter.java`, `MembersEntity.java`, `AuthenticationEntity.java`, `UserEntityDetails.java`
 
@@ -127,10 +127,10 @@
 | **설정 복잡성** | 단일 필터체인의 관리 어려움 | URL별 SecurityFilterChain 모듈화 | `SecurityConfig.java` |
 
 **상세 해결 과정:**
-- **JWT 서명**: 서버만 알고 있는 비밀 키로 HMAC-SHA256 서명 생성 → 제3자 토큰 변경 시 서명 검증 실패로 즉시 차단
-- **전송 암호화**: 모든 클라이언트-서버 통신을 HTTPS로 암호화 → 네트워크 스니핑을 통한 토큰 탈취 원천 차단
-- **XSS 방어**: JavaScript의 쿠키 접근을 차단하는 HttpOnly 속성 + 신뢰할 수 있는 도메인만 허용하는 CSP 정책
-- **BCrypt 해싱**: 자동 Salt 생성 + 여러 번 해싱 반복으로 동일 비밀번호도 매번 다른 해시 생성
+- **JWT 서명**: 1) 서버만 알고 있는 비밀 키로 HMAC-SHA256 서명 생성 2) 제3자 토큰 변경 시 서명 검증 실패로 즉시 차단
+- **전송 암호화**: 1) 모든 클라이언트-서버 통신을 HTTPS로 암호화 2) 네트워크 스니핑을 통한 토큰 탈취 원천 차단
+- **XSS 방어**: 1) JavaScript의 쿠키 접근을 차단하는 HttpOnly 속성 2) 신뢰할 수 있는 도메인만 허용하는 CSP 정책
+- **BCrypt 해싱**: 1) 자동 Salt 생성 + 여러 번 해싱 반복 2) 동일 비밀번호도 매번 다른 해시 생성
 
 ### **2. API 설계 및 안정성 확보**
 
@@ -142,9 +142,9 @@
 | **API 의도 불명확** | PathVariable과 RequestParam 혼용 | RESTful 원칙 기반 명확한 구분 | `BoardResourceController.java`, `BoardPageController.java` |
 
 **구체적 구현 과정:**
-- **방어적 API 설계**: 컨트롤러에서 `@Valid` 적용 → 서버 로직 실행 전 데이터 유효성 검증 → `MethodArgumentNotValidException` 발생 시 중앙 예외 핸들러에서 400 Bad Request + 구체적 오류 메시지 반환
-- **커스텀 검증**: 서울시 25개 구 + "미선택" 옵션을 `Set<String>`으로 관리하는 `RegionValidator` 구현 → DTO 필드에 `@RegionValid` 한 줄 추가만으로 도메인 검증 완료
-- **Null Safety**: JPA Repository 반환 타입을 `Optional<T>`로 지정 → 서비스에서 `.orElseThrow()` 패턴 일관 사용 → `if(result == null)` 같은 조건문 제거하고 명시적 비즈니스 예외로 전환
+- **방어적 API 설계**: 1) 컨트롤러에서 `@Valid` 적용 2) 서버 로직 실행 전 데이터 유효성 검증 3) `MethodArgumentNotValidException` 발생 시 중앙 예외 핸들러에서 400 Bad Request + 구체적 오류 메시지 반환
+- **커스텀 검증**: 1) 서울시 25개 구 + "미선택" 옵션을 `Set<String>`으로 관리하는 `RegionValidator` 구현 2) DTO 필드에 `@RegionValid` 한 줄 추가만으로 도메인 검증 완료
+- **Null Safety**: 1) JPA Repository 반환 타입을 `Optional<T>`로 지정 2) 서비스에서 `.orElseThrow()` 패턴 일관 사용 3) `if(result == null)` 같은 조건문 제거하고 명시적 비즈니스 예외로 전환
 
 ### **3. 예외 처리 및 흐름 제어**
 
@@ -155,9 +155,9 @@
 | **JWT 클레임 동기화** | 사용자 정보 수정 후 UI 미반영 | 토큰 재발급 및 강제 만료 전략 | `MemberService.java` |
 
 **상세 해결 과정:**
-- **중앙 집중식 처리**: `@RestControllerAdvice`로 모든 예외를 한 곳에서 처리 → 비즈니스 로직은 핵심 기능에만 집중 → 일관된 오류 응답 체계 구축
-- **예외 타입별 분리**: 인증되지 않은 사용자 접근 시 `AuthenticationEntryPoint`(401) 동작, 인증되었으나 권한 없는 접근 시 `AccessDeniedHandler`(403) 동작 → 시나리오별 명확한 상태 코드와 메시지 제공
-- **실시간 동기화**: 닉네임 수정 시 (1) Redis에서 기존 토큰 즉시 삭제로 무효화 (2) 변경 정보로 새 토큰 재발급 → 재로그인 없이 즉시 동기화된 정보 확인 가능
+- **중앙 집중식 처리**: 1) `@RestControllerAdvice`로 모든 예외를 한 곳에서 처리 2) 비즈니스 로직은 핵심 기능에만 집중 3) 일관된 오류 응답 체계 구축
+- **예외 타입별 분리**: 1) 인증되지 않은 사용자 접근 시 `AuthenticationEntryPoint`(401) 동작 2) 인증되었으나 권한 없는 접근 시 `AccessDeniedHandler`(403) 동작 3) 시나리오별 명확한 상태 코드와 메시지 제공
+- **실시간 동기화**: 1) 닉네임 수정 시 Redis에서 기존 토큰 즉시 삭제로 무효화 2) 변경 정보로 새 토큰 재발급 3) 재로그인 없이 즉시 동기화된 정보 확인 가능
 
 ### **4. 데이터베이스 최적화**
 
@@ -167,8 +167,8 @@
 | **페이징 성능 저하** | JPQL 변환 과정의 오버헤드 | Oracle 최적화 네이티브 쿼리 직접 작성 | `@Query(nativeQuery = true)` |
 
 **구체적 최적화 과정:**
-- **트랜잭션 보장**: 회원가입 시 여러 테이블 동시 저장 작업을 `@Transactional`로 묶어 원자적 단위 처리 → 중간 오류 발생 시 모든 작업 롤백으로 데이터 정합성 보장
-- **DB별 최적화**: Oracle의 `OFFSET-FETCH` 페이징 구문을 네이티브 쿼리로 직접 작성 → JPQL 변환 과정 생략하고 가장 효율적인 DB 페이징 구현
+- **트랜잭션 보장**: 1) 회원가입 시 여러 테이블 동시 저장 작업을 `@Transactional`로 묶어 원자적 단위 처리 2) 중간 오류 발생 시 모든 작업 롤백으로 데이터 정합성 보장
+- **DB별 최적화**: 1) Oracle의 `OFFSET-FETCH` 페이징 구문을 네이티브 쿼리로 직접 작성 2) JPQL 변환 과정 생략하고 가장 효율적인 DB 페이징 구현
 
 ---
 
