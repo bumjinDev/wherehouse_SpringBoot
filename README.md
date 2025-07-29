@@ -64,18 +64,18 @@
 
 **구체적 구현 과정:**
 - **로그인 및 토큰 발급**: 
-  1) `LoginFilter`에서 JSON/Form 요청 모두 처리 
-  2) `UserAuthenticationProvider`의 ID/PW 검증 
-  3) `JWTUtil`로 HMAC-SHA256 서명 키와 JWT 생성 
+  1) 로그인 필터에서 JSON/Form 요청 모두 처리 
+  2) 인증 프로바이더의 ID/PW 검증 
+  3) JWT 유틸리티로 HMAC-SHA256 서명 키와 JWT 생성 
   4) **JWT를 Key, Base64 인코딩된 서명 키를 Value**로 Redis 저장 
   5) HttpOnly, Secure 쿠키로 클라이언트 전달
 - **모든 요청 JWT 검증**: 
-  1) `JwtAuthProcessorFilter`가 쿠키에서 JWT 추출 
+  1) 인증 처리 필터가 쿠키에서 JWT 추출 
   2) Redis에서 해당 서명 키 존재 확인 
   3) 서명 키로 JWT 유효성 검증 
   4) `SecurityContextHolder`에 사용자 정보 등록
 - **사용자 정보 변경 시 동기화**: 
-  1) `MemberService`에서 닉네임 수정 시 `JWTUtil.modifyClaim`으로 새 JWT 생성 
+  1) 회원 서비스에서 닉네임 수정 시 클레임 수정으로 새 JWT 생성 
   2) Redis에서 기존 토큰 삭제 후 새 토큰 저장 
   3) 재로그인 없이 즉시 정보 반영
 
@@ -90,12 +90,12 @@
 
 **상세 구현:**
 - **FilterChain 분리**: 
-  1) `SecurityConfig`에서 `/login`, `/logout`, `/members/**`, `/boards/**` 각각 독립적 `@Bean` 등록 
+  1) 보안 설정에서 `/login`, `/logout`, `/members/**`, `/boards/**` 각각 독립적 `@Bean` 등록 
   2) `securityMatcher`로 적용 범위 제한 
   3) 서비스별 맞춤 보안 정책 적용
 - **예외 처리 분리**: 
-  1) 인증 실패 시 `JwtAuthenticationFailureHandler`(401) 동작하여 쿠키 삭제 + 안내 메시지 
-  2) 인가 실패 시 `JwtAccessDeniedHandler`(403) 동작하여 권한 부족 메시지 반환
+  1) 인증 실패 시 인증 실패 핸들러(401) 동작하여 쿠키 삭제 + 안내 메시지 
+  2) 인가 실패 시 접근 거부 핸들러(403) 동작하여 권한 부족 메시지 반환
 
 **관련 소스:** `SecurityConfig.java`, `JwtAuthenticationFailureHandler.java`, `JwtAccessDeniedHandler.java`
 
@@ -108,7 +108,7 @@
 
 **구현 세부사항:**
 - **Cache-Aside 패턴**: 
-  1) `MapDataService`에서 Redis 캐시 우선 확인 
+  1) 지도 데이터 서비스에서 Redis 캐시 우선 확인 
   2) 캐시 미스 시에만 DB 조회 
   3) 조회 결과를 Redis 저장 후 클라이언트 반환
 - **이원화 TTL 전략**: 
@@ -130,10 +130,10 @@
 **세부 구현:**
 - **API-View 컨트롤러 분리**: JSON 응답용 `@RestController`와 JSP 렌더링용 `@Controller` 역할 명확 구분
 - **DTO-Entity 분리**: 
-  1) `BoardConverter`, `MemberConverter` 등 전용 변환 클래스로 서비스↔영속성 계층 간 데이터 변환 담당 
+  1) 전용 변환 클래스로 서비스↔영속성 계층 간 데이터 변환 담당 
   2) DB 구조 변경이 프레젠테이션 계층에 미치는 영향 차단
 - **도메인-보안 모델 분리**: 
-  1) 핵심 `MembersEntity`와 Spring Security 전용 `AuthenticationEntity`, `UserEntityDetails` 분리 
+  1) 핵심 도메인 엔티티와 Spring Security 전용 인증 엔티티, 사용자 세부정보 분리 
   2) 프레임워크 변경 시에도 핵심 도메인 로직 보호
 
 **관련 소스:** `BoardConverter.java`, `MemberConverter.java`, `MembersEntity.java`, `AuthenticationEntity.java`, `UserEntityDetails.java`
@@ -182,8 +182,8 @@
   2) 서버 로직 실행 전 데이터 유효성 검증 
   3) `MethodArgumentNotValidException` 발생 시 중앙 예외 핸들러에서 400 Bad Request + 구체적 오류 메시지 반환
 - **커스텀 검증**: 
-  1) 서울시 25개 구 + "미선택" 옵션을 `Set<String>`으로 관리하는 `RegionValidator` 구현 
-  2) DTO 필드에 `@RegionValid` 한 줄 추가만으로 도메인 검증 완료
+  1) 서울시 25개 구 + "미선택" 옵션을 `Set<String>`으로 관리하는 지역 검증기 구현 
+  2) DTO 필드에 커스텀 어노테이션 한 줄 추가만으로 도메인 검증 완료
 - **Null Safety**: 
   1) JPA Repository 반환 타입을 `Optional<T>`로 지정 
   2) 서비스에서 `.orElseThrow()` 패턴 일관 사용 
@@ -198,14 +198,6 @@
 | **JWT 클레임 동기화** | 사용자 정보 수정 후 UI 미반영 | 토큰 재발급 및 강제 만료 전략 | `MemberService.java` |
 
 **상세 해결 과정:**
-- **중앙 집중식 처리**: 
-  1) `@RestControllerAdvice`로 모든 예외를 한 곳에서 처리 
-  2) 비즈니스 로직은 핵심 기능에만 집중 
-  3) 일관된 오류 응답 체계 구축
-- **예외 타입별 분리**: 
-  1) 인증되지 않은 사용자 접근 시 `AuthenticationEntryPoint`(401) 동작 
-  2) 인증되었으나 권한 없는 접근 시 `AccessDeniedHandler`(403) 동작 
-  3) 시나리오별 명확한 상태 코드와 메시지 제공
 - **실시간 동기화**: 
   1) 닉네임 수정 시 Redis에서 기존 토큰 즉시 삭제로 무효화 
   2) 변경 정보로 새 토큰 재발급 
