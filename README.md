@@ -53,66 +53,132 @@
 
 ---
 
-## 💻 기술 구현 내용
+## 💻 주요 기술 구현 내용
 
-### **핵심 기술 스택**
-| **분야** | **기술** | **구현 내용** |
-|---------|---------|-------------|
-| **Framework** | Spring Boot 3.x, Spring Security 6.x | RESTful API, JWT 인증, SecurityFilterChain 모듈화 |
-| **Database** | Oracle DB, Spring Data JPA, JdbcTemplate | 전략적 혼용, 네이티브 쿼리 최적화 |
-| **Cache** | Redis | Cache-Aside 패턴, 이원화 TTL 전략 (24h/1h) |
-| **Authentication** | JWT, HttpOnly Cookie | Stateless 인증, Redis 서명키 관리 |
-| **DevOps** | Jenkins, Docker, AWS EC2 | GitHub Webhook 연동, 자동 빌드/배포 |
+### **1. JWT와 Redis를 활용한 상태 관리형 인증 시스템**
 
-### **주요 구현 특징**
+| **구현 배경** | **기술 선택 이유** |
+|-------------|------------------|  
+| 서버의 메모리 확장성 문제 해결 필요 | Stateless JWT로 서버 부하 분산, Redis로 세션 통제권 확보 |
+| 보안성과 확장성을 동시에 만족하는 인증 구조 필요 | JWT + Redis 하이브리드 방식으로 양쪽 장점 활용 |
 
-| **기능** | **구현 방식** | **핵심 기술** |
-|---------|-------------|-------------|
-| **인증 시스템** | JWT + Redis 하이브리드 | `JwtAuthProcessorFilter`, `LoginFilter` |
-| **예외 처리** | 중앙 집중식 핸들러 | `@RestControllerAdvice`, `@ControllerAdvice` |
-| **데이터 검증** | 커스텀 어노테이션 | `@RegionValid`, `@Valid` |
-| **캐시 전략** | 데이터별 차등 TTL | 전체(24h) vs 지역별(1h) |
-| **보안 정책** | 다층 보안 아키텍처 | CSP, XSS 방어, CSRF 차단 |
-| **API 설계** | RESTful 원칙 준수 | `@PathVariable` vs `@RequestParam` 구분 |
+**구체적 구현 과정:**
+- **로그인 및 토큰 발급**: `LoginFilter`에서 JSON/Form 요청 모두 처리 → `UserAuthenticationProvider`의 ID/PW 검증 → `JWTUtil`로 HMAC-SHA256 서명 키와 JWT 생성 → **JWT를 Key, Base64 인코딩된 서명 키를 Value**로 Redis 저장 → HttpOnly, Secure 쿠키로 클라이언트 전달
+- **모든 요청 JWT 검증**: `JwtAuthProcessorFilter`가 쿠키에서 JWT 추출 → Redis에서 해당 서명 키 존재 확인 → 서명 키로 JWT 유효성 검증 → `SecurityContextHolder`에 사용자 정보 등록
+- **사용자 정보 변경 시 동기화**: `MemberService`에서 닉네임 수정 시 `JWTUtil.modifyClaim`으로 새 JWT 생성 → Redis에서 기존 토큰 삭제 후 새 토큰 저장 → 재로그인 없이 즉시 정보 반영
 
-### **성능 최적화 결과**
-| **항목** | **개선 전** | **개선 후** | **개선율** |
-|---------|------------|------------|-----------|
-| **평균 응답 속도** | 기준값 | 단축됨 | **35% ↓** |
-| **SQL 쿼리 호출** | 기준값 | 감소함 | **99% ↓** |
-| **캐시 적중률** | 0% | 높음 | **대폭 향상** |
+**관련 소스:** `LoginFilter.java`, `JwtAuthProcessorFilter.java`, `JWTUtil.java`, `MemberService.java`
+
+### **2. Spring Security FilterChain 모듈화**
+
+| **해결한 문제** | **구현 방식** |
+|-------------|-------------|
+| 단일 필터 체인의 복잡성과 경로별 다른 보안 요구사항 | URL 패턴별 독립적 SecurityFilterChain 구성 |
+| 인증/인가 예외 처리의 혼재 | 401/403 시나리오별 커스텀 핸들러 분리 |
+
+**상세 구현:**
+- **FilterChain 분리**: `SecurityConfig`에서 `/login`, `/logout`, `/members/**`, `/boards/**` 각각 독립적 `@Bean` 등록 → `securityMatcher`로 적용 범위 제한 → 서비스별 맞춤 보안 정책 적용
+- **예외 처리 분리**: 인증 실패 시 `JwtAuthenticationFailureHandler`(401) → 쿠키 삭제 + 안내 메시지, 인가 실패 시 `JwtAccessDeniedHandler`(403) → 권한 부족 메시지 반환
+
+**관련 소스:** `SecurityConfig.java`, `JwtAuthenticationFailureHandler.java`, `JwtAccessDeniedHandler.java`
+
+### **3. Redis 이원화 캐시 전략**
+
+| **성능 문제** | **해결 전략** |
+|-------------|-------------|
+| 반복적 DB 조회로 인한 응답 지연 | Cache-Aside 패턴 도입 |
+| 단일 TTL의 비효율성 | 데이터 성격별 차등 TTL 적용 |
+
+**구현 세부사항:**
+- **Cache-Aside 패턴**: `MapDataService`에서 Redis 캐시 우선 확인 → 캐시 미스 시에만 DB 조회 → 조회 결과를 Redis 저장 후 클라이언트 반환
+- **이원화 TTL 전략**: 변경 빈도가 낮은 전체 지도 데이터는 **24시간 TTL**, 사용자 선택 기반 특정 지역 데이터는 **1시간 TTL** → 데이터 정합성과 캐시 효율의 균형점 확보
+
+**성과:** 평균 응답 속도 **35% 단축**, SQL 쿼리 호출 **99% 감소**
+
+**관련 소스:** `MapDataService.java`
+
+### **4. 계층형 아키텍처 설계**
+
+| **설계 원칙** | **구현 목표** |
+|-------------|-------------|
+| 관심사의 분리(Separation of Concerns) | 각 계층의 독립성 확보 및 유지보수성 향상 |
+| 프레임워크 종속성 최소화 | 핵심 도메인과 기술적 세부사항 분리 |
+
+**세부 구현:**
+- **API-View 컨트롤러 분리**: JSON 응답용 `@RestController`와 JSP 렌더링용 `@Controller` 역할 명확 구분
+- **DTO-Entity 분리**: `BoardConverter`, `MemberConverter` 등 전용 변환 클래스로 서비스↔영속성 계층 간 데이터 변환 담당 → DB 구조 변경이 프레젠테이션 계층에 미치는 영향 차단
+- **도메인-보안 모델 분리**: 핵심 `MembersEntity`와 Spring Security 전용 `AuthenticationEntity`, `UserEntityDetails` 분리 → 프레임워크 변경 시에도 핵심 도메인 로직 보호
+
+**관련 소스:** `BoardConverter.java`, `MemberConverter.java`, `MembersEntity.java`, `AuthenticationEntity.java`, `UserEntityDetails.java`
 
 ---
 
 ## 🔧 문제 해결 방안
 
-### **1. 보안 강화**
-| **문제** | **해결책** | **구현 기술** |
-|---------|----------|-------------|
-| JWT 위변조 위험 | HMAC-SHA256 서명 적용 | `JWTUtil.java` |
-| XSS 공격 취약점 | HttpOnly 쿠키 + CSP 설정 | `SecurityConfig.java` |
-| 세션 무상태 관리 | Redis 서명키 저장소 | `RedisHandler` |
+### **1. 보안 강화 (Security Hardening)**
 
-### **2. 데이터 정합성**
-| **문제** | **해결책** | **구현 기술** |
-|---------|----------|-------------|
-| 다중 테이블 동시 업데이트 | `@Transactional` 적용 | `UserEntityDetailService.java` |
-| NULL 참조 예외 | `Optional` 패턴 도입 | `BoardService.java` |
-| 도메인 검증 중복 | 커스텀 어노테이션 | `@RegionValid` |
+| **보안 위협** | **문제 상황** | **해결책** | **구현 기술** |
+|-------------|-------------|----------|-------------|
+| **JWT 위변조** | 페이로드 디코딩 가능으로 무결성 보장 필요 | HMAC-SHA256 전자서명 적용 | `JWTUtil.java` |
+| **중간자 공격** | HTTP 평문 통신으로 토큰 노출 위험 | HTTPS 프로토콜 전면 적용 | 서버 설정 |
+| **XSS 공격** | 악성 스크립트의 쿠키 탈취 시도 | HttpOnly 쿠키 + CSP 헤더 설정 | `LoginFilter.java`, `SecurityConfig.java` |
+| **CSRF 공격** | 외부 사이트에서의 위조 요청 | SameSite 쿠키 속성 설정 | 쿠키 정책 |
+| **무차별 공격** | 비밀번호 해시 크래킹 시도 | BCrypt Salt + 반복 해싱 | `UserAuthenticationProvider.java` |
+| **설정 복잡성** | 단일 필터체인의 관리 어려움 | URL별 SecurityFilterChain 모듈화 | `SecurityConfig.java` |
 
-### **3. 성능 최적화**
-| **문제** | **해결책** | **구현 기술** |
-|---------|----------|-------------|
-| 반복적 DB 조회 | Redis 캐싱 도입 | `MapDataService.java` |
-| 캐시 효율성 저하 | 이원화 TTL 전략 | 24h(전체) / 1h(지역별) |
-| 복잡한 동적 쿼리 | JPA + JdbcTemplate 혼용 | `RecServiceEmpRepository.java` |
+**상세 해결 과정:**
+- **JWT 서명**: 서버만 알고 있는 비밀 키로 HMAC-SHA256 서명 생성 → 제3자 토큰 변경 시 서명 검증 실패로 즉시 차단
+- **전송 암호화**: 모든 클라이언트-서버 통신을 HTTPS로 암호화 → 네트워크 스니핑을 통한 토큰 탈취 원천 차단
+- **XSS 방어**: JavaScript의 쿠키 접근을 차단하는 HttpOnly 속성 + 신뢰할 수 있는 도메인만 허용하는 CSP 정책
+- **BCrypt 해싱**: 자동 Salt 생성 + 여러 번 해싱 반복으로 동일 비밀번호도 매번 다른 해시 생성
 
-### **4. 시스템 안정성**
-| **문제** | **해결책** | **구현 기술** |
-|---------|----------|-------------|
-| 예외 처리 분산 | 중앙 집중식 핸들러 | `@RestControllerAdvice` |
-| 인증/인가 혼재 | 401/403 명확 분리 | `AuthenticationEntryPoint` |
-| JWT 클레임 동기화 | 토큰 재발급 전략 | `MemberService.java` |
+### **2. API 설계 및 안정성 확보**
+
+| **API 문제점** | **발생 상황** | **해결 방안** | **구현 기술** |
+|-------------|-------------|-------------|-------------|
+| **데이터 검증 부재** | 클라이언트 유효하지 않은 데이터 전송 | @Valid 어노테이션 선제적 검증 | `BoardResourceController.java`, `RecCharterServiceRequestVO.java` |
+| **도메인 검증 중복** | 지역구 검증 로직이 여러 서비스에 산재 | @RegionValid 커스텀 어노테이션 구현 | `RegionValid.java`, `RegionValidator.java` |
+| **NPE 발생 위험** | null 반환 메서드의 예외 위험성 | Optional 패턴 일관 적용 | `BoardService.java`, `MemberService.java` |
+| **API 의도 불명확** | PathVariable과 RequestParam 혼용 | RESTful 원칙 기반 명확한 구분 | `BoardResourceController.java`, `BoardPageController.java` |
+
+**구체적 구현 과정:**
+- **방어적 API 설계**: 컨트롤러에서 `@Valid` 적용 → 서버 로직 실행 전 데이터 유효성 검증 → `MethodArgumentNotValidException` 발생 시 중앙 예외 핸들러에서 400 Bad Request + 구체적 오류 메시지 반환
+- **커스텀 검증**: 서울시 25개 구 + "미선택" 옵션을 `Set<String>`으로 관리하는 `RegionValidator` 구현 → DTO 필드에 `@RegionValid` 한 줄 추가만으로 도메인 검증 완료
+- **Null Safety**: JPA Repository 반환 타입을 `Optional<T>`로 지정 → 서비스에서 `.orElseThrow()` 패턴 일관 사용 → `if(result == null)` 같은 조건문 제거하고 명시적 비즈니스 예외로 전환
+
+### **3. 예외 처리 및 흐름 제어**
+
+| **예외 처리 문제** | **기존 방식의 한계** | **개선된 해결책** | **구현 기술** |
+|-----------------|-------------------|------------------|-------------|
+| **예외 로직 분산** | 비즈니스 로직에 try-catch 블록 산재 | 중앙 집중식 예외 핸들러 도입 | `@RestControllerAdvice`, `@ControllerAdvice` |
+| **인증/인가 혼재** | 401/403 동일 처리로 사용자 혼란 | Spring Security 예외 처리 책임 분리 | `AuthenticationEntryPoint`, `AccessDeniedHandler` |
+| **JWT 클레임 동기화** | 사용자 정보 수정 후 UI 미반영 | 토큰 재발급 및 강제 만료 전략 | `MemberService.java` |
+
+**상세 해결 과정:**
+- **중앙 집중식 처리**: `@RestControllerAdvice`로 모든 예외를 한 곳에서 처리 → 비즈니스 로직은 핵심 기능에만 집중 → 일관된 오류 응답 체계 구축
+- **예외 타입별 분리**: 인증되지 않은 사용자 접근 시 `AuthenticationEntryPoint`(401) 동작, 인증되었으나 권한 없는 접근 시 `AccessDeniedHandler`(403) 동작 → 시나리오별 명확한 상태 코드와 메시지 제공
+- **실시간 동기화**: 닉네임 수정 시 (1) Redis에서 기존 토큰 즉시 삭제로 무효화 (2) 변경 정보로 새 토큰 재발급 → 재로그인 없이 즉시 동기화된 정보 확인 가능
+
+### **4. 데이터베이스 최적화**
+
+| **DB 문제점** | **발생 원인** | **최적화 방안** | **구현 기술** |
+|-------------|-------------|-------------|-------------|
+| **데이터 정합성 위험** | 다중 테이블 업데이트 중 일부 실패 | @Transactional 원자적 처리 | `UserEntityDetailService.java` |
+| **페이징 성능 저하** | JPQL 변환 과정의 오버헤드 | Oracle 최적화 네이티브 쿼리 직접 작성 | `@Query(nativeQuery = true)` |
+
+**구체적 최적화 과정:**
+- **트랜잭션 보장**: 회원가입 시 여러 테이블 동시 저장 작업을 `@Transactional`로 묶어 원자적 단위 처리 → 중간 오류 발생 시 모든 작업 롤백으로 데이터 정합성 보장
+- **DB별 최적화**: Oracle의 `OFFSET-FETCH` 페이징 구문을 네이티브 쿼리로 직접 작성 → JPQL 변환 과정 생략하고 가장 효율적인 DB 페이징 구현
+
+---
+
+## 📈 성능 최적화 결과
+
+| **최적화 영역** | **개선 전** | **개선 후** | **개선율** | **핵심 기술** |
+|-------------|------------|------------|-----------|-------------|
+| **평균 응답 속도** | 기준값 | 단축됨 | **35% ↓** | Redis 이원화 캐시 |
+| **SQL 쿼리 호출** | 매번 DB 조회 | 캐시 우선 조회 | **99% ↓** | Cache-Aside 패턴 |
+| **캐시 적중률** | 0% (캐시 없음) | 높은 적중률 | **대폭 향상** | TTL 차등 전략 |
 
 ---
 
@@ -138,8 +204,7 @@ WhereHouse
 
 ### **[메인 페이지]**
 - 로그인/회원가입 진입점 역할을 수행하며, 전체 서비스의 라우팅 중심 역할을 합니다.
-- 상단 네비게이션 바를 통해 게시판, 추천 서비스, 마이페이지 등으로 접근이 가능하며,
-  로그인 상태에 따라 사용자 맞춤 UI가 표시됩니다.
+- 상단 네비게이션 바를 통해 게시판, 추천 서비스, 마이페이지 등으로 접근이 가능하며, 로그인 상태에 따라 사용자 맞춤 UI가 표시됩니다.
 
 ![메인 페이지](https://github.com/user-attachments/assets/8e2c3413-97a5-4380-884b-32c4bce70275)
 
