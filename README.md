@@ -59,7 +59,7 @@
 **Stateless한 JWT의 장점을 살리면서도, Redis를 통해 서버 측에서 세션을 통제할 수 있는 인증 시스템을 구현했습니다.**
 
 - **로그인 및 토큰 발급 프로세스**
-  - 로그인 요청 시 `LoginFilter`는 **JSON** 또는 **Form** 형식의 요청을 모두 처리합니다.
+  - 로그인 요청 시 `LoginFilter`는 **JSON** 요청을 처리합니다.
   - `UserAuthenticationProvider`에서 ID/PW 검증 성공 시, `JWTUtil`을 통해 **HMAC-SHA256 서명 키**와 **JWT**를 각각 생성합니다.
   - 생성된 **JWT 자체를 Key**로, **Base64로 인코딩된 서명 키를 Value**로 하여 Redis에 저장합니다.
   - 발급된 JWT는 **HttpOnly, Secure** 속성이 부여된 쿠키로 클라이언트에 전달하여 XSS 공격으로부터 토큰을 보호합니다.
