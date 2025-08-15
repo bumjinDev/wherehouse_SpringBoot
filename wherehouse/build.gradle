@@ -12,6 +12,7 @@ plugins {
 	//id 'war' // <-- 추가 
 }
 
+
 /*
 bootWar{			// war 배포 파일명
 	archiveBaseName = 'wherehouse'
@@ -19,6 +20,7 @@ bootWar{			// war 배포 파일명
     archiveVersion = "0.0.0"
 }
 */
+
 
 /*
     - group : 해당 프로젝트 개발하는 회사의 도메인(url)

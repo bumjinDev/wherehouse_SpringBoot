@@ -5,6 +5,7 @@ import java.security.Key;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,16 +26,17 @@ public class JwtAuthProcessorFilter extends OncePerRequestFilter {
 
     private final CookieUtil cookieUtil;
     private final JWTUtil jwtUtil;
-    private final RedisHandler redisHandler;
+    private final Environment env;
 
     public JwtAuthProcessorFilter(
     		CookieUtil cookieUtil,
     		JWTUtil jwtUtil,
-    		 RedisHandler redisHandler)
+            Environment env
+            )
     {
         this.cookieUtil = cookieUtil;
         this.jwtUtil = jwtUtil;
-        this.redisHandler = redisHandler;
+        this.env = env;
     }
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -43,31 +45,21 @@ public class JwtAuthProcessorFilter extends OncePerRequestFilter {
                                     throws ServletException, IOException {
         logger.info("JWTAuthenticationFilter - 요청 처리 시작");
         logger.info("HTTP Method: {}, URL: {}", request.getMethod(), request.getRequestURL());
+
         // 1. 쿠키에서 JWT 추출
         Optional<String> tokenOpt = Optional.ofNullable(
             cookieUtil.extractJwtFromCookies(request.getCookies(), AUTH_COOKIE_NAME));
+
+        // 2. Cookie 내 JWT 토큰이 포함 되어 있는 지 확인.
         if (tokenOpt.isEmpty()) {
             logger.warn("HTTPRequest Message 내 JWT 토큰이 존재하지 않음");
             filterChain.doFilter(request, response);
             return;
         }
-        String token = tokenOpt.get();
-        String keyValue = (String) redisHandler.getValueOperations().get(token);
-        /* 2. JWT 토큰에 대한 Redius 내 Key 데이터의 TTL 만료 여부 확인.  */
-        if(keyValue == null) {
-        	
-        	logger.warn("HTTPRequest Message 내 JWT 토큰에 대한 Key 값 만료.");
-            filterChain.doFilter(request, response);
-            return;
-        }
-        // 3. JWT에 대한 key 값을 가져온 후 이를 서명 키 생성 해서 가져오기
-        Optional<Key> keyOpt = jwtUtil.getSigningKeyFromToken(keyValue);
-        if (keyOpt.isEmpty()) {
-            logger.warn("JWT 서명 키 없음");
-            filterChain.doFilter(request, response);
-            return;
-        }
-        Key key = keyOpt.get();
+
+        String token = tokenOpt.get();  // Optional 객체 로부터 Token 문자열 가져 오기.
+        Key key = jwtUtil.getSigningKeyFromToken(env.getProperty("JWT_SECRET_KEY"));
+
         // 4. JWT 검증
         if (!jwtUtil.isValidToken(token, key)) {
             logger.warn("JWT 토큰 검증 실패");
@@ -75,7 +67,7 @@ public class JwtAuthProcessorFilter extends OncePerRequestFilter {
             return;
         }
         // 4. 사용자 ID 및 권한 추출
-        String userId = jwtUtil.extractUserId(token, key);
+        String userId = jwtUtil.extractUserId(token);
         
         var authorities = jwtUtil.extractRoles(token, key).stream()
                 .map(SimpleGrantedAuthority::new).toList();

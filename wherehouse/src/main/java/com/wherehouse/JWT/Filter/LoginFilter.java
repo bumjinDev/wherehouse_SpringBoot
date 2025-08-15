@@ -1,5 +1,6 @@
 package com.wherehouse.JWT.Filter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -57,16 +58,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginFilter.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-	private final RedisHandler redisHandler;
     private final JWTUtil jwtUtil;
     
     
-    public LoginFilter(AuthenticationManager authenticationManager, RedisHandler redisHandler, JWTUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         
     	super.setAuthenticationManager(authenticationManager);
     	this.setAuthenticationFailureHandler(new LoginAuthenticationFailureHandler());
-    	
-        this.redisHandler = redisHandler;
+
         this.jwtUtil = jwtUtil;
     }
 
@@ -79,23 +78,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String contentType = request.getContentType();
         logger.info("Content-Type: {}", contentType);
 
+
         LoginRequest loginRequest = null;
 
         try {
             if ("application/json".equalsIgnoreCase(contentType)) {
             	
             	loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+
             } else if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType)) {
 
                 loginRequest = new LoginRequest(
                     request.getParameter("userid"),
                     request.getParameter("password")); 
             }
-       } catch ( IOException e) { e.printStackTrace(); }
-        
+        } catch ( IOException e) { e.printStackTrace(); }
+
         // 인증 토큰 생성
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUserid(), loginRequest.getPassword());
+
         return getAuthenticationManager().authenticate(authToken);
     }
 
@@ -124,7 +126,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * @return 생성된 JWT 토큰 문자열
      */
     private String generateAndStoreJwt(Authentication authResult) {
-    	
+
         String username = authResult.getName();
         String userId = (String) authResult.getDetails();
 
@@ -137,9 +139,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Key key = jwtUtil.generateSigningKey();
         // JWT 토큰 생성
         String jwtToken = jwtUtil.generateToken(username, userId, roles, key);
-        // JWT 서명 키를 Redis에 저장 (JWT 만료 시간과 동일한 TTL 적용)
-        redisHandler.getValueOperations().set(jwtToken,
-                jwtUtil.encodeKeyToBase64(key));
         
         return jwtToken;
     }
@@ -147,12 +146,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * JWT 토큰을 응답 쿠키에 추가
      */
     private void addJwtToCookie(HttpServletResponse response, String jwtToken) {
+
         Cookie cookie = new Cookie("Authorization", jwtToken);
         cookie.setSecure(false);  // HTTPS에서만 사용
         cookie.setHttpOnly(true); // JavaScript 접근 방지
         cookie.setPath("/");      // 전체 경로에서 유효
         response.addCookie(cookie);
     }
+
     @Data
     @AllArgsConstructor
     static class LoginRequest {

@@ -83,8 +83,8 @@ public class BoardService implements IBoardService {
      * @return 복원된 서명 Key
      */
     private Key extractSigningKey(String token) {
-        String keyValue = (String) redisHandler.getValueOperations().get(token);
-        return jwtUtil.getSigningKeyFromToken(keyValue).orElseThrow();
+
+        return jwtUtil.getSigningKeyFromToken(token);
     }
 
     /**
@@ -99,7 +99,7 @@ public class BoardService implements IBoardService {
      * @return userId (String)
      */
     private String extractUserIdFromToken(String token) {
-        return jwtUtil.extractUserId(token, extractSigningKey(token));
+        return jwtUtil.extractUserId(token);
     }
 
     /**
@@ -114,7 +114,7 @@ public class BoardService implements IBoardService {
      * @return userName (String)
      */
     private String extractUserNameFromToken(String token) {
-        return jwtUtil.extractUsername(token, extractSigningKey(token));
+        return jwtUtil.extractUsername(token);
     }
 
     // ================== 게시글 목록 조회 ==================
@@ -245,21 +245,15 @@ public class BoardService implements IBoardService {
      * @return { boardId }
      */
     @Override
-    public ResponseEntity<Map<String, String>> createBoard(BoardDTO boardDTO, String token) {
+    public String createBoard(BoardDTO boardDTO, String token) {
         // (1) DTO 필드 설정
         boardDTO.setUserId(extractUserIdFromToken(token));
         boardDTO.setBoardHit(0);
         boardDTO.setBoardDate(Date.valueOf(LocalDate.now()));
 
         // (2) DB 저장, 변환된 DTO에서 boardId 추출
-        String boardId = String.valueOf(
+        return String.valueOf(
             boardConverter.toDTO(boardRepository.createBoard(boardConverter.toEntity(boardDTO))).getBoardId());
-
-        // (3) HTTP 201 생성 응답
-        return ResponseEntity
-            .status(201)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(Map.of("boardId", boardId));
     }
 
     // ================== 게시글 수정 페이지 진입 ==================
@@ -369,7 +363,7 @@ public class BoardService implements IBoardService {
      * @return HTTP 204 No Content
      */
     @Override
-    public ResponseEntity<Void> deleteBoard(int boardId, String token) {
+    public void deleteBoard(int boardId, String token) {
 
         logger.info("BoardDeleteService.deleteBoard()! boardId={}", boardId);
 
@@ -387,8 +381,6 @@ public class BoardService implements IBoardService {
         }
         // (4) 게시글 삭제
         boardRepository.deleteBoard(boardId);
-        // (5) 204 응답
-        return ResponseEntity.noContent().build();
     }
 
     // ================== 댓글 작성 ==================
@@ -418,13 +410,12 @@ public class BoardService implements IBoardService {
             .orElseThrow(() -> new BoardNotFoundException("댓글 작성 요청 대상 게시글이 이미 삭제되어 게시글을 작성할 수 없습니다."));
 
         // (3) VO에 사용자 정보 설정
-        commentVO.setUserId(jwtUtil.extractUserId(token, signingKey));
-        commentVO.setUserName(jwtUtil.extractUsername(token, signingKey));
+        commentVO.setUserId(jwtUtil.extractUserId(token));
+        commentVO.setUserName(jwtUtil.extractUsername(token));
 
         // (4) 댓글 저장
         boardRepository.createComment(commentConverter.toEntity(commentVO));
     }
-
     // ================== 게시글 인가 검증 ==================
 
     /**

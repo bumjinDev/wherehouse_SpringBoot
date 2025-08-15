@@ -51,7 +51,6 @@ public class MemberService implements IMemberService {
     private final IMembersRepository membersRepository;
     private final MemberEntityRepository memberEntityRepository;
     private final UserEntityRepository userEntityRepository;
-    private final RedisHandler redisHandler;
     private final JWTUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder;
     private final MemberConverter memberConverter;
@@ -74,7 +73,6 @@ public class MemberService implements IMemberService {
         this.membersRepository = membersRepository;
         this.memberEntityRepository = memberEntityRepository;
         this.userEntityRepository = userEntityRepository;
-        this.redisHandler = redisHandler;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
         this.memberConverter = memberConverter;
@@ -92,11 +90,10 @@ public class MemberService implements IMemberService {
     public Map<String, String> validLoginSuccess(String jwt) {
         logger.info("MemberService.validLogin()");
 
-        Key key = getKey(jwt);
         Map<String, String> loginSuccessInfo = new HashMap<>();
         
-        loginSuccessInfo.put("userId", jwtUtil.extractUserId(jwt, key));
-        loginSuccessInfo.put("userName", jwtUtil.extractUsername(jwt, key));
+        loginSuccessInfo.put("userId", jwtUtil.extractUserId(jwt));
+        loginSuccessInfo.put("userName", jwtUtil.extractUsername(jwt));
 
         return loginSuccessInfo;
     }
@@ -181,11 +178,7 @@ public class MemberService implements IMemberService {
             authenticationEntityConverter.toEntity(memberDTO, roles)
         );
 
-        Key userKey = getKey(currentToken);
-        String newToken = editToken(currentToken, userKey, "username", memberDTO.getNickName());
-        updateJwtToken(currentToken, newToken, userKey);
-
-        return newToken;
+        return editToken(currentToken, "username", memberDTO.getNickName());
     }
 
     // ======== 내부 헬퍼 메서드 ========
@@ -194,52 +187,11 @@ public class MemberService implements IMemberService {
      * 기존 JWT 토큰의 특정 클레임을 수정하여 새로운 토큰 반환
      *
      * @param currentToken 기존 JWT 문자열
-     * @param userKey JWT 서명 키
      * @param claimName 수정할 클레임 이름
      * @param newUsername 새 닉네임
      * @return 수정된 JWT 토큰 문자열
      */
-    private String editToken(String currentToken, Key userKey, String claimName, String newUsername) {
-        return jwtUtil.modifyClaim(currentToken, userKey, claimName, newUsername);
+    private String editToken(String currentToken, String claimName, String newUsername) {
+        return jwtUtil.modifyClaim(currentToken, claimName, newUsername);
     }
-
-    /**
-     * Redis 내 JWT 토큰 상태를 갱신한다.
-     * - 새로운 토큰과 키를 등록 (TTL: 1시간)
-     * - 기존 토큰과 키는 제거
-     *
-     * @param currentToken 기존 JWT
-     * @param newToken 갱신된 JWT
-     * @param userKey 서명 키
-     */
-    private void updateJwtToken(String currentToken, String newToken, Key userKey) {
-        logger.info("MemberService.updateJwtToken()");
-
-        redisHandler.getValueOperations().set(
-            newToken,
-            jwtUtil.encodeKeyToBase64(userKey),
-            Duration.ofHours(1)
-        );
-
-        redisHandler.getValueOperations().getAndDelete(currentToken);
     }
-
-    /**
-     * Redis에서 현재 토큰에 대응하는 서명 키를 복원한다.
-     *
-     * @param currentToken JWT 문자열
-     * @return 복원된 서명 키 객체
-     * @throws JwtKeyNotFoundException Redis에 키 정보가 존재하지 않는 경우
-     */
-    private Key getKey(String currentToken) {
-        logger.info("MemberService.getKey() : {}", currentToken);
-
-        String encodedKey = (String) redisHandler.getValueOperations().get(currentToken);
-        if (encodedKey == null) {
-            throw new JwtKeyNotFoundException("JWT 토큰에 대한 키 정보를 Redis에서 찾을 수 없습니다.");
-        }
-
-        byte[] decodedBytes = Base64.getUrlDecoder().decode(encodedKey);
-        return new SecretKeySpec(decodedBytes, "HmacSHA256");
-    }
-}

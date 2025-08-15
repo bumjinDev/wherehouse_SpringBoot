@@ -5,14 +5,12 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.security.Key;
-import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.core.env.Environment;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 /**
@@ -22,32 +20,34 @@ import org.springframework.stereotype.Component;
 public class JWTUtil {
 
     private static final long EXPIRATION_TIME = 3600000;
+    private final Environment env;
+
+    public JWTUtil(Environment env){
+        this.env = env;
+    }
 
     /**
      * HMAC-SHA256 서명 키를 생성
      */
     public Key generateSigningKey() {
-        byte[] keyBytes = new byte[32];
-        new SecureRandom().nextBytes(keyBytes);
+
+        String base64SecretKey = env.getProperty("JWT_SECRET_KEY");
+        // 값이 없을 경우를 대비한 예외 처리
+        Objects.requireNonNull(base64SecretKey, "JWT_SECRET_KEY 환경 변수가 설정되지 않았습니다.");
+        // 환경 변수 내 포함된 Hmac 키 값은 Base64 인코딩 상태 이므로 디코딩 적용.
+        byte[] keyBytes = Base64.getDecoder().decode(base64SecretKey);
+
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
 
-    /**
-     * Key 객체를 Base64 문자열로 변환
-     */
-    public String encodeKeyToBase64(Key key) {
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(key.getEncoded());
-    }
 
     /**
-     * JWT 에 해당하는 key 문자열(redis 추출)을 받아 서명 키 객체로 반환.
+     * Jwt 시그니처 Hmac key 문자열을 받아서 실제 서명 키 객체로 디코딩해서 반환.
      */
-    public Optional<Key> getSigningKeyFromToken(String keyString) {
+    public Key getSigningKeyFromToken(String keyString) {
          
-        return Optional.of(
-        		new SecretKeySpec(
-            Base64.getUrlDecoder().decode(keyString), SignatureAlgorithm.HS256.getJcaName()
-        ));
+        return new SecretKeySpec(
+            Base64.getDecoder().decode(keyString), SignatureAlgorithm.HS256.getJcaName());
     }
     
     /**
@@ -93,30 +93,30 @@ public class JWTUtil {
     /**
      * JWT 토큰에서 특정 클레임 수정 후 새로운 토큰 생성
      */
-    public String modifyClaim(String token, Key key, String claimName, Object newValue) {
-        Claims claims = extractAllClaims(token, key);
+    public String modifyClaim(String token, String claimName, Object newValue) {
+        Claims claims = extractAllClaims(token, getSigningKeyFromToken(getEnviormentKey()));
         claims.put(claimName, newValue);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + EXPIRATION_TIME))
-                .signWith(key)
+                .signWith(getSigningKeyFromToken(getEnviormentKey()))
                 .compact();
     }
     
     /**
      * JWT 토큰에서 사용자 ID 추출
      */
-    public String extractUserId(String token, Key key) {
-        return extractAllClaims(token, key).get("userId", String.class);
+    public String extractUserId(String token) {
+        return extractAllClaims(token, getSigningKeyFromToken(getEnviormentKey())).get("userId", String.class);
     }
 
     /**
      * JWT 토큰에서 사용자 이름 추출
      */
-    public String extractUsername(String token, Key key) {
-        return extractAllClaims(token, key).get("username", String.class);
+    public String extractUsername(String token) {
+        return extractAllClaims(token, getSigningKeyFromToken(getEnviormentKey())).get("username", String.class);
     }
 
     /**
@@ -134,9 +134,6 @@ public class JWTUtil {
         return List.of(); // 빈 리스트 반환
     }
 
-
-    
-    
     /**
      * JWT 토큰의 발급 시간 추출
      */
@@ -168,5 +165,10 @@ public class JWTUtil {
         Date expiration = extractExpiration(token, key);
         long remainingMillis = expiration.getTime() - System.currentTimeMillis();
         return remainingMillis > 0 ? Duration.ofMillis(remainingMillis) : Duration.ZERO;
+    }
+
+    private String getEnviormentKey() {
+
+        return env.getProperty("JWT_SECRET_KEY");
     }
 }

@@ -1,5 +1,8 @@
 package com.wherehouse.restapi.mapdata.service;
 
+import com.wherehouse.board.controller.BoardResourceController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -13,21 +16,28 @@ import java.util.*;
 @Service
 public class MapDataService implements IMapService {
 
-    @Autowired
+    private static final Logger logger = LoggerFactory.getLogger(MapDataService.class);
+
     private RedisTemplate<String, Map<String, List<Map<String, Double>>>> redisTemplateAllMapData;
-
-    @Autowired
     private RedisTemplate<String, List<MapDataEntity>> redisTemplateChoiceMapData;
-
-    @Autowired
     private MapDataRepository mapDataRepository;
+
+    public MapDataService(
+            RedisTemplate<String, Map<String, List<Map<String, Double>>>> redisTemplateAllMapData,
+            RedisTemplate<String, List<MapDataEntity>> redisTemplateChoiceMapData,
+            MapDataRepository mapDataRepository
+    ) {
+        this.redisTemplateAllMapData = redisTemplateAllMapData;
+        this.redisTemplateChoiceMapData = redisTemplateChoiceMapData;
+        this.mapDataRepository = mapDataRepository;
+    }
 
     /**
      * Table "MapDATA" 에서 모든 데이터를 가져옴 (cache-aside 패턴 적용).
      */
     public Map<String, List<Map<String, Double>>> getAllMapDataService() {
     	
-    	System.out.println("MapDataService.getAllMapDataService()!");
+    	logger.info("MapDataService.getAllMapDataService()!");
     	
         String cacheKey = "mapdata:all";
 
@@ -54,8 +64,8 @@ public class MapDataService implements IMapService {
      * cache-aside 패턴 적용: 캐시 조회 → 캐시 미스 발생 시 DB 조회 후 캐시에 저장.
      */
     public Map<String, List<Map<String, Double>>> getChoiceMapDataService(List<String> guNames) {
-    	
-    	System.out.println("MapDataService.getChoiceMapDataService()!");
+
+        logger.info("MapDataService.getChoiceMapDataService()!");
     	
         String cacheKeyPrefix = "mapdata:"; // 개별 지역구 키
 
@@ -143,5 +153,4 @@ public class MapDataService implements IMapService {
         }
         return filteredList;
     }
-
 }

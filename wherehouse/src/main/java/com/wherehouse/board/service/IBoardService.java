@@ -43,7 +43,7 @@ public interface IBoardService {
      * @throws BoardNotFoundException      게시글이 이미 없는 경우
      * @throws BoardAuthorizationException 작성자가 아닐 경우
      */
-    ResponseEntity<Void> deleteBoard(int boardId, String token);
+    void deleteBoard(int boardId, String token);
 
     /**
      * 페이지 단위로 게시글 목록을 조회합니다.
@@ -108,7 +108,7 @@ public interface IBoardService {
      * @param token   JWT 토큰
      * @return { boardId }를 담은 JSON 응답 (HTTP 201)
      */
-    ResponseEntity<Map<String, String>> createBoard(BoardDTO boardVO, String token);
+    String createBoard(BoardDTO boardVO, String token);
 
     /**
      * 특정 게시글에 대한 접근 권한(수정, 삭제 등)을 사전에 검증합니다.

@@ -35,7 +35,6 @@ public class RecServiceEmpRepository implements IRecServiceEmpRepository {
 	public List<RecServiceVO> chooseMonthlyRec(String query, Object[] params) {	
 		
 		logger.info("RecServiceEmpRepository.chooseMonthlyRec()!");
-		
         return jdbcTemplate.query(query, new EmpMapper(), params);
 	}
 	

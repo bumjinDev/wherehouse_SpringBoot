@@ -2,6 +2,7 @@ package com.wherehouse.JWT.SecurityConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -33,7 +34,7 @@ public class SecurityConfig {
     private final UserEntityRepository userEntityRepository;
     private final JWTUtil jwtUtil;
     private final CookieUtil cookieUtil;
-    private final RedisHandler redisHandler;
+    private final Environment env;
 
     public SecurityConfig(
     		
@@ -42,14 +43,14 @@ public class SecurityConfig {
         UserEntityRepository userEntityRepository,
         JWTUtil jwtUtil,
         CookieUtil cookieUtil,
-        RedisHandler redisHandler
+        Environment env
     ) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.userEntityDetailService = userEntityDetailService;
         this.userEntityRepository = userEntityRepository;
         this.jwtUtil = jwtUtil;
         this.cookieUtil = cookieUtil;
-        this.redisHandler = redisHandler;
+        this.env = env;
     }
 
     @Bean
@@ -77,7 +78,7 @@ public class SecurityConfig {
         http.securityMatcher("/login")
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAt(new LoginFilter(authenticationManager(), redisHandler, jwtUtil), UsernamePasswordAuthenticationFilter.class);
+            .addFilterAt(new LoginFilter(authenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
     /* [회원관리 서비스 - 로그 아웃] : Spring MVC Controller 아닌 Spring Security Handler 적용. */
@@ -103,7 +104,7 @@ public class SecurityConfig {
 				.anyRequest().permitAll())
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, redisHandler), UsernamePasswordAuthenticationFilter.class)
+            .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
 	        .exceptionHandling(exception ->
 		        exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler()) // JWT 인증 실패 시 실행될 핸들러 등록
 		        		 .accessDeniedHandler(new JwtAccessDeniedHandler()));               // 인가 실패 처리
@@ -127,7 +128,7 @@ public class SecurityConfig {
             )
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, redisHandler), UsernamePasswordAuthenticationFilter.class)
+            .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(exception ->
                 exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler())  // JWT 인증 실패 시 실행될 핸들러 등록
                          .accessDeniedHandler(new JwtAccessDeniedHandler())                // 인가 실패 처리

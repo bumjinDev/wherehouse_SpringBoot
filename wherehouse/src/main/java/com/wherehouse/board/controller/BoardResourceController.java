@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,13 +65,17 @@ public class BoardResourceController {
      * @param token       JWT 인증 토큰 (Authorization 쿠키)
      * @param boardWrite  게시글 작성 데이터 (제목, 지역, 본문 등)
      * @return 작성 성공 시 userId 포함 Map, 실패 시 예외 발생
-     * @throws MethodArgumentNotValidException 유효성 검증 실패 시 발생
      */
     @PostMapping("/")
     public ResponseEntity<Map<String, String>> writeBoard(
             @CookieValue(value = "Authorization", required = false) String token,
             @RequestBody @Valid BoardDTO boardWrite) {
-        return boardService.createBoard(boardWrite, token);
+        String boardId = boardService.createBoard(boardWrite, token);
+
+        return ResponseEntity
+                .status(201)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("boardId", boardId));
     }
 
     /**
@@ -100,7 +105,8 @@ public class BoardResourceController {
     public ResponseEntity<Void> deleteBoard(
             @CookieValue(value = "Authorization", required = false) String token,
             @PathVariable("boardId") int boardId) {
-        return boardService.deleteBoard(boardId, token);
+        boardService.deleteBoard(boardId, token);
+        return ResponseEntity.noContent().build();
     }
 
     /**

@@ -4,6 +4,7 @@ import com.wherehouse.board.model.BoardEntity;
 import com.wherehouse.board.model.CommentEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Optional;
  * - 게시글 및 댓글의 조회, 작성, 수정, 삭제, 조회수 증가 등의 기능을 제공합니다.
  * - 내부적으로 Spring Data JPA Repository를 활용하며, DB 예외 처리는 상위 계층에서 통합 관리합니다.
  */
-@Service
+@Repository
 public class BoardRepository implements IBoardRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardRepository.class);
@@ -136,5 +137,4 @@ public class BoardRepository implements IBoardRepository {
     public void createComment(CommentEntity comment) {
         commentEntityManger.save(comment);
     }
-
 }
