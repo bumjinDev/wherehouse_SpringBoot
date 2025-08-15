@@ -55,16 +55,16 @@
 
 ## 💻 주요 기술 구현 내용
 
-### **1. JWT와 Redis를 활용한 상태 관리형 인증 시스템**
+### **1. JWT를 활용한 Stateless 인증 시스템**
 
-> Stateless 아키텍처의 확장성과 Redis의 빠른 응답성을 결합하여, 서버 부하를 최소화하면서도 사용자 정보 변경에 실시간으로 대응할 수 있는 유연한 인증 시스템을 구축했습니다.
+> 서버의 확장성을 확보하고 클라이언트와의 결합도를 낮추기 위해, 순수 JWT 기반의 Stateless 인증 시스템을 구축했습니다.
 
 -   **인증 흐름 및 구현**:
-    -   **토큰 발급**: `LoginFilter`에서 ID/PW 인증 성공 시, 서버의 비밀 키로 서명된 **HMAC-SHA256 JWT**를 생성하여 **`HttpOnly`** 쿠키로 안전하게 클라이언트에 전달합니다.
-    -   **토큰 검증**: 모든 API 요청은 `JwtAuthProcessorFilter`를 통해 전달되며, 필터는 쿠키에서 JWT를 추출하여 서명을 검증합니다. 검증 완료 시 `SecurityContextHolder`에 사용자 정보를 등록하여 인가 프로세스에서 사용합니다.
-    -   **실시간 동기화**: `MemberService`에서 사용자 정보(예: 닉네임) 수정 시, 변경된 정보로 새 JWT를 즉시 재발급하고 기존 토큰을 무효화하여 재로그인 없이도 최신 정보가 UI에 반영되도록 구현했습니다.
+    -   **토큰 발급 및 검증**: 로그인 성공 시, 서버의 비밀 키로 서명된 **HMAC-SHA256 JWT**를 생성합니다. 모든 API 요청 시에는 이 서명을 검증하여 데이터의 무결성을 보장하며, 검증 완료 후 `SecurityContextHolder`에 사용자 정보를 등록하여 인가에 활용합니다.
+    -   **안전한 토큰 전송**: 생성된 토큰은 XSS 공격으로부터 보호하기 위해 **`HttpOnly`** 속성이 부여된 쿠키를 통해 안전하게 클라이언트에 전달됩니다.
+    -   **Stateless 로그아웃**: 로그아웃은 서버에 별도의 상태를 저장하는 대신, 클라이언트 측의 JWT 쿠키를 즉시 만료시키는 방식으로 구현하여 Stateless 아키텍처의 원칙을 유지합니다.
 
--   **관련 소스**: `LoginFilter.java`, `JwtAuthProcessorFilter.java`, `JWTUtil.java`, `MemberService.java`
+-   **관련 소스**: `LoginFilter.java`, `JwtAuthProcessorFilter.java`, `JWTUtil.java`, `CookieLogoutHandler.java`
 
 ---
 
@@ -265,5 +265,6 @@ WhereHouse
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-232F3E?style=for-the-badge&logo=amazonaws)
 
 ---
+
 
 
