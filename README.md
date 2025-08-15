@@ -57,82 +57,56 @@
 
 ### **1. JWT와 Redis를 활용한 상태 관리형 인증 시스템**
 
-| **구현 배경** | **기술 선택 이유** |
-|-------------|------------------|  
-| 서버의 메모리 부하 문제 해결 필요 | Stateless JWT로 서버 부하 분산 |
-| JWT 토큰 위변조 위험 | JWT 시그니처를 HMac 알고리즘 적용 |
+> Stateless 아키텍처의 확장성과 Redis의 빠른 응답성을 결합하여, 서버 부하를 최소화하면서도 사용자 정보 변경에 실시간으로 대응할 수 있는 유연한 인증 시스템을 구축했습니다.
 
-**구체적 구현 과정:**
-- **로그인 및 토큰 발급**: 
-  1) 인증 필터의 ID/PW 검증 
-  3) JWT 유틸리티로 HMAC-SHA256 서명 키와 JWT 생성 
-  4) HttpOnly, Secure 쿠키로 클라이언트 전달
-- **모든 요청 JWT 검증**: 
-  1) 인증 처리 필터가 쿠키에서 JWT 추출 
-  2) 서명 키로 JWT 유효성 검증 
-  4) `SecurityContextHolder`에 사용자 정보 등록
-- **사용자 정보 변경 시 동기화**: 
-  1) 회원 서비스에서 닉네임 수정 시 클레임 수정으로 새 JWT 생성 
-  2) 재로그인 없이 즉시 정보 반영
+-   **인증 흐름 및 구현**:
+    -   **토큰 발급**: `LoginFilter`에서 ID/PW 인증 성공 시, 서버의 비밀 키로 서명된 **HMAC-SHA256 JWT**를 생성하여 **`HttpOnly`** 쿠키로 안전하게 클라이언트에 전달합니다.
+    -   **토큰 검증**: 모든 API 요청은 `JwtAuthProcessorFilter`를 통해 전달되며, 필터는 쿠키에서 JWT를 추출하여 서명을 검증합니다. 검증 완료 시 `SecurityContextHolder`에 사용자 정보를 등록하여 인가 프로세스에서 사용합니다.
+    -   **실시간 동기화**: `MemberService`에서 사용자 정보(예: 닉네임) 수정 시, 변경된 정보로 새 JWT를 즉시 재발급하고 기존 토큰을 무효화하여 재로그인 없이도 최신 정보가 UI에 반영되도록 구현했습니다.
 
-**관련 소스:** `LoginFilter.java`, `JwtAuthProcessorFilter.java`, `JWTUtil.java`, `MemberService.java`
+-   **관련 소스**: `LoginFilter.java`, `JwtAuthProcessorFilter.java`, `JWTUtil.java`, `MemberService.java`
+
+---
 
 ### **2. Spring Security FilterChain 모듈화**
 
-| **해결한 문제** | **구현 방식** |
-|-------------|-------------|
-| 단일 필터 체인의 복잡성과 경로별 다른 보안 요구사항 | URL 패턴별 독립적 SecurityFilterChain 구성 |
-| 인증/인가 예외 처리의 혼재 | 401/403 시나리오별 커스텀 핸들러 분리 |
+> 단일 필터 체인으로 모든 경로의 보안을 관리할 때 발생하는 복잡성을 해결하기 위해, URL 패턴별로 보안 책임을 분리하는 모듈화된 구조를 도입하여 유지보수성과 유연성을 확보했습니다.
 
-**상세 구현:**
-- **FilterChain 분리**: 
-  1) 보안 설정에서 `/login`, `/logout`, `/members/**`, `/boards/**` 각각 독립적 `@Bean` 등록 
-  2) `securityMatcher`로 적용 범위 제한 
-  3) 서비스별 맞춤 보안 정책 적용
-- **예외 처리 분리**: 
-  1) 인증 실패 시 인증 실패 핸들러(401) 동작하여 쿠키 삭제 + 안내 메시지 
-  2) 인가 실패 시 접근 거부 핸들러(403) 동작하여 권한 부족 메시지 반환
+-   **핵심 구현**:
+    -   **FilterChain 분리**: `/login`, `/members/**`, `/boards/**` 등 주요 엔드포인트 별로 독립된 `SecurityFilterChain`을 `@Bean`으로 등록했습니다. `securityMatcher`를 통해 각 필터가 담당할 URL 범위를 명확히 지정하여 서비스별 최적화된 보안 정책을 적용했습니다.
+    -   **인증/인가 예외 처리 분리**: 시나리오별 명확한 피드백을 위해 예외 처리 책임을 분리했습니다.
+        -   **인증 실패 (401)**: `AuthenticationEntryPoint`를 커스텀하여 유효하지 않은 접근 시 쿠키 삭제 및 안내 메시지를 반환합니다.
+        -   **인가 실패 (403)**: `AccessDeniedHandler`를 커스텀하여 권한이 없는 리소스 접근 시 명확한 권한 부족 메시지를 전달합니다.
 
-**관련 소스:** `SecurityConfig.java`, `JwtAuthenticationFailureHandler.java`, `JwtAccessDeniedHandler.java`
+-   **관련 소스**: `SecurityConfig.java`, `JwtAuthenticationFailureHandler.java`, `JwtAccessDeniedHandler.java`
+
+---
 
 ### **3. Redis 이원화 캐시 전략**
 
-| **성능 문제** | **해결 전략** |
-|-------------|-------------|
-| 반복적 DB 조회로 인한 응답 지연 | Cache-Aside 패턴 도입 |
-| 단일 TTL의 비효율성 | 데이터 성격별 차등 TTL 적용 |
+> 반복적인 DB 조회로 인한 응답 지연을 해결하기 위해 **Cache-Aside 패턴**을 도입했습니다. 특히, 데이터의 변경 빈도에 따라 캐시 유효기간(TTL)을 차등 적용하는 **이원화 전략**으로 캐시 효율과 데이터 정합성을 동시에 확보했습니다.
 
-**구현 세부사항:**
-- **Cache-Aside 패턴**: 
-  1) 지도 데이터 서비스에서 Redis 캐시 우선 확인 
-  2) 캐시 미스 시에만 DB 조회 
-  3) 조회 결과를 Redis 저장 후 클라이언트 반환
-- **이원화 TTL 전략**: 
-  1) 변경 빈도가 낮은 전체 지도 데이터는 **24시간 TTL** 
-  2) 사용자 선택 기반 특정 지역 데이터는 **1시간 TTL** 
-  3) 데이터 정합성과 캐시 효율의 균형점 확보
+-   **구현 세부사항**:
+    -   **Cache-Aside 패턴**: 서비스 로직은 DB 조회 전 항상 Redis를 먼저 확인합니다. Cache Hit 시 DB 접근 없이 즉시 데이터를 반환하고, Cache Miss 발생 시에만 DB에서 데이터를 조회하여 Redis에 저장한 후 반환합니다.
+    -   **이원화 TTL 전략**:
+        -   **전체 지도 데이터 (변경 빈도 낮음)**: **24시간**의 긴 TTL을 설정하여 캐시 효율 극대화.
+        -   **사용자 선택 지역 데이터 (요청 기반)**: **1시간**의 짧은 TTL을 설정하여 데이터 최신성 확보.
+-   **성과**: **평균 응답 속도 35% 단축** 및 **SQL 쿼리 호출 99% 감소**.
 
-**성과:** 평균 응답 속도 **35% 단축**, SQL 쿼리 호출 **99% 감소**
+-   **관련 소스**: `MapDataService.java`
 
-**관련 소스:** `MapDataService.java`
+---
 
 ### **4. 계층형 아키텍처 설계**
 
-| **설계 원칙** | **구현 목표** |
-|-------------|-------------|
-| 관심사의 분리(Separation of Concerns) | 각 계층의 독립성 확보 및 유지보수성 향상 |
-| 프레임워크 종속성 최소화 | 핵심 도메인과 기술적 세부사항 분리 |
+> **관심사의 분리(SoC)** 원칙에 기반하여 각 계층의 독립성을 확보하고 유지보수성을 극대화했습니다. 특히 프레임워크 기술과 핵심 도메인 로직을 분리하여 시스템의 유연성을 높였습니다.
 
-**세부 구현:**
-- **API-View 컨트롤러 분리**: JSON 응답용 `@RestController`와 JSP 렌더링용 `@Controller` 역할 명확 구분
-- **DTO-Entity 분리**: 
-  1) 전용 변환 클래스로 서비스↔영속성 계층 간 데이터 변환 담당 
-  2) DB 구조 변경이 프레젠테이션 계층에 미치는 영향 차단
-- **도메인-보안 모델 분리**: 
-  1) 핵심 도메인 엔티티와 Spring Security 전용 인증 엔티티, 사용자 세부정보 분리 
-  2) 프레임워크 변경 시에도 핵심 도메인 로직 보호
+-   **세부 구현**:
+    -   **DTO-Entity 분리**: 클라이언트 통신을 위한 `DTO`와 영속성을 위한 `Entity`를 명확히 분리하고, 전용 `Converter`를 통해 계층 간 데이터 변환을 담당했습니다. 이를 통해 DB 스키마 변경이 프레젠테ATION 계층에 미치는 영향을 차단했습니다.
+    -   **API-View 컨트롤러 분리**: JSON 응답을 위한 `@RestController`와 JSP 페이지 렌더링을 위한 `@Controller`의 역할을 명확히 구분하여 설계했습니다.
+    -   **도메인-보안 모델 분리**: 핵심 비즈니스 로직을 담는 도메인 엔티티(`MembersEntity`)와 Spring Security 인증을 위한 보안 엔티티(`AuthenticationEntity`)를 분리하여 프레임워크 종속성을 최소화했습니다.
 
-**관련 소스:** `BoardConverter.java`, `MemberConverter.java`, `MembersEntity.java`, `AuthenticationEntity.java`, `UserEntityDetails.java`
+-   **관련 소스**: `BoardConverter.java`, `MemberConverter.java`, `MembersEntity.java`, `AuthenticationEntity.java`, `UserEntityDetails.java`
 
 ---
 
@@ -291,4 +265,5 @@ WhereHouse
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-232F3E?style=for-the-badge&logo=amazonaws)
 
 ---
+
 
