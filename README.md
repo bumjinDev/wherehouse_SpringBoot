@@ -264,14 +264,4 @@ WhereHouse
 ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens)
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-232F3E?style=for-the-badge&logo=amazonaws)
 
-<<<<<<< HEAD
 ---
-=======
----
-
-
-
-
-
-
->>>>>>> d0b8fe6ba94482a755ea0675ce3aac1486459182
