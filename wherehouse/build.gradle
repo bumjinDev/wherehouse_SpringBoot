@@ -102,7 +102,10 @@ dependencies {
 	
 	/* redis 의존성 추가 */
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	
+
+	// --- 이 아래에 Elasticsearch 의존성을 추가합니다. ---
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
 	// 외장 톰켓 애플리케이션 실행에 필요한 의존성 : war 배포 안할 시 꺼둘 것
 	//providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	
@@ -116,7 +119,8 @@ dependencies {
     
     // @Valid 의존성 : 컨트롤러 내 null 및 정규식 대로 값 잘 요청 들어 왔는지 검증
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    
+
+
     /* 테스트 관련 의존성 */
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

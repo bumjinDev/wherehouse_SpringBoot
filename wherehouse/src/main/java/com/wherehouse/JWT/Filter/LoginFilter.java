@@ -78,7 +78,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String contentType = request.getContentType();
         logger.info("Content-Type: {}", contentType);
 
-
         LoginRequest loginRequest = null;
 
         try {
@@ -97,14 +96,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 인증 토큰 생성
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUserid(), loginRequest.getPassword());
-
         return getAuthenticationManager().authenticate(authToken);
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authResult) {
-
     	logger.info("LoginFilter.successfulAuthentication - 사용자 : {}", authResult.getName());
         // JWT 생성 후 브러우저에 반환할 HostOnly 쿠키에 추가
         addJwtToCookie(response, generateAndStoreJwt(authResult));

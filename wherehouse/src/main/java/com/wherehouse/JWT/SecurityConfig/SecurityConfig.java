@@ -23,7 +23,6 @@ import com.wherehouse.JWT.Repository.UserEntityRepository;
 import com.wherehouse.JWT.UserDetailService.UserEntityDetailService;
 import com.wherehouse.JWT.exceptionHandler.JwtAccessDeniedHandler;
 import com.wherehouse.JWT.exceptionHandler.JwtAuthenticationFailureHandler;
-import com.wherehouse.redis.handler.RedisHandler;
 
 @Configuration
 @EnableWebSecurity

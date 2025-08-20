@@ -1,4 +1,7 @@
 package com.wherehouse.JWT.SecurityConfig;
+import com.wherehouse.board.dao.BoardRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -13,9 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class CookieLogoutHandler implements LogoutHandler {
 
-	@Autowired
-	RedisConfig redisConfig;
-	
+    private static final Logger logger = LoggerFactory.getLogger(CookieLogoutHandler.class);
+
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         // 로그아웃 수행 전 실행될 로직
@@ -33,12 +35,6 @@ public class CookieLogoutHandler implements LogoutHandler {
                 }
             }
         }
-
-        // 쿠키 값 출력
-        System.out.println("Cookie Authorization: " + Authorization);
-        
-        /* redis 서버에서 삭제. */
-        redisConfig.redisTemplate().delete(Authorization);
         
         /* 서버 측에서 쿠키를 보관중인 dbms 에 접근해서 삭제.. */
         /* jwtTokenRepository.deleteById(Authorization); */
@@ -50,8 +46,6 @@ public class CookieLogoutHandler implements LogoutHandler {
         System.out.println("HostOnly 쿠키 삭제 완료");
         
         if (authentication != null) {
-        	
-            System.out.println("로그아웃 사용자: " + authentication.getName());
-        }
+            logger.info("로그아웃 사용자: " + authentication.getName()); }
     }
 }
