@@ -254,10 +254,10 @@ public class CctvStatistics {
     @Column(name = "MANAGEMENT_PHONE", length = 20)
     private String managementPhone = "데이터없음";
 
-    @Column(name = "WGS84_LATITUDE", precision = 10, scale = 7)
+    @Column(name = "WGS84_LATITUDE")
     private Double wgs84Latitude = 0.0;
 
-    @Column(name = "WGS84_LONGITUDE", precision = 10, scale = 7)
+    @Column(name = "WGS84_LONGITUDE")
     private Double wgs84Longitude = 0.0;
 
     @Column(name = "DATA_BASE_DATE", length = 20)
@@ -337,31 +337,53 @@ public class CctvDataLoader implements CommandLineRunner {
             try (CSVReader reader = new CSVReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
                 List<String[]> csvData = reader.readAll();
                 
+                int totalRows = csvData.size() - 1; // 헤더 제외
                 int savedCount = 0;
+                int errorCount = 0;
+                
+                log.info("CCTV 데이터 로딩 시작 - 총 {} 건", totalRows);
+                
                 for (int i = 1; i < csvData.size(); i++) {
                     String[] row = csvData.get(i);
+                    
+                    // 진행률 출력 (100건마다)
+                    if (i % 100 == 0) {
+                        double progress = ((double) (i - 1) / totalRows) * 100;
+                        log.info("진행률: {:.1f}% ({}/{})", progress, i - 1, totalRows);
+                    }
+                    
                     if (row.length >= 14) {
-                        CctvStatistics cctv = CctvStatistics.builder()
-                                .managementAgency(parseString(row[1]))
-                                .roadAddress(parseString(row[2]))
-                                .jibunAddress(parseString(row[3]))
-                                .installPurpose(parseString(row[4]))
-                                .cameraCount(parseInteger(row[5]))
-                                .cameraPixel(parseInteger(row[6]))
-                                .shootingDirection(parseString(row[7]))
-                                .storageDays(parseInteger(row[8]))
-                                .installDate(parseString(row[9]))
-                                .managementPhone(parseString(row[10]))
-                                .wgs84Latitude(parseDouble(row[11]))
-                                .wgs84Longitude(parseDouble(row[12]))
-                                .dataBaseDate(parseString(row[13]))
-                                .build();
-                        
-                        cctvRepository.save(cctv);
-                        savedCount++;
+                        try {
+                            CctvStatistics cctv = CctvStatistics.builder()
+                                    .managementAgency(parseString(row[1]))
+                                    .roadAddress(parseString(row[2]))
+                                    .jibunAddress(parseString(row[3]))
+                                    .installPurpose(parseString(row[4]))
+                                    .cameraCount(parseInteger(row[5]))
+                                    .cameraPixel(parseInteger(row[6]))
+                                    .shootingDirection(parseString(row[7]))
+                                    .storageDays(parseInteger(row[8]))
+                                    .installDate(parseString(row[9]))
+                                    .managementPhone(parseString(row[10]))
+                                    .wgs84Latitude(parseDouble(row[11]))
+                                    .wgs84Longitude(parseDouble(row[12]))
+                                    .dataBaseDate(parseString(row[13]))
+                                    .build();
+                            
+                            cctvRepository.save(cctv);
+                            savedCount++;
+                        } catch (Exception e) {
+                            errorCount++;
+                            log.warn("{}번째 행 저장 실패: {}", i, e.getMessage());
+                        }
+                    } else {
+                        errorCount++;
+                        log.warn("{}번째 행 컬럼 부족 ({}개 < 14개)", i, row.length);
                     }
                 }
-                log.info("{} 개 CCTV 데이터 저장 완료", savedCount);
+                
+                log.info("CCTV 데이터 로딩 완료 - 성공: {}건, 실패: {}건, 전체: {}건", 
+                        savedCount, errorCount, totalRows);
             }
         } catch (Exception e) {
             log.error("CSV 로딩 실패: {}", e.getMessage());
