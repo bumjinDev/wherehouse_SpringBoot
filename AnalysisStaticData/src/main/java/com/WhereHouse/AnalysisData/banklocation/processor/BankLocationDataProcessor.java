@@ -1,0 +1,207 @@
+package com.WhereHouse.AnalysisData.banklocation.processor;
+
+import com.WhereHouse.AnalysisData.banklocation.entity.AnalysisBankLocationStatistics;
+import com.WhereHouse.AnalysisData.banklocation.repository.AnalysisBankLocationRepository;
+// 원본 데이터 접근을 위한 기존 패키지 import
+import com.WhereHouse.AnalysisStaticData.FinancialInstitutionDetail.Entity.BankStatistics;
+import com.WhereHouse.AnalysisStaticData.FinancialInstitutionDetail.Repository.BankStatisticsRepository;
+import com.WhereHouse.AnalysisStaticData.FinancialInstitutionSave.entity.FinancialInstitution;
+import com.WhereHouse.AnalysisStaticData.FinancialInstitutionSave.Repository.FinancialInstitutionRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * 은행 위치 데이터 분석용 테이블 생성 처리 컴포넌트
+ *
+ * 기존 BANK_STATISTICS 테이블에서 카카오맵 API로 수집된 데이터를 조회하여
+ * 분석 전용 ANALYSIS_BANK_LOCATION_STATISTICS 테이블로 복사하는 작업을 수행한다.
+ *
+ * 주요 기능:
+ * - 원본 은행 위치 데이터 조회 및 검증
+ * - PHONE, CREATED_AT 필드 제외한 모든 위치 정보 필드 복사
+ * - null 값을 적절한 기본값으로 변환 처리
+ * - 분석용 테이블 데이터 품질 검증
+ * - 구별 은행 밀도 및 브랜드 분포 순위 로깅
+ *
+ * @author Safety Analysis System
+ * @since 1.0
+ */
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class BankLocationDataProcessor {
+
+    // 원본 은행 위치 테이블 접근을 위한 Repository
+    private final BankStatisticsRepository originalBankRepository;
+
+    // 분석용 은행 위치 테이블 접근을 위한 Repository
+    private final AnalysisBankLocationRepository analysisBankLocationRepository;
+
+    /**
+     * 은행 위치 데이터 분석용 테이블 생성 메인 프로세스
+     *
+     * 작업 순서:
+     * 1. 기존 분석용 데이터 존재 여부 확인
+     * 2. 원본 은행 위치 데이터 조회 및 검증
+     * 3. 데이터 변환 및 분석용 테이블 저장
+     * 4. 데이터 품질 검증 및 결과 로깅
+     */
+    @Transactional
+    public void processAnalysisBankLocationData() {
+        log.info("=== 은행 위치 데이터 분석용 테이블 생성 작업 시작 ===");
+
+        // Step 1: 기존 분석용 데이터 중복 처리 방지를 위한 존재 여부 확인
+        long existingAnalysisDataCount = analysisBankLocationRepository.count();
+        if (existingAnalysisDataCount > 0) {
+            log.info("분석용 은행 위치 데이터가 이미 존재합니다 (총 {} 개). 작업을 스킵합니다.", existingAnalysisDataCount);
+            return;
+        }
+
+        // Step 2: 원본 은행 위치 데이터 조회 및 검증
+        List<BankStatistics> originalBankDataList = originalBankRepository.findAll();
+        if (originalBankDataList.isEmpty()) {
+            log.warn("원본 은행 위치 데이터가 존재하지 않습니다. 먼저 BankDataLoader를 통해 카카오맵 API 데이터를 수집해주세요.");
+            return;
+        }
+
+        log.info("원본 은행 위치 데이터 {} 개 지점 발견", originalBankDataList.size());
+
+        // Step 3: 데이터 변환 및 저장 작업 수행
+        int successfulConversionCount = 0;  // 성공적으로 변환된 데이터 개수
+        int failedConversionCount = 0;      // 변환 실패한 데이터 개수
+
+        for (BankStatistics originalBankData : originalBankDataList) {
+            try {
+                // 원본 데이터를 분석용 엔티티로 변환 (PHONE, CREATED_AT 필드 제외)
+                AnalysisBankLocationStatistics analysisTargetBankLocationData = convertToAnalysisEntity(originalBankData);
+
+                // 분석용 테이블에 데이터 저장
+                analysisBankLocationRepository.save(analysisTargetBankLocationData);
+                successfulConversionCount++;
+
+                log.debug("분석용 데이터 생성 완료: {} (구: {}, 좌표: {}, {})",
+                        originalBankData.getPlaceName(),
+                        originalBankData.getDistrict(),
+                        originalBankData.getLatitude(),
+                        originalBankData.getLongitude());
+
+            } catch (Exception dataConversionException) {
+                log.error("분석용 데이터 생성 실패 - 은행: {} (ID: {}), 오류: {}",
+                        originalBankData.getPlaceName(), originalBankData.getKakaoPlaceId(),
+                        dataConversionException.getMessage());
+                failedConversionCount++;
+            }
+        }
+
+        // Step 4: 변환 작업 결과 로깅
+        log.info("은행 위치 데이터 분석용 테이블 생성 작업 완료 - 성공: {} 개, 실패: {} 개",
+                successfulConversionCount, failedConversionCount);
+
+        // Step 5: 최종 데이터 검증 및 품질 확인
+        performFinalDataValidation();
+
+        log.info("=== 은행 위치 데이터 분석용 테이블 생성 작업 종료 ===");
+    }
+
+    /**
+     * 원본 은행 위치 엔티티를 분석용 엔티티로 변환
+     *
+     * PHONE, CREATED_AT 필드를 제외한 모든 위치 정보 필드를 복사한다.
+     * null 값은 적절한 기본값으로 변환 처리한다.
+     *
+     * @param originalBankData 원본 은행 위치 엔티티
+     * @return 분석용 은행 위치 엔티티
+     */
+    private AnalysisBankLocationStatistics convertToAnalysisEntity(BankStatistics originalBankData) {
+        return AnalysisBankLocationStatistics.builder()
+                // 카카오맵 정보
+                .kakaoPlaceId(handleNullString(originalBankData.getKakaoPlaceId()))          // 카카오 장소 ID
+                .placeName(handleNullString(originalBankData.getPlaceName()))               // 은행명
+                .categoryName(handleNullString(originalBankData.getCategoryName()))         // 카테고리명
+                .categoryGroupCode(handleNullString(originalBankData.getCategoryGroupCode())) // 카테고리 그룹 코드
+
+                // 주소 정보
+                .addressName(handleNullString(originalBankData.getAddressName()))           // 지번주소
+                .roadAddressName(handleNullString(originalBankData.getRoadAddressName()))   // 도로명주소
+
+                // 좌표 정보 (피어슨 상관분석 핵심 데이터)
+                .longitude(handleNullBigDecimal(originalBankData.getLongitude()))           // 경도
+                .latitude(handleNullBigDecimal(originalBankData.getLatitude()))             // 위도
+
+                // 추가 정보
+                .placeUrl(handleNullString(originalBankData.getPlaceUrl()))                 // 카카오맵 URL
+                .district(handleNullString(originalBankData.getDistrict()))                 // 구 정보
+                .bankBrand(handleNullString(originalBankData.getBankBrand()))               // 은행 브랜드
+                .build();
+    }
+
+    /**
+     * 문자열 null 값 처리 - null이면 "데이터없음"으로 변환
+     *
+     * @param value 원본 문자열 값
+     * @return null이면 "데이터없음", 아니면 원본 값
+     */
+    private String handleNullString(String value) {
+        return value != null ? value : "데이터없음";
+    }
+
+    /**
+     * BigDecimal null 값 처리 - null이면 0.0으로 변환
+     *
+     * @param value 원본 BigDecimal 값
+     * @return null이면 BigDecimal.ZERO, 아니면 원본 값
+     */
+    private BigDecimal handleNullBigDecimal(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
+    }
+
+    /**
+     * 분석용 데이터의 최종 검증 및 품질 확인
+     *
+     * 작업 내용:
+     * - 전체 데이터 개수 확인
+     * - 구별 은행 밀도 순위 상위 5개 로깅
+     * - 은행 브랜드별 분포 상위 5개 로깅
+     * - 데이터 검증 과정에서 발생하는 오류 처리
+     */
+    private void performFinalDataValidation() {
+        try {
+            // 최종 저장된 분석용 데이터 개수 확인
+            long finalAnalysisDataCount = analysisBankLocationRepository.count();
+            log.info("최종 분석용 은행 위치 데이터 저장 완료: {} 개 지점", finalAnalysisDataCount);
+
+            // 구별 은행 밀도 순위 조회 및 로깅 (피어슨 상관분석 검증용)
+            List<Object[]> districtBankDensityRankingList = analysisBankLocationRepository.findDistrictBankDensityRanking();
+            log.info("서울시 구별 은행 밀도 순위 (상위 5개구):");
+
+            districtBankDensityRankingList.stream()
+                    .limit(5)
+                    .forEach(rankingRow -> {
+                        String districtName = (String) rankingRow[0];         // 구 이름
+                        Long totalBankCount = (Long) rankingRow[1];           // 총 은행 지점 수
+                        log.info("  {} : {} 개 지점", districtName, totalBankCount);
+                    });
+
+            // 은행 브랜드별 분포 순위 조회 및 로깅
+            List<Object[]> bankBrandDistributionList = analysisBankLocationRepository.findBankBrandDistribution();
+            log.info("은행 브랜드별 지점 분포 (상위 5개 브랜드):");
+
+            bankBrandDistributionList.stream()
+                    .limit(5)
+                    .forEach(brandRow -> {
+                        String brandName = (String) brandRow[0];              // 브랜드 이름
+                        Long branchCount = (Long) brandRow[1];                // 지점 수
+                        log.info("  {} : {} 개 지점", brandName, branchCount);
+                    });
+
+        } catch (Exception dataValidationException) {
+            log.error("분석용 데이터 검증 과정에서 오류가 발생했습니다: {}",
+                    dataValidationException.getMessage(), dataValidationException);
+        }
+    }
+}
