@@ -1,172 +1,243 @@
 package com.WhereHouse.AnalysisData.hospital.processor;
 
-import com.WhereHouse.AnalysisData.hospital.entity.AnalysisHospitalStatistics;
-import com.WhereHouse.AnalysisData.hospital.repository.AnalysisHospitalRepository;
-// 원본 데이터 접근을 위한 기존 패키지 import
-import com.WhereHouse.AnalysisStaticData.HospitalSave.Entitiy.HospitalInfo;
-import com.WhereHouse.AnalysisStaticData.HospitalSave.Repository.HospitalInfoRepository;
+import com.WhereHouse.AnalysisData.hospital.entity.AnalysisHospitalData;
+import com.WhereHouse.AnalysisData.hospital.repository.AnalysisHospitalDataRepository;
+import com.WhereHouse.AnalysisData.hospital.service.KakaoCoordinateService;
+import com.WhereHouse.AnalysisStaticData.HospitalSave.entity.HospitalData;
+import com.WhereHouse.AnalysisStaticData.HospitalSave.repository.HospitalDataRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * 병원 데이터 분석용 테이블 생성 처리 컴포넌트
- *
- * 기존 HOSPITAL_INFO 테이블에서 데이터를 조회하여
- * 분석에 필요한 7개 컬럼만 선별하여
- * 분석 전용 ANALYSIS_HOSPITAL_STATISTICS 테이블로 저장하는 작업을 수행한다.
- *
- * 주요 기능:
- * - 원본 병원 데이터 조회 및 검증
- * - 필수 컬럼만 선별하여 직관적인 컬럼명으로 변경
- * - 분석용 테이블 데이터 품질 검증
- * - 구별 병원 개수 통계 로깅
- *
- * @author Safety Analysis System
- * @since 1.0
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class HospitalDataProcessor {
 
-    // 원본 병원 테이블 접근을 위한 Repository
-    private final HospitalInfoRepository originalHospitalRepository;
+    private final HospitalDataRepository hospitalDataRepository;
+    private final AnalysisHospitalDataRepository analysisHospitalDataRepository;
+    private final KakaoCoordinateService kakaoCoordinateService;
+    private final EntityManager entityManager;
 
-    // 분석용 병원 테이블 접근을 위한 Repository
-    private final AnalysisHospitalRepository analysisHospitalRepository;
+    private static final int BATCH_SIZE = 1000;
 
     /**
      * 병원 데이터 분석용 테이블 생성 메인 프로세스
-     *
-     * 작업 순서:
-     * 1. 기존 분석용 데이터 존재 여부 확인
-     * 2. 원본 병원 데이터 조회 및 검증
-     * 3. 필요한 7개 컬럼만 선별하여 변환
-     * 4. 분석용 테이블에 저장
-     * 5. 데이터 품질 검증 및 결과 로깅
      */
     @Transactional
-    public void processAnalysisHospitalData() {
+    public void processHospitalDataForAnalysis() {
         log.info("=== 병원 데이터 분석용 테이블 생성 작업 시작 ===");
+        LocalDateTime startTime = LocalDateTime.now();
 
-        // Step 1: 기존 분석용 데이터 중복 처리 방지를 위한 존재 여부 확인
-        long existingAnalysisDataCount = analysisHospitalRepository.count();
-        if (existingAnalysisDataCount > 0) {
-            log.info("분석용 병원 데이터가 이미 존재합니다 (총 {} 개). 작업을 스킵합니다.", existingAnalysisDataCount);
-            return;
+        // 기존 분석용 데이터 삭제 (선택사항)
+        log.info("기존 분석용 데이터 삭제 중...");
+        analysisHospitalDataRepository.deleteAll();
+        entityManager.flush();
+        entityManager.clear();
+
+        // 전체 데이터 개수 조회
+        long totalCount = hospitalDataRepository.count();
+        log.info("처리 대상 원천 데이터: {} 개", totalCount);
+
+        // 통계 변수 초기화
+        ProcessingStats stats = new ProcessingStats();
+        stats.totalSourceData = (int) totalCount;
+
+        // 배치 처리
+        int totalPages = (int) Math.ceil((double) totalCount / BATCH_SIZE);
+
+        for (int page = 0; page < totalPages; page++) {
+            processBatch(page, stats);
+
+            // 메모리 관리
+            entityManager.flush();
+            entityManager.clear();
+
+            // 진행률 로깅
+            int processed = (page + 1) * BATCH_SIZE;
+            int actualProcessed = Math.min(processed, (int) totalCount);
+            log.info("진행률: {}/{} ({:.1f}%)",
+                    actualProcessed, totalCount,
+                    (actualProcessed * 100.0 / totalCount));
         }
 
-        // Step 2: 원본 병원 데이터 조회 및 검증
-        List<HospitalInfo> originalHospitalDataList = originalHospitalRepository.findAll();
-        if (originalHospitalDataList.isEmpty()) {
-            log.warn("원본 병원 데이터가 존재하지 않습니다. 먼저 HospitalDataLoader를 통해 API 데이터를 로드해주세요.");
-            return;
-        }
+        // 최종 결과 출력
+        LocalDateTime endTime = LocalDateTime.now();
+        printFinalResults(stats, startTime, endTime);
+    }
 
-        log.info("원본 병원 데이터 {} 개 발견", originalHospitalDataList.size());
+    /**
+     * 배치 단위 데이터 처리
+     */
+    private void processBatch(int page, ProcessingStats stats) {
+        PageRequest pageRequest = PageRequest.of(page, BATCH_SIZE);
+        Page<HospitalData> hospitalDataPage = hospitalDataRepository.findAll(pageRequest);
 
-        // Step 3: 데이터 변환 및 저장 작업 수행
-        int successfulConversionCount = 0;  // 성공적으로 변환된 데이터 개수
-        int failedConversionCount = 0;      // 변환 실패한 데이터 개수
+        List<AnalysisHospitalData> batchList = new ArrayList<>();
 
-        for (HospitalInfo originalHospitalData : originalHospitalDataList) {
+        for (HospitalData sourceData : hospitalDataPage.getContent()) {
             try {
-                // 진행률 출력 (100개마다)
-                if ((successfulConversionCount + failedConversionCount) % 100 == 0) {
-                    double progress = ((double)(successfulConversionCount + failedConversionCount) / originalHospitalDataList.size()) * 100;
-                    log.info("진행률: {:.1f}% ({}/{})", progress,
-                            successfulConversionCount + failedConversionCount, originalHospitalDataList.size());
+                AnalysisHospitalData analysisData = convertToAnalysisData(sourceData, stats);
+                if (analysisData != null) {
+                    batchList.add(analysisData);
+                    stats.successfulConversions++;
                 }
-
-                // 원본 데이터를 분석용 엔티티로 변환 (7개 컬럼만 선별)
-                AnalysisHospitalStatistics analysisTargetHospitalData = convertToAnalysisEntity(originalHospitalData);
-
-                // 분석용 테이블에 데이터 저장
-                analysisHospitalRepository.save(analysisTargetHospitalData);
-                successfulConversionCount++;
-
-                log.debug("분석용 데이터 생성 완료: {} (구: {}, 종별: {})",
-                        originalHospitalData.getYadmNm(),
-                        analysisTargetHospitalData.getDistrictName(),
-                        analysisTargetHospitalData.getHospitalType());
-
-            } catch (Exception dataConversionException) {
-                log.error("분석용 데이터 생성 실패 - 병원명: {}, 오류: {}",
-                        originalHospitalData.getYadmNm(), dataConversionException.getMessage());
-                failedConversionCount++;
+            } catch (Exception e) {
+                stats.failedConversions++;
+                log.error("데이터 변환 실패 - ID: {}, 사업장명: {}, 오류: {}",
+                        sourceData.getId(), sourceData.getBusinessName(), e.getMessage());
             }
         }
 
-        // Step 4: 변환 작업 결과 로깅
-        log.info("병원 데이터 분석용 테이블 생성 작업 완료 - 성공: {} 개, 실패: {} 개",
-                successfulConversionCount, failedConversionCount);
-
-        // Step 5: 최종 데이터 검증 및 품질 확인
-        performFinalDataValidation();
-
-        log.info("=== 병원 데이터 분석용 테이블 생성 작업 종료 ===");
-    }
-
-    /**
-     * 원본 병원 데이터에서 필요한 7개 컬럼만 선별하여 분석용 엔티티로 변환
-     *
-     * 선별 컬럼:
-     * - YADM_NM → HOSPITAL_NAME (병원명)
-     * - CL_CD_NM → HOSPITAL_TYPE (종별명: 종합병원 등)
-     * - SIDO_CD_NM → SIDO_NAME (시도명: 서울)
-     * - SGGU_CD_NM → DISTRICT_NAME (시군구명: 강남구, 종로구 등)
-     * - ADDR → ADDRESS (주소)
-     * - X_POS → LONGITUDE (경도)
-     * - Y_POS → LATITUDE (위도)
-     *
-     * @param originalHospitalData 원본 병원 데이터 엔티티
-     * @return 필요한 컬럼만 포함된 분석용 병원 엔티티
-     */
-    private AnalysisHospitalStatistics convertToAnalysisEntity(HospitalInfo originalHospitalData) {
-        return AnalysisHospitalStatistics.builder()
-                .hospitalName(originalHospitalData.getYadmNm())           // 병원명
-                .hospitalType(originalHospitalData.getClCdNm())           // 종별명 (종합병원 등)
-                .sidoName(originalHospitalData.getSidoCdNm())             // 시도명 (서울)
-                .districtName(originalHospitalData.getSgguCdNm())         // 시군구명 (강남구 등)
-                .address(originalHospitalData.getAddr())                  // 주소
-                .longitude(originalHospitalData.getXPos())                // 경도
-                .latitude(originalHospitalData.getYPos())                 // 위도
-                .build();
-    }
-
-    /**
-     * 분석용 데이터의 최종 검증 및 품질 확인
-     *
-     * 작업 내용:
-     * - 전체 데이터 개수 확인
-     * - 구별 병원 개수 상위 5개 로깅
-     * - 데이터 검증 과정에서 발생하는 오류 처리
-     */
-    private void performFinalDataValidation() {
-        try {
-            // 최종 저장된 분석용 데이터 개수 확인
-            long finalAnalysisDataCount = analysisHospitalRepository.count();
-            log.info("최종 분석용 병원 데이터 저장 완료: {} 개", finalAnalysisDataCount);
-
-            // 구별 병원 개수 조회 및 로깅 (피어슨 상관분석 검증용)
-            List<Object[]> districtHospitalCountList = analysisHospitalRepository.findHospitalCountByDistrict();
-            log.info("서울시 구별 병원 개수 순위 (상위 5개구):");
-
-            districtHospitalCountList.stream()
-                    .limit(5)
-                    .forEach(rankingRow -> {
-                        String districtName = (String) rankingRow[0];    // 구 이름
-                        Long hospitalCount = (Long) rankingRow[1];       // 병원 개수
-                        log.info("  {} : {} 개", districtName, hospitalCount);
-                    });
-
-        } catch (Exception dataValidationException) {
-            log.error("분석용 데이터 검증 과정에서 오류가 발생했습니다: {}",
-                    dataValidationException.getMessage(), dataValidationException);
+        // 배치 저장
+        if (!batchList.isEmpty()) {
+            analysisHospitalDataRepository.saveAll(batchList);
         }
+    }
+
+    /**
+     * 원천 데이터를 분석용 데이터로 변환
+     */
+    private AnalysisHospitalData convertToAnalysisData(HospitalData sourceData, ProcessingStats stats) {
+        AnalysisHospitalData.AnalysisHospitalDataBuilder builder = AnalysisHospitalData.builder();
+
+        // 기본 정보 변환 (NULL 처리 적용)
+        builder.businessName(processStringField(sourceData.getBusinessName()))
+                .businessTypeName(processStringField(sourceData.getBusinessTypeName()))
+                .detailedStatusName(processStringField(sourceData.getDetailedStatusName()))
+                .phoneNumber(processStringField(sourceData.getPhoneNumber()))
+                .lotAddress(processStringField(sourceData.getLotAddress()))
+                .roadAddress(processStringField(sourceData.getRoadAddress()));
+
+        // 상세영업상태별 통계 업데이트
+        String statusName = sourceData.getDetailedStatusName();
+        stats.statusDistribution.merge(statusName != null ? statusName : "데이터없음", 1, Integer::sum);
+
+        // 업종별 통계 업데이트
+        String businessType = sourceData.getBusinessTypeName();
+        stats.businessTypeDistribution.merge(businessType != null ? businessType : "데이터없음", 1, Integer::sum);
+
+        // 좌표 계산 (기존 좌표는 무시하고 Kakao API로만 계산)
+        BigDecimal[] coordinates = kakaoCoordinateService.getCoordinates(
+                sourceData.getRoadAddress(),
+                sourceData.getLotAddress(),
+                sourceData.getBusinessName()
+        );
+
+        if (coordinates != null) {
+            builder.latitude(coordinates[0])
+                    .longitude(coordinates[1]);
+            stats.successfulCoordinates++;
+        } else {
+            // 좌표 계산 실패 시 NULL로 저장
+            builder.latitude(null)
+                    .longitude(null);
+            stats.failedCoordinates++;
+        }
+
+        return builder.build();
+    }
+
+    /**
+     * 문자열 필드 NULL 처리
+     */
+    private String processStringField(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return "데이터없음";
+        }
+        return value.trim();
+    }
+
+    /**
+     * 최종 결과 출력
+     */
+    private void printFinalResults(ProcessingStats stats, LocalDateTime startTime, LocalDateTime endTime) {
+        long processingTimeSeconds = java.time.Duration.between(startTime, endTime).getSeconds();
+        long minutes = processingTimeSeconds / 60;
+        long seconds = processingTimeSeconds % 60;
+
+        log.info("\n=== 병원 데이터 분석용 테이블 생성 작업 완료 ===");
+        log.info("- 원천 데이터: {} 개", stats.totalSourceData);
+        log.info("- 데이터 변환: 성공 {} 개, 실패 {} 개",
+                stats.successfulConversions, stats.failedConversions);
+
+        if (stats.successfulConversions > 0) {
+            double coordinateSuccessRate = (stats.successfulCoordinates * 100.0) / stats.successfulConversions;
+            log.info("- 좌표 계산: 성공 {} 개 ({:.1f}%), 실패 {} 개 ({:.1f}%)",
+                    stats.successfulCoordinates, coordinateSuccessRate,
+                    stats.failedCoordinates, (100.0 - coordinateSuccessRate));
+        }
+
+        // 업종별 분포 (상위 10개)
+        log.info("- 업종별 분포:");
+        stats.businessTypeDistribution.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(10)
+                .forEach(entry -> log.info("  {} : {} 개", entry.getKey(), entry.getValue()));
+
+        // 상세영업상태별 분포
+        log.info("- 상세영업상태별 분포:");
+        stats.statusDistribution.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .forEach(entry -> log.info("  {} : {} 개", entry.getKey(), entry.getValue()));
+
+        log.info("- 처리 시간: {}분 {}초", minutes, seconds);
+        log.info("- 완료 시각: {}", endTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        log.info("===========================================\n");
+    }
+
+    /**
+     * 데이터 품질 검증 메서드
+     */
+    public void validateDataQuality() {
+        log.info("\n=== 데이터 품질 검증 ===");
+
+        Long totalCount = analysisHospitalDataRepository.getTotalCount();
+        Long coordinateCount = analysisHospitalDataRepository.getCoordinateCount();
+
+        if (totalCount != null && coordinateCount != null) {
+            double completionRate = (coordinateCount * 100.0) / totalCount;
+            log.info("전체 데이터: {} 개", totalCount);
+            log.info("좌표 보유: {} 개 ({:.1f}%)", coordinateCount, completionRate);
+        }
+
+        // 업종별 분포 확인
+        List<Object[]> businessTypeStats = analysisHospitalDataRepository.countByBusinessType();
+        log.info("업종별 분포:");
+        businessTypeStats.forEach(stat ->
+                log.info("  {} : {} 개", stat[0], stat[1]));
+
+        // 상세영업상태별 분포 확인
+        List<Object[]> statusStats = analysisHospitalDataRepository.countByDetailedStatus();
+        log.info("상세영업상태별 분포:");
+        statusStats.forEach(stat ->
+                log.info("  {} : {} 개", stat[0], stat[1]));
+
+        log.info("========================\n");
+    }
+
+    /**
+     * 처리 통계 클래스
+     */
+    private static class ProcessingStats {
+        int totalSourceData = 0;
+        int successfulConversions = 0;
+        int failedConversions = 0;
+        int successfulCoordinates = 0;
+        int failedCoordinates = 0;
+        Map<String, Integer> businessTypeDistribution = new HashMap<>();
+        Map<String, Integer> statusDistribution = new HashMap<>();
     }
 }
