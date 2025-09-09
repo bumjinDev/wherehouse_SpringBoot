@@ -18,8 +18,6 @@ import com.wherehouse.AnalysisData.residentcenter.processor.ResidentCenterDataPr
 import com.wherehouse.AnalysisData.school.processor.SchoolDataProcessor;
 import com.wherehouse.AnalysisData.streetlight.processor.StreetlightDataProcessor;
 import com.wherehouse.AnalysisData.subway.processor.SubwayStationDataProcessor;
-import com.wherehouse.AnalysisData.school.processor.SchoolDataProcessor;
-
 import com.wherehouse.AnalysisData.university.processor.UniversityDataProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +37,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class AnalysisDataProcessor implements CommandLineRunner {
 
-    // 20개의 각 데이터 처리 컴포넌트를 의존성 주입 (final 키워드로 불변성 보장)
+    // 각 데이터 처리 컴포넌트를 의존성 주입 (final 키워드로 불변성 보장)
     private final CrimeDataProcessor crimeDataProcessor;
     private final PopulationDataProcessor populationDataProcessor;
     private final CctvDataProcessor cctvDataProcessor;
@@ -70,29 +68,28 @@ public class AnalysisDataProcessor implements CommandLineRunner {
         long totalStartTime = System.currentTimeMillis();
 
         try {
-            // 각 데이터 처리기를 정해진 순서대로 실행
-//            analysisDataSet.put("crimeData", executeProcessor("범죄 수 통계", crimeDataProcessor::getCrimeCountMapByDistrict));
-//            analysisDataSet.put("cctvData", executeProcessor("CCTV", cctvDataProcessor::getCctvCountMapByDistrict));
-//             analysisDataSet.put("cinemaData", executeProcessor("영화관", cinemaDataProcessor::getActiveCinemaCountMapByDistrict));
-//            analysisDataSet.put("convenienceStoreData", executeProcessor("편의점_영업수", convenienceStoreDataProcessor::getActiveConvenienceStoreCountMapByDistrict));
-//            analysisDataSet.put("populationData", executeProcessor("인구 수", populationDataProcessor::getPopulationCountOnlyMapByDistrict));
-//            analysisDataSet.put("pcBangData", executeProcessor("PC방", pcBangDataProcessor::getPcBangCountMapByDistrict));
-//            analysisDataSet.put("streetlightData", executeProcessor("가로등", streetlightDataProcessor::getStreetlightCountMapByDistrict));
-//            analysisDataSet.put("hospitalData", executeProcessor("병원", hospitalDataProcessor::getActiveHospitalCountMapByDistrict));
-//            analysisDataSet.put("policeFacilityData", executeProcessor("경찰시설", policeFacilityDataProcessor::getPoliceFacilityCountMapByDistrict));
-//            analysisDataSet.put("karaokeRoomData", executeProcessor("노래연습장", karaokeRoomDataProcessor::getActiveKaraokeRoomCountMapByDistrict));
-//            analysisDataSet.put("danranBarData", executeProcessor("단란주점", danranBarDataProcessor::getDanranBarCountMapByDistrict));
-//            analysisDataSet.put("school", executeProcessor("초중고학교", schoolDataProcessor::getActiveSchoolCountMapByDistrict));
-//            analysisDataSet.put("martData", executeProcessor("대형마트/백화점", martDataProcessor::getMartCountMapByDistrict));
-//            analysisDataSet.put("residentCenterData", executeProcessor("주민센터", residentCenterDataProcessor::getResidentCenterCountMapByDistrict));
-//            analysisDataSet.put("lodgingData", executeProcessor("숙박업", lodgingDataProcessor::getLodgingCountMapByDistrict));
-//            analysisDataSet.put("entertainmentData", executeProcessor("유흥주점", entertainmentDataProcessor::getEntertainmentCountMapByDistrict));
-//            analysisDataSet.put("subwayStationData", executeProcessor("지하철역", subwayStationDataProcessor::getSubwayStationCountMapByDistrict));
-            analysisDataSet.put("schoolData", executeProcessor("대학교", universityDataProcessor::getUniversityCountMapByDistrict));
-
+            // 각 데이터 처리기를 정해진 순서대로 실행 - 개선된 키 네이밍 적용
+            analysisDataSet.put("district_crime_statistics", executeProcessor("범죄 통계", crimeDataProcessor::getCrimeCountMapByDistrict));
+            analysisDataSet.put("district_cctv_infrastructure", executeProcessor("CCTV 인프라", cctvDataProcessor::getCctvCountMapByDistrict));
+            analysisDataSet.put("district_cinema_facilities", executeProcessor("영화관 시설", cinemaDataProcessor::getActiveCinemaCountMapByDistrict));
+            analysisDataSet.put("district_convenience_stores", executeProcessor("편의점 현황", convenienceStoreDataProcessor::getActiveConvenienceStoreCountMapByDistrict));
+            analysisDataSet.put("district_population_density", executeProcessor("인구 밀도", populationDataProcessor::getPopulationCountOnlyMapByDistrict));
+            analysisDataSet.put("district_pcbang_facilities", executeProcessor("PC방 시설", pcBangDataProcessor::getPcBangCountMapByDistrict));
+            analysisDataSet.put("district_streetlight_coverage", executeProcessor("가로등 인프라", streetlightDataProcessor::getStreetlightCountMapByDistrict));
+            analysisDataSet.put("district_medical_facilities", executeProcessor("의료 시설", hospitalDataProcessor::getActiveHospitalCountMapByDistrict));
+            analysisDataSet.put("district_police_infrastructure", executeProcessor("치안 인프라", policeFacilityDataProcessor::getPoliceFacilityCountMapByDistrict));
+            analysisDataSet.put("district_karaoke_entertainment", executeProcessor("노래연습장", karaokeRoomDataProcessor::getActiveKaraokeRoomCountMapByDistrict));
+            analysisDataSet.put("district_bar_nightlife", executeProcessor("단란주점", danranBarDataProcessor::getDanranBarCountMapByDistrict));
+            analysisDataSet.put("district_education_facilities", executeProcessor("교육 시설", schoolDataProcessor::getActiveSchoolCountMapByDistrict));
+            analysisDataSet.put("district_retail_infrastructure", executeProcessor("대형마트/백화점", martDataProcessor::getMartCountMapByDistrict));
+            analysisDataSet.put("district_civic_services", executeProcessor("주민센터", residentCenterDataProcessor::getResidentCenterCountMapByDistrict));
+            analysisDataSet.put("district_accommodation_services", executeProcessor("숙박업", lodgingDataProcessor::getLodgingCountMapByDistrict));
+            analysisDataSet.put("district_adult_entertainment", executeProcessor("유흥주점", entertainmentDataProcessor::getEntertainmentCountMapByDistrict));
+            analysisDataSet.put("district_transit_connectivity", executeProcessor("지하철역", subwayStationDataProcessor::getSubwayStationCountMapByDistrict));
+            analysisDataSet.put("district_higher_education", executeProcessor("고등교육기관", universityDataProcessor::getUniversityCountMapByDistrict));
 
             // ============================================
-            //  analysisDataSet.put("", executeProcessor("은행 수(집계)", bankCountDataProcessor::getBankCountMapByDistrict)); // 현재 데이터는 중복 값 이므로 제외.
+            //  analysisDataSet.put("district_financial_services", executeProcessor("금융 서비스", bankCountDataProcessor::getBankCountMapByDistrict)); // 현재 데이터는 중복 값 이므로 제외.
         } catch (Exception e) {
             log.error("!!! 데이터 처리 파이프라인 실행 중 심각한 오류 발생 !!!", e);
             throw e; // 애플리케이션을 중단시켜 문제 인지
@@ -107,24 +104,93 @@ public class AnalysisDataProcessor implements CommandLineRunner {
     /**
      * 개별 데이터 처리기를 실행하고 소요 시간을 로깅하는 헬퍼 메서드.
      * @param processorName 처리기 이름 (로깅용)
+     * @param task 실행할 작업
+     * @return 구별 집계 데이터 맵
      */
     private Map<String, Long> executeProcessor(String processorName, Supplier<Map<String, Long>> task) {
-        log.info("--- [시작] {} 데이터 조회 ---", processorName);
+        log.info("┌─────────────────────────────────────────────────────────────────┐");
+        log.info("│ [처리 시작] {} 데이터 로딩 중...", String.format("%-35s", processorName));
+        log.info("└─────────────────────────────────────────────────────────────────┘");
+
         long startTime = System.currentTimeMillis();
 
-        Map<String, Long> dataMap = task.get(); // .run() 대신 .get()을 호출하고 결과를 받음
+        Map<String, Long> dataMap = task.get();
 
-        System.out.println(dataMap.size() + ", size : ");
+        // 데이터 요약 정보 출력
+        log.info("[데이터 요약] 총 {}개 자치구 데이터 수집 완료", dataMap.size());
 
-        for(String keyGu : dataMap.keySet()) {
-            System.out.println("[유형 명] " + processorName + ", [구 이름] " + keyGu + ", value: " + dataMap.get(keyGu));
+        // 상위 5개 구 데이터 미리보기
+        dataMap.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(5)
+                .forEach(entry -> {
+                    String barGraph = generateBarGraph(entry.getValue(), getMaxValue(dataMap));
+                    log.info("   > {} : {:,}건 {}",
+                            String.format("%-8s", entry.getKey()),
+                            entry.getValue(),
+                            barGraph);
+                });
+
+        if (dataMap.size() > 5) {
+            log.info("   ... (총 {}개 자치구 중 상위 5개만 표시)", dataMap.size());
         }
 
-        System.out.println("==========================");
-
         long endTime = System.currentTimeMillis();
-        log.info("--- [완료] {} 데이터 조회. {}건. 소요 시간: {}ms ---", processorName, dataMap.size(), (endTime - startTime));
+        String processingTime = formatProcessingTime(endTime - startTime);
 
-        return dataMap; // 조회된 데이터를 반환
+        log.info("┌─────────────────────────────────────────────────────────────────┐");
+        log.info("│ [처리 완료] {} | {} | {}",
+                String.format("%-20s", processorName),
+                String.format("%d건", dataMap.size()),
+                processingTime);
+        log.info("└─────────────────────────────────────────────────────────────────┘");
+        log.info("");
+
+        return dataMap;
+    }
+
+    /**
+     * 처리 시간을 사람이 읽기 쉬운 형태로 포맷팅
+     */
+    private String formatProcessingTime(long milliseconds) {
+        if (milliseconds < 1000) {
+            return String.format("%dms", milliseconds);
+        } else if (milliseconds < 60000) {
+            return String.format("%.2fs", milliseconds / 1000.0);
+        } else {
+            long minutes = milliseconds / 60000;
+            long seconds = (milliseconds % 60000) / 1000;
+            return String.format("%dm %ds", minutes, seconds);
+        }
+    }
+
+    /**
+     * 맵에서 최대값 찾기
+     */
+    private Long getMaxValue(Map<String, Long> dataMap) {
+        return dataMap.values().stream()
+                .max(Long::compareTo)
+                .orElse(1L);
+    }
+
+    /**
+     * 간단한 바 그래프 생성 (비례적 시각화)
+     */
+    private String generateBarGraph(Long value, Long maxValue) {
+        if (maxValue == 0) return "";
+
+        int barLength = (int) (20 * value / maxValue); // 최대 20칸
+        StringBuilder bar = new StringBuilder("|");
+
+        for (int i = 0; i < 20; i++) {
+            if (i < barLength) {
+                bar.append("█");
+            } else {
+                bar.append("░");
+            }
+        }
+        bar.append("|");
+
+        return bar.toString();
     }
 }

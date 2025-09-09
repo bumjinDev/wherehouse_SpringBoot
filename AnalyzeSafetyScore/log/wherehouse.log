@@ -577,3 +577,297 @@ Caused by: oracle.jdbc.OracleDatabaseException: ORA-00920: 관계 연산자가 �
 2025-09-09T12:55:01.278+09:00  INFO 14924 --- [wherehouse] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2025-09-09T12:55:01.280+09:00  INFO 14924 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2025-09-09T12:55:01.291+09:00  INFO 14924 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-09-09T13:01:52.788+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : Starting AnalyzeSafetyScoreApplication using Java 17.0.11 with PID 6008 (E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\AnalyzeSafetyScore\build\classes\java\main started by wjdqj in E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\AnalyzeSafetyScore)
+2025-09-09T13:01:52.790+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : No active profile set, falling back to 1 default profile: "default"
+2025-09-09T13:01:53.295+09:00  INFO 6008 --- [wherehouse] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-09-09T13:01:53.397+09:00  INFO 6008 --- [wherehouse] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 95 ms. Found 18 JPA repository interfaces.
+2025-09-09T13:01:53.697+09:00  INFO 6008 --- [wherehouse] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8185 (http)
+2025-09-09T13:01:53.706+09:00  INFO 6008 --- [wherehouse] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-09-09T13:01:53.706+09:00  INFO 6008 --- [wherehouse] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.44]
+2025-09-09T13:01:53.746+09:00  INFO 6008 --- [wherehouse] [main] o.a.c.c.C.[.[localhost].[/wherehouse]    : Initializing Spring embedded WebApplicationContext
+2025-09-09T13:01:53.746+09:00  INFO 6008 --- [wherehouse] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 927 ms
+2025-09-09T13:01:53.901+09:00  INFO 6008 --- [wherehouse] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-09-09T13:01:53.940+09:00  INFO 6008 --- [wherehouse] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
+2025-09-09T13:01:53.964+09:00  INFO 6008 --- [wherehouse] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-09-09T13:01:54.176+09:00  INFO 6008 --- [wherehouse] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-09-09T13:01:54.197+09:00  WARN 6008 --- [wherehouse] [main] com.zaxxer.hikari.HikariConfig           : HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2025-09-09T13:01:54.197+09:00  INFO 6008 --- [wherehouse] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-09-09T13:01:54.455+09:00  INFO 6008 --- [wherehouse] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@6d3163a6
+2025-09-09T13:01:54.456+09:00  INFO 6008 --- [wherehouse] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-09-09T13:01:54.558+09:00  WARN 6008 --- [wherehouse] [main] org.hibernate.orm.deprecation            : HHH90000025: OracleDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-09-09T13:01:54.628+09:00  INFO 6008 --- [wherehouse] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 19.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-09-09T13:01:55.450+09:00  INFO 6008 --- [wherehouse] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-09-09T13:01:55.453+09:00  INFO 6008 --- [wherehouse] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-09-09T13:01:55.598+09:00  INFO 6008 --- [wherehouse] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-09-09T13:01:56.916+09:00  INFO 6008 --- [wherehouse] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8185 (http) with context path '/wherehouse'
+2025-09-09T13:01:56.923+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : Started AnalyzeSafetyScoreApplication in 4.533 seconds (process running for 4.996)
+2025-09-09T13:01:56.926+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-09T13:01:56.926+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 안전성 분석용 데이터 ETL 프로세스 시작 ===
+2025-09-09T13:01:56.926+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-09T13:01:56.927+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:56.927+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 범죄 통계                               데이터 로딩 중...
+2025-09-09T13:01:56.927+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.034+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.036+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 6763
+2025-09-09T13:01:57.036+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 5223
+2025-09-09T13:01:57.036+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 관악구      : {:,}건 4769
+2025-09-09T13:01:57.036+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 서초구      : {:,}건 4522
+2025-09-09T13:01:57.036+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 4418
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 범죄 통계                | 25건 | 110ms
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] CCTV 인프라                            데이터 로딩 중...
+2025-09-09T13:01:57.037+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.180+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.181+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 서초구      : {:,}건 5428
+2025-09-09T13:01:57.181+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 양천구      : {:,}건 4795
+2025-09-09T13:01:57.181+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 4697
+2025-09-09T13:01:57.181+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강북구      : {:,}건 3584
+2025-09-09T13:01:57.181+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 노원구      : {:,}건 3111
+2025-09-09T13:01:57.181+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.181+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.182+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] CCTV 인프라             | 25건 | 144ms
+2025-09-09T13:01:57.182+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.182+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.182+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.182+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 영화관 시설                              데이터 로딩 중...
+2025-09-09T13:01:57.182+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.191+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.192+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 87
+2025-09-09T13:01:57.192+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 광진구      : {:,}건 44
+2025-09-09T13:01:57.192+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중구       : {:,}건 44
+2025-09-09T13:01:57.192+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 마포구      : {:,}건 38
+2025-09-09T13:01:57.192+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 37
+2025-09-09T13:01:57.193+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.193+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.193+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 영화관 시설               | 25건 | 11ms
+2025-09-09T13:01:57.193+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.193+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.194+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.194+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 편의점 현황                              데이터 로딩 중...
+2025-09-09T13:01:57.194+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.223+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.223+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 669
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 393
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강서구      : {:,}건 373
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 관악구      : {:,}건 364
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 마포구      : {:,}건 360
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 편의점 현황               | 25건 | 30ms
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 인구 밀도                               데이터 로딩 중...
+2025-09-09T13:01:57.224+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.231+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 656310
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 563215
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강서구      : {:,}건 562194
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 노원구      : {:,}건 496552
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 관악구      : {:,}건 495620
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 인구 밀도                | 25건 | 7ms
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] PC방 시설                              데이터 로딩 중...
+2025-09-09T13:01:57.232+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.259+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.259+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중랑구      : {:,}건 338
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강북구      : {:,}건 303
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 225
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강동구      : {:,}건 179
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 구로구      : {:,}건 170
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] PC방 시설               | 25건 | 27ms
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 가로등 인프라                             데이터 로딩 중...
+2025-09-09T13:01:57.260+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 33개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 마포구      : {:,}건 1887
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 1879
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 1877
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 1657
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 성동구      : {:,}건 1589
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 33개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 가로등 인프라              | 33건 | 14ms
+2025-09-09T13:01:57.274+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.275+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.275+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.275+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 의료 시설                               데이터 로딩 중...
+2025-09-09T13:01:57.275+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.286+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.286+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 68
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 43
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강서구      : {:,}건 41
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강동구      : {:,}건 37
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 동대문구     : {:,}건 32
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 의료 시설                | 25건 | 12ms
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 치안 인프라                              데이터 로딩 중...
+2025-09-09T13:01:57.287+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 종로구      : {:,}건 20
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중구       : {:,}건 15
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 14
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 동대문구     : {:,}건 11
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 서초구      : {:,}건 11
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 치안 인프라               | 25건 | 5ms
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.292+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.293+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.293+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 노래연습장                               데이터 로딩 중...
+2025-09-09T13:01:57.293+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 460
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중랑구      : {:,}건 316
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 304
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강서구      : {:,}건 298
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 광진구      : {:,}건 294
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 노래연습장                | 25건 | 12ms
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.305+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.306+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.306+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 단란주점                                데이터 로딩 중...
+2025-09-09T13:01:57.306+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 178
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강서구      : {:,}건 135
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 128
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 119
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 은평구      : {:,}건 115
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 단란주점                 | 25건 | 17ms
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.323+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 교육 시설                               데이터 로딩 중...
+2025-09-09T13:01:57.324+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.333+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.333+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 노원구      : {:,}건 93
+2025-09-09T13:01:57.333+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 90
+2025-09-09T13:01:57.333+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 80
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강서구      : {:,}건 79
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 은평구      : {:,}건 66
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 교육 시설                | 25건 | 10ms
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 대형마트/백화점                            데이터 로딩 중...
+2025-09-09T13:01:57.334+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중구       : {:,}건 73
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 60
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 60
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 44
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 구로구      : {:,}건 39
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 대형마트/백화점             | 25건 | 7ms
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 주민센터                                데이터 로딩 중...
+2025-09-09T13:01:57.341+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.346+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 27
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 22
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 관악구      : {:,}건 21
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 성북구      : {:,}건 20
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강서구      : {:,}건 20
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 주민센터                 | 25건 | 5ms
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 숙박업                                 데이터 로딩 중...
+2025-09-09T13:01:57.347+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중구       : {:,}건 678
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 종로구      : {:,}건 543
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 487
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 관악구      : {:,}건 453
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 동대문구     : {:,}건 360
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 숙박업                  | 25건 | 42ms
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.389+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.390+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.390+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 유흥주점                                데이터 로딩 중...
+2025-09-09T13:01:57.390+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.422+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.422+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 658
+2025-09-09T13:01:57.422+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중구       : {:,}건 658
+2025-09-09T13:01:57.422+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 종로구      : {:,}건 439
+2025-09-09T13:01:57.422+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 영등포구     : {:,}건 425
+2025-09-09T13:01:57.422+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 관악구      : {:,}건 424
+2025-09-09T13:01:57.422+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.423+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.423+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 유흥주점                 | 25건 | 33ms
+2025-09-09T13:01:57.423+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.423+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.424+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.424+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 지하철역                                데이터 로딩 중...
+2025-09-09T13:01:57.424+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.430+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 25개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.430+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 송파구      : {:,}건 28
+2025-09-09T13:01:57.430+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 중구       : {:,}건 23
+2025-09-09T13:01:57.430+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 강남구      : {:,}건 21
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 마포구      : {:,}건 16
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 종로구      : {:,}건 15
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 25개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 지하철역                 | 25건 | 7ms
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 시작] 고등교육기관                              데이터 로딩 중...
+2025-09-09T13:01:57.431+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.456+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 총 21개 자치구 데이터 수집 완료
+2025-09-09T13:01:57.456+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 성북구      : {:,}건 88
+2025-09-09T13:01:57.456+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 서대문구     : {:,}건 72
+2025-09-09T13:01:57.456+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 종로구      : {:,}건 49
+2025-09-09T13:01:57.456+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 동대문구     : {:,}건 45
+2025-09-09T13:01:57.456+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    > 광진구      : {:,}건 44
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         :    ... (총 21개 자치구 중 상위 5개만 표시)
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ┌─────────────────────────────────────────────────────────────────┐
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : │ [처리 완료] 고등교육기관               | 21건 | 26ms
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : └─────────────────────────────────────────────────────────────────┘
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : 
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 모든 데이터 처리 완료. 총 소요 시간: 531ms
+2025-09-09T13:01:57.457+09:00  INFO 6008 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-09T13:02:16.175+09:00  INFO 6008 --- [wherehouse] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-09-09T13:02:16.226+09:00  INFO 6008 --- [wherehouse] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-09-09T13:02:16.229+09:00  INFO 6008 --- [wherehouse] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-09-09T13:02:16.231+09:00  INFO 6008 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-09-09T13:02:16.239+09:00  INFO 6008 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
