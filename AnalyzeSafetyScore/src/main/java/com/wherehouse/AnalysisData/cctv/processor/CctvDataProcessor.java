@@ -1,6 +1,5 @@
 package com.wherehouse.AnalysisData.cctv.processor;
 
-import com.wherehouse.AnalysisData.cctv.dto.DistrictCctvCountDto;
 import com.wherehouse.AnalysisData.cctv.repository.AnalysisCctvRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,12 +19,12 @@ public class CctvDataProcessor {
      * @return 자치구별 CCTV 수 데이터 맵
      */
     public Map<String, Long> getCctvCountMapByDistrict() {
-        List<DistrictCctvCountDto> dtoList = analysisCctvRepository.findCctvCountByDistrict();
+        List<Object[]> results = analysisCctvRepository.findCctvCountByDistrict();
 
-        return dtoList.stream()
+        return results.stream()
                 .collect(Collectors.toMap(
-                        DistrictCctvCountDto::getDistrictName,
-                        DistrictCctvCountDto::getTotalCount
+                        row -> (String) row[0], // 첫 번째 요소(자치구명)
+                        row -> ((Number) row[1]).longValue() // 두 번째 요소(개수)를 Long 타입으로 변환
                 ));
     }
 }

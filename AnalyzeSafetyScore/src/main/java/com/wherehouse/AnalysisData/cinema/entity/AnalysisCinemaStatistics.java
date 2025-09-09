@@ -1,4 +1,4 @@
-package com.WhereHouse.AnalysisData.cinema.entity;
+package com.wherehouse.AnalysisData.cinema.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

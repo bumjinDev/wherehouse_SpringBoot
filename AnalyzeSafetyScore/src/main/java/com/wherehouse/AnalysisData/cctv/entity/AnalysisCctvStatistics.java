@@ -1,4 +1,4 @@
-package com.WhereHouse.AnalysisData.cctv.entity;
+package com.wherehouse.AnalysisData.cctv.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

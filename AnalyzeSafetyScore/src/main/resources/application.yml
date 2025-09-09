@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: wherehouse
+
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID ?? URL
+    username: SCOTT
+    password: tiger
+
+    hikari:
+      auto-commit: false
+      idle-timeout: 30000  # 30? ? ??? ??? ??
+      max-lifetime: 1800000  # 30? ? ??? ?? ??
+
+  data:
+    redis:
+      host: 43.202.178.156
+      port: 6379
+      timeout: 0  # 0? ??? ???? ??
+      lettuce:
+        pool:
+          max-active: 100   # ??? ?? ??? ?? ?? ??
+          max-idle: 50       # ?? ?? ??? ??
+          min-idle: 10       # ?? ?? ??? ??
+          max-wait: -1ms     # ??? ?? ?? (-1ms)
+          time-between-eviction-runs: 10s  # ?? ??? ?? ?? (10?)
+
+  jpa:
+    hibernate:
+      ddl-auto: none # ?? ????? update, ?? ????? none ??
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect # Hibernate Dialect ??
+        format_sql: true # SQL ?? ??
+        default_batch_fetch_size: 50 # Batch Fetch ???
+        jdbc.fetch_size: 100 # JDBC fetch size ??
+        cache.use_query_cache: false # Hibernate Query ?? ????
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # Naming Strategy ??
+    open-in-view: false # Lazy Loading ?? ?? (OSIV OFF)
+
+  mvc:
+    view:
+      prefix: /WEB-INF/view/
+      suffix: .jsp
+
+mybatis:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  type-aliases-package: com.wherehouse.information.model
+  configuration:
+    jdbc-type-for-null: null
+
+server:
+  port: 8185
+  servlet:
+    context-path: /wherehouse
+
+logging:
+  file:
+    name: log/wherehouse.log  # ???? ?? ????? ???? ?????? ?? ?? ?? ??
+  level:
+    root: info  # ?? ?? ?? ??

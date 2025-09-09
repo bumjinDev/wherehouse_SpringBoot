@@ -1,0 +1,44 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.wherehouse'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// 1. Spring Boot 기본 의존성
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA, Repository 사용
+	implementation 'org.springframework.boot:spring-boot-starter-web'     // Kakao API 호출(RestTemplate) 및 테스트 컨트롤러용
+
+	// 2. 데이터베이스 드라이버
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc11' // Oracle DB 드라이버
+
+	// 3. 유틸리티
+	compileOnly 'org.projectlombok:lombok'               // Lombok, 보일러플레이트 코드 감소
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 4. 핵심 분석 및 시각화 라이브러리
+	implementation 'org.apache.commons:commons-math3:3.6.1'     // Apache Commons Math (피어슨 상관분석)
+	implementation 'org.knowm.xchart:xchart:3.8.1'              // XChart (산점도 등 시각화)
+
+	// 5. 테스트
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
