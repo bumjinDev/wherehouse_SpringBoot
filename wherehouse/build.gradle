@@ -121,8 +121,22 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 
-    /* 테스트 관련 의존성 */
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// Spring Boot 기본
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Jackson (JSON 처리) - spring-boot-starter-web에 포함되지만 명시적 추가
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.core:jackson-core'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310' // LocalDateTime 처리용
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 테스트
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 }
 

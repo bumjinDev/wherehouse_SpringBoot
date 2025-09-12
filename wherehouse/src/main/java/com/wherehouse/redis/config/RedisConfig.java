@@ -36,18 +36,24 @@ public class RedisConfig {
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
-    	
+
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
+        // Key는 그대로 String을 사용합니다.
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
 
-        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
-        
+        /* * Value와 Hash-Value의 Serializer를
+         * Jackson2JsonRedisSerializer로 변경합니다.
+         * 이렇게 하면 모든 Object를 JSON 문자열로 변환하여 저장할 수 있습니다.
+         */
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        redisTemplate.setValueSerializer(serializer);
+        redisTemplate.setHashValueSerializer(serializer);
+
+        // redisTemplate.setDefaultSerializer(new StringRedisSerializer()); // 이 줄은 삭제하거나 위와 같이 변경해도 좋습니다.
+
         return redisTemplate;
     }
     

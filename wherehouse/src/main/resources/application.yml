@@ -2,20 +2,23 @@ spring:
   application:
     name: wherehouse
 
+  # 데이터베이스 연결 설정
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL
     username: SCOTT
     password: tiger
 
+    # HikariCP 커넥션 풀 설정
     hikari:
       auto-commit: false
       idle-timeout: 30000  # 30초 후 미사용 커넥션 종료
       max-lifetime: 1800000  # 30분 후 커넥션 강제 종료
 
+  # Redis 연결 설정
   data:
     redis:
-      host: 43.202.178.156
+      host: 127.0.0.1
       port: 6379
       timeout: 0  # 0초 무제한 타임아웃 설정
       lettuce:
@@ -26,6 +29,55 @@ spring:
           max-wait: -1ms     # 무제한 대기 설정 (-1ms)
           time-between-eviction-runs: 10s  # 유휴 커넥션 정리 주기 (10초)
 
+  # Jackson JSON 처리 설정 (추가)
+  jackson:
+    # ========== JSON 직렬화/역직렬화 핵심 설정 ==========
+
+    # 프로퍼티 명명 전략: Java camelCase를 JSON snake_case로 변환
+    # 예: budgetMin(Java) → budget_min(JSON)
+    # CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES도 동일한 효과
+    property-naming-strategy: SNAKE_CASE
+
+    # null 값 처리: null인 필드는 JSON 응답에서 제외
+    # 장점: 응답 크기 감소, 클라이언트 파싱 간소화
+    # 단점: 클라이언트가 null과 누락을 구분할 수 없음
+    default-property-inclusion: NON_NULL
+
+    # 날짜/시간 기본 포맷 설정 (문자열로 변환될 때 사용)
+    date-format: "yyyy-MM-dd HH:mm:ss"
+    time-zone: Asia/Seoul
+
+    # ========== JSON → Java 객체 변환 (Deserialization) 설정 ==========
+    deserialization:
+      # 알 수 없는 프로퍼티 처리: true이면 에러 발생, false면 무시
+      # true 권장 이유: 잘못된 요청 데이터 조기 발견, API 계약 명확화
+      # 동작: 클라이언트가 {"unknownField": "value"} 보내면 400 에러 응답
+      fail-on-unknown-properties: true
+
+      # 빈 문자열을 null로 변환하지 않음
+      # false: ""와 null을 구분해서 처리
+      # true: ""를 null로 자동 변환
+      accept-empty-string-as-null-object: false
+
+      # 빈 배열/컬렉션을 null로 변환하지 않음
+      accept-empty-array-as-null-object: false
+
+    # ========== Java 객체 → JSON 변환 (Serialization) 설정 ==========
+    serialization:
+      # 날짜를 timestamp(숫자) 대신 문자열로 출력
+      # false: "2024-03-15 10:30:45" (가독성 좋음)
+      # true: 1710472245000 (숫자 timestamp)
+      write-dates-as-timestamps: false
+
+      # 빈 객체 직렬화 실패 무시
+      # false: 빈 객체도 {}로 정상 출력
+      # true: 빈 객체 직렬화 시 에러 발생
+      fail-on-empty-beans: false
+
+      # Map을 정렬된 순서로 출력 (디버깅 시 유용)
+      order-map-entries-by-keys: true
+
+  # JPA/Hibernate 설정
   jpa:
     hibernate:
       ddl-auto: none # 개발 환경에서는 update, 운영 환경에서는 none 추천
@@ -39,24 +91,84 @@ spring:
         physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # Naming Strategy 설정
     open-in-view: false # Lazy Loading 오류 방지 (OSIV OFF)
 
+  # Spring MVC 설정
   mvc:
     view:
       prefix: /WEB-INF/view/
       suffix: .jsp
 
+    # URL 패턴 매칭 전략 설정
+    pathmatch:
+      # ANT 패턴 매처 사용 (/api/test/** 같은 패턴 지원)
+      matching-strategy: ANT_PATH_MATCHER
+
+  # 멀티파트 파일 업로드 설정
+  servlet:
+    multipart:
+      max-file-size: 10MB      # 단일 파일 최대 크기
+      max-request-size: 10MB   # 전체 요청 최대 크기
+
+# MyBatis 설정
 mybatis:
   mapper-locations: classpath:/mapper/*Mapper.xml
   type-aliases-package: com.wherehouse.information.model
   configuration:
     jdbc-type-for-null: null
 
+# 서버 설정
 server:
   port: 8185
   servlet:
     context-path: /wherehouse
 
+  # HTTP 에러 응답 설정
+  error:
+    # validation 에러 메시지를 응답에 포함
+    include-message: always
+    # binding 에러 상세 정보 포함 (개발 환경에서 유용)
+    include-binding-errors: always
+
+# API 지점 설정
+# 국토부 API 설정
+molit:
+  rent-api:
+    base-url: https://apis.data.go.kr/1613000/RTMSDataSvcAptRent
+
+# 로깅 설정
 logging:
   file:
-    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대결로로써 로그 파일 위치 설정
+    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
   level:
-    root: info  # 기본 로그 레벨 설정
+    root: INFO  # 기본 로그 레벨 설정
+
+    # 개발 중 JSON 처리 디버깅을 위한 상세 로그 (필요시 활성화)
+    # com.wherehouse: DEBUG
+    # org.springframework.web: DEBUG
+    # org.springframework.validation: DEBUG
+    # com.fasterxml.jackson: DEBUG  # Jackson 라이브러리 디버그 로그
+
+  # 로그 출력 형식 설정
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# ========== Jackson 설정이 실제 동작하는 시점 ==========
+#
+# 1. 요청 처리 시 (JSON → Java 객체)
+#    - 클라이언트가 JSON 요청 전송
+#    - Jackson이 deserialization 설정에 따라 변환
+#    - fail-on-unknown-properties: true 설정으로 잘못된 필드 차단
+#    - @Valid 어노테이션이 Bean Validation 실행
+#    - 검증 실패 시 MethodArgumentNotValidException 발생
+#
+# 2. 응답 처리 시 (Java 객체 → JSON)
+#    - Controller에서 응답 객체 반환
+#    - Jackson이 serialization 설정에 따라 JSON 변환
+#    - property-naming-strategy: SNAKE_CASE로 필드명 변환
+#    - default-property-inclusion: NON_NULL로 null 필드 제외
+#    - write-dates-as-timestamps: false로 날짜를 문자열 형태로 출력
+#
+# 3. 에러 발생 지점
+#    - JSON 파싱 에러: HttpMessageNotReadableException
+#    - Bean Validation 에러: MethodArgumentNotValidException
+#    - 모든 예외는 GlobalExceptionHandler가 처리하여 일관된 에러 응답 제공

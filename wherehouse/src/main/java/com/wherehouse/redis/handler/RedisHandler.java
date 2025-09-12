@@ -13,11 +13,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RedisHandler {
 
-	@Autowired
-	public RedisTemplate<String, Object> redisTemplate;
+	final public RedisTemplate<String, Object> redisTemplate;
 
-	@Autowired
-	RedisConnectionFactory redisConnectionFactory; // 여기에 자동 주입됨
+    final public RedisConnectionFactory redisConnectionFactory; // 여기에 자동 주입됨
 	
     /**
      * 리스트에 접근하여 다양한 연산을 수행합니다.
