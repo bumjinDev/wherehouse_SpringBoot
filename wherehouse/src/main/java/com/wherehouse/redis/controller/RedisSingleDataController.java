@@ -21,6 +21,7 @@ public class RedisSingleDataController {
     private final RedisSingleDataService redisSingleDataService;
 
     public RedisSingleDataController(RedisSingleDataService redisSingleDataService) {
+
         this.redisSingleDataService = redisSingleDataService;
     }
 
@@ -32,6 +33,7 @@ public class RedisSingleDataController {
      */
     @PostMapping("/getValue")
     public ResponseEntity<Object> getValue(@RequestBody RedisDto redisDto) {
+
         String result = redisSingleDataService.getSingleData(redisDto.getKey());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

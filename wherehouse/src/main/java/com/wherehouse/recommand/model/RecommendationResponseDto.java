@@ -1,5 +1,6 @@
 package com.wherehouse.recommand.model;
 
+import com.wherehouse.recommand.model.RecommendedDistrictDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

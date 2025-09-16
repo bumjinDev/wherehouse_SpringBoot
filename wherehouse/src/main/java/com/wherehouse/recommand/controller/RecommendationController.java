@@ -37,6 +37,7 @@ public class RecommendationController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+
             log.error("지역구 추천 처리 중 오류 발생", e);
 
             // 오류 발생 시 기본 응답 반환
