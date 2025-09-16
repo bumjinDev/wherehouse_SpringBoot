@@ -1,6 +1,6 @@
-package com.wherehouse.AnalysisData.population.repository;
+package com.wherehouse.recommand.batch.repository;
 
-import com.wherehouse.AnalysisData.population.entity.AnalysisPopulationDensity;
+import com.wherehouse.recommand.batch.entity.AnalysisPopulationDensity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

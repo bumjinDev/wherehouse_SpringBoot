@@ -1,4 +1,4 @@
-package com.wherehouse.AnalysisData.crime.dto;
+package com.wherehouse.recommand.batch.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

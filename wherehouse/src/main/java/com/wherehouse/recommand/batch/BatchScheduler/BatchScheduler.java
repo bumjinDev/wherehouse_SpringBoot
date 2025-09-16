@@ -2,6 +2,10 @@ package com.wherehouse.recommand.batch.BatchScheduler;
 
 import com.wherehouse.recommand.batch.dto.Property;
 import com.wherehouse.redis.handler.RedisHandler;
+import com.wherehouse.recommand.batch.repository.AnalysisEntertainmentRepository;
+import com.wherehouse.recommand.batch.repository.AnalysisPopulationDensityRepository;
+import com.wherehouse.recommand.batch.repository.AnalysisCrimeRepository;
+import com.wherehouse.recommand.batch.dto.DistrictCrimeCountDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +36,9 @@ import java.util.*;
 public class BatchScheduler {
 
     private final RedisHandler redisHandler;
+    private final AnalysisEntertainmentRepository entertainmentRepository;
+    private final AnalysisPopulationDensityRepository populationRepository;
+    private final AnalysisCrimeRepository crimeRepository;
 
     private final String serviceKey = System.getenv("MOLIT_RENT_API_SERVICE_KEY");
 
@@ -75,7 +82,7 @@ public class BatchScheduler {
     }
 
     // 테스트용: 한번만 실행 (fixedDelay 사용)
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 ===");
 
@@ -83,10 +90,16 @@ public class BatchScheduler {
             // B-01: 전 지역구 매물 데이터 수집
             List<Property> allProperties = collectAllDistrictData();
 
-            log.info("총 {}건의 매물 데이터를 수집했습니다.", allProperties.size());
+            log.info("이 {}건의 매물 데이터를 수집했습니다.", allProperties.size());
 
             // B-03: Redis 데이터 적재
             storeDataToRedis(allProperties);
+
+            // B-04: 지역구별 정규화 범위 계산 및 저장
+            calculateAndStoreNormalizationBounds(allProperties);
+
+            // B-05: 지역구별 안전성 점수 계산 및 Redis 저장
+            calculateAndStoreSafetyScores();
 
             log.info("=== 부동산 매물 데이터 배치 처리 완료 ===");
 
@@ -103,9 +116,11 @@ public class BatchScheduler {
         log.info("서울시 25개 자치구 매물 데이터 수집 시작");
 
         List<Property> allProperties = new ArrayList<>();
-        String dealYmd = LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM")); // 전월 데이터
+        // 수정: 현재 날짜 기준 전월로 변경
+        String dealYmd = LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
 
-        log.info("조회 기준 년월: {}", dealYmd);
+        // 디버깅용: 실제 조회하는 년월 로그
+        log.info("조회 기준 년월: {} (현재 날짜 기준 전월)", dealYmd);
 
         for (Map.Entry<String, String> district : SEOUL_DISTRICT_CODES.entrySet()) {
             String districtCode = district.getKey();
@@ -129,7 +144,7 @@ public class BatchScheduler {
             }
         }
 
-        log.info("전 지역구 매물 데이터 수집 완료: 총 {}건", allProperties.size());
+        log.info("전 지역구 매물 데이터 수집 완료: 이 {}건", allProperties.size());
         return allProperties;
     }
 
@@ -170,8 +185,8 @@ public class BatchScheduler {
                 pageNo++;
 
                 // 무한루프 방지
-                if (pageNo > 500) {
-                    log.warn("페이지 수가 500을 초과했습니다. 수집을 중단합니다.");
+                if (pageNo > 50) {
+                    log.warn("페이지 수가 2를 초과했습니다. 수집을 중단합니다.");
                     break;
                 }
 
@@ -204,6 +219,11 @@ public class BatchScheduler {
             urlBuilder.append("&").append(URLEncoder.encode("pageNo", "UTF-8"))
                     .append("=").append(URLEncoder.encode(pageNo, "UTF-8"));
 
+            // 디버깅용: API 호출 URL 로그 (첫 번째 페이지만)
+            if ("1".equals(pageNo)) {
+                log.debug("API 호출 URL: {}", urlBuilder.toString().replace(serviceKey, "***"));
+            }
+
             URL url = new URL(urlBuilder.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -221,7 +241,15 @@ public class BatchScheduler {
                     response.append(line).append("\n");
                 }
 
-                return response.toString();
+                // 디버깅용: 응답 상태 로그
+                String responseStr = response.toString();
+                if (responseStr.contains("<resultCode>")) {
+                    String resultCode = extractResultCode(responseStr);
+                    String resultMsg = extractResultMsg(responseStr);
+                    log.debug("API 응답 상태 - Code: {}, Message: {}", resultCode, resultMsg);
+                }
+
+                return responseStr;
             } else {
                 log.error("API 호출 실패 - HTTP 코드: {}", responseCode);
                 return null;
@@ -238,6 +266,44 @@ public class BatchScheduler {
                 conn.disconnect();
             }
         }
+    }
+
+    /**
+     * API 응답에서 resultCode 추출
+     */
+    private String extractResultCode(String xmlResponse) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(xmlResponse)));
+
+            NodeList resultCodeNodes = document.getElementsByTagName("resultCode");
+            if (resultCodeNodes.getLength() > 0) {
+                return resultCodeNodes.item(0).getTextContent();
+            }
+        } catch (Exception e) {
+            log.debug("resultCode 파싱 실패", e);
+        }
+        return "Unknown";
+    }
+
+    /**
+     * API 응답에서 resultMsg 추출
+     */
+    private String extractResultMsg(String xmlResponse) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(xmlResponse)));
+
+            NodeList resultMsgNodes = document.getElementsByTagName("resultMsg");
+            if (resultMsgNodes.getLength() > 0) {
+                return resultMsgNodes.item(0).getTextContent();
+            }
+        } catch (Exception e) {
+            log.debug("resultMsg 파싱 실패", e);
+        }
+        return "Unknown";
     }
 
     /**
@@ -350,23 +416,35 @@ public class BatchScheduler {
     }
 
     /**
-     * 문자열을 Double로 안전하게 변환
+     * 문자열을 Double로 안전하게 변환 (쉼표 제거 처리 추가)
      */
     private Double parseDoubleValue(String value) {
         try {
-            return value != null ? Double.parseDouble(value.trim()) : null;
+            if (value != null) {
+                // 쉼표 제거 후 파싱
+                String cleanValue = value.trim().replaceAll(",", "");
+                return Double.parseDouble(cleanValue);
+            }
+            return null;
         } catch (NumberFormatException e) {
+            log.debug("숫자 파싱 실패: '{}'", value);
             return null;
         }
     }
 
     /**
-     * 문자열을 Integer로 안전하게 변환
+     * 문자열을 Integer로 안전하게 변환 (쉼표 제거 처리 추가)
      */
     private Integer parseIntegerValue(String value) {
         try {
-            return value != null ? Integer.parseInt(value.trim()) : null;
+            if (value != null) {
+                // 쉼표 제거 후 파싱
+                String cleanValue = value.trim().replaceAll(",", "");
+                return Integer.parseInt(cleanValue);
+            }
+            return null;
         } catch (NumberFormatException e) {
+            log.debug("숫자 파싱 실패: '{}'", value);
             return null;
         }
     }
@@ -376,7 +454,7 @@ public class BatchScheduler {
      * 명세서에 따른 3개 구조로 저장: Hash + 2개 Sorted Set 인덱스
      */
     private void storeDataToRedis(List<Property> properties) {
-        log.info("Redis 데이터 적재 시작 - 총 {}건", properties.size());
+        log.info("Redis 데이터 적재 시작 - 이 {}건", properties.size());
 
         // 기존 데이터 초기화
         redisHandler.clearCurrentRedisDB();
@@ -407,8 +485,6 @@ public class BatchScheduler {
                 propertyHash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
                 propertyHash.put("rgstDate", property.getRgstDate() != null ? property.getRgstDate() : "");
                 propertyHash.put("districtName", property.getDistrictName() != null ? property.getDistrictName() : "");
-
-//                System.out.println("propertyId: " + propertyHash.get("propertyId") + ", aptNm: " + propertyHash.get("aptNm") + ", excluUseAr: " + propertyHash.get("excluUseAr") + ", floor: " + propertyHash.get("floor") + ", buildYear: " + propertyHash.get("buildYear") + ", dealDate: " + propertyHash.get("dealDate") + ", deposit: " + propertyHash.get("deposit") + ", monthlyRent: " + propertyHash.get("monthlyRent") + ", leaseType: " + propertyHash.get("leaseType") + ", umdNm: " + propertyHash.get("umdNm") + ", jibun: " + propertyHash.get("jibun") + ", sggCd: " + propertyHash.get("sggCd") + ", address: " + propertyHash.get("address") + ", areaInPyeong: " + propertyHash.get("areaInPyeong") + ", rgstDate: " + propertyHash.get("rgstDate") + ", districtName: " + propertyHash.get("districtName"));
 
                 // Redis Hash에 저장
                 redisHandler.redisTemplate.opsForHash().putAll(propertyKey, propertyHash);
@@ -441,5 +517,549 @@ public class BatchScheduler {
         log.info("- 매물 원본 데이터: property:{{id}} Hash 구조");
         log.info("- 가격 인덱스: idx:price:{{지역구}}:{{임대유형}} Sorted Set");
         log.info("- 평수 인덱스: idx:area:{{지역구}}:{{임대유형}} Sorted Set");
+    }
+
+    /**
+     * B-04: 지역구별 정규화 범위 계산 및 저장
+     * 실시간 추천 점수 계산 성능 최적화를 위해 지역구별·임대유형별 가격 및 평수의 정규화 범위를 사전 계산하여 Redis에 저장
+     */
+    private void calculateAndStoreNormalizationBounds(List<Property> properties) {
+        log.info("=== B-04: 지역구별 정규화 범위 계산 및 저장 시작 ===");
+
+        // 1. 데이터 그룹핑: 지역구명 + 임대유형
+        Map<String, List<Property>> groupedProperties = groupPropertiesByDistrictAndLeaseType(properties);
+
+        int processedGroups = 0;
+        int validGroups = 0;
+        int skippedGroupsInsufficientData = 0;
+        int skippedGroupsInvalidData = 0;
+        String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        // 그룹별 상세 통계 출력
+        log.info("=== 그룹별 매물 수 현황 ===");
+        for (Map.Entry<String, List<Property>> entry : groupedProperties.entrySet()) {
+            log.info("그룹 [{}]: {}건", entry.getKey(), entry.getValue().size());
+        }
+
+        for (Map.Entry<String, List<Property>> entry : groupedProperties.entrySet()) {
+            String groupKey = entry.getKey();
+            List<Property> groupProperties = entry.getValue();
+
+            try {
+                log.debug("그룹 [{}] 처리 시작 - 매물 수: {}건", groupKey, groupProperties.size());
+
+                // 품질 보장: 최소 데이터 요구사항 검증 (그룹당 1개 이상 매물로 완화)
+                if (groupProperties.size() < 1) {
+                    log.warn("그룹 [{}] 스킵 - 매물 없음 ({}건)", groupKey, groupProperties.size());
+                    skippedGroupsInsufficientData++;
+                    continue;
+                }
+
+                // 2. 이 가격 산정 및 3. 정규화 범위 계산
+                NormalizationBounds bounds = calculateBoundsForGroup(groupProperties, groupKey);
+
+                if (bounds == null) {
+                    log.warn("그룹 [{}] 스킵 - 유효한 데이터 부족", groupKey);
+                    skippedGroupsInvalidData++;
+                    continue;
+                }
+
+                // 4. Redis 저장
+                storeBoundsToRedis(groupKey, bounds, groupProperties.size(), currentTime);
+
+                validGroups++;
+                log.info("그룹 [{}] 처리 완료 - 가격범위: [{} ~ {}], 평수범위: [{} ~ {}]",
+                        groupKey, bounds.minPrice, bounds.maxPrice, bounds.minArea, bounds.maxArea);
+
+            } catch (Exception e) {
+                log.error("그룹 [{}] 처리 중 오류 발생", groupKey, e);
+            }
+
+            processedGroups++;
+        }
+
+        log.info("=== B-04: 지역구별 정규화 범위 계산 완료 ===");
+        log.info("- 전체 그룹 수: {}", groupedProperties.size());
+        log.info("- 처리된 그룹: {}", processedGroups);
+        log.info("- 유효한 그룹: {}", validGroups);
+        log.info("- 매물 수 부족으로 스킵된 그룹: {}", skippedGroupsInsufficientData);
+        log.info("- 유효 데이터 부족으로 스킵된 그룹: {}", skippedGroupsInvalidData);
+    }
+
+    /**
+     * 1. 데이터 그룹핑: 지역구명 + 임대유형으로 매물 그룹핑
+     */
+    private Map<String, List<Property>> groupPropertiesByDistrictAndLeaseType(List<Property> properties) {
+
+        Map<String, List<Property>> groupedProperties = new HashMap<>();
+
+        int validPropertyCount = 0;
+        int invalidPropertyCount = 0;
+
+        // 제외 이유별 통계
+        int nullDistrictName = 0;
+        int nullLeaseType = 0;
+        int nullDeposit = 0;
+        int nullMonthlyRent = 0;
+        int nullAreaInPyeong = 0;
+        int zeroOrNegativeArea = 0;
+
+        for (Property property : properties) {
+            // 상세 유효성 검증
+            boolean isValid = true;
+
+            if (property.getDistrictName() == null) {
+                nullDistrictName++;
+                isValid = false;
+            }
+            if (property.getLeaseType() == null) {
+                nullLeaseType++;
+                isValid = false;
+            }
+            if (property.getDeposit() == null) {
+                nullDeposit++;
+                isValid = false;
+            }
+            if (property.getMonthlyRent() == null) {
+                nullMonthlyRent++;
+                isValid = false;
+            }
+            if (property.getAreaInPyeong() == null) {
+                nullAreaInPyeong++;
+                isValid = false;
+            }
+            if (property.getAreaInPyeong() != null && property.getAreaInPyeong() <= 0) {
+                zeroOrNegativeArea++;
+                isValid = false;
+            }
+
+            if (!isValid) {
+                invalidPropertyCount++;
+                continue;
+            }
+
+            // 그룹 키 형태: {지역구명}:{임대유형}
+            String groupKey = property.getDistrictName() + ":" + property.getLeaseType();
+            groupedProperties.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(property);
+            validPropertyCount++;
+        }
+
+        log.info("=== 매물 그룹핑 상세 결과 ===");
+        log.info("- 전체 매물: {}건", properties.size());
+        log.info("- 유효한 매물: {}건", validPropertyCount);
+        log.info("- 제외된 매물: {}건", invalidPropertyCount);
+        log.info("- 생성된 그룹 수: {}개", groupedProperties.size());
+
+        log.info("=== 제외 이유별 통계 ===");
+        log.info("- 지역구명 null: {}건", nullDistrictName);
+        log.info("- 임대유형 null: {}건", nullLeaseType);
+        log.info("- 보증금 null: {}건", nullDeposit);
+        log.info("- 월세 null: {}건", nullMonthlyRent);
+        log.info("- 평수 null: {}건", nullAreaInPyeong);
+        log.info("- 평수 0 이하: {}건", zeroOrNegativeArea);
+
+        // 각 지역구별로 전세/월세 그룹 현황 확인
+        Map<String, Set<String>> districtLeaseTypes = new HashMap<>();
+        for (String groupKey : groupedProperties.keySet()) {
+            String[] parts = groupKey.split(":");
+            if (parts.length == 2) {
+                String district = parts[0];
+                String leaseType = parts[1];
+                districtLeaseTypes.computeIfAbsent(district, k -> new HashSet<>()).add(leaseType);
+            }
+        }
+
+        log.info("=== 지역구별 임대유형 현황 ===");
+        for (Map.Entry<String, Set<String>> entry : districtLeaseTypes.entrySet()) {
+            log.info("{}: {}", entry.getKey(), entry.getValue());
+        }
+
+        return groupedProperties;
+    }
+
+    /**
+     * 정규화 계산을 위한 매물 유효성 검증
+     */
+    private boolean isValidPropertyForNormalization(Property property) {
+        // 각 필드별로 상세 검증 및 로그 출력
+        if (property.getDistrictName() == null) {
+            log.debug("매물 제외 - 지역구명 null: ID={}", property.getPropertyId());
+            return false;
+        }
+
+        if (property.getLeaseType() == null) {
+            log.debug("매물 제외 - 임대유형 null: ID={}, 지역구={}",
+                    property.getPropertyId(), property.getDistrictName());
+            return false;
+        }
+
+        if (property.getDeposit() == null) {
+            log.debug("매물 제외 - 보증금 null: ID={}, 지역구={}, 임대유형={}",
+                    property.getPropertyId(), property.getDistrictName(), property.getLeaseType());
+            return false;
+        }
+
+        if (property.getMonthlyRent() == null) {
+            log.debug("매물 제외 - 월세 null: ID={}, 지역구={}, 임대유형={}",
+                    property.getPropertyId(), property.getDistrictName(), property.getLeaseType());
+            return false;
+        }
+
+        if (property.getAreaInPyeong() == null) {
+            log.debug("매물 제외 - 평수 null: ID={}, 지역구={}, 임대유형={}",
+                    property.getPropertyId(), property.getDistrictName(), property.getLeaseType());
+            return false;
+        }
+
+        if (property.getAreaInPyeong() <= 0) {
+            log.debug("매물 제외 - 평수 0 이하: ID={}, 지역구={}, 임대유형={}, 평수={}",
+                    property.getPropertyId(), property.getDistrictName(), property.getLeaseType(), property.getAreaInPyeong());
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * 2. 이 가격 산정 및 3. 정규화 범위 계산
+     */
+    private NormalizationBounds calculateBoundsForGroup(List<Property> groupProperties, String groupKey) {
+        List<Double> totalPrices = new ArrayList<>();
+        List<Double> areas = new ArrayList<>();
+
+        for (Property property : groupProperties) {
+            // 2. 이 가격 산정
+            double totalPrice = calculateTotalPrice(property);
+            if (totalPrice > 0) {
+                totalPrices.add(totalPrice);
+            }
+
+            // 평수 수집
+            if (property.getAreaInPyeong() != null && property.getAreaInPyeong() > 0) {
+                areas.add(property.getAreaInPyeong());
+            }
+        }
+
+
+        if (totalPrices.isEmpty() || areas.isEmpty()) {
+            log.debug("그룹 [{}] - 유효한 가격 또는 평수 데이터 없음", groupKey);
+            return null;
+        }
+
+        // 3. 정규화 범위 계산
+        double minPrice = Collections.min(totalPrices);
+        double maxPrice = Collections.max(totalPrices);
+        double minArea = Collections.min(areas);
+        double maxArea = Collections.max(areas);
+
+        // 4. 품질 보장: 제로 분산 방지 (min = max인 경우 max값 조정)
+        if (minPrice == maxPrice) {
+            maxPrice = minPrice + 1000.0; // 100만원 차이 설정
+            log.debug("그룹 [{}] - 가격 제로 분산 방지: {} -> {}", groupKey, minPrice, maxPrice);
+        }
+
+        if (minArea == maxArea) {
+            maxArea = minArea + 1.0; // 1평 차이 설정
+            log.debug("그룹 [{}] - 평수 제로 분산 방지: {} -> {}", groupKey, minArea, maxArea);
+        }
+
+        return new NormalizationBounds(minPrice, maxPrice, minArea, maxArea);
+    }
+
+    /**
+     * 2. 이 가격 산정
+     * - 전세: 보증금
+     * - 월세: 보증금 + (월세 × 24개월)
+     */
+    private double calculateTotalPrice(Property property) {
+        double deposit = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
+        double monthlyRent = property.getMonthlyRent() != null ? property.getMonthlyRent().doubleValue() : 0.0;
+
+        if ("전세".equals(property.getLeaseType())) {
+            return deposit;
+        } else if ("월세".equals(property.getLeaseType())) {
+            return deposit + (monthlyRent * 24); // 월세 × 24개월
+        }
+
+        return deposit; // 기본적으로 보증금 반환
+    }
+
+    /**
+     * Redis에 정규화 범위 저장
+     * 키 패턴: bounds:{지역구명}:{임대유형}
+     */
+    private void storeBoundsToRedis(String groupKey, NormalizationBounds bounds,
+                                    int propertyCount, String currentTime) {
+        String redisKey = "bounds:" + groupKey;
+
+        Map<String, Object> boundsHash = new HashMap<>();
+        boundsHash.put("minPrice", String.valueOf(bounds.minPrice));
+        boundsHash.put("maxPrice", String.valueOf(bounds.maxPrice));
+        boundsHash.put("minArea", String.valueOf(bounds.minArea));
+        boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
+        boundsHash.put("propertyCount", String.valueOf(propertyCount));
+        boundsHash.put("lastUpdated", currentTime);
+
+        redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
+
+        log.debug("Redis 저장 완료 - Key: {}, Count: {}", redisKey, propertyCount);
+    }
+
+    /**
+     * 정규화 범위 데이터를 담는 내부 클래스
+     */
+    private static class NormalizationBounds {
+        final double minPrice;
+        final double maxPrice;
+        final double minArea;
+        final double maxArea;
+
+        NormalizationBounds(double minPrice, double maxPrice, double minArea, double maxArea) {
+            this.minPrice = minPrice;
+            this.maxPrice = maxPrice;
+            this.minArea = minArea;
+            this.maxArea = maxArea;
+        }
+    }
+
+    /**
+     * B-05: 지역구별 안전성 점수 계산 및 Redis 저장
+     * 분석 보고서에 따른 범죄율 기반 안전성 점수 계산: (범죄 발생 건수 ÷ 인구수) × 100,000을 종속변수로 하여
+     * 유흥주점 수(99.67% 가중치)와 인구수(0.33% 가중치)를 독립변수로 적용
+     */
+    private void calculateAndStoreSafetyScores() {
+        log.info("=== B-05: 지역구별 안전성 점수 계산 및 Redis 저장 시작 ===");
+
+        try {
+            // 1. 범죄 데이터 수집 (지역구별 총 범죄 발생 건수)
+            List<DistrictCrimeCountDto> crimeData = crimeRepository.findCrimeCount();
+            Map<String, Long> crimeCountMap = new HashMap<>();
+
+            log.info("=== 범죄 데이터 수집 결과 ===");
+            for (DistrictCrimeCountDto crime : crimeData) {
+                String districtName = crime.getDistrictName();
+                Long totalCrime = crime.getTotalOccurrence();
+                crimeCountMap.put(districtName, totalCrime);
+                log.info("범죄 데이터 - {}: {}건", districtName, totalCrime);
+            }
+
+            // 2. 인구 데이터 수집 (지역구별 인구수) - 범죄율 계산 및 독립변수로 사용
+            List<Object[]> populationCountData = populationRepository.findPopulationCountByDistrict();
+            Map<String, Long> populationCountMap = new HashMap<>();
+
+            log.info("=== 인구 데이터 수집 결과 ===");
+            for (Object[] row : populationCountData) {
+                String districtName = (String) row[0];
+                Number populationCount = (Number) row[1];
+                Long population = populationCount.longValue();
+                populationCountMap.put(districtName, population);
+                log.info("인구 데이터 - {}: {}명", districtName, population);
+            }
+
+            // 3. 유흥업소 데이터 수집 (지역구별 영업중인 유흥주점 수)
+            List<Object[]> entertainmentData = entertainmentRepository.findActiveEntertainmentCountByDistrict();
+            Map<String, Double> entertainmentCountMap = new HashMap<>();
+
+            log.info("=== 유흥업소 데이터 수집 결과 ===");
+            for (Object[] row : entertainmentData) {
+                String districtName = (String) row[0];
+                Number count = (Number) row[1];
+                double entertainmentCount = count.doubleValue();
+                entertainmentCountMap.put(districtName, entertainmentCount);
+                log.info("유흥업소 - {}: {}개", districtName, entertainmentCount);
+            }
+
+            // 4. 지역구별 범죄율 계산 (인구 10만명당 범죄 발생률)
+            Map<String, Double> crimeRateMap = new HashMap<>();
+
+            log.info("=== 지역구별 범죄율 계산 (인구 10만명당) ===");
+            for (String districtName : SEOUL_DISTRICT_CODES.values()) {
+                Long crimeCount = crimeCountMap.getOrDefault(districtName, 0L);
+                Long population = populationCountMap.getOrDefault(districtName, 1L); // 0으로 나누기 방지
+
+                if (population > 0) {
+                    double crimeRate = (crimeCount.doubleValue() / population.doubleValue()) * 100000.0;
+                    crimeRateMap.put(districtName, crimeRate);
+                    log.debug("범죄율 - {}: {:.2f}건/10만명 (범죄:{}건, 인구:{}명)",
+                            districtName, crimeRate, crimeCount, population);
+                } else {
+                    log.warn("지역구 [{}] 인구 데이터 없음, 범죄율 계산 제외", districtName);
+                }
+            }
+
+            // 5. 정규화를 위한 최대/최소값 계산
+            double maxEntertainment = entertainmentCountMap.values().stream().mapToDouble(Double::doubleValue).max().orElse(1.0);
+            double minEntertainment = entertainmentCountMap.values().stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
+            double maxPopulation = populationCountMap.values().stream().mapToDouble(v -> v.doubleValue()).max().orElse(1.0);
+            double minPopulation = populationCountMap.values().stream().mapToDouble(v -> v.doubleValue()).min().orElse(0.0);
+
+            log.info("정규화 범위 - 유흥업소: [{} ~ {}], 인구수: [{} ~ {}]",
+                    minEntertainment, maxEntertainment, minPopulation, maxPopulation);
+
+            // 6. 모든 지역구의 원본 안전성 점수 계산 (정규화 전)
+            Map<String, Double> rawSafetyScoreMap = new HashMap<>();
+
+            // 7. 서울시 25개 자치구별 원본 안전성 점수 계산 (분석 보고서 공식 적용)
+            Map<String, Double> safetyScoreMap = new HashMap<>();
+            int processedDistricts = 0;
+            int successfulDistricts = 0;
+
+            for (String districtName : SEOUL_DISTRICT_CODES.values()) {
+                try {
+                    // 해당 지역구의 실제 범죄율이 있는지 확인
+                    if (!crimeRateMap.containsKey(districtName)) {
+                        log.warn("지역구 [{}] 범죄율 데이터 없음, 건너뜀", districtName);
+                        processedDistricts++;
+                        continue;
+                    }
+
+                    Double entertainmentCount = entertainmentCountMap.getOrDefault(districtName, 0.0);
+                    Long populationCount = populationCountMap.getOrDefault(districtName, 0L);
+                    Double actualCrimeRate = crimeRateMap.get(districtName);
+
+                    // 8. 독립변수 정규화 (0~1 범위로 변환)
+                    double normalizedEntertainment = 0.0;
+                    if (maxEntertainment > minEntertainment) {
+                        normalizedEntertainment = (entertainmentCount - minEntertainment) / (maxEntertainment - minEntertainment);
+                    }
+
+                    double normalizedPopulation = 0.0;
+                    if (maxPopulation > minPopulation) {
+                        normalizedPopulation = (populationCount.doubleValue() - minPopulation) / (maxPopulation - minPopulation);
+                    }
+
+                    // 9. 분석 보고서 공식: 범죄위험도 = 1.0229 × 정규화된_유흥주점밀도 - 0.0034 × 정규화된_인구밀도
+                    double crimeRiskScore = (1.0229 * normalizedEntertainment) - (0.0034 * normalizedPopulation);
+
+                    // 10. 분석 보고서 공식: 최종_안전성_점수 = 100 - (범죄위험도 × 10)
+                    double rawSafetyScore = 100 - (crimeRiskScore * 10);
+
+                    rawSafetyScoreMap.put(districtName, rawSafetyScore);
+
+                    log.debug("지역구 [{}] 원본 계산 - 유흥업소: {} (정규화: {:.4f}), 인구수: {} (정규화: {:.4f}), 위험도: {:.6f}, 원본점수: {:.2f}",
+                            districtName, entertainmentCount, normalizedEntertainment, populationCount, normalizedPopulation, crimeRiskScore, rawSafetyScore);
+
+                    successfulDistricts++;
+
+                } catch (Exception e) {
+                    log.error("지역구 [{}] 안전성 점수 계산 실패", districtName, e);
+                }
+
+                processedDistricts++;
+            }
+
+            // 11. 원본 안전성 점수를 0~100 구간으로 정규화
+            double maxRawScore = rawSafetyScoreMap.values().stream().mapToDouble(Double::doubleValue).max().orElse(100.0);
+            double minRawScore = rawSafetyScoreMap.values().stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
+
+            log.info("원본 안전성 점수 범위: [{:.2f} ~ {:.2f}]", minRawScore, maxRawScore);
+
+            // 12. 최종 안전성 점수 정규화 (0~100 구간 분배)
+            for (Map.Entry<String, Double> entry : rawSafetyScoreMap.entrySet()) {
+                String districtName = entry.getKey();
+                Double rawScore = entry.getValue();
+
+                double normalizedScore = 0.0;
+                if (maxRawScore > minRawScore) {
+                    normalizedScore = ((rawScore - minRawScore) / (maxRawScore - minRawScore)) * 100.0;
+                }
+
+                safetyScoreMap.put(districtName, normalizedScore);
+
+                log.debug("지역구 [{}] 최종 - 원본점수: {:.2f}, 정규화점수: {:.2f}", districtName, rawScore, normalizedScore);
+            }
+
+            // 10. Redis에 안전성 점수 저장
+            storeSafetyScoresToRedis(safetyScoreMap);
+
+            log.info("=== B-05: 지역구별 안전성 점수 계산 완료 ===");
+            log.info("- 처리된 지역구: {}개", processedDistricts);
+            log.info("- 성공한 지역구: {}개", successfulDistricts);
+            log.info("- 범죄 데이터: {}개 지역구", crimeCountMap.size());
+            log.info("- 인구 데이터: {}개 지역구", populationCountMap.size());
+            log.info("- 유흥업소 데이터: {}개 지역구", entertainmentCountMap.size());
+
+            // 범죄율 통계 출력
+            if (!crimeRateMap.isEmpty()) {
+                double maxCrimeRate = crimeRateMap.values().stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+                double minCrimeRate = crimeRateMap.values().stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
+                double avgCrimeRate = crimeRateMap.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+
+                log.info("=== 범죄율 통계 (인구 10만명당) ===");
+                log.info("- 최고 범죄율: " + maxCrimeRate + " 건");
+                log.info("- 최저 범죄율: " + minCrimeRate + " 건");
+                log.info("- 평균 범죄율: " + avgCrimeRate + " 건");
+            }
+
+        } catch (Exception e) {
+            log.error("B-05 안전성 점수 계산 중 오류 발생", e);
+        }
+    }
+
+    /**
+     * Redis에 지역구별 안전성 점수 저장
+     * 키 패턴: safety:{지역구명}
+     */
+    private void storeSafetyScoresToRedis(Map<String, Double> safetyScoreMap) {
+        log.info("Redis 안전성 점수 저장 시작 - 총 {}개 지역구", safetyScoreMap.size());
+
+        int successCount = 0;
+        String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        for (Map.Entry<String, Double> entry : safetyScoreMap.entrySet()) {
+            String districtName = entry.getKey();
+            Double safetyScore = entry.getValue();
+
+            try {
+                String redisKey = "safety:" + districtName;
+
+                Map<String, Object> safetyHash = new HashMap<>();
+                safetyHash.put("districtName", districtName);
+                safetyHash.put("safetyScore", String.valueOf(safetyScore));
+                safetyHash.put("lastUpdated", currentTime);
+                safetyHash.put("version", "1.0");
+
+                redisHandler.redisTemplate.opsForHash().putAll(redisKey, safetyHash);
+                successCount++;
+
+                log.debug("Redis 저장 완료 - Key: {}, Score: {:.2f}", redisKey, safetyScore);
+
+            } catch (Exception e) {
+                log.error("지역구 [{}] Redis 저장 실패", districtName, e);
+            }
+        }
+
+        log.info("Redis 안전성 점수 저장 완료 - 성공: {}개 / 전체: {}개", successCount, safetyScoreMap.size());
+
+        // 저장된 안전성 점수 통계
+        log.info("=== 안전성 점수 통계 ===");
+        double maxScore = safetyScoreMap.values().stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+        double minScore = safetyScoreMap.values().stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
+        double avgScore = safetyScoreMap.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+
+        log.info("- 최고 안전성 점수: {}점", String.format("%.2f", maxScore));
+        log.info("- 최저 안전성 점수: {}점", String.format("%.2f", minScore));
+        log.info("- 평균 안전성 점수: {}점", String.format("%.2f", avgScore));
+
+        // 상위/하위 3개 지역구 출력
+        List<Map.Entry<String, Double>> sortedEntries = safetyScoreMap.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .toList();
+
+        log.info("- 안전성 상위 3개 지역구:");
+        for (int i = 0; i < Math.min(3, sortedEntries.size()); i++) {
+            Map.Entry<String, Double> entry = sortedEntries.get(i);
+            log.info("  {}위: {} ({}점)", i + 1, entry.getKey(), String.format("%.2f", entry.getValue()));
+        }
+
+        log.info("- 안전성 하위 3개 지역구:");
+        for (int i = Math.max(0, sortedEntries.size() - 3); i < sortedEntries.size(); i++) {
+            Map.Entry<String, Double> entry = sortedEntries.get(i);
+            log.info("  {}위: {} ({}점)", sortedEntries.size() - i, entry.getKey(), String.format("%.2f", entry.getValue()));
+        }
+
+        log.info("생성된 Redis 구조:");
+        log.info("- 안전성 점수: safety:{{지역구명}} Hash 구조");
     }
 }

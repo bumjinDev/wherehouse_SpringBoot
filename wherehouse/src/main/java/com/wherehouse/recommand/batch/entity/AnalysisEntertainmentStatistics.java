@@ -1,4 +1,4 @@
-package com.wherehouse.AnalysisData.entertainment.entity;
+package com.wherehouse.recommand.batch.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

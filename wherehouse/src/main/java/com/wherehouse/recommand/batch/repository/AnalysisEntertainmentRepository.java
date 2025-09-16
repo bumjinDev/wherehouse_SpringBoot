@@ -1,6 +1,6 @@
-package com.wherehouse.AnalysisData.entertainment.repository;
+package com.wherehouse.recommand.batch.repository;
 
-import com.wherehouse.AnalysisData.entertainment.entity.AnalysisEntertainmentStatistics;
+import com.wherehouse.recommand.batch.entity.AnalysisEntertainmentStatistics;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -50,7 +50,7 @@ public interface AnalysisEntertainmentRepository extends JpaRepository<AnalysisE
             "        END AS district " +
             "    FROM ANALYSIS_ENTERTAINMENT_STATISTICS e " +
             "    WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%') " +
-            "      AND e.BUSINESS_STATUS_NAME = '영업' " +
+            "      AND e.BUSINESS_STATUS_NAME = '영업중' " +
             ") " +
             "WHERE district IS NOT NULL " +
             "GROUP BY district " +

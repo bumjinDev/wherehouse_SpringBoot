@@ -14,9 +14,9 @@ import lombok.ToString;
 public class TopPropertyDto {
 
     /**
-     * 매물 고유 ID
+     * 매물 고유 ID (UUID 문자열)
      */
-    private Long propertyId;
+    private String propertyId;
 
     /**
      * 아파트/오피스텔 이름
