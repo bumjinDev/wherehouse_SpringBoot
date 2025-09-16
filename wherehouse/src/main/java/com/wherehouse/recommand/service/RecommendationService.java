@@ -1,449 +1,637 @@
+
 package com.wherehouse.recommand.service;
 
-import com.wherehouse.recommand.model.*;
+import com.wherehouse.recommand.batch.dto.Property;
 import com.wherehouse.redis.handler.RedisHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
- * 부동산 추천 서비스 - 설계서 기반 구현
- * S-01 ~ S-06 단계를 순차적으로 수행하여 지역구 추천 결과 생성
+ * 부동산 매물 데이터 배치 처리 스케줄러
+ * 매일 새벽 4시에 국토교통부 API에서 최신 매물 데이터를 수집하여 Redis에 저장
  */
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
-public class RecommendationService {
+public class BatchScheduler {
 
     private final RedisHandler redisHandler;
 
-    // 서울시 25개 자치구 목록
-    private static final List<String> SEOUL_DISTRICTS = Arrays.asList(
-            "종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구",
-            "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구",
-            "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"
-    );
+    private final String serviceKey = System.getenv("MOLIT_RENT_API_SERVICE_KEY");
 
-    private static final int MIN_PROPERTIES_THRESHOLD = 3; // 폴백 기준 매물 수
+    @Value("${molit.rent-api.base-url}")
+    private String baseUrl;
 
-    /**
-     * 메인 추천 로직 - 설계서 S-01 ~ S-06 단계 실행
-     */
-    public RecommendationResponseDto getDistrictRecommendations(RecommendationRequestDto request) {
-        log.info("=== 지역구 추천 서비스 시작 ===");
-        log.info("요청 조건: 임대유형={}, 예산={}-{}, 평수={}-{}, 우선순위={},{},{}",
-                request.getLeaseType(), request.getBudgetMin(), request.getBudgetMax(),
-                request.getAreaMin(), request.getAreaMax(),
-                request.getPriority1(), request.getPriority2(), request.getPriority3());
+    private static final String API_ENDPOINT = "/getRTMSDataSvcAptRent";
+    private static final String NUM_OF_ROWS = "1000"; // 페이지당 조회 건수
+
+    // 서울시 25개 자치구 코드 매핑
+    private static final Map<String, String> SEOUL_DISTRICT_CODES;
+
+    static {
+        Map<String, String> codes = new HashMap<>();
+        codes.put("11110", "종로구");
+        codes.put("11140", "중구");
+        codes.put("11170", "용산구");
+        codes.put("11200", "성동구");
+        codes.put("11215", "광진구");
+        codes.put("11230", "동대문구");
+        codes.put("11260", "중랑구");
+        codes.put("11290", "성북구");
+        codes.put("11305", "강북구");
+        codes.put("11320", "도봉구");
+        codes.put("11350", "노원구");
+        codes.put("11380", "은평구");
+        codes.put("11410", "서대문구");
+        codes.put("11440", "마포구");
+        codes.put("11470", "양천구");
+        codes.put("11500", "강서구");
+        codes.put("11530", "구로구");
+        codes.put("11545", "금천구");
+        codes.put("11560", "영등포구");
+        codes.put("11590", "동작구");
+        codes.put("11620", "관악구");
+        codes.put("11650", "서초구");
+        codes.put("11680", "강남구");
+        codes.put("11710", "송파구");
+        codes.put("11740", "강동구");
+        SEOUL_DISTRICT_CODES = Collections.unmodifiableMap(codes);
+    }
+
+    // 테스트용: 한번만 실행 (fixedDelay 사용)
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    public void executeBatchProcess() {
+        log.info("=== 부동산 매물 데이터 배치 처리 시작 ===");
 
         try {
-            // S-01: 전 지역구 1차 검색 (Strict Search)
-            Map<String, List<String>> districtProperties = performStrictSearch(request);
+            // B-01: 전 지역구 매물 데이터 수집
+            List<Property> allProperties = collectAllDistrictData();
 
-            // S-02: 폴백 조건 판단 및 확장 검색
-            SearchResult searchResult = checkAndPerformFallback(districtProperties, request);
+            log.info("총 {}건의 매물 데이터를 수집했습니다.", allProperties.size());
 
-            // TODO: S-04 ~ S-06 구현 예정
-            // - 매물 단위 점수 계산
-            // - 지역구 단위 점수 계산 및 정렬
-            // - 최종 응답 생성
+            // B-03: Redis 데이터 적재
+            storeDataToRedis(allProperties);
 
-            log.info("=== 지역구 추천 서비스 완료 (임시) ===");
+            // B-04: 지역구별 정규화 범위 계산 및 저장
+            calculateAndStoreNormalizationBounds(allProperties);
 
-            return RecommendationResponseDto.builder()
-                    .searchStatus(searchResult.getSearchStatus())
-                    .message(searchResult.getMessage())
-                    .recommendedDistricts(Collections.emptyList()) // 임시로 빈 리스트
-                    .build();
+            log.info("=== 부동산 매물 데이터 배치 처리 완료 ===");
 
         } catch (Exception e) {
-            log.error("추천 서비스 처리 중 오류 발생", e);
-            throw new RuntimeException("추천 처리 중 오류가 발생했습니다.", e);
+            log.error("배치 처리 중 오류 발생", e);
         }
     }
 
     /**
-     * S-01: 전 지역구 1차 검색 (Strict Search)
-     *
-     * 서울시 25개 자치구를 순회하며 사용자 조건에 맞는 매물 ID 목록을 Redis Sorted Set에서 검색한다.
-     * 가격 조건과 평수 조건을 모두 만족하는 매물만 선별하여 지역구별로 그룹화한다.
-     *
-     * @param request 사용자 요청 조건 (임대유형, 예산범위, 평수범위, 우선순위 등)
-     * @return Map<String, List<String>> 지역구별 유효 매물 목록
-     *         - Key: 지역구명 (예: "강남구", "서초구")
-     *         - Value: 해당 지역구에서 조건을 만족하는 매물 ID 리스트
-     *         - 매물이 없는 지역구는 Map에 포함되지 않음 (빈 리스트가 아닌 키 자체가 없음)
+     * B-01: 전 지역구 매물 데이터 수집
+     * 서울시 25개 자치구를 순회하며 모든 매물 데이터를 수집
      */
-    private Map<String, List<String>> performStrictSearch(RecommendationRequestDto request) {
-        log.info("S-01: 전 지역구 1차 검색 시작");
+    private List<Property> collectAllDistrictData() {
+        log.info("서울시 25개 자치구 매물 데이터 수집 시작");
 
-        Map<String, List<String>> result = new HashMap<>();
-        // 영문 임대유형을 한글로 변환 (Redis 저장 시 한글로 저장했기 때문)
-        String leaseTypeKorean = "CHARTER".equals(request.getLeaseType()) ? "전세" : "월세";
-        int totalFound = 0;
+        List<Property> allProperties = new ArrayList<>();
+        String dealYmd = LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM")); // 전월 데이터
 
-        // 서울시 25개 자치구 전체 순회
-        for (String district : SEOUL_DISTRICTS) {
-            List<String> validProperties = findValidPropertiesInDistrict(
-                    district, leaseTypeKorean, request);
+        log.info("조회 기준 년월: {}", dealYmd);
 
-            // 조건을 만족하는 매물이 있는 지역구만 결과에 포함
-            if (!validProperties.isEmpty()) {
-                result.put(district, validProperties);
-                totalFound += validProperties.size();
-                log.debug("지역구 [{}]: {}개 매물 발견", district, validProperties.size());
+        for (Map.Entry<String, String> district : SEOUL_DISTRICT_CODES.entrySet()) {
+            String districtCode = district.getKey();
+            String districtName = district.getValue();
+
+            log.info(">>> {} ({}) 매물 데이터 수집 시작", districtName, districtCode);
+
+            try {
+                List<Property> districtProperties = collectDistrictDataWithPaging(
+                        districtCode, districtName, dealYmd);
+
+                allProperties.addAll(districtProperties);
+
+                log.info(">>> {} 매물 데이터 수집 완료: {}건", districtName, districtProperties.size());
+
+                // API 호출 간격 조절 (Rate Limit 방지)
+                Thread.sleep(200);
+
+            } catch (Exception e) {
+                log.error(">>> {} 매물 데이터 수집 실패", districtName, e);
             }
         }
 
-        log.info("1차 검색 완료: 총 {}개 매물 발견 ({}개 지역구)", totalFound, result.size());
-        return result;
+        log.info("전 지역구 매물 데이터 수집 완료: 총 {}건", allProperties.size());
+        return allProperties;
     }
 
     /**
-     * S-02: 폴백 조건 판단 및 확장 검색 수행
-     *
-     * 폴백 판단 기준:
-     * - 매물이 발견된 지역구들 중에서 3개 미만인 곳이 하나라도 있으면 폴백 수행
-     * - 매물이 아예 없는 지역구(districtProperties에 키가 없는 지역구)는 판단 대상에서 제외
-     *
-     * 제외 근거:
-     * 1. 매물이 없는 지역구는 애초에 추천 대상이 될 수 없음
-     * 2. 사용자에게 "매물 0개 지역구"를 추천할 의미가 없음
-     * 3. 실제 추천 가능한 지역구들의 매물 부족 여부만 판단하는 것이 합리적
-     *
-     * 예시:
-     * - 강남구: 5개, 서초구: 2개, 송파구: 4개 → 서초구(2<3) 때문에 폴백 수행
-     * - 강남구: 5개, 서초구: 3개, 송파구: 4개 → 모두 3개 이상이므로 정상 처리
-     * - 강남구: 0개(키 없음), 서초구: 3개, 송파구: 4개 → 강남구는 판단 제외, 정상 처리
-     *
-     * @param districtProperties 1차 검색 결과. Key=지역구명, Value=해당 지역구의 유효 매물 ID 리스트
-     * @param request 사용자 요청 정보 (확장 검색에 필요한 완화 조건 포함)
-     * @return SearchResult 검색 상태, 메시지, 최종 지역구별 매물 목록을 포함한 결과 객체
+     * 특정 지역구의 모든 페이지 데이터를 수집 (페이징 처리)
      */
-    private SearchResult checkAndPerformFallback(Map<String, List<String>> districtProperties,
-                                                 RecommendationRequestDto request) {
+    private List<Property> collectDistrictDataWithPaging(String lawdCd, String districtName, String dealYmd) {
+        List<Property> districtProperties = new ArrayList<>();
+        int pageNo = 1;
+        int totalCount = 0;
 
-        // 매물이 발견된 지역구들 중에서 3개 미만인 곳이 있는지 검사
-        // 매물이 아예 없는 지역구(Map에 키가 없는 지역구)는 자동으로 제외됨
-        boolean hasInsufficientDistricts = districtProperties.values().stream()
-                .anyMatch(propertyList -> propertyList.size() < MIN_PROPERTIES_THRESHOLD);
+        do {
+            try {
+                log.debug("{}페이지 데이터 수집 중...", pageNo);
 
-        int totalPropertiesFound = districtProperties.values().stream()
-                .mapToInt(List::size).sum();
+                String xmlResponse = callRentAPI(lawdCd, dealYmd, String.valueOf(pageNo));
+                if (xmlResponse == null) {
+                    log.warn("API 응답이 null입니다. 다음 페이지로 이동합니다.");
+                    break;
+                }
 
-        int districtsWithProperties = districtProperties.size(); // 매물이 있는 지역구 수
+                // XML 파싱 및 매물 데이터 추출
+                List<Property> pageProperties = parseXmlAndExtractProperties(xmlResponse, districtName);
 
-        log.info("S-02: 폴백 조건 판단 - 전체 매물: {}개, 매물 보유 지역구: {}개",
-                totalPropertiesFound, districtsWithProperties);
+                if (pageProperties.isEmpty()) {
+                    log.debug("{}페이지에서 추가 데이터가 없습니다. 수집을 종료합니다.", pageNo);
+                    break;
+                }
 
-        // 매물이 있는 모든 지역구가 3개 이상의 매물을 보유한 경우
-        if (!hasInsufficientDistricts) {
-            return SearchResult.builder()
-                    .searchStatus("SUCCESS_NORMAL")
-                    .message("조건에 맞는 매물을 성공적으로 찾았습니다.")
-                    .districtProperties(districtProperties)
-                    .build();
-        }
+                districtProperties.addAll(pageProperties);
 
-        // 일부 지역구의 매물이 3개 미만 - 확장 검색 수행
-        log.info("일부 지역구의 매물 부족 - S-03 확장 검색 수행");
-        return performExpandedSearch(request);
+                // totalCount는 첫 번째 페이지에서만 파싱
+                if (pageNo == 1) {
+                    totalCount = extractTotalCount(xmlResponse);
+                    log.info(">>> {} 전체 데이터 수: {}건", districtName, totalCount);
+                }
+
+                pageNo++;
+
+                // 무한루프 방지
+                if (pageNo > 500) {
+                    log.warn("페이지 수가 500을 초과했습니다. 수집을 중단합니다.");
+                    break;
+                }
+
+            } catch (Exception e) {
+                log.error("{}페이지 수집 중 오류 발생", pageNo, e);
+                break;
+            }
+        } while (true);
+
+        return districtProperties;
     }
 
     /**
-     * S-03: 2차 확장 검색 (Expanded Search)
-     *
-     * 1차 검색에서 일부 지역구의 매물이 부족할 때, 사용자의 우선순위에 따라 조건을 단계적으로 완화한다.
-     * 3순위 → 2순위 순서로 조건을 완화하여 재검색하며, 1순위 조건은 원칙적으로 유지한다.
-     *
-     * @param originalRequest 사용자의 원본 요청 조건
-     * @param insufficientDistricts 매물이 부족한 지역구 목록 (3개 미만인 지역구들)
-     * @return SearchResult 확장 검색 결과
-     *         - searchStatus: "SUCCESS_EXPANDED" 또는 "NO_RESULTS"
-     *         - message: 어떤 조건이 완화되었는지 사용자에게 알리는 메시지
-     *         - districtProperties: 완화된 조건으로 검색한 지역구별 매물 목록
+     * 국토교통부 전월세 실거래가 API 호출
      */
-    private SearchResult performExpandedSearch(RecommendationRequestDto originalRequest,
-                                               List<String> insufficientDistricts) {
-        log.info("S-03: 2차 확장 검색 시작 - 대상 지역구: {}", insufficientDistricts);
+    private String callRentAPI(String lawdCd, String dealYmd, String pageNo) {
+        HttpURLConnection conn = null;
+        BufferedReader reader = null;
 
-        // === 1단계: 3순위 조건 완화 ===
-        RecommendationRequestDto expandedRequest = relaxThirdPriority(originalRequest);
-        String relaxedCondition = getRelaxedConditionMessage(originalRequest.getPriority3(), originalRequest, expandedRequest);
-
-        // 완화된 조건으로 재검색
-        Map<String, List<String>> expandedResult = performStrictSearch(expandedRequest);
-
-        // 3순위 완화만으로 충분한지 검사 (각 지역구별 3개 이상 기준)
-        boolean stillInsufficient = expandedResult.values().stream()
-                .anyMatch(propertyList -> propertyList.size() < MIN_PROPERTIES_THRESHOLD);
-
-        if (!stillInsufficient && !expandedResult.isEmpty()) {
-            log.info("3순위 조건 완화로 충분한 매물 확보: {} 지역구", expandedResult.size());
-            return SearchResult.builder()
-                    .searchStatus("SUCCESS_EXPANDED")
-                    .message("원하시는 조건의 매물이 부족하여, " + relaxedCondition + " 완화하여 찾았어요.")
-                    .districtProperties(expandedResult)
-                    .build();
-        }
-
-        // === 2단계: 2순위 조건 추가 완화 ===
-        log.info("3순위 완화 불충분 - 2순위 조건 추가 완화 시도");
-        RecommendationRequestDto doubleExpandedRequest = relaxSecondPriority(expandedRequest, originalRequest);
-        String doubleRelaxedCondition = relaxedCondition + ", " + getRelaxedConditionMessage(originalRequest.getPriority2(), originalRequest, doubleExpandedRequest);
-
-        Map<String, List<String>> doubleExpandedResult = performStrictSearch(doubleExpandedRequest);
-
-        if (doubleExpandedResult.isEmpty() ||
-                doubleExpandedResult.values().stream().mapToInt(List::size).sum() == 0) {
-            log.warn("2순위까지 완화했으나 매물 없음");
-            return SearchResult.builder()
-                    .searchStatus("NO_RESULTS")
-                    .message("아쉽지만 조건에 맞는 매물을 찾을 수 없었어요. 조건을 변경하여 다시 시도해 보세요.")
-                    .districtProperties(Collections.emptyMap())
-                    .build();
-        }
-
-        log.info("2순위까지 완화하여 매물 확보: {} 지역구", doubleExpandedResult.size());
-        return SearchResult.builder()
-                .searchStatus("SUCCESS_EXPANDED")
-                .message("원하시는 조건의 매물이 부족하여, " + doubleRelaxedCondition + " 완화하여 찾았어요.")
-                .districtProperties(doubleExpandedResult)
-                .build();
-    }
-
-    /**
-     * 특정 지역구에서 조건에 맞는 매물 ID 목록을 찾기
-     *
-     * Redis Sorted Set 인덱스를 사용하여 가격 조건과 평수 조건을 모두 만족하는 매물들을 검색한다.
-     * 두 개의 Sorted Set(가격 인덱스, 평수 인덱스)에서 각각 범위 검색을 수행한 후 교집합을 구한다.
-     *
-     * @param district 검색할 지역구명 (예: "강남구")
-     * @param leaseType 한글 임대유형 ("전세" 또는 "월세")
-     * @param request 사용자 요청 조건 (예산 및 평수 범위)
-     * @return List<String> 두 조건을 모두 만족하는 매물 ID 리스트
-     *         - 빈 리스트: 조건을 만족하는 매물이 없음
-     *         - Redis 오류 시에도 빈 리스트 반환 (예외를 상위로 전파하지 않음)
-     */
-    private List<String> findValidPropertiesInDistrict(String district, String leaseType,
-                                                       RecommendationRequestDto request) {
         try {
-            // === 1단계: 가격 조건 만족 매물 ID 조회 ===
-            String priceIndexKey = "idx:price:" + district + ":" + leaseType;
-            Set<Object> priceValidObjects = redisHandler.redisTemplate.opsForZSet()
-                    .rangeByScore(priceIndexKey, request.getBudgetMin(), request.getBudgetMax());
+            StringBuilder urlBuilder = new StringBuilder(baseUrl + API_ENDPOINT);
+            urlBuilder.append("?").append(URLEncoder.encode("serviceKey", "UTF-8"))
+                    .append("=").append(serviceKey);
+            urlBuilder.append("&").append(URLEncoder.encode("LAWD_CD", "UTF-8"))
+                    .append("=").append(URLEncoder.encode(lawdCd, "UTF-8"));
+            urlBuilder.append("&").append(URLEncoder.encode("DEAL_YMD", "UTF-8"))
+                    .append("=").append(URLEncoder.encode(dealYmd, "UTF-8"));
+            urlBuilder.append("&").append(URLEncoder.encode("numOfRows", "UTF-8"))
+                    .append("=").append(URLEncoder.encode(NUM_OF_ROWS, "UTF-8"));
+            urlBuilder.append("&").append(URLEncoder.encode("pageNo", "UTF-8"))
+                    .append("=").append(URLEncoder.encode(pageNo, "UTF-8"));
 
-            if (priceValidObjects == null || priceValidObjects.isEmpty()) {
-                return Collections.emptyList();
+            URL url = new URL(urlBuilder.toString());
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-type", "application/xml");
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    response.append(line).append("\n");
+                }
+
+                return response.toString();
+            } else {
+                log.error("API 호출 실패 - HTTP 코드: {}", responseCode);
+                return null;
             }
-
-            // Redis Object를 String으로 변환 (매물 ID는 문자열로 저장됨)
-            Set<String> priceValidIds = priceValidObjects.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
-
-            // === 2단계: 평수 조건 만족 매물 ID 조회 ===
-            String areaIndexKey = "idx:area:" + district + ":" + leaseType;
-            Set<Object> areaValidObjects = redisHandler.redisTemplate.opsForZSet()
-                    .rangeByScore(areaIndexKey, request.getAreaMin(), request.getAreaMax());
-
-            if (areaValidObjects == null || areaValidObjects.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            // Redis Object를 String으로 변환
-            Set<String> areaValidIds = areaValidObjects.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
-
-            // === 3단계: 교집합 연산 (두 조건 모두 만족하는 매물만 선별) ===
-            priceValidIds.retainAll(areaValidIds);
-
-            return new ArrayList<>(priceValidIds);
 
         } catch (Exception e) {
-            log.debug("지역구 [{}] 검색 중 오류", district, e);
-            // 특정 지역구의 검색 실패가 전체 프로세스를 중단시키지 않도록 빈 리스트 반환
-            return Collections.emptyList();
-        }
-    }
-
-    /**
-     * 3순위 조건을 완화한 새로운 요청 객체 생성
-     *
-     * 사용자가 설정한 완화 임계값을 사용하여 해당 우선순위 조건을 완화한다.
-     *
-     * @param original 원본 요청
-     * @return RecommendationRequestDto 3순위 조건이 완화된 요청 객체
-     */
-    private RecommendationRequestDto relaxThirdPriority(RecommendationRequestDto original) {
-        RecommendationRequestDto relaxed = copyRequest(original);
-
-        switch (original.getPriority3()) {
-            case "PRICE":
-                // 예산 완화: budgetFlexibility %만큼 최대 예산 증가
-                if (original.getBudgetFlexibility() != null && original.getBudgetFlexibility() > 0) {
-                    int flexAmount = (int) (original.getBudgetMax() * (original.getBudgetFlexibility() / 100.0));
-                    relaxed.setBudgetMax(original.getBudgetMax() + flexAmount);
-                    log.debug("예산 완화: {}만원 → {}만원", original.getBudgetMax(), relaxed.getBudgetMax());
-                }
-                break;
-            case "SAFETY":
-                // 안전 점수 완화: minSafetyScore까지 허용
-                // TODO: 현재는 안전 점수 기반 인덱스가 없으므로 실제 적용 불가
-                // 향후 안전 점수 Sorted Set 구현 시 활용
-                log.debug("안전 점수 완화 (현재 미구현)");
-                break;
-            case "SPACE":
-                // 평수 완화: absoluteMinArea까지 허용
-                if (original.getAbsoluteMinArea() != null && original.getAbsoluteMinArea() > 0) {
-                    relaxed.setAreaMin(original.getAbsoluteMinArea());
-                    log.debug("평수 완화: {}평 → {}평", original.getAreaMin(), relaxed.getAreaMin());
-                }
-                break;
-            default:
-                log.warn("알 수 없는 우선순위: {}", original.getPriority3());
-        }
-
-        return relaxed;
-    }
-
-    /**
-     * 2순위 조건을 추가로 완화한 새로운 요청 객체 생성
-     *
-     * 이미 3순위가 완화된 요청에 대해 2순위 조건도 완화한다.
-     * 동일한 조건이 중복 완화되는 경우 더 관대한 값을 적용한다.
-     *
-     * @param expandedRequest 이미 3순위가 완화된 요청
-     * @param original 원본 요청 (완화 기준값 참조용)
-     * @return RecommendationRequestDto 2순위까지 완화된 요청 객체
-     */
-    private RecommendationRequestDto relaxSecondPriority(RecommendationRequestDto expandedRequest,
-                                                         RecommendationRequestDto original) {
-        RecommendationRequestDto doubleRelaxed = copyRequest(expandedRequest);
-
-        switch (original.getPriority2()) {
-            case "PRICE":
-                if (original.getBudgetFlexibility() != null && original.getBudgetFlexibility() > 0) {
-                    int flexAmount = (int) (original.getBudgetMax() * (original.getBudgetFlexibility() / 100.0));
-                    int newBudgetMax = original.getBudgetMax() + flexAmount;
-                    // 이미 3순위에서 예산이 완화된 경우 더 큰 값 사용
-                    doubleRelaxed.setBudgetMax(Math.max(doubleRelaxed.getBudgetMax(), newBudgetMax));
-                    log.debug("예산 2차 완화: {}만원", doubleRelaxed.getBudgetMax());
-                }
-                break;
-            case "SAFETY":
-                // TODO: 안전 점수 기반 검색 로직 구현 시 적용
-                log.debug("안전 점수 2차 완화 (현재 미구현)");
-                break;
-            case "SPACE":
-                if (original.getAbsoluteMinArea() != null && original.getAbsoluteMinArea() > 0) {
-                    // 이미 3순위에서 평수가 완화된 경우 더 작은 값 사용 (더 관대한 조건)
-                    doubleRelaxed.setAreaMin(Math.min(doubleRelaxed.getAreaMin(), original.getAbsoluteMinArea()));
-                    log.debug("평수 2차 완화: {}평", doubleRelaxed.getAreaMin());
-                }
-                break;
-            default:
-                log.warn("알 수 없는 우선순위: {}", original.getPriority2());
-        }
-
-        return doubleRelaxed;
-    }
-
-    /**
-     * 요청 객체를 깊은 복사하여 새 인스턴스 생성
-     *
-     * 원본 요청을 변경하지 않고 완화된 조건의 새 요청을 생성하기 위해 사용한다.
-     *
-     * @param original 복사할 원본 요청
-     * @return RecommendationRequestDto 복사된 새 요청 객체
-     */
-    private RecommendationRequestDto copyRequest(RecommendationRequestDto original) {
-        return RecommendationRequestDto.builder()
-                .leaseType(original.getLeaseType())
-                .budgetMin(original.getBudgetMin())
-                .budgetMax(original.getBudgetMax())
-                .areaMin(original.getAreaMin())
-                .areaMax(original.getAreaMax())
-                .priority1(original.getPriority1())
-                .priority2(original.getPriority2())
-                .priority3(original.getPriority3())
-                .budgetFlexibility(original.getBudgetFlexibility())
-                .minSafetyScore(original.getMinSafetyScore())
-                .absoluteMinArea(original.getAbsoluteMinArea())
-                .build();
-    }
-
-    /**
-     * 완화된 조건에 대한 사용자 안내 메시지 생성
-     *
-     * @param priority 완화된 우선순위 ("PRICE", "SAFETY", "SPACE")
-     * @param original 원본 요청
-     * @param relaxed 완화된 요청
-     * @return String 사용자에게 보여줄 완화 내용 메시지
-     */
-    private String getRelaxedConditionMessage(String priority, RecommendationRequestDto original,
-                                              RecommendationRequestDto relaxed) {
-        switch (priority) {
-            case "PRICE":
-                return "예산 조건을 " + relaxed.getBudgetMax() + "만원으로";
-            case "SAFETY":
-                return "안전 점수 기준을";
-            case "SPACE":
-                return "평수 조건을 " + relaxed.getAreaMin() + "평으로";
-            default:
-                return "검색 조건을";
-        }
-    }
-
-    // === 내부 헬퍼 클래스 ===
-
-    /**
-     * 검색 결과를 담는 내부 클래스
-     */
-    private static class SearchResult {
-        private String searchStatus;
-        private String message;
-        private Map<String, List<String>> districtProperties;
-
-        public static SearchResultBuilder builder() {
-            return new SearchResultBuilder();
-        }
-
-        public static class SearchResultBuilder {
-            private String searchStatus;
-            private String message;
-            private Map<String, List<String>> districtProperties;
-
-            public SearchResultBuilder searchStatus(String searchStatus) {
-                this.searchStatus = searchStatus;
-                return this;
+            log.error("API 호출 중 예외 발생", e);
+            return null;
+        } finally {
+            if (reader != null) {
+                try { reader.close(); } catch (Exception ignored) {}
             }
-
-            public SearchResultBuilder message(String message) {
-                this.message = message;
-                return this;
-            }
-
-            public SearchResultBuilder districtProperties(Map<String, List<String>> districtProperties) {
-                this.districtProperties = districtProperties;
-                return this;
-            }
-
-            public SearchResult build() {
-                SearchResult result = new SearchResult();
-                result.searchStatus = this.searchStatus;
-                result.message = this.message;
-                result.districtProperties = this.districtProperties;
-                return result;
+            if (conn != null) {
+                conn.disconnect();
             }
         }
+    }
 
-        public String getSearchStatus() { return searchStatus; }
-        public String getMessage() { return message; }
-        public Map<String, List<String>> getDistrictProperties() { return districtProperties; }
+    /**
+     * XML 응답에서 전체 데이터 수 추출
+     */
+    private int extractTotalCount(String xmlResponse) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(xmlResponse)));
+
+            NodeList bodyNodes = document.getElementsByTagName("body");
+            if (bodyNodes.getLength() > 0) {
+                Element body = (Element) bodyNodes.item(0);
+                String totalCountStr = getElementValue(body, "totalCount");
+                return totalCountStr != null ? Integer.parseInt(totalCountStr) : 0;
+            }
+        } catch (Exception e) {
+            log.debug("totalCount 파싱 실패", e);
+        }
+        return 0;
+    }
+
+    /**
+     * XML 응답을 파싱하여 Property 객체 리스트로 변환
+     */
+    private List<Property> parseXmlAndExtractProperties(String xmlResponse, String districtName) {
+        List<Property> properties = new ArrayList<>();
+
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(xmlResponse)));
+
+            NodeList itemNodes = document.getElementsByTagName("item");
+
+            for (int i = 0; i < itemNodes.getLength(); i++) {
+                Element item = (Element) itemNodes.item(i);
+                Property property = parseIndividualProperty(item, districtName);
+                if (property != null) {
+                    properties.add(property);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("XML 파싱 중 오류 발생", e);
+        }
+
+        return properties;
+    }
+
+    /**
+     * 개별 매물 정보를 Property 객체로 변환 (B-02: 데이터 정제 및 객체 변환)
+     */
+    private Property parseIndividualProperty(Element item, String districtName) {
+        try {
+            Property property = Property.builder()
+                    .propertyId(UUID.randomUUID().toString()) // 고유 ID 자동 생성
+                    .districtName(districtName)
+                    .aptNm(getElementValue(item, "aptNm"))
+                    .excluUseAr(parseDoubleValue(getElementValue(item, "excluUseAr")))
+                    .floor(parseIntegerValue(getElementValue(item, "floor")))
+                    .buildYear(parseIntegerValue(getElementValue(item, "buildYear")))
+                    .deposit(parseIntegerValue(getElementValue(item, "deposit")))
+                    .monthlyRent(parseIntegerValue(getElementValue(item, "monthlyRent")))
+                    .umdNm(getElementValue(item, "umdNm"))
+                    .jibun(getElementValue(item, "jibun"))
+                    .sggCd(getElementValue(item, "sggCd"))
+                    .rgstDate(getElementValue(item, "rgstDate"))
+                    .build();
+
+            // 계약일자 조합
+            String dealYear = getElementValue(item, "dealYear");
+            String dealMonth = getElementValue(item, "dealMonth");
+            String dealDay = getElementValue(item, "dealDay");
+            if (dealYear != null && dealMonth != null && dealDay != null) {
+                property.setDealDate(String.format("%s-%02d-%02d",
+                        dealYear, Integer.parseInt(dealMonth), Integer.parseInt(dealDay)));
+            }
+
+            // 계산된 값들 설정
+            property.calculateAreaInPyeong();
+            property.determineLeaseType();
+            property.generateAddress();
+
+            // 안전성 점수는 API에서 제공되지 않으므로 설정하지 않음
+
+            return property;
+
+        } catch (Exception e) {
+            log.debug("개별 매물 파싱 실패", e);
+            return null;
+        }
+    }
+
+    /**
+     * XML Element에서 텍스트 값 추출
+     */
+    private String getElementValue(Element parent, String tagName) {
+        try {
+            NodeList nodeList = parent.getElementsByTagName(tagName);
+            if (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                if (node != null && node.getFirstChild() != null) {
+                    return node.getFirstChild().getNodeValue().trim();
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    /**
+     * 문자열을 Double로 안전하게 변환
+     */
+    private Double parseDoubleValue(String value) {
+        try {
+            return value != null ? Double.parseDouble(value.trim()) : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 문자열을 Integer로 안전하게 변환
+     */
+    private Integer parseIntegerValue(String value) {
+        try {
+            return value != null ? Integer.parseInt(value.trim()) : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * B-03: Redis 데이터 적재
+     * 명세서에 따른 3개 구조로 저장: Hash + 2개 Sorted Set 인덱스
+     */
+    private void storeDataToRedis(List<Property> properties) {
+        log.info("Redis 데이터 적재 시작 - 총 {}건", properties.size());
+
+        // 기존 데이터 초기화
+        redisHandler.clearCurrentRedisDB();
+
+        int successCount = 0;
+        Map<String, Integer> districtStats = new HashMap<>();
+
+        for (Property property : properties) {
+            try {
+                // 1. 매물 원본 데이터 저장 (Hash) - 키 패턴: property:{id}
+                String propertyKey = "property:" + property.getPropertyId();
+
+                // Hash 구조로 각 필드별로 저장 (명세서 2.1에 맞춘 필드만)
+                Map<String, Object> propertyHash = new HashMap<>();
+                propertyHash.put("propertyId", property.getPropertyId() != null ? property.getPropertyId() : "");
+                propertyHash.put("aptNm", property.getAptNm() != null ? property.getAptNm() : "");
+                propertyHash.put("excluUseAr", property.getExcluUseAr() != null ? property.getExcluUseAr().toString() : "0.0");
+                propertyHash.put("floor", property.getFloor() != null ? property.getFloor().toString() : "0");
+                propertyHash.put("buildYear", property.getBuildYear() != null ? property.getBuildYear().toString() : "0");
+                propertyHash.put("dealDate", property.getDealDate() != null ? property.getDealDate() : "");
+                propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
+                propertyHash.put("monthlyRent", property.getMonthlyRent() != null ? property.getMonthlyRent().toString() : "0");
+                propertyHash.put("leaseType", property.getLeaseType() != null ? property.getLeaseType() : "");
+                propertyHash.put("umdNm", property.getUmdNm() != null ? property.getUmdNm() : "");
+                propertyHash.put("jibun", property.getJibun() != null ? property.getJibun() : "");
+                propertyHash.put("sggCd", property.getSggCd() != null ? property.getSggCd() : "");
+                propertyHash.put("address", property.getAddress() != null ? property.getAddress() : "");
+                propertyHash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
+                propertyHash.put("rgstDate", property.getRgstDate() != null ? property.getRgstDate() : "");
+                propertyHash.put("districtName", property.getDistrictName() != null ? property.getDistrictName() : "");
+
+//                System.out.println("propertyId: " + propertyHash.get("propertyId") + ", aptNm: " + propertyHash.get("aptNm") + ", excluUseAr: " + propertyHash.get("excluUseAr") + ", floor: " + propertyHash.get("floor") + ", buildYear: " + propertyHash.get("buildYear") + ", dealDate: " + propertyHash.get("dealDate") + ", deposit: " + propertyHash.get("deposit") + ", monthlyRent: " + propertyHash.get("monthlyRent") + ", leaseType: " + propertyHash.get("leaseType") + ", umdNm: " + propertyHash.get("umdNm") + ", jibun: " + propertyHash.get("jibun") + ", sggCd: " + propertyHash.get("sggCd") + ", address: " + propertyHash.get("address") + ", areaInPyeong: " + propertyHash.get("areaInPyeong") + ", rgstDate: " + propertyHash.get("rgstDate") + ", districtName: " + propertyHash.get("districtName"));
+
+                // Redis Hash에 저장
+                redisHandler.redisTemplate.opsForHash().putAll(propertyKey, propertyHash);
+                successCount++;
+
+                // 2. 가격 인덱스 저장 (Sorted Set) - 키 패턴: idx:price:{지역구명}:{임대유형}
+                String priceIndexKey = "idx:price:" + property.getDistrictName() + ":" + property.getLeaseType();
+                Double priceScore = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
+                redisHandler.redisTemplate.opsForZSet().add(priceIndexKey, property.getPropertyId(), priceScore);
+
+                // 3. 평수 인덱스 저장 (Sorted Set) - 키 패턴: idx:area:{지역구명}:{임대유형}
+                String areaIndexKey = "idx:area:" + property.getDistrictName() + ":" + property.getLeaseType();
+                Double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
+                redisHandler.redisTemplate.opsForZSet().add(areaIndexKey, property.getPropertyId(), areaScore);
+
+                // 지역구별 통계 업데이트
+                districtStats.merge(property.getDistrictName(), 1, Integer::sum);
+
+            } catch (Exception e) {
+                log.debug("매물 Redis 저장 실패: {}", property.getPropertyId(), e);
+            }
+        }
+
+        // 통계 로그 출력
+        log.info("Redis 데이터 적재 완료 - 성공: {}건 / 전체: {}건", successCount, properties.size());
+        log.info("지역구별 매물 수: {}", districtStats);
+
+        // 생성된 인덱스 확인 로그
+        log.info("생성된 Redis 구조:");
+        log.info("- 매물 원본 데이터: property:{{id}} Hash 구조");
+        log.info("- 가격 인덱스: idx:price:{{지역구}}:{{임대유형}} Sorted Set");
+        log.info("- 평수 인덱스: idx:area:{{지역구}}:{{임대유형}} Sorted Set");
+    }
+
+    /**
+     * B-04: 지역구별 정규화 범위 계산 및 저장
+     * 실시간 추천 점수 계산 성능 최적화를 위해 지역구별·임대유형별 가격 및 평수의 정규화 범위를 사전 계산하여 Redis에 저장
+     */
+    private void calculateAndStoreNormalizationBounds(List<Property> properties) {
+        log.info("=== B-04: 지역구별 정규화 범위 계산 및 저장 시작 ===");
+
+        // 1. 데이터 그룹핑: 지역구명 + 임대유형
+        Map<String, List<Property>> groupedProperties = groupPropertiesByDistrictAndLeaseType(properties);
+
+        int processedGroups = 0;
+        int validGroups = 0;
+        String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        for (Map.Entry<String, List<Property>> entry : groupedProperties.entrySet()) {
+            String groupKey = entry.getKey();
+            List<Property> groupProperties = entry.getValue();
+
+            try {
+                log.debug("그룹 [{}] 처리 시작 - 매물 수: {}건", groupKey, groupProperties.size());
+
+                // 품질 보장: 최소 데이터 요구사항 검증 (그룹당 2개 이상 매물)
+                if (groupProperties.size() < 2) {
+                    log.debug("그룹 [{}] 스킵 - 매물 수 부족 ({}건 < 2건)", groupKey, groupProperties.size());
+                    continue;
+                }
+
+                // 2. 총 가격 산정 및 3. 정규화 범위 계산
+                NormalizationBounds bounds = calculateBoundsForGroup(groupProperties, groupKey);
+
+                if (bounds == null) {
+                    log.debug("그룹 [{}] 스킵 - 유효한 데이터 부족", groupKey);
+                    continue;
+                }
+
+                // 4. Redis 저장
+                storeBoundsToRedis(groupKey, bounds, groupProperties.size(), currentTime);
+
+                validGroups++;
+                log.debug("그룹 [{}] 처리 완료 - 가격범위: [{} ~ {}], 평수범위: [{} ~ {}]",
+                        groupKey, bounds.minPrice, bounds.maxPrice, bounds.minArea, bounds.maxArea);
+
+            } catch (Exception e) {
+                log.error("그룹 [{}] 처리 중 오류 발생", groupKey, e);
+            }
+
+            processedGroups++;
+        }
+
+        log.info("=== B-04: 지역구별 정규화 범위 계산 완료 - 처리된 그룹: {}/{}, 유효한 그룹: {} ===",
+                processedGroups, groupedProperties.size(), validGroups);
+    }
+
+    /**
+     * 1. 데이터 그룹핑: 지역구명 + 임대유형으로 매물 그룹핑
+     */
+    private Map<String, List<Property>> groupPropertiesByDistrictAndLeaseType(List<Property> properties) {
+        Map<String, List<Property>> groupedProperties = new HashMap<>();
+
+        for (Property property : properties) {
+            // 유효성 검증: 필수 필드(가격, 평수) 누락 매물 제외
+            if (!isValidPropertyForNormalization(property)) {
+                continue;
+            }
+
+            // 그룹 키 형태: {지역구명}:{임대유형}
+            String groupKey = property.getDistrictName() + ":" + property.getLeaseType();
+
+            groupedProperties.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(property);
+        }
+
+        log.info("매물 그룹핑 완료 - 총 {}개 그룹 생성", groupedProperties.size());
+        return groupedProperties;
+    }
+
+    /**
+     * 정규화 계산을 위한 매물 유효성 검증
+     */
+    private boolean isValidPropertyForNormalization(Property property) {
+        return property.getDistrictName() != null
+                && property.getLeaseType() != null
+                && property.getDeposit() != null
+                && property.getMonthlyRent() != null
+                && property.getAreaInPyeong() != null
+                && property.getAreaInPyeong() > 0;
+    }
+
+    /**
+     * 2. 총 가격 산정 및 3. 정규화 범위 계산
+     */
+    private NormalizationBounds calculateBoundsForGroup(List<Property> groupProperties, String groupKey) {
+        List<Double> totalPrices = new ArrayList<>();
+        List<Double> areas = new ArrayList<>();
+
+        for (Property property : groupProperties) {
+            // 2. 총 가격 산정
+            double totalPrice = calculateTotalPrice(property);
+            if (totalPrice > 0) {
+                totalPrices.add(totalPrice);
+            }
+
+            // 평수 수집
+            if (property.getAreaInPyeong() != null && property.getAreaInPyeong() > 0) {
+                areas.add(property.getAreaInPyeong());
+            }
+        }
+
+        if (totalPrices.isEmpty() || areas.isEmpty()) {
+            log.debug("그룹 [{}] - 유효한 가격 또는 평수 데이터 없음", groupKey);
+            return null;
+        }
+
+        // 3. 정규화 범위 계산
+        double minPrice = Collections.min(totalPrices);
+        double maxPrice = Collections.max(totalPrices);
+        double minArea = Collections.min(areas);
+        double maxArea = Collections.max(areas);
+
+        // 4. 품질 보장: 제로 분산 방지 (min = max인 경우 max값 조정)
+        if (minPrice == maxPrice) {
+            maxPrice = minPrice + 1000.0; // 100만원 차이 설정
+            log.debug("그룹 [{}] - 가격 제로 분산 방지: {} -> {}", groupKey, minPrice, maxPrice);
+        }
+
+        if (minArea == maxArea) {
+            maxArea = minArea + 1.0; // 1평 차이 설정
+            log.debug("그룹 [{}] - 평수 제로 분산 방지: {} -> {}", groupKey, minArea, maxArea);
+        }
+
+        return new NormalizationBounds(minPrice, maxPrice, minArea, maxArea);
+    }
+
+    /**
+     * 2. 총 가격 산정
+     * - 전세: 보증금
+     * - 월세: 보증금 + (월세 × 24개월)
+     */
+    private double calculateTotalPrice(Property property) {
+        double deposit = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
+        double monthlyRent = property.getMonthlyRent() != null ? property.getMonthlyRent().doubleValue() : 0.0;
+
+        if ("전세".equals(property.getLeaseType())) {
+            return deposit;
+        } else if ("월세".equals(property.getLeaseType())) {
+            return deposit + (monthlyRent * 24); // 월세 × 24개월
+        }
+
+        return deposit; // 기본적으로 보증금 반환
+    }
+
+    /**
+     * Redis에 정규화 범위 저장
+     * 키 패턴: bounds:{지역구명}:{임대유형}
+     */
+    private void storeBoundsToRedis(String groupKey, NormalizationBounds bounds,
+                                    int propertyCount, String currentTime) {
+        String redisKey = "bounds:" + groupKey;
+
+        Map<String, Object> boundsHash = new HashMap<>();
+        boundsHash.put("minPrice", String.valueOf(bounds.minPrice));
+        boundsHash.put("maxPrice", String.valueOf(bounds.maxPrice));
+        boundsHash.put("minArea", String.valueOf(bounds.minArea));
+        boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
+        boundsHash.put("propertyCount", String.valueOf(propertyCount));
+        boundsHash.put("lastUpdated", currentTime);
+
+        redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
+
+        log.debug("Redis 저장 완료 - Key: {}, Count: {}", redisKey, propertyCount);
+    }
+
+    /**
+     * 정규화 범위 데이터를 담는 내부 클래스
+     */
+    private static class NormalizationBounds {
+        final double minPrice;
+        final double maxPrice;
+        final double minArea;
+        final double maxArea;
+
+        NormalizationBounds(double minPrice, double maxPrice, double minArea, double maxArea) {
+            this.minPrice = minPrice;
+            this.maxPrice = maxPrice;
+            this.minArea = minArea;
+            this.maxArea = maxArea;
+        }
     }
 }
