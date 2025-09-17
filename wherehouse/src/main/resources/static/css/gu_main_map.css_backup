@@ -1,0 +1,147 @@
+@font-face {
+    font-family: 'TheJamsil5Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil5Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+body {
+    font-family: 'TheJamsil5Bold';
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+#population-shame-bar {
+    background-color: rgba(217, 217, 217, 0.80);
+    position: absolute;
+    text-align: center;
+    top: 30px;
+    width: 254px;
+    height: 51px;
+    border: rgba(0, 0, 0, 0.2) 2px solid;
+    left: 1500px;
+    z-index: 1;
+}
+
+#population-shame-info {
+    background-color: rgba(217, 217, 217, 0.80);
+    position: absolute;
+    text-align: center;
+    top: 80px;
+    width: 254px;
+    height: 100px;
+    border: rgba(0, 0, 0, 0.2) 2px solid;
+    left: 1500px;
+    z-index: 1;
+}
+
+#population-shame-text {
+    height: 50px;
+    line-height: 50px;
+    border-bottom: rgba(0, 0, 0, 0.20) 1px solid;
+}
+
+#population-shame-btn {
+    position: absolute;
+    left: 212px;
+    top: -10px;
+    width: 30px;
+    height: 50px;
+    font-size: 25px;
+    line-height: 45px;
+    margin-top: 10px;
+    border: 0px solid black;
+    cursor: pointer;
+}
+
+#population-shame-num {
+    display: flex;
+    margin-top: 18px;
+    margin-left: 15px;
+    margin-bottom: 5px;
+}
+
+#population-shame-num-7 {
+    margin-left: 200px;
+}
+
+
+#population-shame-graph {
+    display: flex;
+    margin-left: 20px;
+
+}
+
+#population-shame-graph-1 {
+    width: 30px;
+    height: 30px;
+    /*     border: 1px solid red; */
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+#population-shame-graph-2 {
+    width: 30px;
+    height: 30px;
+    /*     border: 1px solid red; */
+    background-color: rgba(255, 0, 0, 0.275);
+}
+
+#population-shame-graph-3 {
+    width: 30px;
+    height: 30px;
+    /*     border: 1px solid red; */
+    background-color: rgba(255, 0, 0, 0.35);
+}
+
+#population-shame-graph-4 {
+    width: 30px;
+    height: 30px;
+    /*     border: 1px solid red; */
+    background-color: rgba(255, 0, 0, 0.425);
+}
+
+#population-shame-graph-5 {
+    width: 30px;
+    height: 30px;
+    /*     border: 1px solid red; */
+    background-color: rgba(255, 0, 0, 0.5);
+}
+
+#population-shame-graph-6 {
+    width: 30px;
+    height: 30px;
+    /*     border: 1px solid red; */
+    background-color: rgba(255, 0, 0, 0.575);
+}
+
+#population-shame-graph-7 {
+    width: 30px;
+    height: 30px;
+    /* border: 1px solid red; */
+    background-color: rgba(255, 0, 0, 0.65);
+}
+
+#show-population-shame {
+    position: absolute;
+    left: 1500px;
+    top: 50px;
+    width: 70px;
+    height: 50px;
+    font-size: 25px;
+    line-height: 45px;
+    margin-top: 10px;
+    border: 1px solid black;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* 지도 크기 */
+#map {
+    width: 1832px;
+    height: 945px;
+}
