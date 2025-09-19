@@ -12,7 +12,26 @@
     <script src="https://kit.fontawesome.com/09b067fdc5.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="/wherehouse/css/house_rec.css">
+    <style>
+        #side-bar div.priority_selection > p {
+            margin-bottom: 8px !important;
+        }
+
+        #side-bar div.flexibility_settings > p {
+            margin-bottom: 8px !important;
+        }
+
+        /* 혹시 이것도 추가 */
+        #user-input .priority_selection p {
+            margin-bottom: 8px !important;
+        }
+
+        #user-input .flexibility_settings p {
+            margin-bottom: 8px !important;
+        }
+    </style>
 </head>
+
 
 <style>
     #map {
@@ -194,7 +213,7 @@
 
             <!-- 2단계: 우선 순위 설정 -->
             <div class="priority_selection">
-                <p>2. 우선 순위 설정</p>
+                <p style="margin-bottom: 8px !important;">2. 우선 순위 설정</p>
                 <hr class="gu_name_hr">
 
                 <div class="priority_row">
@@ -236,7 +255,7 @@
 
             <!-- 3단계: 유연성 설정 -->
             <div class="flexibility_settings">
-                <p>3. 유연성 설정</p>
+                <p style="margin-bottom: 8px !important;">3. 유연성 설정</p>
                 <hr class="gu_name_hr">
 
                 <div class="flex_item">

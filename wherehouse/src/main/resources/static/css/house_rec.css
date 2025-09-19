@@ -190,9 +190,13 @@ body {
 }
 
 .priority_selection p {
-    font-size: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 0px !important;
 }
+
+/*.priority_selection p {*/
+/*    font-size: 20px;*/
+/*    margin-bottom: 8px;*/
+/*}*/
 
 .priority_row {
     display: flex;
@@ -247,9 +251,12 @@ body {
 }
 
 .flexibility_settings p {
-    font-size: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 0px !important;
 }
+/*.flexibility_settings p {*/
+/*    font-size: 20px;*/
+/*    margin-bottom: 8px;*/
+/*}*/
 
 .flex_item {
     margin-bottom: 12px;
@@ -1405,6 +1412,8 @@ body.modal_open {
     background: rgba(11, 94, 215, 0.50);
     height: 2px;
     border: 0;
+    margin-top: 5px;     /* 위쪽 간격 줄이기 */
+    margin-bottom: 15px; /* 아래쪽 간격 늘리기 */
 }
 
 #rank-hr {
