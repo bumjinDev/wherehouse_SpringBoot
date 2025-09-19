@@ -11,21 +11,16 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RecommendationRequestDto {
-
-    @JsonProperty("leaseType")
-    @NotNull(message = "임대 유형은 필수입니다")
-    @Pattern(regexp = "^(CHARTER|MONTHLY)$", message = "임대 유형은 CHARTER 또는 MONTHLY만 가능합니다")
-    private String leaseType;
+public class CharterRecommendationRequestDto {
 
     @JsonProperty("budgetMin")
-    @NotNull(message = "최소 예산은 필수입니다")
-    @Min(value = 0, message = "최소 예산은 0 이상이어야 합니다")
+    @NotNull(message = "최소 전세금은 필수입니다")
+    @Min(value = 0, message = "최소 전세금은 0 이상이어야 합니다")
     private Integer budgetMin;
 
     @JsonProperty("budgetMax")
-    @NotNull(message = "최대 예산은 필수입니다")
-    @Min(value = 0, message = "최대 예산은 0 이상이어야 합니다")
+    @NotNull(message = "최대 전세금은 필수입니다")
+    @Min(value = 0, message = "최대 전세금은 0 이상이어야 합니다")
     private Integer budgetMax;
 
     @JsonProperty("areaMin")
@@ -69,7 +64,7 @@ public class RecommendationRequestDto {
     private Double absoluteMinArea = 0.0;
 
     // 커스텀 검증
-    @AssertTrue(message = "최대 예산이 최소 예산보다 크거나 같아야 합니다")
+    @AssertTrue(message = "최대 전세금이 최소 전세금보다 크거나 같아야 합니다")
     public boolean isBudgetValid() {
         if (budgetMin == null || budgetMax == null) return true;
         return budgetMax >= budgetMin;

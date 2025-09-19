@@ -1,6 +1,5 @@
 package com.wherehouse.recommand.model;
 
-import com.wherehouse.recommand.model.RecommendedDistrictDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecommendationResponseDto {
+public class CharterRecommendationResponseDto {
 
     @JsonProperty("searchStatus")
     private String searchStatus;
@@ -21,5 +20,5 @@ public class RecommendationResponseDto {
     private String message;
 
     @JsonProperty("recommendedDistricts")
-    private List<RecommendedDistrictDto> recommendedDistricts;
+    private List<RecommendedCharterDistrictDto> recommendedDistricts;
 }

@@ -1,1331 +1,1514 @@
-var guSpec = [];
-var guName = ["강동구", "송파구", "강남구", "서초구", "관악구",
-    "동작구", "영등포구", "금천구", "구로구", "강서구",
-    "양천구", "마포구", "서대문구", "은평구", "노원구",
-    "도봉구", "강북구", "성북구", "중랑구", "동대문구",
-    "광진구", "성동구", "용산구", "중구", "종로구"];
+/**
+ * WhereHouse 부동산 추천 시스템 - 메인 JavaScript (수정 버전)
+ * 사용자 입력 처리 및 추천 결과 표시
+ * 전세/월세 분리 API 대응
+ */
 
-var map;
-// 📌 각 구(지역)의 인구 밀집도 데이터를 저장하는 변수
-// - initPopulation() 함수에서 초기화됨
-// - 각 구의 안전성, 편의성, 인구 밀집도 등의 정보 포함
-var populationArea;
+// 전역 변수
+let currentRecommendationData = null;
+let currentRentalType = null;
 
-// 📌 각 구(지역)의 폴리곤(다각형) 데이터를 구현하기 위해 각 구 이름 별로 KakaoMap API 좌표 객체 배열들을 참조 저장하는 배열
-// - 지도에 표시할 구역들의 경로(path) 정보를 저장
-// - { name: "구 이름", path: [LatLng, LatLng, ...] } 형태로 저장됨
-// ** populationArea 내 저장된 순서대로 동일한 순서로 매핑되어서 사용되어야 하기 때문에 저장되는 순서를 잘 관리해야됨.
-var areas = [];
+// DOM 로드 완료 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM 로드 완료, 이벤트 리스너 초기화 시작');
+    initializeEventListeners();
+    initializeValidation();
+    updateSubmitButtonState();
+    setupModalEventListeners();
+});
 
-// 📌 현재 지도에 표시된 폴리곤(다각형) 객체를 저장하는 배열
-// - showMap() 실행 시 기존 폴리곤을 제거하고 새로운 폴리곤을 추가하는 용도로 사용
-var polygons = [];
+/**
+ * 이벤트 리스너 초기화
+ */
+function initializeEventListeners() {
+    console.log('이벤트 리스너 초기화 중...');
 
-// 📌 추천된 지역(상위 3개)의 인덱스를 저장하는 배열
-// - areas 배열에서 몇 번째 구가 추천되었는지 저장
-var recommendIdx = [];
+    // 1단계: 기본 조건 설정
+    setupRentalTypeHandlers();
+    setupBudgetValidation();
+    setupAreaValidation();
 
-// 📌 폴리곤(다각형) 투명도 설정 변수 (0.0 ~ 1.0)
-// - 기본값은 0.7이며, displayArea()에서 사용됨
-var opacity = 0.7;
+    // 2단계: 우선순위 설정
+    setupPriorityValidation();
 
-// 📌 폴리곤 깜빡임 애니메이션에서 투명도 증가/감소 방향을 설정하는 변수
-// - true: 투명도 증가 방향
-// - false: 투명도 감소 방향
-var isIncrease = true;
+    // 3단계: 유연성 설정
+    setupFlexibilityHandlers();
 
-// 📌 폴리곤 깜빡임(애니메이션) 효과를 위한 setInterval() ID를 저장하는 변수
-// - showMap()에서 설정되고, 필요 시 clearInterval()을 호출하여 중지할 수 있음
-var polygon_interval;
-let mapData = []; // JSON 데이터를 저장할 변수
+    // 추천 결과 확인 버튼
+    setupSubmitButton();
 
-//카카오맵 커스텀 오버레이
-var customOverlay;
+    // 뒤로가기 버튼
+    setupBackButton();
 
-window.onload = function () {
+    console.log('모든 이벤트 리스너 초기화 완료');
+}
 
-    initGuSpec();
-    var container = document.getElementById("map");
-    var options = {
-        center: new kakao.maps.LatLng(37.5612135, 126.8716985),
-        level: 8,
-        minLevel: 8,
-        maxLevel: 8, // 5
-        disableDoubleClickZoom: true // 더블 클릭 확대 잠금
-    };
+/**
+ * 임대 유형 선택 핸들러
+ */
+function setupRentalTypeHandlers() {
+    const rentalTypeRadios = document.querySelectorAll('input[name="rentalType"]');
+    const monthlyExtraFields = document.getElementById('monthlyExtraFields');
 
-    map = new kakao.maps.Map(container, options);
+    console.log('임대 유형 라디오 버튼 개수:', rentalTypeRadios.length);
 
-    /* populationArea[] : 구 별 인구 밀집도 데이터 초기화 받는 배열, static 데이터이며 각 구별 빅데이터 분석 데이터 따른
-        안전성 점수, 편의성 점수 및 리뷰를 미리 등록 해 놓음. */
-    populationArea = initPopulation();
+    rentalTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            console.log('임대 유형 변경:', this.value);
+            currentRentalType = this.value;
 
-    // 패널 열고 닫기
-    var info = document.querySelector("#information");
-    var chart_info = document.querySelector("#chart_information");
-    var func = document.querySelector("#btn");
-
-    func.addEventListener("click", panelFunc);
-
-    function panelFunc() {
-        if (chart_info.style.left == "0px") {
-            info.style.left = "-333px";
-            chart_info.style.left = "-333px";
-            func.innerText = "▶";
-        }
-        else if (func.style.left == "662px") {
-            func.style.left = "328px";
-            info.style.left = "-333px";
-            chart_info.style.left = "-333px";
-            func.innerText = "▶";
-        }
-        else {
-            chart_info.style.left = "333px";
-            info.style.left = "0px";
-            func.style.left = "662px";
-            func.innerText = "◀";
-        }
-    }
-
-    // 전세/월세 라디오 버튼 선택하면 해당 버튼에 따라 각 전/월세 입력 화면이 바뀜.
-    var rentalType = document.querySelectorAll("input[name='rentalType']");		/* rentalType : 전/월세 버튼 2개 */
-    rentalType.forEach((radio) => {
-    	console.log("이벤트리스터 등록");
-        radio.addEventListener("change", (e) => {
-            var current = e.currentTarget;
-            if (current.getAttribute("id") === "btn_charter") {
-                showCharter();						// 월세 선택 따른 사용자 금액 입력 화면 전환
-                /* show...Free : 전/월세 입력 따서 추천 결과도 달라지므로 해당 화면 미리 block/none 전환 */
-                showFirstCharterFee();
-                showSecondCharterFee();
-                showThirdCharterFee();
+            if (this.value === 'MONTHLY') {
+                monthlyExtraFields.classList.add('show');
             } else {
-                showMonthly();
-                showFirstMonthlyFee();
-                showSecondMonthlyFee();
-                showThirdMonthlyFee();
+                monthlyExtraFields.classList.remove('show');
+                // 월세 필드 초기화
+                document.getElementById('monthlyMin').value = '';
+                document.getElementById('monthlyMax').value = '';
             }
-        })
-    });
-
-    // 슬라이드 바 변경 이벤트
-    var safety = document.getElementById("myRange_safety");
-    var y = document.getElementById("safety_f");
-    safety.addEventListener("change", function () {
-        y.innerHTML = this.value + "단계";
-        var yText = document.getElementById("descript_safety");
-        yText.innerHTML = '<a href="./reinfo" target="_blank">점수 산정 방식 보러 가기</a>';
-        yText.querySelector('a').style.textDecoration = "none";
-        yText.querySelector('a').style.color = "rgba(11, 94, 215, 1)";
-
-        yText.querySelector('a').addEventListener("mouseover", function () {
-            this.style.color = "#4690ff";
-        });
-
-        // 마우스가 벗어날 때의 이벤트 처리
-        yText.querySelector('a').addEventListener("mouseout", function () {
-            this.style.color = "rgba(11, 94, 215, 1)";
+            updateSubmitButtonState();
         });
     });
-
-    var convenience = document.getElementById("myRange_convenience");
-    var c = document.getElementById("convenience_f");
-    convenience.addEventListener("change", function () {
-        c.innerHTML = this.value + "단계";
-        //document.getElementById("descript_convenience").innerText = "편의 " + this.value + "단계는 이러이러이러합니다."
-    });
-
-    // 인구밀집도 인덱스 열고 닫기
-    var shame_info = document.querySelector("#population-shame-info");
-    var bar = document.querySelector("#population-shame-bar");
-    var detail = document.querySelector("#population-shame-btn");
-    detail.addEventListener("click", hideDetail);
-
-    function hideDetail() {
-        if (detail.innerText === "-") {
-            detail.innerText = "+";
-            shame_info.style.display = "none";
-            bar.style.backgroundColor = "rgba(217,217,217,0.3)";
-            bar.style.border = "#D9D9D9 1px solid";
-        } else {
-            detail.innerText = "-";
-            bar.style.backgroundColor = "rgba(217, 217, 217, 0.80)";
-            bar.style.border = "rgba(0, 0, 0, 0.2) 2px solid";
-            shame_info.style.display = "block";
-        }
-    }
-
-    // 상세보기 모달창 띄우기
-    var compBtn = document.getElementById("compBtn");		// comBtn : 거주지 추천 위한 누르는 버튼 "상세 비교"
-    compBtn.addEventListener("click", showComparison);		// comBtn 누르는 이벤트에 대해서 "showComparison" 메소드 실행.
-
-    // 상세보기 모달창 닫기
-    var modalCloseBtn = document.getElementById("modalCloseBtn");
-    modalCloseBtn.addEventListener("click", function () {
-        var modal = document.querySelector(".modal");
-        modal.style.display = "none";
-        modal.style.zIndex = 0;
-    })
-
-
-    // 거주지 추천 결과에서 체크여부
-    var check_first = document.getElementById("check_first");
-    var check_second = document.getElementById("check_second");
-    var check_third = document.getElementById("check_third");
-    var check_first_info = document.getElementById("check_first_info");
-    var check_second_info = document.getElementById("check_second_info");
-    var check_third_info = document.getElementById("check_third_info");
-
-    check_first.addEventListener("change", function () {
-        check_first_info.checked = check_first.checked;
-    });
-    check_second.addEventListener("change", function () {
-        check_second_info.checked = check_second.checked;
-    });
-    check_third.addEventListener("change", function () {
-        check_third_info.checked = check_third.checked;
-    });
-    check_first_info.addEventListener("change", function () {
-        check_first.checked = check_first_info.checked;
-    });
-    check_second_info.addEventListener("change", function () {
-        check_second.checked = check_second_info.checked;
-    });
-    check_third_info.addEventListener("change", function () {
-        check_third.checked = check_third_info.checked;
-    });
-
-    // 모달창 이벤트
-    var btn_safety = document.getElementById("btn_safety");
-    var btn_conv = document.getElementById("btn_convenience");
-
-    btn_safety.addEventListener("click", () => selectModal(1));
-    btn_conv.addEventListener("click", () => selectModal(2));
-
-    // 모달창 안전시설 버튼
-    var pollice_content_btn = document.getElementById("pollice_content_btn");
-    var cctv_content_btn = document.getElementById("cctv_content_btn");
-    var arrest_content_btn = document.getElementById("arrest_content_btn");
-
-    pollice_content_btn.addEventListener("click", () => { initSafety(1); searchGu("safety", "pollice"); });
-    cctv_content_btn.addEventListener("click", () => { initSafety(2); searchGu("safety", "cctv"); });
-    arrest_content_btn.addEventListener("click", () => { initSafety(3); searchGu("safety", "arrest"); });
-
-    // 모달창 편의시설 버튼
-    var convStore_content_btn = document.getElementById("convStore_content_btn");
-    var restaurant_content_btn = document.getElementById("restaurant_content_btn");
-    var cafe_content_btn = document.getElementById("cafe_content_btn");
-    var olive_content_btn = document.getElementById("olive_content_btn");
-    var daiso_content_btn = document.getElementById("daiso_content_btn");
-
-    convStore_content_btn.addEventListener("click", () => { initConv(1); searchGu("conv", "convStore"); });
-    restaurant_content_btn.addEventListener("click", () => { initConv(2); searchGu("conv", "restaurant"); });
-    cafe_content_btn.addEventListener("click", () => { initConv(3); searchGu("conv", "cafe"); });
-    olive_content_btn.addEventListener("click", () => { initConv(4); searchGu("conv", "olive"); });
-    daiso_content_btn.addEventListener("click", () => { initConv(5); searchGu("conv", "daiso"); });
-
-    // 초기 로딩 시 안전 정보 표시, 편의 정보 숨김
-    document.getElementById('safe-info').style.display = 'block';
-    document.getElementById('conv-info').style.display = 'none';
-
-    // 안전 정보 버튼 클릭 시
-    document.getElementById('btn_safe').addEventListener('click', function () {
-        document.getElementById('safe-info').style.display = 'block';
-        document.getElementById('conv-info').style.display = 'none';
-    });
-
-    // 편의 정보 버튼 클릭 시
-    document.getElementById('btn_conv').addEventListener('click', function () {
-        document.getElementById('safe-info').style.display = 'none';
-        document.getElementById('conv-info').style.display = 'block';
-    });
-}
-// window.onload 끝
-function initSafety(num) {
-    var pollice_content_btn = document.getElementById("pollice_content_btn");
-    var cctv_content_btn = document.getElementById("cctv_content_btn");
-    var arrest_content_btn = document.getElementById("arrest_content_btn");
-
-    pollice_content_btn.style.color = "#7b7b7b";
-    cctv_content_btn.style.color = "#7b7b7b";
-    arrest_content_btn.style.color = "#7b7b7b";
-
-    // 파출소
-    if (num === 1) {
-        pollice_content_btn.style.color = "#000";
-    } else if (num === 2) { //CCTV
-        cctv_content_btn.style.color = "#000";
-    } else { //검거율
-        arrest_content_btn.style.color = "#000";
-    }
 }
 
-function initConv(num) {
-    var convStore_content_btn = document.getElementById("convStore_content_btn");
-    var restaurant_content_btn = document.getElementById("restaurant_content_btn");
-    var cafe_content_btn = document.getElementById("cafe_content_btn");
-    var olive_content_btn = document.getElementById("olive_content_btn");
-    var daiso_content_btn = document.getElementById("daiso_content_btn");
-
-    convStore_content_btn.style.color = "#7b7b7b";
-    restaurant_content_btn.style.color = "#7b7b7b";
-    cafe_content_btn.style.color = "#7b7b7b";
-    olive_content_btn.style.color = "#7b7b7b";
-    daiso_content_btn.style.color = "#7b7b7b";
-
-    // 편의점
-    if (num === 1) {
-        convStore_content_btn.style.color = "#000";
-    } else if (num === 2) { //음식점
-        restaurant_content_btn.style.color = "#000";
-    } else if (num === 3) { //카페
-        cafe_content_btn.style.color = "#000";
-    } else if (num === 4) { //올리브영
-        olive_content_btn.style.color = "#000";
-    } else { //다이소
-        daiso_content_btn.style.color = "#000";
-    }
-}
-
-function selectModal(num) {
-    if (num === 1) {
-        initSafety(1);
-        searchGu("safety", "pollice");
-        document.getElementById("modal-select-conv").style.display = "none";
-        document.getElementById("modal-select-safety").style.display = "flex";
-        document.getElementById("btn_safety").style.color = "#000";
-        document.getElementById("btn_convenience").style.color = "#7b7b7b";
-    } else {
-        initConv(1);
-        searchGu("conv", "convStore");
-        document.getElementById("modal-select-conv").style.display = "flex";
-        document.getElementById("modal-select-safety").style.display = "none";
-        document.getElementById("btn_safety").style.color = "#7b7b7b";
-        document.getElementById("btn_convenience").style.color = "#000";
-    }
-}
-
-
-function displayArea(area, population, isRecommend) {
-
-    console.log('displayArea()!');
-
-    var polygon = new kakao.maps.Polygon({
-        map: map,
-        path: area.path,
-        strokeWeight: 2,
-        strokeColor: isRecommend ? population.color : "rgba(0,0,0,0.3)",
-        strokeOpacity: 0.8,
-        fillColor: isRecommend ? population.color : "rgba(255,255,255,0.1)",
-        fillOpacity: 0.7
-    });
-
-    polygons.push(polygon);
-
-    if (isRecommend) {
-        kakao.maps.event.addListener(polygon, 'mouseover', function () {
-            polygon.setOptions({ strokeWeight: 5, strokeColor: "rgba(255, 0, 0, 1)" });
-        });
-
-        kakao.maps.event.addListener(polygon, 'mouseout', function () {
-            polygon.setOptions({ strokeWeight: 2, strokeColor: isRecommend ? population.color : "rgb(0,0,0)" });
-            polygon.setOptions({ fillColor: isRecommend ? population.color : "none" });
-        });
-
-        // 다각형에 click 이벤트를 등록하고 이벤트가 발생하면 다각형의 이름과 면적을 인포윈도우에 표시
-        kakao.maps.event.addListener(polygon, 'click', function (mouseEvent) {
-            var content = '<div class="info">'
-                + '<div id="info_close_wrap">'
-                + '<img src="/wherehouse/images/closeBtn.svg" alt="" srcset="" id="info_close_btn" onclick="infoClose()"></div>'
-                + '<div class="info_title">' + population.name + '</div><hr>'
-                + '<div class="info_rank">'
-                + '<div id="info_price_rank">'
-                + '<div class="info_content" id="info_charter">평균 전세금 : <span id="info_charter_rank">' + population.charter_avg_rank + '</span>위 / 25</div>'
-                + '<div class="info_content" id="info_deposit">평균 보증금 : <span id="info_deposit_rank">' + population.deposit_avg_rank + '</span>위 / 25</div>'
-                + '<div class="info_content" id="info_monthly">평균 월세금 : <span id="info_monthly_rank">' + population.monthly_avg_rank + '</span>위 / 25</div></div>'
-                + '<div id="info_score">'
-                + '<div class="info_content" id="info_convenience">생활 편의 : <span id="info_conv_rank">' + population.conv_rank + '</span>위 / 25</div>'
-                + '<div class="info_content" id="info_safety">생활 안전 : <span id="info_safety_rank">' + population.safe_rank + '</span>위 / 25</div>'
-                + '<div class="info_content" id="info_dense">인구 밀집도 : <span id="info_dense_rank">' + population.congest_rank + '</span>위 / 25</div></div></div>';
-
-            // 기존 커스텀 오버레이 지우기
-            if (customOverlay != null) {
-                infoClose();
-            }
-
-            var latLng = { lat: mouseEvent.latLng.La, lng: mouseEvent.latLng.Ma };
-            localStorage.setItem("latLng", JSON.stringify(latLng));
-
-
-            customOverlay = new kakao.maps.CustomOverlay({
-                content: content,
-                map: map,
-                position: mouseEvent.latLng
-            });
-
-            customOverlay.setMap(map);
-        });
-    }
-}
 /**
- * 커스텀 오버레이 정보창 닫기
+ * 예산 범위 검증 설정
  */
-function infoClose() {
-    customOverlay.setMap(null);
-}
+function setupBudgetValidation() {
+    const budgetMin = document.getElementById('budgetMin');
+    const budgetMax = document.getElementById('budgetMax');
+    const monthlyMin = document.getElementById('monthlyMin');
+    const monthlyMax = document.getElementById('monthlyMax');
+    const budgetError = document.getElementById('budgetError');
 
+    function validateBudget() {
+        const minVal = parseInt(budgetMin.value);
+        const maxVal = parseInt(budgetMax.value);
 
-/* 전/월세 선택 버튼 선택 시 실제 전/월세 입력 화면 변경 메소드 */
-// 전세 선택 시 보여줄 화면
-function showCharter() {
-    document.getElementById("charterInput").style.display = "block";		// 전세금(최대)
-    document.getElementById("monthlyInput").style.display = "none";		// 보증금(최대)
-    document.querySelector(".select_need").style.height = "180px";			// 입력창 높이 조정 (전세금/월세금 입력 높이 상이)
-
-    document.querySelector('input[name="monthlyDeposit"]').value = "";	// 보증급 입력 창 숨기기
-    document.querySelector('input[name="monthlyMonth"]').value = "";	// 월세 입력창 숨기기
-}
-
-// 월세 선택 시 보여줄 화면
-function showMonthly() {
-    document.getElementById("charterInput").style.display = "none";
-    document.getElementById("monthlyInput").style.display = "block";
-    document.querySelector(".select_need").style.height = "230px";
-
-    document.querySelector('input[name="charterDeposit"]').value = "";
-}
-
-// 추천 결과 페이지 전환
-function showRecommend() {
-    document.getElementById("user-input").style.display = "block";
-    document.getElementById("recommend_result_page").style.display = "none";
-
-    document.getElementById("recommend_first").style.display = "block";
-    document.getElementById("recommend_second").style.display = "block";
-    document.getElementById("recommend_third").style.display = "block";
-
-    document.getElementById("recommend_first_info").style.display = "none";
-    document.getElementById("recommend_second_info").style.display = "none";
-    document.getElementById("recommend_third_info").style.display = "none";
-}
-
-// 사용자가 전/월세 금액 입력 후 버튼 "추천 결과 확인" 클릭 실행, 입력한 금액에 대해 상/하한선 alert 띄우기.
-//전세 / 보증금,월세 상/하한선 alert 띄우기
-
-function resultCheck() {
-	
-	/* 순서대로 각 변수 내용 :
-	 * 	1. input_charter : 사용자가 입력한 전세금을 가져오기 위해 input 태그인 name="charterDeposit"을 가져온 변수 
-	 *  2. input_deposit : 사용자가 입력한 월세 보증금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수 
-	 *  3. input_monthly : 사용자가 입력한 월세금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수 */
-	 
-    var input_charter = document.getElementById("charterInput").querySelector('input[name="charterDeposit"]');  // 전세금
-    var input_deposit = document.getElementById("monthlyInput").querySelector('input[name="monthlyDeposit"]');  // 월세 보증금
-    var input_monthly = document.getElementById("monthlyInput").querySelector('input[name="monthlyMonth"]');    // 월세금
-	
-    console.log(input_charter.value);
-    console.log(input_deposit.value);
-    console.log(input_monthly.value);
-
-    /* 전세금 확인 : 월세 보증금이나 월세금이 입력되지 않았을 때는 전세금 화면을 사용자가 선택해서 진행하는 것으로 판단. */
-    if (input_deposit.value == "" || input_monthly.value == "") {
-        if (input_charter.value == "") {		// 전세금 입력하지 않았으면 실행.
-            alert("입력되지 않은 정보가 있습니다.");
-        }
-        else if (input_charter.value < 15000 || input_charter.value > 30000) {		// 전세금 상/하한성 벗어날 시 실행.
-            alert("전세금의 입력 상하한선은 15000 ~ 30000 입니다.");
-        }
-        else {
-            requestRecommandInfo();
-        }
-    }
-    
-    /* 월세 확인 : 위와 동일.  */
-    else if (input_charter.value == "") {
-		
-        if (input_deposit.value == "" && input_monthly.value == "") {
-            alert("입력되지 않은 정보가 있습니다.");
-        }
-        else if (input_deposit.value < 2100 || input_deposit.value > 4500) {
-            alert("보증금의 입력 상하한선은 2100 ~ 4500 입니다.");
-        }
-        else if (input_monthly.value < 40 || input_monthly.value > 70) {
-            alert("월세금의 입력 상하한선은 40 ~ 70 입니다.");
-        }
-        else {
-            requestRecommandInfo();
-        }
-    }
-}
-
-function requestRecommandInfo(){
-	// 거주지 추천 ajax to servlet
-
-		/* 순서대로 각 변수 내용 :
-		 * 	1. charter_avg : 사용자가 입력한 전세금을 가져오기 위해 input 태그인 name="charterDeposit"을 가져온 변수 
-		 *  2. deposit_avg : 사용자가 입력한 월세 보증금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수 
-		 *  3. monthly_avg : 사용자가 입력한 월세금을 가져오기 위해 input 태그인 name="monthlyDeposit"을 가져온 변수
-		 *  4. safe_score  : 사용자가 입력한 안전 점수 비중치.
-		 *  5. cvt_socre   : 사용자가 입력한 편의 점수 비중치 */
-		const charter_avg = $('#charterInput input[name="charterDeposit"]').val();
-		const deposit_avg = $('#monthlyInput input[name="monthlyDeposit"]').val(); 
-		const monthly_avg = $('#monthlyInput input[name="monthlyMonth"]').val();
-		const safe_score = $('#myRange_safety').val();
-		const cvt_score = $('#myRange_convenience').val();
-
-		console.log("전세금 입력값 : " + charter_avg);
-		console.log("월세 보증금 입력값 : " + deposit_avg);
-		console.log("월세금 입력값 : " + monthly_avg);
-		console.log("안전 점수 입력값 : " + safe_score);
-		console.log("편의 점수 입력값 : " + cvt_score);
-
-		if (charter_avg != '') {
-			
-		    sendCharterRequest(charter_avg, safe_score, cvt_score)
-		        .then(data => {
-
-					if(data !== null) { showResult(data, 'charter'); }
-					else { return; }
-		        });
-		}
-
-		if (monthly_avg != ''){
-			
-		    sendMonthlyRequest(deposit_avg, monthly_avg, safe_score, cvt_score)
-		        .then(data => {
-
-					console.log('월세 요청 결과 : ' + data);
-					
-					if(data !== null) { showResult(data, 'monthly') }
-					else { return; }
-		        });
-		}
-}
-
-async function sendCharterRequest(charter_avg, safe_score, cvt_score) {
-    try {
-        const response = await fetch('./RecServiceController/charter', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                charter_avg: parseInt(charter_avg),
-                safe_score: parseInt(safe_score),
-                cvt_score: parseInt(cvt_score)
-            })
-        });
-
-		if(response.status === 200) { return await response.json(); } // ❗ JSON 본문 반환 추가
-		else if (response.status === 400) {
-			
-           // 유효성 검증 실패 시, 에러 메시지를 JSON 형태로 파싱
-           const errorData = await response.json();
-           const messages = Object.values(errorData).join(' ');
-           alert(messages);
-       } 
-	   else { alert('관리자에게 문의 하세요.'); }
-	   
-	   return null;
-	   
-    } catch (error) {
-		
-        console.error('전세 요청 에러 발생:', error);
-        return null;
-    }
-}
-
-async function sendMonthlyRequest(deposit_avg, monthly_avg, safe_score, cvt_score) {
-    try {
-        const response = await fetch('./RecServiceController/monthly', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                deposit_avg: parseInt(deposit_avg),
-                monthly_avg: parseInt(monthly_avg),
-                safe_score: parseInt(safe_score),
-                cvt_score: parseInt(cvt_score)
-            })
-        });
-
-		if(response.status === 200) { return await response.json(); } // ❗ JSON 본문 반환 추가
-		else if (response.status === 400) {
-			
-           // 유효성 검증 실패 시, 에러 메시지를 JSON 형태로 파싱
-           const errorData = await response.json();
-           const messages = Object.values(errorData).join(' ');
-           alert(messages);
-       }
-	   else { alert('관리자에게 문의 하세요.'); }
-	   
-	   return null;
-	   
-    } catch (error) {
-		
-        console.error('전세 요청 에러 발생:', error);
-        return null;
-    }
-}
-
-function showResult(data, detail) {
-
-	/* DOM 조작 : 1. 사용자의 거주치 추천 위한 입력 정보(전/월세 선택, 금액, 편의성 및 안정성 비중 선택)에 대한 모든 HTML 태그를 보이지 않음.
-                  2. 거주지 추천 결과인 3개 구 보일 각 메뉴를 "bloack" 설정. */
-    document.getElementById("recommend_first").style.display = "none";
-    document.getElementById("recommend_first_info").style.display = "block";
-    document.getElementById("recommend_second").style.display = "none";
-    document.getElementById("recommend_second_info").style.display = "block";
-    document.getElementById("recommend_third").style.display = "none";
-    document.getElementById("recommend_third_info").style.display = "block";
-
-    document.getElementById("user-input").style.display = "none";   // 사용자 입력 항목 보이지 않음.
-    document.getElementById("recommend_result_page").style.display = "block";       // 거주지 추천 3구를 보여주는 모달창 제공
-
-    /* 선택된 지역구 왜 추천하는지에 대한 정보(안정성 및 편의성 기준)를 보여주는 페이지를 보이기 위한 작업. */
-    var chart_info = document.querySelector("#chart_information");			// 선택된 지역구 왜 추천하는지에 대한 정보를 보여주는 section
-    var func = document.querySelector("#btn");								// 페이지 열고 닫는 버튼 표현한 div
-
-    chart_info.style.zIndex = "1";
-    chart_info.style.left = "333px";			// 해당 section 보이기.
-
-    if (chart_info.style.left === '333px') {
-        func.style.left = "662px";
-        func.innerText = "◀";					// 해당 section 보여짐에 따라 열림 버튼 아닌 닫는 버튼으로 표현.
-    }
-
-    /* 거주지 추천 결과 데이터 보여줄 시 각 구 별 제목 항목을 순차적으로 구성하기 위한 배열..이 데이터로 구성되는 부분은 각 3 개구 정보를 보여주거나 감출 수 있는 구 별 이름 및 화살표 표현 위함. */
-    //var orders = ["first", "second", "third"];		// 사용자가 버튼 "추천결과확인" 하여 보여지는 추천 지역구 3개에 대한 정보를 HTML에 표현하기 위한 함수.
-	var orders = ["first", "second", "third"];
-	
-	/* [전세] */
-	if(detail === 'charter') {
-		displayCharter(data);
-		showMap(data);
-		chart(data);
-		chart_update(data);
-	}
-	
-	/* [월세] */
-	if(detail === 'monthly') {
-		displayMonthly(data);
-		chart(data);
-		chart_update(data);
-	}
-	
-	
-    // 'showResult()' 내부에서 실행된 ajax 결과를 가지고 실제 사용자 화면 내 거주지 추천 결과로서 3가지 지역구 내용을 화면 내 갱신한다.
-    function displayCharter(data) {		// DB 조회 결과인 추천 지역구 3개에 대한 Json 데이터를 String 형으로 가져온 것.
-        console.log("전세 함수 실행");
-        for (var i = 0; i < data.length; i++) {
-        	
-        	/* 결과 페이지 중 "거주지 추천" 정보 제공 시 각 구 별 제목 항목.. section 내 실제 조회된 3개의 각 구 이름을 HTML 태그 내 표현. */
-            var recommend_result = "recommend_" + orders[i] + "_result";							// recommend_first_result , recommend_second_result ..
-            document.getElementById(recommend_result).innerText = data[i].gu_name;
-            console.log(data[i].gu_name);
-
-            /* 결과 페이지 중 "거주지 추천"의 우측 패널 중 1등 구의 이름을 표현하는 태그 설정(총 3개 문장.). */
-            var chart_name = document.querySelectorAll(".chart_name");
-            for (var j = 0; j < chart_name.length; j++) {
-                chart_name[j].innerText = data[0].gu_name;
+        if (budgetMin.value && budgetMax.value) {
+            if (minVal > maxVal) {
+                showError(budgetError, '최대 예산이 최소 예산보다 크거나 같아야 합니다');
+                return false;
             }
-
-            var chart_safe_rank = document.getElementById("chart_safe_rank");  // "거주지 추천"의 우측 패널 내용 중 "안전" 순위 숫자 부분.
-            var chart_conv_rank = document.getElementById("chart_conv_rank");  // "거주지 추천"의 우측 패널 내용 중 "편의" 순위 숫자 부분.
-            var gu_info_review = document.getElementById("gu_review");		   // 해당 구의 단순 리뷰 적는 부분
-           
-            for (var j = 0; j < populationArea.length; j++) {				   // window.onload = function() 에서 초기화 완료.
-                
-            	/* jS 최하단 내 미리 초기화 해둔 각 구별 안전성/편의성 등급 및 리뷰 정보를 가지고 현재 추천된 지역구 3개 중 1등 구와 이름이 동일하면 HTML 내 해당 리뷰 정보 표현. */
-            	if (data[0].gu_name == populationArea[j].name) {
-                    chart_safe_rank.innerText = populationArea[j].safe_rank;	// 안전 등급
-                    chart_conv_rank.innerText = populationArea[j].conv_rank;	// 편의 등급
-                    gu_info_review.innerText = populationArea[j].gu_review;		// 해당 지역구 리뷰.
-                }
-            }
-
-            /* 결과 페이지 중 "거주지 추천" 부분(추천 지역구 3개 구 표현 부분(detail 부분)) 표현,
-             * orders[i] 를 반복(first,second, third) 하여 각 별도의 HTML 태그 선택하여 각 태그 내 정보 표현.
-             * 각 HTML 태그에 표현되는 값은 ajax 결과로 반환된 DB 테이블 "gu_info" 정보에서 가져온 것. */
-            var recommend_detail = recommend_result + "_detail";	// 3개 구에 대해 반복하면서 각 구 이름을 표현(recommend_first_result_detail ...)
-            document.getElementById(recommend_detail).innerText = data[i].gu_name;
-
-            var select_charter = orders[i] + "_charter_fee";		// 3개 구에 대해 반복하면서 평균 전세금 표현(first_charter_fee..)
-            document.getElementById(select_charter).innerText = data[i].charter_avg;
-
-            var select_deposit = orders[i] + "_deposit_fee";		// 3개 구에 대해 반복하면서 평균 월세 보증금 표현(first_deposit_fee..)
-            document.getElementById(select_deposit).innerText = data[i].deposit_avg;
-
-            var select_monthly = orders[i] + "_monthly_fee";		// 3개 구에 대해 반복하면서 평균 월세금 표현(first_monthly_fee)
-            document.getElementById(select_monthly).innerText = data[i].monthly_avg;
-
-            var safety_value = "safety_" + orders[i] + "_value";	// 3개 구에 대해 반복하면서 안전성 점수 표현.
-            document.getElementById(safety_value).innerText = "\u00a0" + data[i].safe_score;
-
-            var conv_value = "conv_" + orders[i] + "_value";		// 3개 구에 대해 반복하면서 편의 점수 표현.
-            document.getElementById(conv_value).innerText = "\u00a0" + data[i].cvt_score;
-
-            var safety_graph = "safety_" + orders[i] + "_graph";	/* 3개 구에 대해 반복하면서 안전성 그래프 정보를 안전성 점수 따라 "div" style를
-            															변경함으로써 표현 safety_second_graph */ 
-            document.getElementById(safety_graph).style.width = data[i].safe_score * 2 - 10 + "px";
-
-            var conv_graph = "conv_" + orders[i] + "_graph";		/* 3개 구에 대해 반복하면서 편의성 그래프 정보를 안전성 점수 따라 "div" style를
-																		변경함으로써 표현 safety_second_graph */ 
-            document.getElementById(conv_graph).style.width = data[i].cvt_score * 2 - 10 + "px";
         }
+
+        hideError(budgetError);
+        return true;
     }
 
-	/* 사용자가 입력한 금액 등의 기준으로 3개 구를 알려주는 HTML 태그 내 표현할 데이터들 */
-    /* 거주치 추천 결과를 월세 기준으로 보여준다. */
-    function displayMonthly(data) {				// data : 스프링 사용하여 DB에서 가져온 데이터.
-        console.log("월세 함수 실행");
-        for (var i = 0; i < data.length; i++) {
-            var recommend_result = "recommend_" + orders[i] + "_result";			// ["first", "second", "third"];
-            document.getElementById(recommend_result).innerText = data[i].gu_name;			// 이름 표현.
-            console.log(data[i].gu_name);
+    function validateMonthly() {
+        const rentalType = document.querySelector('input[name="rentalType"]:checked')?.value;
+        if (rentalType !== 'MONTHLY') return true;
 
-            var chart_name = document.querySelectorAll(".chart_name");	/* 선택 된 3개 구 중 가장 추천 해주는 패널 내 구 이름 표현 태그*/
-            for (var j = 0; j < chart_name.length; j++) {						/* 해당 패널 내 구 입력하는 태그가 복수 개 이므로 반복하여 표현. */
-                chart_name[j].innerText = data[0].gu_name;
+        const minVal = parseInt(monthlyMin.value);
+        const maxVal = parseInt(monthlyMax.value);
+
+        if (monthlyMin.value && monthlyMax.value) {
+            if (minVal > maxVal) {
+                showError(budgetError, '최대 월세가 최소 월세보다 크거나 같아야 합니다');
+                return false;
             }
-
-            var chart_safe_rank = document.getElementById("chart_safe_rank");		/* 해당 패널에서의 안전 순위 표현 태그. */
-            var chart_conv_rank = document.getElementById("chart_conv_rank");		/* 해당 패널에서의 편의 순위 표현 태그 */
-            var gu_info_review = document.getElementById("gu_review");				/* 해당 패널에서의 리뷰 표현 태그 */
-            for (var j = 0; j < populationArea.length; j++) {								/* pupulationAraea : 미리 각 구별 리뷰, 안전과 편의 순위 에 대한 static 데이터. */
-                if (data[0].gu_name == populationArea[j].name) {							
-                    chart_safe_rank.innerText = populationArea[j].safe_rank;				/* 해당 구에 대한 안전 순위 표현 */
-                    chart_conv_rank.innerText = populationArea[j].conv_rank;			/* 해당 구에 대한 편의 순위 표현 */
-                    gu_info_review.innerText = populationArea[j].gu_review;				/* 해당 구에 대한 구 리뷰 표현 */
-                }
-            }
-
-            var recommend_detail = recommend_result + "_detail";
-            document.getElementById(recommend_detail).innerText = data[i].gu_name;
-
-            var select_charter = orders[i] + "_charter_fee";
-            document.getElementById(select_charter).innerText = data[i].charter_avg;
-
-            var select_deposit = orders[i] + "_deposit_fee";
-            document.getElementById(select_deposit).innerText = data[i].deposit_avg;
-
-            var select_monthly = orders[i] + "_monthly_fee";
-            document.getElementById(select_monthly).innerText = data[i].monthly_avg;
-
-            var safety_value = "safety_" + orders[i] + "_value";
-            document.getElementById(safety_value).innerText = "\u00a0" + data[i].safe_score;
-
-            var conv_value = "conv_" + orders[i] + "_value";
-            document.getElementById(conv_value).innerText = "\u00a0" + data[i].cvt_score;
-
-            var safety_graph = "safety_" + orders[i] + "_graph";
-            document.getElementById(safety_graph).style.width = data[i].safe_score * 2 - 10 + "px";
-
-            var conv_graph = "conv_" + orders[i] + "_graph";
-            document.getElementById(conv_graph).style.width = data[i].cvt_score * 2 - 10 + "px";
         }
-    }
-    
-    // chart.js
-    /* 안전 점수 요인과 편의 시설 요인을 동시에 실행. */
-    function chart(data) {
-        if (data && data.length > 0) {
-            updateChart('policeOfficeChart', ['구 평균 파출소', '파출소'], [23, data[0].police_office], ['#0b5dd7ac', '#0b5dd7']);
-            updateChart('cctvChart', ['구 평균 CCTV', 'CCTV'], [3719, data[0].cctv], ['rgba(248, 45, 45, 0.697)', 'rgba(248, 45, 45)']);
-            updateChart('arrestChart', ['구 평균 검거율', '검거율'], [72, data[0].safe_score], ['rgba(69, 69, 69, 0.719)', 'rgba(69, 69, 69)']);
-            updateChart('restaurantChart', ['구 평균 음식점', '음식점'], [4957, data[0].restourant], ['rgba(0, 189, 0, 0.687)', 'rgba(0, 189, 0)']);
-            updateChart('convStoreChart', ['구 평균 편의점', '편의점'], [341, data[0].cvt_store], ['rgba(238, 130, 238, 0.683)', 'rgba(238, 130, 238)']);
-            updateChart('cafeChart', ['구 평균 카페', '카페'], [940, data[0].cafe], ['rgba(171, 58, 58, 0.669)', 'rgba(171, 58, 58)']);
-        }
+
+        return true;
     }
 
-    function updateChart(chartId, labels, data, backgroundColor) {
-        var chartData = {
-            labels: labels,
-            datasets: [{
-                label: labels[1],	
-                data: data,
-                backgroundColor: backgroundColor,
-            }]
-        };
-
-        var existingChart = window[chartId + 'Instance'];
-
-        if (existingChart) {
-            existingChart.data = chartData;
-            existingChart.update();
-        } else {
-            var chartElement = document.getElementById(chartId);
-            window[chartId + 'Instance'] = new Chart(chartElement.getContext('2d'), {
-                type: 'bar',
-                data: chartData,
-                options: {
-                    maxBarThickness: 40
-                }
+    [budgetMin, budgetMax].forEach(input => {
+        if (input) {
+            input.addEventListener('input', () => {
+                validateBudget();
+                updateSubmitButtonState();
             });
-        }
-    }
-
-    var first_rec = document.getElementById("recommend_first_result");
-    var first_rec_detail = document.getElementById("recommend_first_result_detail");
-    var second_rec = document.getElementById("recommend_second_result");
-    var second_rec_detail = document.getElementById("recommend_second_result_detail");
-    var third_rec = document.getElementById("recommend_third_result");
-    var third_rec_detail = document.getElementById("recommend_third_result_detail");
-    var chart_name = document.querySelectorAll(".chart_name");
-    var chart_safe_rank = document.getElementById("chart_safe_rank");
-    var chart_conv_rank = document.getElementById("chart_conv_rank");
-    var gu_info_review = document.getElementById("gu_review");
-
-    function chart_update(data) {
-        for (var i = 0; i < data.length; i++) {
-            console.log("chart_update함수 실행 : " + data[i]);
-        }
-
-        first_rec.addEventListener("click", function () {
-            first_gu_name(data[0].gu_name, data[0].police_office, data[0].cctv, data[0].safe_score, data[0].restourant, data[0].cafe, data[0].cvt_store);
-        });
-
-        first_rec_detail.addEventListener("click", function () {
-            first_gu_name(data[0].gu_name, data[0].police_office, data[0].cctv, data[0].safe_score, data[0].restourant, data[0].cafe, data[0].cvt_store);
-        });
-
-        second_rec.addEventListener("click", function () {
-            second_gu_name(data[1].gu_name, data[1].police_office, data[1].cctv, data[1].safe_score, data[1].restourant, data[1].cafe, data[1].cvt_store);
-        });
-
-        second_rec_detail.addEventListener("click", function () {
-            second_gu_name(data[1].gu_name, data[1].police_office, data[1].cctv, data[1].safe_score, data[1].restourant, data[1].cafe, data[1].cvt_store);
-        });
-
-        third_rec.addEventListener("click", function () {
-            third_gu_name(data[2].gu_name, data[2].police_office, data[2].cctv, data[2].safe_score, data[2].restourant, data[2].cafe, data[2].cvt_store);
-        });
-
-        third_rec_detail.addEventListener("click", function () {
-            third_gu_name(data[2].gu_name, data[2].police_office, data[2].cctv, data[2].safe_score, data[2].restourant, data[2].cafe, data[2].cvt_store);
-        });
-    }
-
-    function first_gu_name(gu_name, police_office, cctv, safe_score, restourant, cafe, cvt_store) {
-        for (var j = 0; j < chart_name.length; j++) {
-            chart_name[j].innerText = gu_name;
-        }
-
-        for (var j = 0; j < populationArea.length; j++) {
-            if (gu_name == populationArea[j].name) {
-                chart_safe_rank.innerText = populationArea[j].safe_rank;
-                chart_conv_rank.innerText = populationArea[j].conv_rank;
-                gu_info_review.innerText = populationArea[j].gu_review;
-            }
-        }
-
-        updateChart('policeOfficeChart', ['구 평균 파출소', '파출소'], [23, police_office], ['#0b5dd7ac', '#0b5dd7']);
-        updateChart('cctvChart', ['구 평균 CCTV', 'CCTV'], [3719, cctv], ['rgba(248, 45, 45, 0.697)', 'rgba(248, 45, 45)']);
-        updateChart('arrestChart', ['구 평균 검거율', '검거율'], [72, safe_score], ['rgba(69, 69, 69, 0.719)', 'rgba(69, 69, 69)']);
-        updateChart('restaurantChart', ['구 평균 음식점', '음식점'], [4957, restourant], ['rgba(0, 189, 0, 0.687)', 'rgba(0, 189, 0)']);
-        updateChart('convStoreChart', ['구 평균 편의점', '편의점'], [341, cvt_store], ['rgba(238, 130, 238, 0.683)', 'rgba(238, 130, 238)']);
-        updateChart('cafeChart', ['구 평균 카페', '카페'], [940, cafe], ['rgba(171, 58, 58, 0.669)', 'rgba(171, 58, 58)']);
-    }
-
-    function second_gu_name(gu_name, police_office, cctv, safe_score, restourant, cafe, cvt_store) {
-        for (var j = 0; j < chart_name.length; j++) {
-            chart_name[j].innerText = gu_name;
-        }
-
-        for (var j = 0; j < populationArea.length; j++) {
-            if (gu_name == populationArea[j].name) {
-                chart_safe_rank.innerText = populationArea[j].safe_rank;
-                chart_conv_rank.innerText = populationArea[j].conv_rank;
-                gu_info_review.innerText = populationArea[j].gu_review;
-            }
-        }
-
-        updateChart('policeOfficeChart', ['구 평균 파출소', '파출소'], [23, police_office], ['#0b5dd7ac', '#0b5dd7']);
-        updateChart('cctvChart', ['구 평균 CCTV', 'CCTV'], [3719, cctv], ['rgba(248, 45, 45, 0.697)', 'rgba(248, 45, 45)']);
-        updateChart('arrestChart', ['구 평균 검거율', '검거율'], [72, safe_score], ['rgba(69, 69, 69, 0.719)', 'rgba(69, 69, 69)']);
-        updateChart('restaurantChart', ['구 평균 음식점', '음식점'], [4957, restourant], ['rgba(0, 189, 0, 0.687)', 'rgba(0, 189, 0)']);
-        updateChart('convStoreChart', ['구 평균 편의점', '편의점'], [341, cvt_store], ['rgba(238, 130, 238, 0.683)', 'rgba(238, 130, 238)']);
-        updateChart('cafeChart', ['구 평균 카페', '카페'], [940, cafe], ['rgba(171, 58, 58, 0.669)', 'rgba(171, 58, 58)']);
-    }
-
-    function third_gu_name(gu_name, police_office, cctv, safe_score, restourant, cafe, cvt_store) {
-        for (var j = 0; j < chart_name.length; j++) {
-            chart_name[j].innerText = gu_name;
-        }
-
-        for (var j = 0; j < populationArea.length; j++) {
-            if (gu_name == populationArea[j].name) {
-                chart_safe_rank.innerText = populationArea[j].safe_rank;
-                chart_conv_rank.innerText = populationArea[j].conv_rank;
-                gu_info_review.innerText = populationArea[j].gu_review;
-            }
-        }
-
-        updateChart('policeOfficeChart', ['구 평균 파출소', '파출소'], [23, police_office], ['#0b5dd7ac', '#0b5dd7']);
-        updateChart('cctvChart', ['구 평균 CCTV', 'CCTV'], [3719, cctv], ['rgba(248, 45, 45, 0.697)', 'rgba(248, 45, 45)']);
-        updateChart('arrestChart', ['구 평균 검거율', '검거율'], [72, safe_score], ['rgba(69, 69, 69, 0.719)', 'rgba(69, 69, 69)']);
-        updateChart('restaurantChart', ['구 평균 음식점', '음식점'], [4957, restourant], ['rgba(0, 189, 0, 0.687)', 'rgba(0, 189, 0)']);
-        updateChart('convStoreChart', ['구 평균 편의점', '편의점'], [341, cvt_store], ['rgba(238, 130, 238, 0.683)', 'rgba(238, 130, 238)']);
-        updateChart('cafeChart', ['구 평균 카페', '카페'], [940, cafe], ['rgba(171, 58, 58, 0.669)', 'rgba(171, 58, 58)']);
-    }
-
-    
-    /* showMap(data) : 이전의 추천지역을 폴리곤 그렸던 것을 초기화하고 다시 폴리곤 생성하는 역할.
-        1. showMap() 에서 주거지 추천 3곳 요청에 대한 HTTP Response Body 내 각 3곳 지역구의 ID 를 배열에 저장. 
-        2. 저장한 배열을 가지고 'mapMatch(rand)' 을 호출하여 내부적으로 실제 폴리곤을 그리는 'displayArea(rand)' 와
-            해당 폴리곤 내 색상을 3초마다 깜박거리는 'intervalFunc()' 을 호출하여 내부적으로 setInterval 을 조정. */
-    async function showMap(data) {
-        
-        var rand = [];   // 주거지 추천 3곳 요청에 대한 HTTP Response Body 내 각 3곳 지역구의 ID 를 저장하는 배열, 'mapMatch(rand)' 을 위한 초기화 ('recommendIdx' 한개의 배열로 처리해도 문제 없음..)
-        recommendIdx = []; // 주거지 추천 3곳 요청에 대한 HTTP Response Body 내 각 3곳 지역구의 ID 를 저장하는 배열, intervalFunc()' 을 위한 초기화.
-        clearInterval(polygon_interval); // 'clearInterval(intervalID)' : 이전의 'setInterval()' 로 지정된 간격 및 지정된 동작을 반복하는 것을 ID('intervalID', 함수명 또는 변수 이름 등으로 식별) 로 식별하여 취소함(js 자체 라이브러리.)
-
-        /* 기존 kakaomap 폴리곤 객체를 참조하고 있던 배열 "polygons" 를 순회하면서 모든 기존 폴리곤 객체를 null로써 해제함. */
-        polygons.forEach(polygon => {
-            polygon.setMap(null);
-        })
-
-        polygons = []; // polygons 배열을 새로운 배열 객체를 참조 시킴.
-
-        /* 배열 'rand' 와 'recommendIdx' 내 주거치 추천 결과 3곳 요청에 대한 결과로써 반환 받은 Http Response 내 body 내 순차적으로 지역구 id 를 저장.  */
-        for (var i = 0; i < 3; i++) {
-            
-            var num = data[i].gu_id;
-            
-            if (rand.indexOf(num) == -1) {  // Array.indexOf() : 배열에서 주어진 값을 반환할 수 있는 첫번째 위치에 대한 인덱스 값 반환. 없으면 -1을 반환.
-                
-                console.log('rand push!')
-                rand.push(num);
-                console.log('rand[' + i + '] : ' + rand[i]);
-                recommendIdx.push(num);
-            }
-        }
-
-        /* guid 3 개에 대해서 polygon 데이터 로드. */
-        try {
-
-            var guNames = [];
-
-            guNames.push(data[0].gu_name);
-            guNames.push(data[1].gu_name);
-            guNames.push(data[2].gu_name);
-
-            console.log('요청 지역구 이름들! : ');
-            console.log(guNames[0]);
-            console.log(guNames[1]);
-            console.log(guNames[2]);
-
-            // 📌 API 호출
-            const queryString = guNames.map(name => `guNames=${encodeURIComponent(name)}`).join("&");
-            const url = `./getChoiceMapData?${queryString}`;
-            const response = await fetch(url);
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-        
-            // 📌 JSON 데이터 변환
-            var geoData = await response.json();
-            console.log('응답 결과 : ');
-            console.log(geoData);
-
-        } catch (error) {
-            console.error(' 데이터 로드 중 오류 발생:', error);
-        }
-
-        // 2️⃣ populationArea[] 에 있는 지역명 순서대로 정렬을 위한 기준 배열
-        const populationOrder = [
-            "강동구", "송파구", "강남구", "서초구", "관악구", "동작구", "영등포구", "금천구", "구로구", "강서구",
-            "양천구", "마포구", "서대문구", "은평구", "노원구", "도봉구", "강북구", "성북구", "중랑구", "동대문구",
-            "광진구", "성동구", "용산구", "중구", "종로구"
-        ];
-
-        // 3️⃣ JSON 데이터를 배열로 변환 (순서 조정 전)
-        let unorderedAreas = Object.keys(geoData).map(guName => {
-            let path = [];
-
-            geoData[guName].forEach(point => {
-                var latLng = new kakao.maps.LatLng(point.latitude, point.longitude);
-                path.push(latLng);
-            });
-
-            return {
-                name: guName, // 지역명
-                path: path    // 폴리곤 좌표 배열
-            };
-        });
-
-        // 4️⃣ populationArea 기준으로 필터링된 정렬 적용
-        let sortedAreas = populationOrder
-            .map(name => unorderedAreas.find(area => area.name === name))  // 이름이 일치하는 데이터 찾기
-            .filter(area => area !== undefined && area.path.length > 0);   // ❗undefined이거나 path가 비어 있는 경우 제거
-
-        // 6️⃣ areas에 저장
-        areas = sortedAreas;
-
-        console.log('정렬 결과 : ');
-        console.log(areas);
-
-        mapMatch(rand);     // 추천 결과로 받은 지역구 guid 3개를 전부 넘김.
-    }
-
-    /* function mapMatch(rand) : 'showMap(data)' 으로부터 호출되어 내부적으로 'displayArea()' 와 'intervalFunc()' 을 호출하여 각각 폴리곤을 생성 후 폴리곤을
-        주기적으로 깜박 거림 구현.
-        */
-    function mapMatch(rand) {
-
-        console.log('mapMatch(rand)');
-        console.log('areas.length : ');
-        console.log(areas.length);
-
-        var randIdx = 0;
-
-        for (var i = 0; i < areas.length; i++) {
-
-            console.log('i : ' + i);
-            console.log('rand : ' + rand.indexOf(i));
-            console.log(rand[i]);
-
-            displayArea(areas[i], populationArea[i], true);
-            randIdx++;
-        }
-        //polygon_interval = setInterval(intervalFunc, 500);
-    }
-}      // showResult() 종료.
-
-// 추천된 지도 깜빡임 효과
-function intervalFunc() {
-    if (polygons[recommendIdx[0]].Eb[0].strokeColor == "none") {
-        polygons[recommendIdx[0]].setOptions({ strokeColor: "rgba(255,0,0,1)" });
-        polygons[recommendIdx[1]].setOptions({ strokeColor: "rgba(255,0,0,1)" });
-        polygons[recommendIdx[2]].setOptions({ strokeColor: "rgba(255,0,0,1)" });
-    } else {
-        polygons[recommendIdx[0]].setOptions({ strokeColor: "none" });
-        polygons[recommendIdx[1]].setOptions({ strokeColor: "none" });
-        polygons[recommendIdx[2]].setOptions({ strokeColor: "none" });
-    }
-}
-
-/* 거주지 추천 결과로 보여지는 3개 지역구 각 이름 별 상세 정보를 접거나 펼칠 때 반응하는 이벤트.  */
-// 첫번째 추천결과창
-function showDetailFirst() {
-    document.getElementById("recommend_first").style.display = "none";
-    document.getElementById("recommend_first_info").style.display = "block";
-}
-function hideDetailFirst() {
-    document.getElementById("recommend_first").style.display = "block";
-    document.getElementById("recommend_first_info").style.display = "none";
-}
-function showFirstCharterFee() {
-    document.getElementById("select_first_charter").style.display = "block";
-    document.getElementById("select_first_monthly").style.display = "none";
-}
-function showFirstMonthlyFee() {
-    document.getElementById("select_first_charter").style.display = "none";
-    document.getElementById("select_first_monthly").style.display = "block";
-}
-
-// 두번째 추천결과창
-function showDetailSecond() {
-    document.getElementById("recommend_second").style.display = "none";
-    document.getElementById("recommend_second_info").style.display = "block";
-}
-function hideDetailSecond() {
-    document.getElementById("recommend_second").style.display = "block";
-    document.getElementById("recommend_second_info").style.display = "none";
-}
-function showSecondCharterFee() {
-    document.getElementById("select_second_charter").style.display = "block";
-    document.getElementById("select_second_monthly").style.display = "none";
-}
-function showSecondMonthlyFee() {
-    document.getElementById("select_second_charter").style.display = "none";
-    document.getElementById("select_second_monthly").style.display = "block";
-}
-
-// 세번째 추천결과창
-function showDetailThird() {
-    document.getElementById("recommend_third").style.display = "none";
-    document.getElementById("recommend_third_info").style.display = "block";
-}
-function hideDetailThird() {
-    document.getElementById("recommend_third").style.display = "block";
-    document.getElementById("recommend_third_info").style.display = "none";
-}
-function showThirdCharterFee() {
-    document.getElementById("select_third_charter").style.display = "block";
-    document.getElementById("select_third_monthly").style.display = "none";
-}
-function showThirdMonthlyFee() {
-    document.getElementById("select_third_charter").style.display = "none";
-    document.getElementById("select_third_monthly").style.display = "block";
-}
-
-
-// 거주치 추천 정보 입력 따른 3개 구를 별도로 보여주고 상세 비교하는 할 수 있는 ui 창 띄울 수 있는 버튼 제공. (현재 매개변수 selMenu로 이벤트 객체를 받지 않으며 쓰이지 않음) 
-function showComparison(selMenu) {
-	/* check_first/second/third : 거주지 추천 결과로 나온 3개 구를 각 선택하는 checkbox */
-    var check_first = document.getElementById("check_first");
-    var check_second = document.getElementById("check_second");
-    var check_third = document.getElementById("check_third");
-
-    /* 각 3개 구를 1개 이상 선택해서 선택한 구 별로 비교해서 보여주기 위함. check.checked 는 check 박스가 선택되어 있는지 확인하는 html 속성, (<input type="checkbox") */
-    var isChecked = [check_first.checked, check_second.checked, check_third.checked];
-    var cnt = 0;
-
-    /* check 박스 값이 true 라면 cnt 개수 추가, 상세 비교 페이지에서 선택한 거주지 개수를 1 ~ 3개 따라 페이지 내 골고루 분배해서 보여주기 위함.  */
-    isChecked.forEach(e => {
-        if (e) {
-            cnt++;
         }
     });
-    
-    /* increaseLeft : 선택된 비교하는 구 개수 에 따라 각 구 그래프 들이 각 화면에서 차지해야 될 넓이를 계산.
-     				      이 설정이 없다면 모달 페이지 바깥으로 그래프 표현됨.*/
-    var increaseLeft = 100 / cnt;
-    
-    //선택된 구 개수에 따라서 그래프 내 요소들 정렬
-    if (cnt == 0) {
-        alert("1개 이상의 구를 선택해주세요");
+
+    [monthlyMin, monthlyMax].forEach(input => {
+        if (input) {
+            input.addEventListener('input', () => {
+                validateMonthly();
+                updateSubmitButtonState();
+            });
+        }
+    });
+}
+
+/**
+ * 평수 범위 검증 설정
+ */
+function setupAreaValidation() {
+    const areaMin = document.getElementById('areaMin');
+    const areaMax = document.getElementById('areaMax');
+    const areaError = document.getElementById('areaError');
+
+    function validateArea() {
+        const minVal = parseFloat(areaMin.value);
+        const maxVal = parseFloat(areaMax.value);
+
+        if (areaMin.value && areaMax.value) {
+            if (minVal > maxVal) {
+                showError(areaError, '최대 평수가 최소 평수보다 크거나 같아야 합니다');
+                return false;
+            }
+        }
+
+        hideError(areaError);
+        return true;
+    }
+
+    [areaMin, areaMax].forEach(input => {
+        if (input) {
+            input.addEventListener('input', () => {
+                validateArea();
+                updateSubmitButtonState();
+            });
+        }
+    });
+}
+
+/**
+ * 우선순위 선택 검증 설정
+ */
+function setupPriorityValidation() {
+    const priority1 = document.getElementById('priority1');
+    const priority2 = document.getElementById('priority2');
+    const priority3 = document.getElementById('priority3');
+    const priorityError = document.getElementById('priorityError');
+
+    function validatePriorities() {
+        const p1 = priority1.value;
+        const p2 = priority2.value;
+        const p3 = priority3.value;
+
+        if (p1 && p2 && p3) {
+            const values = [p1, p2, p3];
+            const uniqueValues = [...new Set(values)];
+
+            if (uniqueValues.length !== 3) {
+                showError(priorityError, '우선순위는 중복될 수 없습니다');
+                return false;
+            }
+        }
+
+        hideError(priorityError);
+        return true;
+    }
+
+    [priority1, priority2, priority3].forEach(select => {
+        if (select) {
+            select.addEventListener('change', () => {
+                validatePriorities();
+                updateSubmitButtonState();
+            });
+        }
+    });
+}
+
+/**
+ * 유연성 설정 핸들러
+ */
+function setupFlexibilityHandlers() {
+    // 예산 유연성 슬라이더
+    const budgetFlexSlider = document.getElementById('budgetFlexibility');
+    const budgetFlexValue = document.getElementById('budgetFlexValue');
+
+    if (budgetFlexSlider && budgetFlexValue) {
+        budgetFlexSlider.addEventListener('input', function() {
+            budgetFlexValue.textContent = this.value + '%';
+        });
+    }
+
+    // 최소 안전 점수 슬라이더
+    const safetyScoreSlider = document.getElementById('minSafetyScore');
+    const safetyScoreValue = document.getElementById('safetyScoreValue');
+
+    if (safetyScoreSlider && safetyScoreValue) {
+        safetyScoreSlider.addEventListener('input', function() {
+            safetyScoreValue.textContent = this.value + '점';
+        });
+    }
+}
+
+/**
+ * 추천 결과 확인 버튼 설정
+ */
+function setupSubmitButton() {
+    let submitButton = document.querySelector('#recommend_result_btn input[type="button"]');
+
+    if (!submitButton) {
+        submitButton = document.querySelector('#recommend_result input[type="button"]');
+    }
+
+    console.log('제출 버튼 찾기 결과:', submitButton);
+
+    if (submitButton) {
+        submitButton.removeEventListener('click', handleSubmitClick);
+        submitButton.addEventListener('click', handleSubmitClick);
+        console.log('제출 버튼 이벤트 리스너 설정 완료');
+    } else {
+        console.error('제출 버튼을 찾을 수 없습니다!');
+    }
+}
+
+/**
+ * 제출 버튼 클릭 핸들러
+ */
+function handleSubmitClick(event) {
+    console.log('제출 버튼 클릭됨');
+    event.preventDefault();
+
+    const button = event.target;
+
+    if (button.disabled) {
+        console.log('버튼이 비활성화 상태입니다');
         return;
-        
-    /* 아래 else if 문들 지워도 동작 차이 없음. */
-    } else if (cnt == 1) {
-        $(".graph_bar").each((index, element) => {
-            element.style.left = "48.7%";
-        });
-    } else if (cnt == 2) {
-        $(".graph_bar").each((index, element) => {
-            element.style.left = "47.5%";
-        });
+    }
+
+    console.log('폼 검증 시작...');
+    if (validateAllFields()) {
+        console.log('폼 검증 성공, API 요청 시작');
+        submitRecommendationRequest();
     } else {
-        $(".graph_bar").each((index, element) => {
-            element.style.left = "46.5%";
-        });
+        console.log('폼 검증 실패');
     }
-    
-	/* $("#recommend_first_result").text() : 3개 구에 대해서 정보를 표현할 때 각각의
-	 * "1번.지역구 이름"..2번 지역구 이름..을 표현하는 span 태그 텍스트 내용 가져오기 */
-    var recommend_first_name = $("#recommend_first_result").text();
-    var recommend_second_name = $("#recommend_second_result").text();
-    var recommend_third_name = $("#recommend_third_result").text();
-    var recommend_names = [recommend_first_name, recommend_second_name, recommend_third_name];
-
-    var orders = ["first", "second", "third"];
-
-    // 체크박스 선택에 따른 동적 화면 변경
-    var preLeft = -increaseLeft;
-    for (var i = 0; i < 3; i++) {
-        var wraps = document.querySelectorAll("." + orders[i] + "_wrap");		//  ["first", "second", "third"];
-
-        if (isChecked[i]) {
-            preLeft += increaseLeft;
-            $("." + orders[i] + "_wrap").each((index, div) => {
-                div.style.width = increaseLeft + "%";
-                div.style.left = preLeft + "%";
-                div.style.display = "block";
-            });
-
-            $(".label_gu" + (i + 1)).each((index, element) => {
-                element.innerText = recommend_names[i];
-                element.style.width = "100%";
-                element.display = "block";
-            });
-        } else {
-            $("." + orders[i] + "_wrap").each((index, div) => {
-                div.style.width = "0%";
-                div.style.display = "none";
-            });
-
-            $(".label_gu" + (i + 1)).each((index, element) => {
-                element.innerText = "";
-                element.style.width = "0%";
-                element.display = "none";
-            });
-
-        }
-    }
-
-    var modal = document.querySelector(".modal");
-    modal.style.display = "flex";
-    modal.style.zIndex = 2;
-
-    /* 각 사용자 선택한 지역구 개수 따라 화면 분배 계산은 끝, 이제 실제로 상세 비교 모달 창 내 데이터 띄우기 */
-
-    selectModal(1);
-    initConv(1);
-    initSafety(1);
-    searchGu("safety", "pollice");
-}
-
-function searchGu(selMenu, selContent) {
-    var check_first = document.getElementById("check_first");
-    var check_second = document.getElementById("check_second");
-    var check_third = document.getElementById("check_third");
-
-    var recommend_first_name = $("#recommend_first_result").text();
-    var recommend_second_name = $("#recommend_second_result").text();
-    var recommend_third_name = $("#recommend_third_result").text();
-
-    for (var i = 0; i < guSpec.length; i++) {
-        if (check_first.checked && guSpec[i].name === recommend_first_name) {
-            graphInit(guSpec[i], 1, selMenu, selContent);
-            continue;
-        }
-        if (check_second.checked && guSpec[i].name === recommend_second_name) {
-            graphInit(guSpec[i], 2, selMenu, selContent);
-            continue;
-        }
-        if (check_third.checked && guSpec[i].name === recommend_third_name) {
-            graphInit(guSpec[i], 3, selMenu, selContent);
-            continue;
-        }
-    }
-}
-
-function graphInit(spec, num, selMenu, selContent) {
-    var selColor = "#000";
-    if (selMenu === "safety") {
-        if (selContent === "pollice") {
-            selColor = "#33BBC5";
-            document.getElementById("content_graph_title").innerText = "파출소";
-            document.getElementById("content_bar" + num).style.height = spec.polliceOffice + 200 + "px";
-            document.getElementById("content_value" + num).innerText = spec.polliceOffice;
-        } else if (selContent === "cctv") {
-            selColor = "#F6635C";
-            document.getElementById("content_graph_title").innerText = "CCTV";
-            document.getElementById("content_bar" + num).style.height = spec.cctv / 20 + "px";
-            document.getElementById("content_value" + num).innerText = spec.cctv;
-        } else {
-            selColor = "#85E6C5";
-            document.getElementById("content_graph_title").innerText = "검거율";
-            document.getElementById("content_bar" + num).style.height = spec.arrest + 200 + "px";
-            document.getElementById("content_value" + num).innerText = spec.arrest;
-        }
-    } else {
-        if (selContent === "convStore") {
-            selColor = "#CDB2DB";
-            document.getElementById("content_graph_title").innerText = "편의점";
-            document.getElementById("content_bar" + num).style.height = spec.convenienceStore / 2 + "px";
-            document.getElementById("content_value" + num).innerText = spec.convenienceStore;
-        } else if (selContent === "restaurant") {
-            selColor = "#FFC8DD";
-            document.getElementById("content_graph_title").innerText = "음식점";
-            document.getElementById("content_bar" + num).style.height = spec.restaurant / 30 + "px";
-            document.getElementById("content_value" + num).innerText = spec.restaurant;
-        } else if (selContent === "cafe") {
-            selColor = "#FFAFCD";
-            document.getElementById("content_graph_title").innerText = "카페";
-            document.getElementById("content_bar" + num).style.height = spec.cafe / 5 + "px";
-            document.getElementById("content_value" + num).innerText = spec.cafe;
-        } else if (selContent === "olive") {
-            selColor = "#A3D2FF";
-            document.getElementById("content_graph_title").innerText = "올리브영";
-            document.getElementById("content_bar" + num).style.height = spec.olive * 15 + "px";
-            document.getElementById("content_value" + num).innerText = spec.olive;
-        } else {
-            selColor = "#BCE0FD";
-            document.getElementById("content_graph_title").innerText = "다이소";
-            document.getElementById("content_bar" + num).style.height = spec.daiso * 20 + "px";
-            document.getElementById("content_value" + num).innerText = spec.daiso;
-        }
-    }
-    document.getElementById("content_bar" + num).style.backgroundColor = selColor;
 }
 
 /**
- * 인구밀집도 시각화를 위한 임의 데이터 생성 함수
- * @returns [{name, population, idx}]
+ * 뒤로가기 버튼 설정
  */
+function setupBackButton() {
+    // 전세/월세 결과 페이지의 뒤로가기 버튼들
+    const charterBackButton = document.querySelector('#charter_result_title p');
+    const monthlyBackButton = document.querySelector('#monthly_result_title p');
 
+    if (charterBackButton) {
+        charterBackButton.addEventListener('click', function() {
+            showInputPage();
+        });
+    }
 
-// static data : "거주지 추천" 화면에서 각 3개 구 중 선택해서 상세 비교 모달 창을 제공하기 위한 static 데이터
-function initGuSpec() {
-    guSpec.push({ name: "강동구", convenienceStore: 324, cafe: 683, restaurant: 3797, olive: 13, daiso: 11, polliceOffice: 24, cctv: 3192, arrest: 69 });
-    guSpec.push({ name: "송파구", convenienceStore: 505, cafe: 842, restaurant: 7304, olive: 24, daiso: 16, polliceOffice: 29, cctv: 3253, arrest: 65 });
-    guSpec.push({ name: "강남구", convenienceStore: 712, cafe: 1948, restaurant: 12371, olive: 40, daiso: 19, polliceOffice: 30, cctv: 7243, arrest: 74 });
-    guSpec.push({ name: "서초구", convenienceStore: 396, cafe: 1309, restaurant: 5714, olive: 17, daiso: 10, polliceOffice: 28, cctv: 4995, arrest: 80 });
-    guSpec.push({ name: "관악구", convenienceStore: 384, cafe: 779, restaurant: 4813, olive: 14, daiso: 12, polliceOffice: 24, cctv: 5642, arrest: 69 });
-    guSpec.push({ name: "동작구", convenienceStore: 297, cafe: 742, restaurant: 3179, olive: 11, daiso: 15, polliceOffice: 23, cctv: 2690, arrest: 67 });
-    guSpec.push({ name: "영등포구", convenienceStore: 433, cafe: 968, restaurant: 6854, olive: 13, daiso: 11, polliceOffice: 22, cctv: 4660, arrest: 72 });
-    guSpec.push({ name: "금천구", convenienceStore: 283, cafe: 785, restaurant: 3054, olive: 7, daiso: 6, polliceOffice: 16, cctv: 2885, arrest: 71 });
-    guSpec.push({ name: "구로구", convenienceStore: 326, cafe: 655, restaurant: 4151, olive: 14, daiso: 10, polliceOffice: 25, cctv: 4831, arrest: 70 });
-    guSpec.push({ name: "강서구", convenienceStore: 496, cafe: 643, restaurant: 6190, olive: 23, daiso: 16, polliceOffice: 20, cctv: 3353, arrest: 66 });
-    guSpec.push({ name: "양천구", convenienceStore: 267, cafe: 553, restaurant: 3195, olive: 12, daiso: 8, polliceOffice: 22, cctv: 3890, arrest: 64 });
-    guSpec.push({ name: "마포구", convenienceStore: 459, cafe: 1848, restaurant: 8270, olive: 26, daiso: 7, polliceOffice: 23, cctv: 2638, arrest: 73 });
-    guSpec.push({ name: "서대문구", convenienceStore: 227, cafe: 1528, restaurant: 3671, olive: 13, daiso: 8, polliceOffice: 17, cctv: 3538, arrest: 70 });
-    guSpec.push({ name: "은평구", convenienceStore: 358, cafe: 552, restaurant: 3850, olive: 12, daiso: 9, polliceOffice: 27, cctv: 4653, arrest: 73 });
-    guSpec.push({ name: "노원구", convenienceStore: 302, cafe: 434, restaurant: 3488, olive: 12, daiso: 12, polliceOffice: 23, cctv: 2626, arrest: 70 });
-    guSpec.push({ name: "도봉구", convenienceStore: 220, cafe: 489, restaurant: 2224, olive: 6, daiso: 8, polliceOffice: 15, cctv: 2385, arrest: 70 });
-    guSpec.push({ name: "강북구", convenienceStore: 233, cafe: 574, restaurant: 3526, olive: 6, daiso: 8, polliceOffice: 20, cctv: 3321, arrest: 76 });
-    guSpec.push({ name: "성북구", convenienceStore: 297, cafe: 807, restaurant: 3802, olive: 12, daiso: 9, polliceOffice: 31, cctv: 4957, arrest: 75 });
-    guSpec.push({ name: "중랑구", convenienceStore: 284, cafe: 563, restaurant: 3824, olive: 8, daiso: 6, polliceOffice: 23, cctv: 4193, arrest: 69 });
-    guSpec.push({ name: "동대문구", convenienceStore: 316, cafe: 730, restaurant: 4256, olive: 10, daiso: 9, polliceOffice: 27, cctv: 2759, arrest: 71 });
-    guSpec.push({ name: "광진구", convenienceStore: 329, cafe: 875, restaurant: 4328, olive: 16, daiso: 6, polliceOffice: 17, cctv: 3592, arrest: 67 });
-    guSpec.push({ name: "성동구", convenienceStore: 258, cafe: 987, restaurant: 3818, olive: 11, daiso: 7, polliceOffice: 21, cctv: 4175, arrest: 74 });
-    guSpec.push({ name: "용산구", convenienceStore: 227, cafe: 1087, restaurant: 4996, olive: 12, daiso: 4, polliceOffice: 19, cctv: 2970, arrest: 79 });
-    guSpec.push({ name: "중구", convenienceStore: 292, cafe: 1452, restaurant: 6061, olive: 21, daiso: 6, polliceOffice: 27, cctv: 2584, arrest: 86 });
-    guSpec.push({ name: "종로구", convenienceStore: 259, cafe: 1690, restaurant: 7206, olive: 12, daiso: 7, polliceOffice: 32, cctv: 1966, arrest: 93 });
+    if (monthlyBackButton) {
+        monthlyBackButton.addEventListener('click', function() {
+            showInputPage();
+        });
+    }
 }
 
-/* static data : 사용자가 전세/월세 따라 금액 및 안정성 점수와 편의성 점수를 입력해서 거주치 추천 정보를 제공할 때에
-    "거주지 추천" 모달 창에는 DBMS 에서 가져온 정보를 제공하지만, 결과로 나온 3개 추천 지역구 중 최고로 우선되는 정보는 'initPopulation' 의 초기화 정보를 사용한다...*/
-function initPopulation() {
-    var populationArea = [];
-    populationArea.push({ name: "강동구", population: 18 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 9, deposit_avg_rank: 6, monthly_avg_rank: 14, conv_rank: 17, safe_rank: 19, congest_rank: 8, gu_review: "집값은 평균선인데\n안전성과 편의성이 다소 낮네.." });
-    populationArea.push({ name: "송파구", population: 19 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 3, deposit_avg_rank: 1, monthly_avg_rank: 3, conv_rank: 4, safe_rank: 24, congest_rank: 7, gu_review: "강남 3구답게 높은 집값 + 좋은 편의성\n그러나 안전성은 조금 낮네?" });
-    populationArea.push({ name: "강남구", population: 6 * 40000 + 10000, color: "rgba(0,0,255,1)", charter_avg_rank: 2, deposit_avg_rank: 3, monthly_avg_rank: 1, conv_rank: 1, safe_rank: 7, congest_rank: 20, gu_review: "종합적으로 전부 최상위권!\n그러나 집값도 최상위권.." });
-    populationArea.push({ name: "서초구", population: 2 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 1, deposit_avg_rank: 2, monthly_avg_rank: 2, conv_rank: 7, safe_rank: 3, congest_rank: 24, gu_review: "전체적으로 살기 굉장히 좋은 동네\n하지만 그만큼 집값도.." });
-    populationArea.push({ name: "관악구", population: 13 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 17, deposit_avg_rank: 7, monthly_avg_rank: 21, conv_rank: 10, safe_rank: 18, congest_rank: 13, gu_review: "집값이 너무 괜찮다 여기?!\n그러나 안전성은 보장할 수 없다.." });
-    populationArea.push({ name: "동작구", population: 23 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 11, deposit_avg_rank: 10, monthly_avg_rank: 17, conv_rank: 21, safe_rank: 22, congest_rank: 3, gu_review: "가격면에서는 괜찮지만 \n안전성과 편의성이 조금 부족하네.." });
-    populationArea.push({ name: "영등포구", population: 12 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 7, deposit_avg_rank: 4, monthly_avg_rank: 9, conv_rank: 5, safe_rank: 11, congest_rank: 14, gu_review: "집값이 다소 높게 형성되어 있지만\n편의시설이 많은 편. 안전성도 not bad!" });
-    populationArea.push({ name: "금천구", population: 17 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 16, deposit_avg_rank: 18, monthly_avg_rank: 18, conv_rank: 23, safe_rank: 13, congest_rank: 9, gu_review: "편의성이 중요해! X\n집값이 중요해! O" });
-    populationArea.push({ name: "구로구", population: 21 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 22, deposit_avg_rank: 20, monthly_avg_rank: 24, conv_rank: 14, safe_rank: 14, congest_rank: 5, gu_review: "집값 너무 괜찮고 편의 안전 모두 평균!\n그러나 밀집도가 약간 높은것이 함정.." });
-    populationArea.push({ name: "강서구", population: 7 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 12, deposit_avg_rank: 12, monthly_avg_rank: 8, conv_rank: 7, safe_rank: 23, congest_rank: 19, gu_review: "집값 평균! 편의성 good! 밀집도 good!\n안전성 (not)good!" });
-    populationArea.push({ name: "양천구", population: 25 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 15, deposit_avg_rank: 15, monthly_avg_rank: 22, conv_rank: 24, safe_rank: 25, congest_rank: 1, gu_review: "편의성과 안전성 밀집도 모두 좋지 않은\n점수지만 집값은 괜찮은 동네" });
-    populationArea.push({ name: "마포구", population: 10 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 8, deposit_avg_rank: 11, monthly_avg_rank: 5, conv_rank: 1, safe_rank: 9, congest_rank: 16, gu_review: "집값은 살짝 높지만 서울 핫플레이스가\n몰려있는 뛰어난 편의성!" });
-    populationArea.push({ name: "서대문구", population: 16 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 18, deposit_avg_rank: 17, monthly_avg_rank: 11, conv_rank: 11, safe_rank: 16, congest_rank: 10, gu_review: "모든 것이 평균이라고 할 수 있죠\n대학거리도 많아서 놀기 좋은 동네!" });
-    populationArea.push({ name: "은평구", population: 11 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 21, deposit_avg_rank: 16, monthly_avg_rank: 15, conv_rank: 17, safe_rank: 10, congest_rank: 15, gu_review: "정말 모든 것이 딱 평균!\n집값이 조금 싼편인게 장점?!" });
-    populationArea.push({ name: "노원구", population: 8 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 23, deposit_avg_rank: 25, monthly_avg_rank: 25, conv_rank: 21, safe_rank: 15, congest_rank: 18, gu_review: "장점 : 집값이 싸다\n단점 : 집값만 싸다" });
-    populationArea.push({ name: "도봉구", population: 9 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 25, deposit_avg_rank: 23, monthly_avg_rank: 16, conv_rank: 25, safe_rank: 17, congest_rank: 17, gu_review: "집값이 엄청 싼 지역이지만\n편의성이 너무 떨어진다.." });
-    populationArea.push({ name: "강북구", population: 4 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 24, deposit_avg_rank: 24, monthly_avg_rank: 20, conv_rank: 20, safe_rank: 5, congest_rank: 22, gu_review: "안전성도 괜찮고 집값도 괜찮네\n하지만 편의성이 조금 부족.." });
-    populationArea.push({ name: "성북구", population: 15 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 19, deposit_avg_rank: 21, monthly_avg_rank: 19, conv_rank: 16, safe_rank: 6, congest_rank: 11, gu_review: "안전성도 상위권이고 집값도 싸다!\n편의성도 이정도면 괜찮은데..?" });
-    populationArea.push({ name: "중랑구", population: 22 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 20, deposit_avg_rank: 5, monthly_avg_rank: 23, conv_rank: 19, safe_rank: 20, congest_rank: 4, gu_review: "집값 싸지만 낮은 편의성과 안전성\n밀집도도 꽤 높다.." });
-    populationArea.push({ name: "동대문구", population: 24 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 14, deposit_avg_rank: 22, monthly_avg_rank: 12, conv_rank: 13, safe_rank: 12, congest_rank: 2, gu_review: "집값도 낮고 편의성과 안전성도 평균!\n그러나 인구 밀집도가 높은게 함정.." });
-    populationArea.push({ name: "광진구", population: 20 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 10, deposit_avg_rank: 9, monthly_avg_rank: 10, conv_rank: 11, safe_rank: 21, congest_rank: 6, gu_review: "편의성은 다소 높지만 안전성이 낮은 편..\n평균 집값도 만만치 않다" });
-    populationArea.push({ name: "성동구", population: 14 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 4, deposit_avg_rank: 13, monthly_avg_rank: 13, conv_rank: 14, safe_rank: 8, congest_rank: 12, gu_review: "모든 수치 평균이상! 하지만\n한강근처이니 집값은 이정도는 뭐.." });
-    populationArea.push({ name: "용산구", population: 3 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 6, deposit_avg_rank: 8, monthly_avg_rank: 7, conv_rank: 9, safe_rank: 4, congest_rank: 23, gu_review: "집값이 낮진 않지만 전체적인 벨런스 good\n밀집도도 낮고 밑에는 한강이?!" });
-    populationArea.push({ name: "중구", population: 5 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 5, deposit_avg_rank: 14, monthly_avg_rank: 4, conv_rank: 6, safe_rank: 2, congest_rank: 21, gu_review: "편의성과 안전성 모두 최상위권 !\n인구 밀집도도 낮지만 집값이 다소 높은 편.." });
-    populationArea.push({ name: "종로구", population: 1 * 40000 + 10000, color: "rgba(0,0,0,0)", charter_avg_rank: 13, deposit_avg_rank: 19, monthly_avg_rank: 6, conv_rank: 3, safe_rank: 1, congest_rank: 25, gu_review: "안전 1등 ! 가격도 착한 지역 !\n밀집도도 최하! 위치도 너무 좋다.." });
+/**
+ * 모든 필드 검증
+ */
+function validateAllFields() {
+    console.log('=== 전체 필드 검증 시작 ===');
 
-    var max = populationArea[0].population;
-    var min = populationArea[0].population;
+    // 1. 임대 유형 검증
+    const rentalType = document.querySelector('input[name="rentalType"]:checked')?.value;
+    console.log('임대 유형:', rentalType);
+    if (!rentalType) {
+        alert('임대 유형을 선택해주세요.');
+        return false;
+    }
 
-    populationArea.forEach(e => {
-        var temp = e.population;
-        max = temp > max ? temp : max;
-        min = temp > min ? min : temp;
-    })
-    var interval = (max - min) / 7;
+    // 2. 예산 범위 검증
+    const budgetMin = document.getElementById('budgetMin').value;
+    const budgetMax = document.getElementById('budgetMax').value;
+    console.log('예산 범위:', budgetMin, '~', budgetMax);
 
-    populationArea.forEach(element => {
-        if (element.population <= min + (interval * 0)) {
-            element.color = "rgba(255, 0, 0, 0.2)";
-        } else if (element.population <= min + (interval * 1)) {
-            element.color = "rgba(255, 0, 0, 0.275)";
-        } else if (element.population <= min + (interval * 2)) {
-            element.color = "rgba(255, 0, 0, 0.35)";
-        } else if (element.population <= min + (interval * 3)) {
-            element.color = "rgba(255, 0, 0, 0.425)";
-        } else if (element.population <= min + (interval * 4)) {
-            element.color = "rgba(255, 0, 0, 0.5)";
-        } else if (element.population <= min + (interval * 5)) {
-            element.color = "rgba(255, 0, 0, 0.575)";
-        } else {
-            element.color = "rgba(255, 0, 0, 0.65)";
+    if (!budgetMin || !budgetMax) {
+        alert('예산 범위를 모두 입력해주세요.');
+        return false;
+    }
+
+    if (parseInt(budgetMin) > parseInt(budgetMax)) {
+        alert('최대 예산이 최소 예산보다 크거나 같아야 합니다.');
+        return false;
+    }
+
+    // 3. 월세 추가 필드 검증 (월세 선택 시)
+    if (rentalType === 'MONTHLY') {
+        const monthlyMin = document.getElementById('monthlyMin').value;
+        const monthlyMax = document.getElementById('monthlyMax').value;
+        console.log('월세 범위:', monthlyMin, '~', monthlyMax);
+
+        if (!monthlyMin || !monthlyMax) {
+            alert('월세 범위를 입력해주세요.');
+            return false;
         }
-    })
-    return populationArea;
+
+        if (parseInt(monthlyMin) > parseInt(monthlyMax)) {
+            alert('최대 월세가 최소 월세보다 크거나 같아야 합니다.');
+            return false;
+        }
+    }
+
+    // 4. 평수 범위 검증
+    const areaMin = document.getElementById('areaMin').value;
+    const areaMax = document.getElementById('areaMax').value;
+    console.log('평수 범위:', areaMin, '~', areaMax);
+
+    if (!areaMin || !areaMax) {
+        alert('평수 범위를 모두 입력해주세요.');
+        return false;
+    }
+
+    if (parseFloat(areaMin) > parseFloat(areaMax)) {
+        alert('최대 평수가 최소 평수보다 크거나 같아야 합니다.');
+        return false;
+    }
+
+    // 5. 우선순위 검증
+    const priority1 = document.getElementById('priority1').value;
+    const priority2 = document.getElementById('priority2').value;
+    const priority3 = document.getElementById('priority3').value;
+    console.log('우선순위:', priority1, priority2, priority3);
+
+    if (!priority1 || !priority2 || !priority3) {
+        alert('모든 우선순위를 설정해주세요.');
+        return false;
+    }
+
+    // 우선순위 중복 검증
+    const priorities = [priority1, priority2, priority3];
+    const uniquePriorities = [...new Set(priorities)];
+    if (uniquePriorities.length !== 3) {
+        alert('우선순위는 중복될 수 없습니다.');
+        return false;
+    }
+
+    console.log('=== 전체 필드 검증 성공 ===');
+    return true;
 }
+
+/**
+ * 제출 버튼 상태 업데이트
+ */
+function updateSubmitButtonState() {
+    let submitButton = document.querySelector('#recommend_result_btn input[type="button"]');
+
+    if (!submitButton) {
+        submitButton = document.querySelector('#recommend_result input[type="button"]');
+    }
+
+    if (!submitButton) {
+        console.warn('제출 버튼을 찾을 수 없어 상태 업데이트를 건너뜁니다.');
+        return;
+    }
+
+    const isValid = isFormValid();
+
+    submitButton.disabled = !isValid;
+
+    if (isValid) {
+        submitButton.style.backgroundColor = '#0B5ED7';
+        submitButton.style.cursor = 'pointer';
+        submitButton.style.color = 'white';
+    } else {
+        submitButton.style.backgroundColor = '#ccc';
+        submitButton.style.cursor = 'not-allowed';
+        submitButton.style.color = '#666';
+    }
+}
+
+/**
+ * 폼 유효성 확인
+ */
+function isFormValid() {
+    const rentalType = document.querySelector('input[name="rentalType"]:checked');
+    const budgetMin = document.getElementById('budgetMin').value;
+    const budgetMax = document.getElementById('budgetMax').value;
+    const areaMin = document.getElementById('areaMin').value;
+    const areaMax = document.getElementById('areaMax').value;
+    const priority1 = document.getElementById('priority1').value;
+    const priority2 = document.getElementById('priority2').value;
+    const priority3 = document.getElementById('priority3').value;
+
+    let isValid = rentalType && budgetMin && budgetMax && areaMin && areaMax &&
+        priority1 && priority2 && priority3;
+
+    // 월세 선택 시 추가 검증
+    if (rentalType?.value === 'MONTHLY') {
+        const monthlyMin = document.getElementById('monthlyMin').value;
+        const monthlyMax = document.getElementById('monthlyMax').value;
+        isValid = isValid && monthlyMin && monthlyMax;
+    }
+
+    // 범위 검증
+    if (isValid) {
+        isValid = parseInt(budgetMax) >= parseInt(budgetMin) &&
+            parseFloat(areaMax) >= parseFloat(areaMin);
+    }
+
+    // 우선순위 중복 검증
+    if (isValid && priority1 && priority2 && priority3) {
+        const priorities = [priority1, priority2, priority3];
+        const uniquePriorities = [...new Set(priorities)];
+        isValid = uniquePriorities.length === 3;
+    }
+
+    return isValid;
+}
+
+/**
+ * 추천 요청 제출 - 전세/월세 분리 API 대응
+ */
+/**
+ * 추천 요청 제출 - 전세/월세 분리 API 대응
+ */
+async function submitRecommendationRequest() {
+    try {
+        console.log('=== API 요청 시작 ===');
+
+        // 로딩 상태 표시
+        showLoading();
+
+        // 임대 유형 확인
+        const rentalType = document.querySelector('input[name="rentalType"]:checked').value;
+        console.log('선택된 임대 유형:', rentalType);
+
+        // 요청 데이터 구성 및 API 엔드포인트 결정
+        let requestData, apiEndpoint;
+
+        if (rentalType === 'CHARTER') {
+            // 전세용 요청 데이터 및 엔드포인트
+            requestData = buildCharterRequestData();
+            apiEndpoint = '/wherehouse/api/recommendations/charter-districts';  // ← 수정
+        } else if (rentalType === 'MONTHLY') {
+            // 월세용 요청 데이터 및 엔드포인트
+            requestData = buildMonthlyRequestData();
+            apiEndpoint = '/wherehouse/api/recommendations/monthly-districts';  // ← 수정
+        } else {
+            throw new Error('올바르지 않은 임대 유형입니다.');
+        }
+
+        console.log('API 엔드포인트:', apiEndpoint);
+        console.log('전송할 데이터:', requestData);
+
+        // API 요청
+        const response = await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        console.log('응답 상태:', response.status);
+
+        if (!response.ok) {
+            if (response.status === 400) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '입력 데이터에 오류가 있습니다.');
+            }
+            throw new Error(`서버 오류가 발생했습니다. (${response.status})`);
+        }
+
+        const responseData = await response.json();
+        console.log('서버 응답:', responseData);
+
+        // 결과 저장 및 화면 표시
+        currentRecommendationData = responseData;
+        currentRentalType = rentalType;
+        showRecommendationResults(responseData, rentalType);
+
+    } catch (error) {
+        console.error('추천 요청 오류:', error);
+        alert(error.message || '추천 결과를 가져오는 중 오류가 발생했습니다.\n\n네트워크 연결과 서버 상태를 확인해주세요.');
+    } finally {
+        hideLoading();
+    }
+}
+
+/**
+ * 전세용 요청 데이터 구성
+ */
+function buildCharterRequestData() {
+    const budgetMin = parseInt(document.getElementById('budgetMin').value);
+    const budgetMax = parseInt(document.getElementById('budgetMax').value);
+    const areaMin = parseFloat(document.getElementById('areaMin').value);
+    const areaMax = parseFloat(document.getElementById('areaMax').value);
+    const priority1 = document.getElementById('priority1').value;
+    const priority2 = document.getElementById('priority2').value;
+    const priority3 = document.getElementById('priority3').value;
+    const budgetFlexibility = parseInt(document.getElementById('budgetFlexibility').value);
+    const minSafetyScore = parseInt(document.getElementById('minSafetyScore').value);
+    const absoluteMinArea = parseFloat(document.getElementById('absoluteMinArea').value) || 0.0;
+
+    return {
+        budgetMin: budgetMin,           // 전세금 최소
+        budgetMax: budgetMax,           // 전세금 최대
+        areaMin: areaMin,
+        areaMax: areaMax,
+        priority1: priority1,
+        priority2: priority2,
+        priority3: priority3,
+        budgetFlexibility: budgetFlexibility,
+        minSafetyScore: minSafetyScore,
+        absoluteMinArea: absoluteMinArea
+    };
+}
+
+/**
+ * 월세용 요청 데이터 구성
+ */
+function buildMonthlyRequestData() {
+    const budgetMin = parseInt(document.getElementById('budgetMin').value);        // 보증금 최소
+    const budgetMax = parseInt(document.getElementById('budgetMax').value);        // 보증금 최대
+    const monthlyRentMin = parseInt(document.getElementById('monthlyMin').value);  // 월세금 최소
+    const monthlyRentMax = parseInt(document.getElementById('monthlyMax').value);  // 월세금 최대
+    const areaMin = parseFloat(document.getElementById('areaMin').value);
+    const areaMax = parseFloat(document.getElementById('areaMax').value);
+    const priority1 = document.getElementById('priority1').value;
+    const priority2 = document.getElementById('priority2').value;
+    const priority3 = document.getElementById('priority3').value;
+    const budgetFlexibility = parseInt(document.getElementById('budgetFlexibility').value);
+    const minSafetyScore = parseInt(document.getElementById('minSafetyScore').value);
+    const absoluteMinArea = parseFloat(document.getElementById('absoluteMinArea').value) || 0.0;
+
+    return {
+        budgetMin: budgetMin,                 // 보증금 최소
+        budgetMax: budgetMax,                 // 보증금 최대
+        monthlyRentMin: monthlyRentMin,       // 월세금 최소 (새로 추가된 필드)
+        monthlyRentMax: monthlyRentMax,       // 월세금 최대 (새로 추가된 필드)
+        areaMin: areaMin,
+        areaMax: areaMax,
+        priority1: priority1,
+        priority2: priority2,
+        priority3: priority3,
+        budgetFlexibility: budgetFlexibility,
+        minSafetyScore: minSafetyScore,
+        absoluteMinArea: absoluteMinArea
+    };
+}
+
+/**
+ * 추천 결과 표시 (전세/월세 분기 처리)
+ */
+function showRecommendationResults(data, rentalType) {
+    console.log('추천 결과 표시:', data);
+    console.log('임대 유형:', rentalType);
+
+    if (rentalType === 'CHARTER') {
+        showCharterResults(data);
+    } else if (rentalType === 'MONTHLY') {
+        showMonthlyResults(data);
+    }
+}
+
+/**
+ * 전세 결과 표시 - 수정된 버전
+ */
+function showCharterResults(data) {
+    console.log('전세 결과 표시');
+    console.log('응답 데이터 구조:', data);
+
+    // 입력 화면 숨기기, 전세 결과 화면 표시
+    document.getElementById('user-input').style.display = 'none';
+    document.getElementById('charter_result_page').style.display = 'block';
+    document.getElementById('monthly_result_page').style.display = 'none';
+
+    // 안내 메시지 업데이트 - searchStatus에 따라 메시지 결정
+    const messageElement = document.getElementById('charter_message_text');
+    if (messageElement) {
+        console.log('data.searchStatus', data.searchStatus);
+
+        if (data.searchStatus === 'NO_RESULTS') {
+            // NO_RESULTS일 때는 무조건 "찾을 수 없었습니다" 메시지
+            messageElement.textContent = '조건에 맞는 전세 매물을 찾을 수 없었습니다.';
+            console.log('NO_RESULTS - 결과 없음 메시지 설정');
+        } else if (data.recommendedDistricts && data.recommendedDistricts.length > 0) {
+            // 실제로 추천 결과가 있을 때만 "성공적으로 찾았습니다" 메시지
+            messageElement.textContent = '조건에 맞는 전세 매물을 성공적으로 찾았습니다.';
+            console.log('SUCCESS - 성공 메시지 설정');
+        } else {
+            // 기타 경우
+            messageElement.textContent = '전세 추천 결과가 없습니다.';
+            console.log('OTHER - 기타 메시지 설정');
+        }
+    }
+
+    // 전세 지역구 카드 생성
+    renderCharterDistrictCards(data.recommendedDistricts);
+}
+
+/**
+ * 월세 결과 표시 - 수정된 버전
+ */
+function showMonthlyResults(data) {
+    console.log('월세 결과 표시');
+
+    // 입력 화면 숨기기, 월세 결과 화면 표시
+    document.getElementById('user-input').style.display = 'none';
+    document.getElementById('charter_result_page').style.display = 'none';
+    document.getElementById('monthly_result_page').style.display = 'block';
+
+    const messageElement = document.getElementById('monthly_message_text');
+    if (messageElement) {
+        if (data.searchStatus === 'NO_RESULTS') {
+            messageElement.textContent = '조건에 맞는 월세 매물을 찾을 수 없었습니다.';
+        } else if (data.recommendedDistricts && data.recommendedDistricts.length > 0) {
+            messageElement.textContent = '조건에 맞는 월세 매물을 성공적으로 찾았습니다.';
+        } else {
+            messageElement.textContent = '월세 추천 결과가 없습니다.';
+        }
+    }
+
+    renderMonthlyDistrictCards(data.recommendedDistricts);
+}
+
+/**
+ * 전세 지역구 카드 렌더링
+ */
+function renderCharterDistrictCards(districts) {
+    const container = document.getElementById('charter_districts_container');
+    if (!container) {
+        console.error('전세 지역구 컨테이너를 찾을 수 없습니다');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    if (!districts || districts.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 20px;">전세 추천 결과가 없습니다.</div>';
+        return;
+    }
+
+    districts.forEach((district, index) => {
+        const card = createCharterDistrictCard(district, index + 1);
+        container.appendChild(card);
+    });
+}
+
+/**
+ * 월세 지역구 카드 렌더링
+ */
+function renderMonthlyDistrictCards(districts) {
+    const container = document.getElementById('monthly_districts_container');
+    if (!container) {
+        console.error('월세 지역구 컨테이너를 찾을 수 없습니다');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    if (!districts || districts.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 20px;">월세 추천 결과가 없습니다.</div>';
+        return;
+    }
+
+    districts.forEach((district, index) => {
+        const card = createMonthlyDistrictCard(district, index + 1);
+        container.appendChild(card);
+    });
+}
+
+/**
+ * 전세 지역구 카드 생성 - 실제 응답 구조에 맞게 수정
+ */
+function createCharterDistrictCard(district, rank) {
+    const card = document.createElement('div');
+    card.className = 'charter_district_card';
+    card.id = `charter_district_card_${rank}`;
+
+    // 실제 응답 필드명 사용 (스네이크 케이스)
+    const topProperty = district.top_properties && district.top_properties.length > 0
+        ? district.top_properties[0] : null;
+
+    const priceText = topProperty ? formatCharterPrice(topProperty) : '매물 정보 없음';
+    const scoreText = topProperty ? `${topProperty.final_score.toFixed(1)}점` : '-';
+
+    card.innerHTML = `
+        <div class="charter_district_header">
+            <span class="charter_district_rank">${rank}.</span>
+            <span class="charter_district_name">${district.district_name}</span>
+        </div>
+        
+        <div class="charter_district_info">
+            <div class="charter_info_row">
+                <span class="charter_info_label">대표 매물:</span>
+                <span class="charter_info_value charter_price_value">${priceText}</span>
+            </div>
+            <div class="charter_info_row">
+                <span class="charter_info_label">추천 점수:</span>
+                <span class="charter_info_value charter_score_value">${scoreText}</span>
+            </div>
+            <div class="charter_info_row">
+                <span class="charter_info_label">추천 근거:</span>
+                <span class="charter_info_value">${district.summary || '정보 없음'}</span>
+            </div>
+        </div>
+        
+        <div class="charter_district_buttons">
+            <button class="charter_btn_detail_rank" onclick="showPropertyModal('${district.district_name}', 'charter', ${rank})">상세 매물들 보기</button>
+            <button class="charter_btn_property_list">지역구 추천 정보</button>
+        </div>
+    `;
+
+    return card;
+}
+
+
+/**
+ * 전세 가격 형식화
+ */
+function formatCharterPrice(property) {
+    return `전세 ${property.price.toLocaleString()}만원`;
+}
+
+/**
+ * 월세 지역구 카드 생성 - 상세 순위 정보 버튼 기능 추가
+ */
+function createMonthlyDistrictCard(district, rank) {
+    const card = document.createElement('div');
+    card.className = 'monthly_district_card';
+    card.id = `monthly_district_card_${rank}`;
+
+    const topProperty = district.top_properties && district.top_properties.length > 0
+        ? district.top_properties[0] : null;
+
+    const priceText = topProperty ? formatMonthlyPrice(topProperty) : '매물 정보 없음';
+    const scoreText = topProperty ? `${topProperty.final_score.toFixed(1)}점` : '-';
+
+    card.innerHTML = `
+        <div class="monthly_district_header">
+            <span class="monthly_district_rank">${rank}.</span>
+            <span class="monthly_district_name">${district.district_name}</span>
+        </div>
+        
+        <div class="monthly_district_info">
+            <div class="monthly_info_row">
+                <span class="monthly_info_label">대표 매물:</span>
+                <span class="monthly_info_value monthly_price_value">${priceText}</span>
+            </div>
+            <div class="monthly_info_row">
+                <span class="monthly_info_label">추천 점수:</span>
+                <span class="monthly_info_value monthly_score_value">${scoreText}</span>
+            </div>
+            <div class="monthly_info_row">
+                <span class="monthly_info_label">추천 근거:</span>
+                <span class="monthly_info_value">${district.summary || '정보 없음'}</span>
+            </div>
+        </div>
+        
+        <div class="monthly_district_buttons">
+            <button class="monthly_btn_detail_rank" onclick="showDetailRankModal('${district.district_name}', 'monthly', ${rank})">지역구 추천 정보</button>
+            <button class="monthly_btn_property_list" onclick="showMonthlyPropertyListModal('${district.district_name}', ${rank})">상세 매물들 보기</button>
+        </div>
+    `;
+
+    return card;
+}
+
+/**
+ * 입력 페이지 표시
+ */
+function showInputPage() {
+    document.getElementById('user-input').style.display = 'block';
+    document.getElementById('charter_result_page').style.display = 'none';
+    document.getElementById('monthly_result_page').style.display = 'none';
+}
+
+/**
+ * 월세 가격 형식화 - 보증금과 월세금 모두 표시
+ */
+function formatMonthlyPrice(property) {
+    // snake_case 필드명 사용
+    if (property.monthly_rent) {
+        return `보증금 ${property.price.toLocaleString()}만원 / 월세 ${property.monthly_rent.toLocaleString()}만원`;
+    } else {
+        return `보증금 ${property.price.toLocaleString()}만원`;
+    }
+}
+
+/**
+ * 매물 상세 모달 표시 - 새로운 간단한 버전
+ */
+function showPropertyModal(districtName, rentalType, rank) {
+    console.log(`매물 상세 모달 표시: ${districtName} (${rentalType}) - 순위: ${rank}`);
+
+    const modal = document.getElementById('property_detail_modal');
+    if (!modal) {
+        console.error('모달을 찾을 수 없습니다!');
+        return;
+    }
+
+    if (!currentRecommendationData || !currentRecommendationData.recommendedDistricts) {
+        console.error('추천 데이터가 없습니다');
+        return;
+    }
+
+    // 해당 지역구 찾기
+    const district = currentRecommendationData.recommendedDistricts.find(d => d.district_name === districtName);
+    if (!district) {
+        console.error(`지역구를 찾을 수 없습니다: ${districtName}`);
+        return;
+    }
+
+    // 모달 제목 설정
+    const modalTitle = document.getElementById('property_modal_title');
+    if (modalTitle) {
+        modalTitle.textContent = `${districtName} ${rentalType === 'charter' ? '전세' : '월세'} 매물 목록`;
+    }
+
+    // 매물 목록 컨테이너 가져오기
+    const container = document.getElementById('property_list_container');
+    if (!container) {
+        console.error('컨테이너를 찾을 수 없습니다');
+        return;
+    }
+
+    // 기존 내용 지우기
+    container.innerHTML = '';
+
+    // 매물이 있는지 확인
+    if (!district.top_properties || district.top_properties.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px; color: #666;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🏠</div>
+                <div style="font-size: 16px;">해당 지역구에 조건에 맞는 매물이 없습니다.</div>
+            </div>
+        `;
+    } else {
+        // 매물 카드들 생성
+        district.top_properties.forEach((property, index) => {
+            const card = createSimplePropertyCard(property, index + 1, rentalType);
+            container.appendChild(card);
+        });
+    }
+
+    // 모달 표시
+    modal.style.display = 'block';
+    document.body.classList.add('modal_open');
+}
+
+/**
+ * 전세 지역구 카드 생성 - 상세 순위 정보 버튼 기능 추가
+ */
+function createCharterDistrictCard(district, rank) {
+    const card = document.createElement('div');
+    card.className = 'charter_district_card';
+    card.id = `charter_district_card_${rank}`;
+
+    const topProperty = district.top_properties && district.top_properties.length > 0
+        ? district.top_properties[0] : null;
+
+    const priceText = topProperty ? formatCharterPrice(topProperty) : '매물 정보 없음';
+    const scoreText = topProperty ? `${topProperty.final_score.toFixed(1)}점` : '-';
+
+    card.innerHTML = `
+        <div class="charter_district_header">
+            <span class="charter_district_rank">${rank}.</span>
+            <span class="charter_district_name">${district.district_name}</span>
+        </div>
+        
+        <div class="charter_district_info">
+            <div class="charter_info_row">
+                <span class="charter_info_label">대표 매물:</span>
+                <span class="charter_info_value charter_price_value">${priceText}</span>
+            </div>
+            <div class="charter_info_row">
+                <span class="charter_info_label">추천 점수:</span>
+                <span class="charter_info_value charter_score_value">${scoreText}</span>
+            </div>
+            <div class="charter_info_row">
+                <span class="charter_info_label">추천 근거:</span>
+                <span class="charter_info_value">${district.summary || '정보 없음'}</span>
+            </div>
+        </div>
+        
+        <div class="charter_district_buttons">
+            <button class="charter_btn_detail_rank" onclick="showDetailRankModal('${district.district_name}', 'charter', ${rank})">지역구 추천 정보</button>
+            <button class="charter_btn_property_list" onclick="showCharterPropertyListModal('${district.district_name}', ${rank})">상세 매물들 보기</button>
+        </div>
+    `;
+
+    return card;
+}
+
+/**
+ * 매물 모달 닫기
+ */
+function closePropertyModal() {
+    const modal = document.getElementById('property_detail_modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    document.body.classList.remove('modal_open');
+}
+
+/**
+ * 매물 목록 렌더링 (수정된 버전)
+ */
+function renderPropertyList(properties, rentalType) {
+    console.log('매물 목록 렌더링:', properties, rentalType);
+
+    const container = document.getElementById('property_list_container');
+    console.log('매물 리스트 컨테이너:', container);
+
+    if (!container) {
+        console.error('property_list_container를 찾을 수 없습니다');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    if (!properties || properties.length === 0) {
+        container.innerHTML = `
+            <div class="property_empty_message">
+                <div class="property_empty_icon">🏠</div>
+                <div class="property_empty_text">해당 지역구에 조건에 맞는 매물이 없습니다.</div>
+            </div>
+        `;
+        console.log('매물이 없어서 빈 메시지 표시');
+        return;
+    }
+
+    // 점수 순으로 정렬 (높은 점수부터) - 수정된 필드명 사용
+    const sortedProperties = [...properties].sort((a, b) => b.finalScore - a.finalScore);
+    console.log('정렬된 매물 목록:', sortedProperties);
+
+    sortedProperties.forEach((property, index) => {
+        const card = createPropertyCard(property, index + 1, rentalType);
+        container.appendChild(card);
+    });
+
+    console.log('매물 카드 생성 완료');
+}
+
+/**
+ * 개별 매물 카드 생성 (수정된 버전)
+ */
+function createPropertyCard(property, rank, rentalType) {
+    const card = document.createElement('div');
+
+    // CSS에 정의된 클래스명 사용
+    if (rentalType === 'charter') {
+        card.className = 'charter_property_card';
+    } else {
+        card.className = 'monthly_property_card';
+    }
+
+    // 가격 형식화 - 임대 유형별 분리
+    const priceText = rentalType === 'charter'
+        ? formatCharterPrice(property)
+        : formatMonthlyPrice(property);
+
+    // 건축연도 처리 - 수정된 필드명 사용
+    const buildYearText = property.buildYear ? `${property.buildYear}년` : '정보없음';
+
+    // 층수 처리
+    const floorText = property.floor ? `${property.floor}층` : '정보없음';
+
+    // 전세/월세에 따른 클래스명 선택
+    const headerClass = rentalType === 'charter' ? 'charter_property_header' : 'monthly_property_header';
+    const titleClass = rentalType === 'charter' ? 'charter_property_title' : 'monthly_property_title';
+    const nameClass = rentalType === 'charter' ? 'charter_property_name' : 'monthly_property_name';
+    const scoreClass = rentalType === 'charter' ? 'charter_property_score' : 'monthly_property_score';
+    const addressClass = rentalType === 'charter' ? 'charter_property_address' : 'monthly_property_address';
+    const bodyClass = rentalType === 'charter' ? 'charter_property_body' : 'monthly_property_body';
+    const gridClass = rentalType === 'charter' ? 'charter_property_details_grid' : 'monthly_property_details_grid';
+    const itemClass = rentalType === 'charter' ? 'charter_property_detail_item' : 'monthly_property_detail_item';
+    const labelClass = rentalType === 'charter' ? 'charter_property_detail_label' : 'monthly_property_detail_label';
+    const valueClass = rentalType === 'charter' ? 'charter_property_detail_value' : 'monthly_property_detail_value';
+    const highlightClass = rentalType === 'charter' ? 'charter_property_price_highlight' : 'monthly_property_price_highlight';
+
+    card.innerHTML = `
+        <div class="${headerClass}">
+            <div class="${titleClass}">
+                <div class="${nameClass}">${property.propertyName || '매물명 없음'}</div>
+                <div class="${scoreClass}">${property.finalScore.toFixed(1)}점</div>
+            </div>
+            <div class="${addressClass}">${property.address || '주소 정보 없음'}</div>
+        </div>
+        
+        <div class="${bodyClass}">
+            <div class="${gridClass}">
+                <div class="${itemClass} ${highlightClass}">
+                    <div class="${labelClass}">가격</div>
+                    <div class="${valueClass}">${priceText}</div>
+                </div>
+                
+                <div class="${itemClass}">
+                    <div class="${labelClass}">평수</div>
+                    <div class="${valueClass}">${property.area}평</div>
+                </div>
+                
+                <div class="${itemClass}">
+                    <div class="${labelClass}">건축연도</div>
+                    <div class="${valueClass}">${buildYearText}</div>
+                </div>
+                
+                <div class="${itemClass}">
+                    <div class="${labelClass}">층수</div>
+                    <div class="${valueClass}">${floorText}</div>
+                </div>
+                
+                <div class="${itemClass}">
+                    <div class="${labelClass}">임대유형</div>
+                    <div class="${valueClass}">${property.leaseType || '정보없음'}</div>
+                </div>
+                
+                <div class="${itemClass}">
+                    <div class="${labelClass}">순위</div>
+                    <div class="${valueClass}">#${rank}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
+
+/**
+ * 모달 이벤트 리스너 설정 - 상세 순위 모달 추가
+ */
+function setupModalEventListeners() {
+    // 기존 매물 모달
+    const propertyModal = document.getElementById('property_detail_modal');
+    const propertyOverlay = document.querySelector('.property_modal_overlay');
+
+    if (propertyOverlay) {
+        propertyOverlay.addEventListener('click', function(e) {
+            if (e.target === propertyOverlay) {
+                closePropertyModal();
+            }
+        });
+    }
+
+    // === 2차 명세: 상세 순위 모달 이벤트 리스너 추가 ===
+    const rankModal = document.getElementById('detail_rank_modal');
+    const rankOverlay = document.querySelector('.detail_rank_modal_overlay');
+
+    if (rankOverlay) {
+        rankOverlay.addEventListener('click', function(e) {
+            if (e.target === rankOverlay) {
+                closeDetailRankModal();
+            }
+        });
+    }
+
+    // ESC 키로 모달 닫기 (기존 코드 수정)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (propertyModal && propertyModal.style.display === 'block') {
+                closePropertyModal();
+            }
+            if (rankModal && rankModal.style.display === 'block') {
+                closeDetailRankModal();
+            }
+        }
+    });
+}
+
+/**
+ * 에러 표시
+ */
+function showError(errorElement, message) {
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+    }
+}
+
+/**
+ * 에러 숨김
+ */
+function hideError(errorElement) {
+    if (errorElement) {
+        errorElement.textContent = '';
+        errorElement.classList.remove('show');
+    }
+}
+
+/**
+ * 로딩 상태 표시
+ */
+function showLoading() {
+    let submitButton = document.querySelector('#recommend_result_btn input[type="button"]');
+
+    if (!submitButton) {
+        submitButton = document.querySelector('#recommend_result input[type="button"]');
+    }
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.value = '추천 결과 검색 중...';
+        submitButton.style.backgroundColor = '#ccc';
+        submitButton.style.cursor = 'not-allowed';
+    }
+}
+
+/**
+ * 로딩 상태 숨김
+ */
+function hideLoading() {
+    let submitButton = document.querySelector('#recommend_result_btn input[type="button"]');
+
+    if (!submitButton) {
+        submitButton = document.querySelector('#recommend_result input[type="button"]');
+    }
+
+    if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.value = '추천 결과 확인';
+        updateSubmitButtonState();
+    }
+}
+
+/**
+ * 초기 검증 설정
+ */
+function initializeValidation() {
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', updateSubmitButtonState);
+        input.addEventListener('change', updateSubmitButtonState);
+    });
+}
+
+/**
+ * 상세 순위 정보 모달 표시
+ */
+function showDetailRankModal(districtName, rentalType, rank) {
+    console.log(`상세 순위 정보 모달 표시: ${districtName} (${rentalType}) - 순위: ${rank}`);
+
+    const modal = document.getElementById('detail_rank_modal');
+    if (!modal) {
+        console.error('상세 순위 모달을 찾을 수 없습니다!');
+        return;
+    }
+
+    if (!currentRecommendationData || !currentRecommendationData.recommendedDistricts) {
+        console.error('추천 데이터가 없습니다');
+        return;
+    }
+
+    // 해당 지역구 찾기
+    const district = currentRecommendationData.recommendedDistricts.find(d => d.district_name === districtName);
+    if (!district) {
+        console.error(`지역구를 찾을 수 없습니다: ${districtName}`);
+        return;
+    }
+
+    // 모달 제목 설정
+    const modalTitle = document.getElementById('detail_rank_modal_title');
+    if (modalTitle) {
+        modalTitle.textContent = `${districtName} 상세 순위 정보`;
+    }
+
+    // 기본 정보 설정
+    const rankDistrictName = document.getElementById('rank_district_name');
+    const rankPosition = document.getElementById('rank_position');
+
+    if (rankDistrictName) rankDistrictName.textContent = districtName;
+    if (rankPosition) rankPosition.textContent = `${rank}위`;
+
+    // === 2차 명세: 3개 점수 데이터 표시 ===
+    updateScoreDisplay('average_price_score', 'price_score_bar', district.averagePriceScore || 0);
+    updateScoreDisplay('average_space_score', 'space_score_bar', district.averageSpaceScore || 0);
+    updateScoreDisplay('district_safety_score', 'safety_score_bar', district.districtSafetyScore || 0);
+
+    // 종합 평가 텍스트 설정
+    const summaryText = document.getElementById('rank_summary_text');
+    if (summaryText) {
+        summaryText.textContent = district.summary || '이 지역구에 대한 상세 평가 정보입니다.';
+    }
+
+    // 모달 표시
+    modal.style.display = 'block';
+    document.body.classList.add('modal_open');
+}
+
+/**
+ * 점수 표시 업데이트 (점수값과 프로그레스 바)
+ */
+function updateScoreDisplay(scoreElementId, barElementId, score) {
+    // 점수 텍스트 업데이트
+    const scoreElement = document.getElementById(scoreElementId);
+    if (scoreElement) {
+        scoreElement.textContent = `${score.toFixed(1)}점`;
+    }
+
+    // 프로그레스 바 업데이트
+    const barElement = document.getElementById(barElementId);
+    if (barElement) {
+        // 0-100 범위로 정규화
+        const normalizedScore = Math.max(0, Math.min(100, score));
+        barElement.style.width = normalizedScore + '%';
+    }
+}
+
+/**
+ * 상세 순위 모달 닫기
+ */
+function closeDetailRankModal() {
+    const modal = document.getElementById('detail_rank_modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    document.body.classList.remove('modal_open');
+}
+
+// === 완전히 새로운 매물 리스트 표시 함수들 ===
+
+/**
+ * 전세 매물 리스트 모달 표시 (완전히 새로운 함수)
+ */
+function showCharterPropertyListModal(districtName, rank) {
+    console.log(`전세 매물 리스트 모달 표시: ${districtName} - 순위: ${rank}`);
+
+    const modal = document.getElementById('property_detail_modal');
+    if (!modal) {
+        console.error('매물 모달을 찾을 수 없습니다!');
+        return;
+    }
+
+    if (!currentRecommendationData || !currentRecommendationData.recommendedDistricts) {
+        console.error('추천 데이터가 없습니다');
+        return;
+    }
+
+    // 해당 지역구 찾기
+    const district = currentRecommendationData.recommendedDistricts.find(d => d.district_name === districtName);
+    if (!district) {
+        console.error(`지역구를 찾을 수 없습니다: ${districtName}`);
+        return;
+    }
+
+    // 모달 제목 설정
+    const modalTitle = document.getElementById('property_modal_title');
+    if (modalTitle) {
+        modalTitle.textContent = `${districtName} 전세 매물 목록`;
+    }
+
+    // 매물 목록 렌더링
+    renderCharterPropertyList(district.top_properties || []);
+
+    // 모달 표시
+    modal.style.display = 'block';
+    document.body.classList.add('modal_open');
+}
+
+/**
+ * 월세 매물 리스트 모달 표시 (완전히 새로운 함수)
+ */
+function showMonthlyPropertyListModal(districtName, rank) {
+    console.log(`월세 매물 리스트 모달 표시: ${districtName} - 순위: ${rank}`);
+
+    const modal = document.getElementById('property_detail_modal');
+    if (!modal) {
+        console.error('매물 모달을 찾을 수 없습니다!');
+        return;
+    }
+
+    if (!currentRecommendationData || !currentRecommendationData.recommendedDistricts) {
+        console.error('추천 데이터가 없습니다');
+        return;
+    }
+
+    // 해당 지역구 찾기
+    const district = currentRecommendationData.recommendedDistricts.find(d => d.district_name === districtName);
+    if (!district) {
+        console.error(`지역구를 찾을 수 없습니다: ${districtName}`);
+        return;
+    }
+
+    // 모달 제목 설정
+    const modalTitle = document.getElementById('property_modal_title');
+    if (modalTitle) {
+        modalTitle.textContent = `${districtName} 월세 매물 목록`;
+    }
+
+    // 매물 목록 렌더링
+    renderMonthlyPropertyList(district.top_properties || []);
+
+    // 모달 표시
+    modal.style.display = 'block';
+    document.body.classList.add('modal_open');
+}
+
+/**
+ * 전세 매물 목록 렌더링 (완전히 새로운 함수)
+ */
+function renderCharterPropertyList(properties) {
+    const container = document.getElementById('property_list_container');
+    if (!container) {
+        console.error('property_list_container를 찾을 수 없습니다');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    if (!properties || properties.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px; color: #666;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🏠</div>
+                <div style="font-size: 16px;">해당 지역구에 조건에 맞는 전세 매물이 없습니다.</div>
+            </div>
+        `;
+        return;
+    }
+
+    // 매물 카드들 생성
+    properties.forEach((property, index) => {
+        const card = createCharterPropertyCard(property, index + 1);
+        container.appendChild(card);
+    });
+}
+
+/**
+ * 월세 매물 목록 렌더링 (완전히 새로운 함수)
+ */
+function renderMonthlyPropertyList(properties) {
+    const container = document.getElementById('property_list_container');
+    if (!container) {
+        console.error('property_list_container를 찾을 수 없습니다');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    if (!properties || properties.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px; color: #666;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🏠</div>
+                <div style="font-size: 16px;">해당 지역구에 조건에 맞는 월세 매물이 없습니다.</div>
+            </div>
+        `;
+        return;
+    }
+
+    // 매물 카드들 생성
+    properties.forEach((property, index) => {
+        const card = createMonthlyPropertyCard(property, index + 1);
+        container.appendChild(card);
+    });
+}
+
+/**
+ * 전세 개별 매물 카드 생성 (완전히 새로운 함수)
+ */
+function createCharterPropertyCard(property, rank) {
+    const card = document.createElement('div');
+    card.className = 'charter_property_card';
+
+    const priceText = `전세 ${(property.price || 0).toLocaleString()}만원`;
+    const buildYearText = property.build_year ? `${property.build_year}년` : '정보없음';
+    const floorText = property.floor ? `${property.floor}층` : '정보없음';
+    const scoreText = property.final_score ? `${property.final_score.toFixed(1)}점` : '-';
+
+    card.innerHTML = `
+        <div class="charter_property_header">
+            <div class="charter_property_title">
+                <div class="charter_property_name">${property.property_name || '매물명 없음'}</div>
+                <div class="charter_property_score">${scoreText}</div>
+            </div>
+            <div class="charter_property_address">${property.address || '주소 정보 없음'}</div>
+        </div>
+        
+        <div class="charter_property_body">
+            <div class="charter_property_details_grid">
+                <div class="charter_property_detail_item charter_property_price_highlight">
+                    <div class="charter_property_detail_label">가격</div>
+                    <div class="charter_property_detail_value">${priceText}</div>
+                </div>
+                
+                <div class="charter_property_detail_item">
+                    <div class="charter_property_detail_label">평수</div>
+                    <div class="charter_property_detail_value">${parseFloat(property.area || 0).toFixed(1)}평</div>
+                </div>
+                
+                <div class="charter_property_detail_item">
+                    <div class="charter_property_detail_label">건축연도</div>
+                    <div class="charter_property_detail_value">${buildYearText}</div>
+                </div>
+                
+                <div class="charter_property_detail_item">
+                    <div class="charter_property_detail_label">층수</div>
+                    <div class="charter_property_detail_value">${floorText}</div>
+                </div>
+                
+                <div class="charter_property_detail_item">
+                    <div class="charter_property_detail_label">임대유형</div>
+                    <div class="charter_property_detail_value">${property.lease_type || '전세'}</div>
+                </div>
+                
+                <div class="charter_property_detail_item">
+                    <div class="charter_property_detail_label">순위</div>
+                    <div class="charter_property_detail_value">#${rank}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
+
+/**
+ * 월세 개별 매물 카드 생성 (완전히 새로운 함수)
+ */
+function createMonthlyPropertyCard(property, rank) {
+    const card = document.createElement('div');
+    card.className = 'monthly_property_card';
+
+    const deposit = (property.price || 0).toLocaleString();
+    const monthly = (property.monthly_rent || 0).toLocaleString();
+    const priceText = `보증금 ${deposit}만원 / 월세 ${monthly}만원`;
+    const buildYearText = property.build_year ? `${property.build_year}년` : '정보없음';
+    const floorText = property.floor ? `${property.floor}층` : '정보없음';
+    const scoreText = property.final_score ? `${property.final_score.toFixed(1)}점` : '-';
+
+    card.innerHTML = `
+        <div class="monthly_property_header">
+            <div class="monthly_property_title">
+                <div class="monthly_property_name">${property.property_name || '매물명 없음'}</div>
+                <div class="monthly_property_score">${scoreText}</div>
+            </div>
+            <div class="monthly_property_address">${property.address || '주소 정보 없음'}</div>
+        </div>
+        
+        <div class="monthly_property_body">
+            <div class="monthly_property_details_grid">
+                <div class="monthly_property_detail_item monthly_property_price_highlight">
+                    <div class="monthly_property_detail_label">가격</div>
+                    <div class="monthly_property_detail_value">${priceText}</div>
+                </div>
+                
+                <div class="monthly_property_detail_item">
+                    <div class="monthly_property_detail_label">평수</div>
+                    <div class="monthly_property_detail_value">${parseFloat(property.area || 0).toFixed(1)}평</div>
+                </div>
+                
+                <div class="monthly_property_detail_item">
+                    <div class="monthly_property_detail_label">건축연도</div>
+                    <div class="monthly_property_detail_value">${buildYearText}</div>
+                </div>
+                
+                <div class="monthly_property_detail_item">
+                    <div class="monthly_property_detail_label">층수</div>
+                    <div class="monthly_property_detail_value">${floorText}</div>
+                </div>
+                
+                <div class="monthly_property_detail_item">
+                    <div class="monthly_property_detail_label">임대유형</div>
+                    <div class="monthly_property_detail_value">${property.lease_type || '월세'}</div>
+                </div>
+                
+                <div class="monthly_property_detail_item">
+                    <div class="monthly_property_detail_label">순위</div>
+                    <div class="monthly_property_detail_value">#${rank}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
+
+// 전역 함수로 내보내기
+window.showCharterPropertyListModal = showCharterPropertyListModal;
+window.showMonthlyPropertyListModal = showMonthlyPropertyListModal;
+
+// 전역 함수로 내보내기
+window.showPropertyModal = showPropertyModal;
+window.closePropertyModal = closePropertyModal;
+// 전역 함수로 내보내기 - 상세 순위 모달 함수 추가
+window.showDetailRankModal = showDetailRankModal;
+window.closeDetailRankModal = closeDetailRankModal;

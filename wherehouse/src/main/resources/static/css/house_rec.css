@@ -5,6 +5,7 @@
     font-style: normal;
 }
 
+/* 기본 스타일 */
 body {
     font-family: 'TheJamsil5Bold';
 }
@@ -16,6 +17,7 @@ body {
     font-weight: bold;
 }
 
+/* 사이드바 레이아웃 */
 #information {
     display: flex;
     position: absolute;
@@ -30,11 +32,10 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    
     transition: 500ms;
 }
 
-/* �궗�씠�뱶 踰꾪듉 */
+/* 사이드바 토글 버튼 */
 #btn {
     position: absolute;
     width: 33px;
@@ -45,7 +46,7 @@ body {
     text-align: center;
     line-height: 40px;
     border-radius: 7px;
-    left: 328px;
+    left: 475px;
     top: 450px;
     box-shadow: 3px 3px 7px 3px rgba(0, 0, 0, 0.3);
     transition: 500ms;
@@ -55,12 +56,11 @@ body {
     cursor: pointer;
 }
 
-/* �궗�씠�뱶 諛� */
+/* 사이드바 스타일 */
 #side-bar {
     position: absolute;
-    /* border: 2px solid #0B5ED7; */
     background: white;
-    width: 333px;
+    width: 480px;
     height: 945px;
     overflow: auto;
     box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.3);
@@ -68,10 +68,8 @@ body {
 
 #side-bar-second {
     position: absolute;
-    /* border: 2px solid #0B5ED7; */
     background: white;
-    /* left: 333px; */
-    width: 333px;
+    width: 480px;
     height: 945px;
     overflow: auto;
     box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.3);
@@ -79,7 +77,7 @@ body {
     transition: 500ms;
 }
 
-/* 二쇨굅吏� 異붿쿇 */
+/* 헤더 타이틀 */
 .house_recommend {
     background: #4690ff;
     color: #e9f2ff;
@@ -93,46 +91,249 @@ body {
     box-shadow: -2px 2px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* �쟾�꽭/�썡�꽭 �꽑�깮 */
+/* 1단계: 기본 조건 설정 */
 #char_month_hr {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .select_need {
-    width: 300px;
+    width: 450px;
     border: rgba(11, 94, 215, 0.50) 2px solid;
     border-radius: 8px;
     margin-top: 10px;
     margin-left: 12px;
     margin-right: 10px;
     text-align: center;
-    height: 230px;
-    line-height: 50px;
+    height: auto;
+    line-height: normal;
+    padding: 15px;
 }
 
 .select_need p {
     font-size: 20px;
+    margin-bottom: 12px;
+    line-height: normal;
 }
 
-/* �쟾�꽭 �썡�꽭 �꽑�깮 李� */
+/* 입력 라벨 스타일 */
+.input_label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 4px;
+    margin-top: 8px;
+    text-align: left;
+}
+
+/* 범위 입력 스타일 */
+.range_input {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.range_input input {
+    width: 120px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.range_separator {
+    font-size: 12px;
+    color: #666;
+}
+
+.unit_text {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 월세 추가 필드 */
+.monthly_extra_fields {
+    display: none;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.monthly_extra_fields.show {
+    display: block;
+}
+
+/* 에러 메시지 */
+.error_message {
+    color: #e74c3c;
+    font-size: 11px;
+    margin-top: 3px;
+    display: none;
+    text-align: left;
+}
+
+.error_message.show {
+    display: block;
+}
+
+/* 2단계: 우선순위 설정 */
+.priority_selection {
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 5px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: auto;
+    line-height: 50px;
+    padding: 15px;
+}
+
+.priority_selection p {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.priority_row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 10px;
+    line-height: normal;
+}
+
+.priority_label {
+    min-width: 50px;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+.priority_select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    font-size: 13px;
+}
+
+.priority_weight {
+    font-size: 11px;
+    color: #666;
+    min-width: 35px;
+}
+
+.priority_desc {
+    font-size: 11px;
+    color: #888;
+    margin-top: 5px;
+    text-align: center;
+    line-height: normal;
+}
+
+/* 3단계: 유연성 설정 */
+.flexibility_settings {
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 5px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: auto;
+    line-height: 50px;
+    padding: 15px;
+}
+
+.flexibility_settings p {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.flex_item {
+    margin-bottom: 12px;
+    line-height: normal;
+}
+
+.flex_label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    text-align: left;
+}
+
+.flex_value {
+    font-weight: bold;
+    color: #0B5ED7;
+}
+
+.flex_slider {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: #ddd;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.flex_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0B5ED7;
+    cursor: pointer;
+}
+
+.flex_slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0B5ED7;
+    cursor: pointer;
+    border: none;
+}
+
+.flex_desc {
+    font-size: 10px;
+    color: #888;
+    margin-top: 3px;
+    text-align: left;
+}
+
+.min_area_input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.min_area_input input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* 기본 스타일들 */
 #check_need {
     display: flex;
     font-size: 17px;
     justify-content: space-around;
-
 }
 
 #rentInput input[type=text] {
     width: 100px;
-
     border: 2px solid #dfdfdf;
 }
-
 
 #charter input[type=radio] {
     margin-right: 10px;
     cursor: pointer;
-
 }
 
 #monthly input[type=radio] {
@@ -149,7 +350,6 @@ body {
     border-top: none;
     border-left: none;
     border-right: none;
-
 }
 
 #monthlyInput {
@@ -161,56 +361,17 @@ body {
     border-top: none;
     border-left: none;
     border-right: none;
-
 }
 
 .inputPrice {
     text-align: right;
 }
 
-/* 移섏븞/�렪�쓽 �꽑�깮 */
-.safety_convenience {
-    width: 300px;
-    border: rgba(11, 94, 215, 0.50) 2px solid;
-    border-radius: 8px;
-    margin-top: 10px;
-    margin-left: 12px;
-    margin-right: 10px;
-    text-align: center;
-    height: auto;
-    line-height: 50px;
-}
-
-.safety_convenience p {
-    font-size: 20px;
-    margin-bottom: 15px;
-}
-
-#slider {
-    width: 300px;
-    border: rgba(11, 94, 215, 0.50) 2px solid;
-    border-radius: 8px;
-    margin-top: 10px;
-    margin-left: 12px;
-    margin-right: 10px;
-    text-align: center;
-    height: 150px;
-    line-height: 50px;
-}
-
-#myRange_safety,
-#myRange_convenience {
-    cursor: pointer;
-}
-
-
-/* 異붿쿇寃곌낵 �솗�씤 踰꾪듉 */
+/* 추천결과 확인 버튼 */
 #recommend_result,
 #recommend_comparison {
     width: 190px;
-    margin-top: 10px;
-    margin-left: 66px;
-    margin-right: 10px;
+    margin: 15px auto 10px auto;
     text-align: center;
     height: 50px;
     line-height: 50px;
@@ -230,13 +391,27 @@ body {
     border: none;
 }
 
-#recommend_result_page {
+/* 버튼 활성화/비활성화 */
+#recommend_result_btn input[type="button"]:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#recommend_result_btn input[type="button"]:not(:disabled) {
+    background-color: #0B5ED7;
+    cursor: pointer;
+    color: white;
+}
+
+/* ========== 전세 추천 결과 페이지 ========== */
+
+#charter_result_page {
     display: none;
 }
 
-#recommend_result_title {
+#charter_result_title {
     display: flex;
-    width: 300px;
+    width: 450px;
     border: rgba(11, 94, 215, 0.50) 2px solid;
     border-radius: 8px;
     margin-top: 10px;
@@ -246,114 +421,980 @@ body {
     height: 50px;
     line-height: 47px;
     font-size: 20px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
 }
 
-#recommend_result_title p {
+#charter_result_title p {
     margin-left: 20px;
     margin-right: 38px;
     cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+/* 전세 안내 메시지 */
+#charter_recommendation_message {
+    width: 450px;
+    margin: 10px 12px 15px 12px;
+    padding: 15px;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+    border: 2px solid #0B5ED7;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#charter_recommendation_message p {
+    margin: 0;
+    font-size: 14px;
     color: #0B5ED7;
-
+    line-height: 1.4;
+    font-weight: bold;
 }
 
-.recommend_inner_text {
-    margin-left: 78px;
-    font-size: 20px;
+/* 전세 지역구 컨테이너 */
+#charter_districts_container {
+    margin: 0 12px;
+}
+
+/* 전세 지역구 카드 스타일 */
+.charter_district_card {
+    width: 450px;
+    margin: 10px 0;
+    border: 2px solid #0B5ED7;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff, #f8f9ff);
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.15);
+}
+
+.charter_district_card:hover {
+    border-color: #0B5ED7;
+    box-shadow: 0 6px 16px rgba(11, 94, 215, 0.25);
+    transform: translateY(-2px);
+}
+
+/* 전세 카드 헤더 */
+.charter_district_header {
     display: flex;
+    align-items: center;
+    padding: 15px 20px 10px 20px;
+    border-bottom: 2px solid #e3f2fd;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 10px 10px 0 0;
 }
 
-.recommend_inner_text input[type=checkbox] {
-    margin-left: 30px;
+.charter_district_rank {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-right: 12px;
+    min-width: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.charter_district_name {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    flex: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* 전세 카드 정보 영역 */
+.charter_district_info {
+    padding: 15px 20px;
+    background: white;
+}
+
+.charter_info_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.charter_info_label {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.charter_info_value {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.charter_price_value {
+    color: #0B5ED7;
+    font-size: 16px;
+}
+
+.charter_score_value {
+    color: #28a745;
+    font-size: 16px;
+}
+
+/* 전세 카드 버튼 영역 */
+.charter_district_buttons {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+    background: #f8f9ff;
+    border-radius: 0 0 10px 10px;
+}
+
+.charter_btn_detail_rank,
+.charter_btn_property_list {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #0B5ED7;
+    background: white;
+    color: #0B5ED7;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
     cursor: pointer;
-    margin-right: 20px;
+    transition: all 0.3s ease;
 }
 
-#recommend_first_btn,
-#recommend_second_btn,
-#recommend_third_btn {
+.charter_btn_detail_rank:hover,
+.charter_btn_property_list:hover {
+    background: #0B5ED7;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
+}
+
+/* 전세 상세 비교 버튼 */
+#charter_comparison {
+    width: 190px;
+    margin: 15px auto 10px auto;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    border: 2px solid #0B5ED7;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
+}
+
+#charter_comparison:hover {
+    background: linear-gradient(135deg, #4690ff, #0B5ED7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(11, 94, 215, 0.4);
+}
+
+#charter_comparison_btn input[type=button] {
+    border: none;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
     cursor: pointer;
 }
 
-/* 寃곌낵 李� */
-.rec_result_div {
-    width: 100px;
-}
+/* ========== 월세 추천 결과 페이지 ========== */
 
-#recommend_first {
-    width: 300px;
-    height: 50px;
-    border: rgba(11, 94, 215, 0.50) 2px solid;
-    border-radius: 8px;
-    margin-top: 5px;
-    margin-left: 12px;
-    margin-right: 10px;
-    line-height: 47px;
-    font-size: 17px;
-}
-
-#recommend_first_info {
+#monthly_result_page {
     display: none;
-    width: 300px;
-    height: auto;
-    border: rgba(11, 94, 215, 0.50) 2px solid;
-    border-radius: 8px;
-    margin-top: 5px;
-    margin-left: 12px;
-    margin-right: 10px;
-    line-height: 47px;
-    font-size: 17px;
 }
 
-#recommend_second {
-    width: 300px;
+#monthly_result_title {
+    display: flex;
+    width: 450px;
     border: rgba(11, 94, 215, 0.50) 2px solid;
     border-radius: 8px;
-    margin-top: 5px;
+    margin-top: 10px;
     margin-left: 12px;
     margin-right: 10px;
+    text-align: center;
     height: 50px;
     line-height: 47px;
-    font-size: 17px;
+    font-size: 20px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
 }
 
-#recommend_second_info {
-    display: none;
-    width: 300px;
-    height: auto;
-    border: rgba(11, 94, 215, 0.50) 2px solid;
-    border-radius: 8px;
-    margin-top: 5px;
-    margin-left: 12px;
-    margin-right: 10px;
-    line-height: 47px;
-    font-size: 17px;
+#monthly_result_title p {
+    margin-left: 20px;
+    margin-right: 38px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
 }
 
-#recommend_third {
-    width: 300px;
-    border: rgba(11, 94, 215, 0.50) 2px solid;
+/* 월세 안내 메시지 */
+#monthly_recommendation_message {
+    width: 450px;
+    margin: 10px 12px 15px 12px;
+    padding: 15px;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+    border: 2px solid #0B5ED7;
     border-radius: 8px;
-    margin-top: 5px;
-    margin-left: 12px;
-    margin-right: 10px;
+    text-align: center;
+}
+
+#monthly_recommendation_message p {
+    margin: 0;
+    font-size: 14px;
+    color: #0B5ED7;
+    line-height: 1.4;
+    font-weight: bold;
+}
+
+/* 월세 지역구 컨테이너 */
+#monthly_districts_container {
+    margin: 0 12px;
+}
+
+/* 월세 지역구 카드 스타일 */
+.monthly_district_card {
+    width: 450px;
+    margin: 10px 0;
+    border: 2px solid #0B5ED7;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff, #f8f9ff);
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.15);
+}
+
+.monthly_district_card:hover {
+    border-color: #0B5ED7;
+    box-shadow: 0 6px 16px rgba(11, 94, 215, 0.25);
+    transform: translateY(-2px);
+}
+
+/* 월세 카드 헤더 */
+.monthly_district_header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px 10px 20px;
+    border-bottom: 2px solid #e3f2fd;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 10px 10px 0 0;
+}
+
+.monthly_district_rank {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-right: 12px;
+    min-width: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.monthly_district_name {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    flex: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* 월세 카드 정보 영역 */
+.monthly_district_info {
+    padding: 15px 20px;
+    background: white;
+}
+
+.monthly_info_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.monthly_info_label {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.monthly_info_value {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.monthly_price_value {
+    color: #0B5ED7;
+    font-size: 16px;
+}
+
+.monthly_score_value {
+    color: #28a745;
+    font-size: 16px;
+}
+
+/* 월세 카드 버튼 영역 */
+.monthly_district_buttons {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+    background: #f8f9ff;
+    border-radius: 0 0 10px 10px;
+}
+
+.monthly_btn_detail_rank,
+.monthly_btn_property_list {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #0B5ED7;
+    background: white;
+    color: #0B5ED7;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.monthly_btn_detail_rank:hover,
+.monthly_btn_property_list:hover {
+    background: #0B5ED7;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
+}
+
+/* 월세 상세 비교 버튼 */
+#monthly_comparison {
+    width: 190px;
+    margin: 15px auto 10px auto;
+    text-align: center;
     height: 50px;
-    line-height: 47px;
-    font-size: 17px;
+    line-height: 50px;
+    border: 2px solid #0B5ED7;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
 }
 
-#recommend_third_info {
-    display: none;
-    width: 300px;
-    height: auto;
-    border: rgba(11, 94, 215, 0.50) 2px solid;
+#monthly_comparison:hover {
+    background: linear-gradient(135deg, #4690ff, #0B5ED7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(11, 94, 215, 0.4);
+}
+
+#monthly_comparison_btn input[type=button] {
+    border: none;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ========== 매물 상세 모달창 (공통) ========== */
+
+/* 모달 오버레이 */
+.property_modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(3px);
+}
+
+/* 모달 컨테이너 */
+.property_modal_content {
+    background: white;
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+    border: 3px solid #0B5ED7;
+}
+
+.property_modal_content.monthly {
+    border-color: #0B5ED7;
+    box-shadow: 0 20px 40px rgba(11, 94, 215, 0.3);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 모달 헤더 */
+.property_modal_header {
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+}
+
+.property_modal_header.monthly {
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+}
+
+.property_modal_header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.property_modal_close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.property_modal_close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* 모달 바디 */
+.property_modal_body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0;
+    background: #f8f9ff;
+}
+
+.property_modal_body.monthly {
+    background: #f8f9ff;
+}
+
+/* 매물 리스트 컨테이너 */
+#property_list_container {
+    padding: 20px;
+}
+
+/* ========== 전세 매물 카드 스타일 ========== */
+
+/* 전세 매물 아이템 카드 */
+.charter_property_card {
+    border: 2px solid #e3f2fd;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    background: white;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(11, 94, 215, 0.15);
+}
+
+.charter_property_card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(11, 94, 215, 0.25);
+    border-color: #0B5ED7;
+}
+
+.charter_property_card:last-child {
+    margin-bottom: 0;
+}
+
+/* 전세 매물 카드 헤더 */
+.charter_property_header {
+    padding: 18px 22px 12px 22px;
+    border-bottom: 2px solid #f1f3f4;
+    background: linear-gradient(135deg, #f8f9ff, #ffffff);
+}
+
+.charter_property_title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.charter_property_name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.charter_property_score {
+    font-size: 16px;
+    font-weight: bold;
+    color: #28a745;
+    background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 2px solid #d4edda;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.charter_property_address {
+    font-size: 13px;
+    color: #666;
+    margin-top: 6px;
+    font-weight: normal;
+}
+
+/* 전세 매물 상세 정보 바디 */
+.charter_property_body {
+    padding: 18px 22px 22px 22px;
+}
+
+.charter_property_details_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.charter_property_detail_item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px;
+    background: #f8f9ff;
     border-radius: 8px;
-    margin-top: 5px;
-    margin-left: 12px;
-    margin-right: 10px;
-    line-height: 47px;
-    font-size: 17px;
+    border: 1px solid #e3f2fd;
 }
 
+.charter_property_detail_label {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.charter_property_detail_value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.charter_property_price_highlight {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+    border: 2px solid #0B5ED7;
+}
+
+.charter_property_price_highlight .charter_property_detail_value {
+    color: #0B5ED7;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* ========== 월세 매물 카드 스타일 ========== */
+
+/* 월세 매물 아이템 카드 */
+.monthly_property_card {
+    border: 2px solid #e3f2fd;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    background: white;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(11, 94, 215, 0.15);
+}
+
+.monthly_property_card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(11, 94, 215, 0.25);
+    border-color: #0B5ED7;
+}
+
+.monthly_property_card:last-child {
+    margin-bottom: 0;
+}
+
+/* 월세 매물 카드 헤더 */
+.monthly_property_header {
+    padding: 18px 22px 12px 22px;
+    border-bottom: 2px solid #f1f3f4;
+    background: linear-gradient(135deg, #f8f9ff, #ffffff);
+}
+
+.monthly_property_title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.monthly_property_name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.monthly_property_score {
+    font-size: 16px;
+    font-weight: bold;
+    color: #28a745;
+    background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 2px solid #d4edda;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.monthly_property_address {
+    font-size: 13px;
+    color: #666;
+    margin-top: 6px;
+    font-weight: normal;
+}
+
+/* 월세 매물 상세 정보 바디 */
+.monthly_property_body {
+    padding: 18px 22px 22px 22px;
+}
+
+.monthly_property_details_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.monthly_property_detail_item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e3f2fd;
+}
+
+.monthly_property_detail_label {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.monthly_property_detail_value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.monthly_property_price_highlight {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+    border: 2px solid #0B5ED7;
+}
+
+.monthly_property_price_highlight .monthly_property_detail_value {
+    color: #0B5ED7;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 매물 빈 상태 메시지 */
+.property_empty_message {
+    text-align: center;
+    padding: 50px 20px;
+    color: #666;
+}
+
+.property_empty_icon {
+    font-size: 56px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+}
+
+.property_empty_text {
+    font-size: 16px;
+    color: #888;
+    line-height: 1.5;
+}
+
+/* 모달 스크롤바 스타일 */
+.property_modal_body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.property_modal_body::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+.property_modal_body::-webkit-scrollbar-thumb {
+    background: #0B5ED7;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.property_modal_body::-webkit-scrollbar-thumb:hover {
+    background: #094bb5;
+}
+
+/* 반응형 대응 (모달) */
+@media (max-width: 768px) {
+    .property_modal_content {
+        width: 95%;
+        max-height: 90vh;
+        margin: 20px;
+        border: 2px solid #0B5ED7;
+    }
+
+    .property_modal_header {
+        padding: 15px 20px;
+    }
+
+    .property_modal_header h3 {
+        font-size: 16px;
+    }
+
+    .charter_property_details_grid,
+    .monthly_property_details_grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .charter_property_header,
+    .charter_property_body,
+    .monthly_property_header,
+    .monthly_property_body {
+        padding: 15px 18px;
+    }
+
+    #property_list_container {
+        padding: 15px;
+    }
+
+    .charter_property_card,
+    .monthly_property_card {
+        margin-bottom: 15px;
+    }
+}
+
+/* 모달이 열릴 때 body 스크롤 방지 */
+body.modal_open {
+    overflow: hidden;
+}
+
+/* 추천 결과 페이지 공통 스타일 (기본) */
+#recommendation_message {
+    width: 450px;
+    margin: 10px 12px 15px 12px;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#recommendation_message p {
+    margin: 0;
+    font-size: 14px;
+    color: #495057;
+    line-height: 1.4;
+}
+
+/* 추천 지역구 컨테이너 (기본) */
+#recommended_districts_container {
+    margin: 0 12px;
+}
+
+/* 지역구 카드 (기본) */
+.district_card {
+    width: 450px;
+    margin: 10px 0;
+    border: 2px solid rgba(11, 94, 215, 0.3);
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.district_card:hover {
+    border-color: rgba(11, 94, 215, 0.6);
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.1);
+}
+
+/* 지역구 카드 헤더 (기본) */
+.district_header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px 10px 20px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.district_rank {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0B5ED7;
+    margin-right: 10px;
+    min-width: 25px;
+}
+
+.district_name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+/* 지역구 정보 영역 (기본) */
+.district_info {
+    padding: 15px 20px;
+}
+
+.info_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.info_label {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.info_value {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.price_value {
+    color: #0B5ED7;
+}
+
+.score_value {
+    color: #28a745;
+}
+
+/* 지역구 버튼 영역 (기본) */
+.district_buttons {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+}
+
+.btn_detail_rank,
+.btn_property_list {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #0B5ED7;
+    background: white;
+    color: #0B5ED7;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn_detail_rank:hover,
+.btn_property_list:hover {
+    background: #0B5ED7;
+    color: white;
+}
+
+.btn_detail_rank:active,
+.btn_property_list:active {
+    transform: translateY(1px);
+}
+
+/* Bootstrap 버튼 스타일 */
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.btn:hover,
+.btn:focus {
+    color: #333;
+    text-decoration: none;
+}
+
+.btn-group,
+.btn-group-vertical {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.btn-group>.btn,
+.btn-group-vertical>.btn {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.btn-check {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.btn-check:focus+.btn,
+.btn:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-check:checked+.btn-outline-primary,
+.btn-check:active+.btn-outline-primary,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* 구분선 스타일 */
 #chart-start-hr {
     background: rgba(11, 94, 215, 0.50);
     height: 2px;
@@ -363,12 +1404,6 @@ body {
 .gu_name_hr {
     background: rgba(11, 94, 215, 0.50);
     height: 2px;
-    border: 0;
-}
-
-.price_hr {
-    background: rgba(11, 94, 215, 0.50);
-    height: 0.1px;
     border: 0;
 }
 
@@ -388,75 +1423,9 @@ body {
     border: 0;
 }
 
-
-/* 異붿쿇 寃곌낵 �쟾�꽭, �썡�꽭湲� �뒪���씪 */
-.select_price {
-    text-align: center;
-}
-
-#select_first_charter,
-#select_second_charter,
-#select_third_charter {
-    display: none;
-
-}
-
-#select_first_monthly,
-#select_second_monthly,
-#select_third_monthly {
-    text-align: left;
-    margin-left: 60px;
-}
-
-.average_money {
-    color: #0b5dd7db;
-}
-
-#logo-img {
-    width: 100%;
-    height: 100px;
-}
-
-#logo-img img {
-    width: 110px;
-    position: absolute;
-    left: 110px;
-}
-
-/* �븞�젙�꽦 �렪�쓽�꽦 �뀓�뒪�듃*/
-#average-score-inner-text {
-    position: absolute;
-    margin: 0;
-    width: 100%;
-    height: 15%;
-    top: 85%;
-    line-height: 30px;
-}
-
-#name_safety {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-}
-
-#name_convenience {
-    position: absolute;
-    left: 50%;
-    width: 50%;
-    height: 100%;
-}
-
-/* �븞�쟾, �렪�쓽 �뒳�씪�씠�뱶諛� �꽕紐� */
-#descript_convenience,
-#descript_safety {
-    padding-left: 15%;
-    text-align: left;
-    color: #888686;
-}
-
-/* 추천결과 지역구 선택시 정보 보여줌 */
+/* 차트 정보 영역 */
 .select-gu-info {
-    width: 310px;
+    width: 450px;
     border: rgba(11, 94, 215, 0.50) 2px solid;
     border-radius: 8px;
     margin-top: 10px;
@@ -465,10 +1434,12 @@ body {
     text-align: center;
     height: 850px;
     line-height: 50px;
+    padding: 20px;
 }
 
 .select-gu-info p {
-    font-size: 30px;
+    font-size: 20px;
+    line-height: normal;
 }
 
 .chart_name,
@@ -479,1293 +1450,286 @@ body {
 
 .chart-info {
     border: 0px solid rgba(171, 58, 58, 0.669);
-    width: 300px;
+    width: 430px;
     height: 150px;
     margin-left: 4px;
 }
 
-#recommend_first_result,
-#recommend_first_result_detail,
-#recommend_second_result,
-#recommend_second_result_detail,
-#recommend_third_result,
-#recommend_third_result_detail {
-    cursor: pointer;
+/* ========== 2차 명세: 상세 순위 정보 패널 모달 스타일 ========== */
+
+/* 상세 순위 모달 오버레이 */
+.detail_rank_modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    backdrop-filter: blur(3px);
 }
 
-#recommend_first_result:hover,
-#recommend_first_result_detail:hover,
-#recommend_second_result:hover,
-#recommend_second_result_detail:hover,
-#recommend_third_result:hover,
-#recommend_third_result_detail:hover {
+/* 상세 순위 모달 컨테이너 */
+.detail_rank_modal_content {
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+    border: 3px solid #0B5ED7;
+}
+
+/* 상세 순위 모달 헤더 */
+.detail_rank_modal_header {
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+}
+
+.detail_rank_modal_header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.detail_rank_modal_close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.detail_rank_modal_close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* 상세 순위 모달 바디 */
+.detail_rank_modal_body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0;
+    background: #f8f9ff;
+}
+
+/* 상세 순위 컨테이너 */
+#detail_rank_container {
+    padding: 20px;
+}
+
+/* 섹션 공통 스타일 */
+.rank_info_section,
+.rank_scores_section,
+.rank_summary_section {
+    margin-bottom: 25px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.1);
+    border: 1px solid #e3f2fd;
+}
+
+.rank_section_title {
+    font-size: 16px;
+    font-weight: bold;
     color: #0B5ED7;
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e3f2fd;
 }
 
+/* 기본 정보 섹션 */
+.rank_basic_info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
+.rank_info_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-/* 踰꾪듉 css */
-.btn {
-    display: inline-block;
-    padding: 6px 12px;
-    margin-bottom: 0;
+.rank_info_label {
     font-size: 14px;
+    color: #666;
     font-weight: normal;
-    line-height: 1.42857143;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    background-image: none;
-    border: 1px solid transparent;
+}
+
+.rank_info_value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+.rank_highlight {
+    color: #0B5ED7;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 2px solid #0B5ED7;
+}
+
+/* 점수 아이템 */
+.score_item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e3f2fd;
+}
+
+.score_item:last-child {
+    margin-bottom: 0;
+}
+
+.score_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.score_label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.score_value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0B5ED7;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid #0B5ED7;
+}
+
+/* 점수 프로그레스 바 */
+.score_bar_container {
+    margin-bottom: 8px;
+}
+
+.score_bar {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.score_fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.8s ease-in-out;
+    position: relative;
+}
+
+/* 점수별 색상 */
+.price_fill {
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.space_fill {
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+}
+
+.safety_fill {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.score_desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.3;
+}
+
+/* 종합 평가 섹션 */
+.rank_summary_content {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #0B5ED7;
+}
+
+#rank_summary_text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* 모달 스크롤바 스타일 */
+.detail_rank_modal_body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.detail_rank_modal_body::-webkit-scrollbar-track {
+    background: #f1f3f4;
     border-radius: 4px;
 }
 
-.btn:focus,
-.btn:active:focus,
-.btn.active:focus,
-.btn.focus,
-.btn:active.focus,
-.btn.active.focus {
-    outline: thin dotted;
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px;
+.detail_rank_modal_body::-webkit-scrollbar-thumb {
+    background: #0B5ED7;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.detail_rank_modal_body::-webkit-scrollbar-thumb:hover {
+    background: #094bb5;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+    .detail_rank_modal_content {
+        width: 95%;
+        max-height: 90vh;
+        margin: 20px;
+    }
+
+    .detail_rank_modal_header {
+        padding: 15px 20px;
+    }
+
+    .detail_rank_modal_header h3 {
+        font-size: 16px;
+    }
+
+    #detail_rank_container {
+        padding: 15px;
+    }
+
+    .rank_info_section,
+    .rank_scores_section,
+    .rank_summary_section {
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+
+    .score_item {
+        padding: 12px;
+    }
 }
-
-.btn:hover,
-.btn:focus,
-.btn.focus {
-    color: #333;
-    text-decoration: none;
-}
-
-.btn:active,
-.btn.active {
-    background-image: none;
-    outline: 0;
-    -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-}
-
-.btn.disabled,
-.btn[disabled],
-fieldset[disabled] .btn {
-    pointer-events: none;
-    cursor: not-allowed;
-    filter: alpha(opacity=65);
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    opacity: .65;
-}
-
-.btn-default {
-    color: #333;
-    background-color: #fff;
-    border-color: #ccc;
-}
-
-.btn-default:hover,
-.btn-default:focus,
-.btn-default.focus,
-.btn-default:active,
-.btn-default.active,
-.open>.dropdown-toggle.btn-default {
-    color: #333;
-    background-color: #e6e6e6;
-    border-color: #adadad;
-}
-
-.btn-default:active,
-.btn-default.active,
-.open>.dropdown-toggle.btn-default {
-    background-image: none;
-}
-
-.btn-default.disabled,
-.btn-default[disabled],
-fieldset[disabled] .btn-default,
-.btn-default.disabled:hover,
-.btn-default[disabled]:hover,
-fieldset[disabled] .btn-default:hover,
-.btn-default.disabled:focus,
-.btn-default[disabled]:focus,
-fieldset[disabled] .btn-default:focus,
-.btn-default.disabled.focus,
-.btn-default[disabled].focus,
-fieldset[disabled] .btn-default.focus,
-.btn-default.disabled:active,
-.btn-default[disabled]:active,
-fieldset[disabled] .btn-default:active,
-.btn-default.disabled.active,
-.btn-default[disabled].active,
-fieldset[disabled] .btn-default.active {
-    background-color: #fff;
-    border-color: #ccc;
-}
-
-.btn-default .badge {
-    color: #fff;
-    background-color: #333;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #337ab7;
-    border-color: #2e6da4;
-}
-
-.btn-primary:hover,
-.btn-primary:focus,
-.btn-primary.focus,
-.btn-primary:active,
-.btn-primary.active,
-.open>.dropdown-toggle.btn-primary {
-    color: #fff;
-    background-color: #286090;
-    border-color: #204d74;
-}
-
-.btn-primary:active,
-.btn-primary.active,
-.open>.dropdown-toggle.btn-primary {
-    background-image: none;
-}
-
-.btn-primary.disabled,
-.btn-primary[disabled],
-fieldset[disabled] .btn-primary,
-.btn-primary.disabled:hover,
-.btn-primary[disabled]:hover,
-fieldset[disabled] .btn-primary:hover,
-.btn-primary.disabled:focus,
-.btn-primary[disabled]:focus,
-fieldset[disabled] .btn-primary:focus,
-.btn-primary.disabled.focus,
-.btn-primary[disabled].focus,
-fieldset[disabled] .btn-primary.focus,
-.btn-primary.disabled:active,
-.btn-primary[disabled]:active,
-fieldset[disabled] .btn-primary:active,
-.btn-primary.disabled.active,
-.btn-primary[disabled].active,
-fieldset[disabled] .btn-primary.active {
-    background-color: #337ab7;
-    border-color: #2e6da4;
-}
-
-.btn-primary .badge {
-    color: #337ab7;
-    background-color: #fff;
-}
-
-.btn-success {
-    color: #fff;
-    background-color: #5cb85c;
-    border-color: #4cae4c;
-}
-
-.btn-success:hover,
-.btn-success:focus,
-.btn-success.focus,
-.btn-success:active,
-.btn-success.active,
-.open>.dropdown-toggle.btn-success {
-    color: #fff;
-    background-color: #449d44;
-    border-color: #398439;
-}
-
-.btn-success:active,
-.btn-success.active,
-.open>.dropdown-toggle.btn-success {
-    background-image: none;
-}
-
-.btn-success.disabled,
-.btn-success[disabled],
-fieldset[disabled] .btn-success,
-.btn-success.disabled:hover,
-.btn-success[disabled]:hover,
-fieldset[disabled] .btn-success:hover,
-.btn-success.disabled:focus,
-.btn-success[disabled]:focus,
-fieldset[disabled] .btn-success:focus,
-.btn-success.disabled.focus,
-.btn-success[disabled].focus,
-fieldset[disabled] .btn-success.focus,
-.btn-success.disabled:active,
-.btn-success[disabled]:active,
-fieldset[disabled] .btn-success:active,
-.btn-success.disabled.active,
-.btn-success[disabled].active,
-fieldset[disabled] .btn-success.active {
-    background-color: #5cb85c;
-    border-color: #4cae4c;
-}
-
-.btn-success .badge {
-    color: #5cb85c;
-    background-color: #fff;
-}
-
-.btn-info {
-    color: #fff;
-    background-color: #5bc0de;
-    border-color: #46b8da;
-}
-
-.btn-info:hover,
-.btn-info:focus,
-.btn-info.focus,
-.btn-info:active,
-.btn-info.active,
-.open>.dropdown-toggle.btn-info {
-    color: #fff;
-    background-color: #31b0d5;
-    border-color: #269abc;
-}
-
-.btn-info:active,
-.btn-info.active,
-.open>.dropdown-toggle.btn-info {
-    background-image: none;
-}
-
-.btn-info.disabled,
-.btn-info[disabled],
-fieldset[disabled] .btn-info,
-.btn-info.disabled:hover,
-.btn-info[disabled]:hover,
-fieldset[disabled] .btn-info:hover,
-.btn-info.disabled:focus,
-.btn-info[disabled]:focus,
-fieldset[disabled] .btn-info:focus,
-.btn-info.disabled.focus,
-.btn-info[disabled].focus,
-fieldset[disabled] .btn-info.focus,
-.btn-info.disabled:active,
-.btn-info[disabled]:active,
-fieldset[disabled] .btn-info:active,
-.btn-info.disabled.active,
-.btn-info[disabled].active,
-fieldset[disabled] .btn-info.active {
-    background-color: #5bc0de;
-    border-color: #46b8da;
-}
-
-.btn-info .badge {
-    color: #5bc0de;
-    background-color: #fff;
-}
-
-.btn-warning {
-    color: #fff;
-    background-color: #f0ad4e;
-    border-color: #eea236;
-}
-
-.btn-warning:hover,
-.btn-warning:focus,
-.btn-warning.focus,
-.btn-warning:active,
-.btn-warning.active,
-.open>.dropdown-toggle.btn-warning {
-    color: #fff;
-    background-color: #ec971f;
-    border-color: #d58512;
-}
-
-.btn-warning:active,
-.btn-warning.active,
-.open>.dropdown-toggle.btn-warning {
-    background-image: none;
-}
-
-.btn-warning.disabled,
-.btn-warning[disabled],
-fieldset[disabled] .btn-warning,
-.btn-warning.disabled:hover,
-.btn-warning[disabled]:hover,
-fieldset[disabled] .btn-warning:hover,
-.btn-warning.disabled:focus,
-.btn-warning[disabled]:focus,
-fieldset[disabled] .btn-warning:focus,
-.btn-warning.disabled.focus,
-.btn-warning[disabled].focus,
-fieldset[disabled] .btn-warning.focus,
-.btn-warning.disabled:active,
-.btn-warning[disabled]:active,
-fieldset[disabled] .btn-warning:active,
-.btn-warning.disabled.active,
-.btn-warning[disabled].active,
-fieldset[disabled] .btn-warning.active {
-    background-color: #f0ad4e;
-    border-color: #eea236;
-}
-
-.btn-warning .badge {
-    color: #f0ad4e;
-    background-color: #fff;
-}
-
-.btn-danger {
-    color: #fff;
-    background-color: #d9534f;
-    border-color: #d43f3a;
-}
-
-.btn-danger:hover,
-.btn-danger:focus,
-.btn-danger.focus,
-.btn-danger:active,
-.btn-danger.active,
-.open>.dropdown-toggle.btn-danger {
-    color: #fff;
-    background-color: #c9302c;
-    border-color: #ac2925;
-}
-
-.btn-danger:active,
-.btn-danger.active,
-.open>.dropdown-toggle.btn-danger {
-    background-image: none;
-}
-
-.btn-danger.disabled,
-.btn-danger[disabled],
-fieldset[disabled] .btn-danger,
-.btn-danger.disabled:hover,
-.btn-danger[disabled]:hover,
-fieldset[disabled] .btn-danger:hover,
-.btn-danger.disabled:focus,
-.btn-danger[disabled]:focus,
-fieldset[disabled] .btn-danger:focus,
-.btn-danger.disabled.focus,
-.btn-danger[disabled].focus,
-fieldset[disabled] .btn-danger.focus,
-.btn-danger.disabled:active,
-.btn-danger[disabled]:active,
-fieldset[disabled] .btn-danger:active,
-.btn-danger.disabled.active,
-.btn-danger[disabled].active,
-fieldset[disabled] .btn-danger.active {
-    background-color: #d9534f;
-    border-color: #d43f3a;
-}
-
-.btn-danger .badge {
-    color: #d9534f;
-    background-color: #fff;
-}
-
-.btn-link {
-    font-weight: normal;
-    color: #337ab7;
-    border-radius: 0;
-}
-
-.btn-link,
-.btn-link:active,
-.btn-link.active,
-.btn-link[disabled],
-fieldset[disabled] .btn-link {
-    background-color: transparent;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-}
-
-.btn-link,
-.btn-link:hover,
-.btn-link:focus,
-.btn-link:active {
-    border-color: transparent;
-}
-
-.btn-link:hover,
-.btn-link:focus {
-    color: #23527c;
-    text-decoration: underline;
-    background-color: transparent;
-}
-
-.btn-link[disabled]:hover,
-fieldset[disabled] .btn-link:hover,
-.btn-link[disabled]:focus,
-fieldset[disabled] .btn-link:focus {
-    color: #777;
-    text-decoration: none;
-}
-
-.btn-lg,
-.btn-group-lg>.btn {
-    padding: 10px 16px;
-    font-size: 18px;
-    line-height: 1.3333333;
-    border-radius: 6px;
-}
-
-.btn-sm,
-.btn-group-sm>.btn {
-    padding: 5px 10px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
-}
-
-.btn-xs,
-.btn-group-xs>.btn {
-    padding: 1px 5px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
-}
-
-.btn-block {
-    display: block;
-    width: 100%;
-}
-
-.btn-block+.btn-block {
-    margin-top: 5px;
-}
-
-input[type="submit"].btn-block,
-input[type="reset"].btn-block,
-input[type="button"].btn-block {
-    width: 100%;
-}
-
-/* 踰꾪듉 洹몃９ 愿��젴 */
-/* btn-group 愿��젴 異붽� */
-.btn-lg,
-.btn-group-lg>.btn {
-    padding: 0.5rem 1rem;
-    font-size: 1.25rem;
-    border-radius: 0.3rem;
-}
-
-.btn-sm,
-.btn-group-sm>.btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    border-radius: 0.2rem;
-}
-
-.btn-group,
-.btn-group-vertical {
-    position: relative;
-    display: inline-flex;
-    vertical-align: middle;
-}
-
-.btn-group>.btn,
-.btn-group-vertical>.btn {
-    position: relative;
-    flex: 1 1 auto;
-}
-
-.btn-group>.btn-check:checked+.btn,
-.btn-group>.btn-check:focus+.btn,
-.btn-group>.btn:hover,
-.btn-group>.btn:focus,
-.btn-group>.btn:active,
-.btn-group>.btn.active,
-.btn-group-vertical>.btn-check:checked+.btn,
-.btn-group-vertical>.btn-check:focus+.btn,
-.btn-group-vertical>.btn:hover,
-.btn-group-vertical>.btn:focus,
-.btn-group-vertical>.btn:active,
-.btn-group-vertical>.btn.active {
-    z-index: 1;
-}
-
-.btn-group>.btn:not(:first-child),
-.btn-group>.btn-group:not(:first-child) {
-    margin-left: -1px;
-}
-
-.btn-sm+.dropdown-toggle-split,
-.btn-group-sm>.btn+.dropdown-toggle-split {
-    padding-right: 0.375rem;
-    padding-left: 0.375rem;
-}
-
-.btn-lg+.dropdown-toggle-split,
-.btn-group-lg>.btn+.dropdown-toggle-split {
-    padding-right: 0.75rem;
-    padding-left: 0.75rem;
-}
-
-.btn-group-vertical {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-}
-
-.btn-group-vertical>.btn,
-.btn-group-vertical>.btn-group {
-    width: 100%;
-}
-
-.btn-group-vertical>.btn:not(:first-child),
-.btn-group-vertical>.btn-group:not(:first-child) {
-    margin-top: -1px;
-}
-
-
-.btn-check {
-    position: absolute;
-    clip: rect(0, 0, 0, 0);
-    pointer-events: none;
-}
-
-.btn-check[disabled]+.btn,
-.btn-check:disabled+.btn {
-    pointer-events: none;
-    filter: none;
-    opacity: 0.65;
-}
-
-.btn-check:focus+.btn,
-.btn:focus {
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.btn-check:focus+.btn-primary,
-.btn-primary:focus {
-    color: #fff;
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
-    box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
-}
-
-.btn-check:checked+.btn-primary,
-.btn-check:active+.btn-primary,
-.btn-primary:active,
-.btn-primary.active,
-.show>.btn-primary.dropdown-toggle {
-    color: #fff;
-    background-color: #0a58ca;
-    border-color: #0a53be;
-}
-
-.btn-check:checked+.btn-primary:focus,
-.btn-check:active+.btn-primary:focus,
-.btn-primary:active:focus,
-.btn-primary.active:focus,
-.show>.btn-primary.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
-}
-
-.btn-check:focus+.btn-secondary,
-.btn-secondary:focus {
-    color: #fff;
-    background-color: #5c636a;
-    border-color: #565e64;
-    box-shadow: 0 0 0 0.25rem rgba(130, 138, 145, 0.5);
-}
-
-.btn-check:checked+.btn-secondary,
-.btn-check:active+.btn-secondary,
-.btn-secondary:active,
-.btn-secondary.active,
-.show>.btn-secondary.dropdown-toggle {
-    color: #fff;
-    background-color: #565e64;
-    border-color: #51585e;
-}
-
-.btn-check:checked+.btn-secondary:focus,
-.btn-check:active+.btn-secondary:focus,
-.btn-secondary:active:focus,
-.btn-secondary.active:focus,
-.show>.btn-secondary.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(130, 138, 145, 0.5);
-}
-
-.btn-check:focus+.btn-success,
-.btn-success:focus {
-    color: #fff;
-    background-color: #157347;
-    border-color: #146c43;
-    box-shadow: 0 0 0 0.25rem rgba(60, 153, 110, 0.5);
-}
-
-.btn-check:checked+.btn-success,
-.btn-check:active+.btn-success,
-.btn-success:active,
-.btn-success.active,
-.show>.btn-success.dropdown-toggle {
-    color: #fff;
-    background-color: #146c43;
-    border-color: #13653f;
-}
-
-.btn-check:checked+.btn-success:focus,
-.btn-check:active+.btn-success:focus,
-.btn-success:active:focus,
-.btn-success.active:focus,
-.show>.btn-success.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(60, 153, 110, 0.5);
-}
-
-.btn-check:focus+.btn-info,
-.btn-info:focus {
-    color: #000;
-    background-color: #31d2f2;
-    border-color: #25cff2;
-    box-shadow: 0 0 0 0.25rem rgba(11, 172, 204, 0.5);
-}
-
-.btn-check:checked+.btn-info,
-.btn-check:active+.btn-info,
-.btn-info:active,
-.btn-info.active,
-.show>.btn-info.dropdown-toggle {
-    color: #000;
-    background-color: #3dd5f3;
-    border-color: #25cff2;
-}
-
-.btn-check:checked+.btn-info:focus,
-.btn-check:active+.btn-info:focus,
-.btn-info:active:focus,
-.btn-info.active:focus,
-.show>.btn-info.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(11, 172, 204, 0.5);
-}
-
-.btn-check:focus+.btn-warning,
-.btn-warning:focus {
-    color: #000;
-    background-color: #ffca2c;
-    border-color: #ffc720;
-    box-shadow: 0 0 0 0.25rem rgba(217, 164, 6, 0.5);
-}
-
-.btn-check:checked+.btn-warning,
-.btn-check:active+.btn-warning,
-.btn-warning:active,
-.btn-warning.active,
-.show>.btn-warning.dropdown-toggle {
-    color: #000;
-    background-color: #ffcd39;
-    border-color: #ffc720;
-}
-
-.btn-check:checked+.btn-warning:focus,
-.btn-check:active+.btn-warning:focus,
-.btn-warning:active:focus,
-.btn-warning.active:focus,
-.show>.btn-warning.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(217, 164, 6, 0.5);
-}
-
-.btn-check:focus+.btn-danger,
-.btn-danger:focus {
-    color: #fff;
-    background-color: #bb2d3b;
-    border-color: #b02a37;
-    box-shadow: 0 0 0 0.25rem rgba(225, 83, 97, 0.5);
-}
-
-.btn-check:checked+.btn-danger,
-.btn-check:active+.btn-danger,
-.btn-danger:active,
-.btn-danger.active,
-.show>.btn-danger.dropdown-toggle {
-    color: #fff;
-    background-color: #b02a37;
-    border-color: #a52834;
-}
-
-.btn-check:checked+.btn-danger:focus,
-.btn-check:active+.btn-danger:focus,
-.btn-danger:active:focus,
-.btn-danger.active:focus,
-.show>.btn-danger.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(225, 83, 97, 0.5);
-}
-
-.btn-check:focus+.btn-light,
-.btn-light:focus {
-    color: #000;
-    background-color: #f9fafb;
-    border-color: #f9fafb;
-    box-shadow: 0 0 0 0.25rem rgba(211, 212, 213, 0.5);
-}
-
-.btn-check:checked+.btn-light,
-.btn-check:active+.btn-light,
-.btn-light:active,
-.btn-light.active,
-.show>.btn-light.dropdown-toggle {
-    color: #000;
-    background-color: #f9fafb;
-    border-color: #f9fafb;
-}
-
-.btn-check:checked+.btn-light:focus,
-.btn-check:active+.btn-light:focus,
-.btn-light:active:focus,
-.btn-light.active:focus,
-.show>.btn-light.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(211, 212, 213, 0.5);
-}
-
-.btn-check:focus+.btn-dark,
-.btn-dark:focus {
-    color: #fff;
-    background-color: #1c1f23;
-    border-color: #1a1e21;
-    box-shadow: 0 0 0 0.25rem rgba(66, 70, 73, 0.5);
-}
-
-.btn-check:checked+.btn-dark,
-.btn-check:active+.btn-dark,
-.btn-dark:active,
-.btn-dark.active,
-.show>.btn-dark.dropdown-toggle {
-    color: #fff;
-    background-color: #1a1e21;
-    border-color: #191c1f;
-}
-
-.btn-check:checked+.btn-dark:focus,
-.btn-check:active+.btn-dark:focus,
-.btn-dark:active:focus,
-.btn-dark.active:focus,
-.show>.btn-dark.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.25rem rgba(66, 70, 73, 0.5);
-}
-
-.btn-check:focus+.btn-outline-primary,
-.btn-outline-primary:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
-}
-
-.btn-check:checked+.btn-outline-primary,
-.btn-check:active+.btn-outline-primary,
-.btn-outline-primary:active,
-.btn-outline-primary.active,
-.btn-outline-primary.dropdown-toggle.show {
-    color: #fff;
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-check:checked+.btn-outline-primary:focus,
-.btn-check:active+.btn-outline-primary:focus,
-.btn-outline-primary:active:focus,
-.btn-outline-primary.active:focus,
-.btn-outline-primary.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
-}
-
-.btn-check:focus+.btn-outline-secondary,
-.btn-outline-secondary:focus {
-    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5);
-}
-
-.btn-check:checked+.btn-outline-secondary,
-.btn-check:active+.btn-outline-secondary,
-.btn-outline-secondary:active,
-.btn-outline-secondary.active,
-.btn-outline-secondary.dropdown-toggle.show {
-    color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-check:checked+.btn-outline-secondary:focus,
-.btn-check:active+.btn-outline-secondary:focus,
-.btn-outline-secondary:active:focus,
-.btn-outline-secondary.active:focus,
-.btn-outline-secondary.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5);
-}
-
-.btn-check:focus+.btn-outline-success,
-.btn-outline-success:focus {
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.5);
-}
-
-.btn-check:checked+.btn-outline-success,
-.btn-check:active+.btn-outline-success,
-.btn-outline-success:active,
-.btn-outline-success.active,
-.btn-outline-success.dropdown-toggle.show {
-    color: #fff;
-    background-color: #198754;
-    border-color: #198754;
-}
-
-.btn-check:checked+.btn-outline-success:focus,
-.btn-check:active+.btn-outline-success:focus,
-.btn-outline-success:active:focus,
-.btn-outline-success.active:focus,
-.btn-outline-success.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.5);
-}
-
-.btn-check:focus+.btn-outline-info,
-.btn-outline-info:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.5);
-}
-
-.btn-check:checked+.btn-outline-info,
-.btn-check:active+.btn-outline-info,
-.btn-outline-info:active,
-.btn-outline-info.active,
-.btn-outline-info.dropdown-toggle.show {
-    color: #000;
-    background-color: #0dcaf0;
-    border-color: #0dcaf0;
-}
-
-.btn-check:checked+.btn-outline-info:focus,
-.btn-check:active+.btn-outline-info:focus,
-.btn-outline-info:active:focus,
-.btn-outline-info.active:focus,
-.btn-outline-info.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.5);
-}
-
-.btn-check:focus+.btn-outline-warning,
-.btn-outline-warning:focus {
-    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.5);
-}
-
-.btn-check:checked+.btn-outline-warning,
-.btn-check:active+.btn-outline-warning,
-.btn-outline-warning:active,
-.btn-outline-warning.active,
-.btn-outline-warning.dropdown-toggle.show {
-    color: #000;
-    background-color: #ffc107;
-    border-color: #ffc107;
-}
-
-.btn-check:checked+.btn-outline-warning:focus,
-.btn-check:active+.btn-outline-warning:focus,
-.btn-outline-warning:active:focus,
-.btn-outline-warning.active:focus,
-.btn-outline-warning.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.5);
-}
-
-.btn-check:focus+.btn-outline-danger,
-.btn-outline-danger:focus {
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
-}
-
-.btn-check:checked+.btn-outline-danger,
-.btn-check:active+.btn-outline-danger,
-.btn-outline-danger:active,
-.btn-outline-danger.active,
-.btn-outline-danger.dropdown-toggle.show {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-check:checked+.btn-outline-danger:focus,
-.btn-check:active+.btn-outline-danger:focus,
-.btn-outline-danger:active:focus,
-.btn-outline-danger.active:focus,
-.btn-outline-danger.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
-}
-
-.btn-check:focus+.btn-outline-light,
-.btn-outline-light:focus {
-    box-shadow: 0 0 0 0.25rem rgba(248, 249, 250, 0.5);
-}
-
-.btn-check:checked+.btn-outline-light,
-.btn-check:active+.btn-outline-light,
-.btn-outline-light:active,
-.btn-outline-light.active,
-.btn-outline-light.dropdown-toggle.show {
-    color: #000;
-    background-color: #f8f9fa;
-    border-color: #f8f9fa;
-}
-
-.btn-check:checked+.btn-outline-light:focus,
-.btn-check:active+.btn-outline-light:focus,
-.btn-outline-light:active:focus,
-.btn-outline-light.active:focus,
-.btn-outline-light.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(248, 249, 250, 0.5);
-}
-
-.btn-check:focus+.btn-outline-dark,
-.btn-outline-dark:focus {
-    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.5);
-}
-
-.btn-check:checked+.btn-outline-dark,
-.btn-check:active+.btn-outline-dark,
-.btn-outline-dark:active,
-.btn-outline-dark.active,
-.btn-outline-dark.dropdown-toggle.show {
-    color: #fff;
-    background-color: #212529;
-    border-color: #212529;
-}
-
-.btn-check:checked+.btn-outline-dark:focus,
-.btn-check:active+.btn-outline-dark:focus,
-.btn-outline-dark:active:focus,
-.btn-outline-dark.active:focus,
-.btn-outline-dark.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.5);
-}
-
-.btn-group>.btn-check:checked+.btn,
-.btn-group>.btn-check:focus+.btn,
-.btn-group>.btn:hover,
-.btn-group>.btn:focus,
-.btn-group>.btn:active,
-.btn-group>.btn.active,
-.btn-group-vertical>.btn-check:checked+.btn,
-.btn-group-vertical>.btn-check:focus+.btn,
-.btn-group-vertical>.btn:hover,
-.btn-group-vertical>.btn:focus,
-.btn-group-vertical>.btn:active,
-.btn-group-vertical>.btn.active {
-    z-index: 1;
-}
-
-.btn-outline-primary {
-    color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-outline-primary:hover {
-    color: #fff;
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-check:focus+.btn-outline-primary,
-.btn-outline-primary:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
-}
-
-.btn-check:checked+.btn-outline-primary,
-.btn-check:active+.btn-outline-primary,
-.btn-outline-primary:active,
-.btn-outline-primary.active,
-.btn-outline-primary.dropdown-toggle.show {
-    color: #fff;
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-check:checked+.btn-outline-primary:focus,
-.btn-check:active+.btn-outline-primary:focus,
-.btn-outline-primary:active:focus,
-.btn-outline-primary.active:focus,
-.btn-outline-primary.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
-}
-
-.btn-outline-primary:disabled,
-.btn-outline-primary.disabled {
-    color: #0d6efd;
-    background-color: transparent;
-}
-
-.btn-outline-secondary {
-    color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-outline-secondary:hover {
-    color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-check:focus+.btn-outline-secondary,
-.btn-outline-secondary:focus {
-    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5);
-}
-
-.btn-check:checked+.btn-outline-secondary,
-.btn-check:active+.btn-outline-secondary,
-.btn-outline-secondary:active,
-.btn-outline-secondary.active,
-.btn-outline-secondary.dropdown-toggle.show {
-    color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-check:checked+.btn-outline-secondary:focus,
-.btn-check:active+.btn-outline-secondary:focus,
-.btn-outline-secondary:active:focus,
-.btn-outline-secondary.active:focus,
-.btn-outline-secondary.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5);
-}
-
-.btn-outline-secondary:disabled,
-.btn-outline-secondary.disabled {
-    color: #6c757d;
-    background-color: transparent;
-}
-
-.btn-outline-success {
-    color: #198754;
-    border-color: #198754;
-}
-
-.btn-outline-success:hover {
-    color: #fff;
-    background-color: #198754;
-    border-color: #198754;
-}
-
-.btn-check:focus+.btn-outline-success,
-.btn-outline-success:focus {
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.5);
-}
-
-.btn-check:checked+.btn-outline-success,
-.btn-check:active+.btn-outline-success,
-.btn-outline-success:active,
-.btn-outline-success.active,
-.btn-outline-success.dropdown-toggle.show {
-    color: #fff;
-    background-color: #198754;
-    border-color: #198754;
-}
-
-.btn-check:checked+.btn-outline-success:focus,
-.btn-check:active+.btn-outline-success:focus,
-.btn-outline-success:active:focus,
-.btn-outline-success.active:focus,
-.btn-outline-success.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.5);
-}
-
-.btn-outline-success:disabled,
-.btn-outline-success.disabled {
-    color: #198754;
-    background-color: transparent;
-}
-
-.btn-outline-info {
-    color: #0dcaf0;
-    border-color: #0dcaf0;
-}
-
-.btn-outline-info:hover {
-    color: #000;
-    background-color: #0dcaf0;
-    border-color: #0dcaf0;
-}
-
-.btn-check:focus+.btn-outline-info,
-.btn-outline-info:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.5);
-}
-
-.btn-check:checked+.btn-outline-info,
-.btn-check:active+.btn-outline-info,
-.btn-outline-info:active,
-.btn-outline-info.active,
-.btn-outline-info.dropdown-toggle.show {
-    color: #000;
-    background-color: #0dcaf0;
-    border-color: #0dcaf0;
-}
-
-.btn-check:checked+.btn-outline-info:focus,
-.btn-check:active+.btn-outline-info:focus,
-.btn-outline-info:active:focus,
-.btn-outline-info.active:focus,
-.btn-outline-info.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.5);
-}
-
-.btn-outline-info:disabled,
-.btn-outline-info.disabled {
-    color: #0dcaf0;
-    background-color: transparent;
-}
-
-.btn-outline-warning {
-    color: #ffc107;
-    border-color: #ffc107;
-}
-
-.btn-outline-warning:hover {
-    color: #000;
-    background-color: #ffc107;
-    border-color: #ffc107;
-}
-
-.btn-check:focus+.btn-outline-warning,
-.btn-outline-warning:focus {
-    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.5);
-}
-
-.btn-check:checked+.btn-outline-warning,
-.btn-check:active+.btn-outline-warning,
-.btn-outline-warning:active,
-.btn-outline-warning.active,
-.btn-outline-warning.dropdown-toggle.show {
-    color: #000;
-    background-color: #ffc107;
-    border-color: #ffc107;
-}
-
-.btn-check:checked+.btn-outline-warning:focus,
-.btn-check:active+.btn-outline-warning:focus,
-.btn-outline-warning:active:focus,
-.btn-outline-warning.active:focus,
-.btn-outline-warning.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.5);
-}
-
-.btn-outline-warning:disabled,
-.btn-outline-warning.disabled {
-    color: #ffc107;
-    background-color: transparent;
-}
-
-.btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-outline-danger:hover {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-check:focus+.btn-outline-danger,
-.btn-outline-danger:focus {
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
-}
-
-.btn-check:checked+.btn-outline-danger,
-.btn-check:active+.btn-outline-danger,
-.btn-outline-danger:active,
-.btn-outline-danger.active,
-.btn-outline-danger.dropdown-toggle.show {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-check:checked+.btn-outline-danger:focus,
-.btn-check:active+.btn-outline-danger:focus,
-.btn-outline-danger:active:focus,
-.btn-outline-danger.active:focus,
-.btn-outline-danger.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
-}
-
-.btn-outline-danger:disabled,
-.btn-outline-danger.disabled {
-    color: #dc3545;
-    background-color: transparent;
-}
-
-.btn-outline-light {
-    color: #f8f9fa;
-    border-color: #f8f9fa;
-}
-
-.btn-outline-light:hover {
-    color: #000;
-    background-color: #f8f9fa;
-    border-color: #f8f9fa;
-}
-
-.btn-check:focus+.btn-outline-light,
-.btn-outline-light:focus {
-    box-shadow: 0 0 0 0.25rem rgba(248, 249, 250, 0.5);
-}
-
-.btn-check:checked+.btn-outline-light,
-.btn-check:active+.btn-outline-light,
-.btn-outline-light:active,
-.btn-outline-light.active,
-.btn-outline-light.dropdown-toggle.show {
-    color: #000;
-    background-color: #f8f9fa;
-    border-color: #f8f9fa;
-}
-
-.btn-check:checked+.btn-outline-light:focus,
-.btn-check:active+.btn-outline-light:focus,
-.btn-outline-light:active:focus,
-.btn-outline-light.active:focus,
-.btn-outline-light.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(248, 249, 250, 0.5);
-}
-
-.btn-outline-light:disabled,
-.btn-outline-light.disabled {
-    color: #f8f9fa;
-    background-color: transparent;
-}
-
-.btn-outline-dark {
-    color: #212529;
-    border-color: #212529;
-}
-
-.btn-outline-dark:hover {
-    color: #fff;
-    background-color: #212529;
-    border-color: #212529;
-}
-
-.btn-check:focus+.btn-outline-dark,
-.btn-outline-dark:focus {
-    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.5);
-}
-
-.btn-check:checked+.btn-outline-dark,
-.btn-check:active+.btn-outline-dark,
-.btn-outline-dark:active,
-.btn-outline-dark.active,
-.btn-outline-dark.dropdown-toggle.show {
-    color: #fff;
-    background-color: #212529;
-    border-color: #212529;
-}
-
-.btn-check:checked+.btn-outline-dark:focus,
-.btn-check:active+.btn-outline-dark:focus,
-.btn-outline-dark:active:focus,
-.btn-outline-dark.active:focus,
-.btn-outline-dark.dropdown-toggle.show:focus {
-    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.5);
-}
-
-.btn-outline-dark:disabled,
-.btn-outline-dark.disabled {
-    color: #212529;
-    background-color: transparent;
-}
-/*
-#gu_review	{
-	line-height: 10px;
-}
-*/

@@ -82,7 +82,7 @@ public class BatchScheduler {
     }
 
     // 테스트용: 한번만 실행 (fixedDelay 사용)
-    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 ===");
 
@@ -450,8 +450,9 @@ public class BatchScheduler {
     }
 
     /**
-     * B-03: Redis 데이터 적재
-     * 명세서에 따른 3개 구조로 저장: Hash + 2개 Sorted Set 인덱스
+     * B-03: Redis 데이터 적재 - 수정된 버전
+     * 명세서에 따른 전세/월세 완전 분리 구조로 저장
+     * 핵심 수정사항: 월세 매물의 보증금과 월세금을 각각 독립된 인덱스로 분리
      */
     private void storeDataToRedis(List<Property> properties) {
         log.info("Redis 데이터 적재 시작 - 이 {}건", properties.size());
@@ -462,21 +463,28 @@ public class BatchScheduler {
         int successCount = 0;
         Map<String, Integer> districtStats = new HashMap<>();
 
+        // 통계용 인덱스 카운터 (각 인덱스별 생성된 Key 개수 추적)
+        Map<String, Set<String>> indexKeyTracker = new HashMap<>();
+        indexKeyTracker.put("charterPrice", new HashSet<>());
+        indexKeyTracker.put("deposit", new HashSet<>());
+        indexKeyTracker.put("monthlyRent", new HashSet<>());
+        indexKeyTracker.put("charterArea", new HashSet<>());
+        indexKeyTracker.put("monthlyArea", new HashSet<>());
+
         for (Property property : properties) {
             try {
-                // 1. 매물 원본 데이터 저장 (Hash) - 키 패턴: property:{id}
-                String propertyKey = "property:" + property.getPropertyId();
+                String leaseType = property.getLeaseType();
+                String propertyId = property.getPropertyId();
+                String districtName = property.getDistrictName();
 
-                // Hash 구조로 각 필드별로 저장 (명세서 2.1에 맞춘 필드만)
+                // 공통 Hash 데이터 생성 (임대유형별 차별화 적용)
                 Map<String, Object> propertyHash = new HashMap<>();
-                propertyHash.put("propertyId", property.getPropertyId() != null ? property.getPropertyId() : "");
+                propertyHash.put("propertyId", propertyId != null ? propertyId : "");
                 propertyHash.put("aptNm", property.getAptNm() != null ? property.getAptNm() : "");
                 propertyHash.put("excluUseAr", property.getExcluUseAr() != null ? property.getExcluUseAr().toString() : "0.0");
                 propertyHash.put("floor", property.getFloor() != null ? property.getFloor().toString() : "0");
                 propertyHash.put("buildYear", property.getBuildYear() != null ? property.getBuildYear().toString() : "0");
                 propertyHash.put("dealDate", property.getDealDate() != null ? property.getDealDate() : "");
-                propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
-                propertyHash.put("monthlyRent", property.getMonthlyRent() != null ? property.getMonthlyRent().toString() : "0");
                 propertyHash.put("leaseType", property.getLeaseType() != null ? property.getLeaseType() : "");
                 propertyHash.put("umdNm", property.getUmdNm() != null ? property.getUmdNm() : "");
                 propertyHash.put("jibun", property.getJibun() != null ? property.getJibun() : "");
@@ -484,24 +492,75 @@ public class BatchScheduler {
                 propertyHash.put("address", property.getAddress() != null ? property.getAddress() : "");
                 propertyHash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
                 propertyHash.put("rgstDate", property.getRgstDate() != null ? property.getRgstDate() : "");
-                propertyHash.put("districtName", property.getDistrictName() != null ? property.getDistrictName() : "");
+                propertyHash.put("districtName", districtName != null ? districtName : "");
 
-                // Redis Hash에 저장
-                redisHandler.redisTemplate.opsForHash().putAll(propertyKey, propertyHash);
+                if ("전세".equals(leaseType)) {
+                    // 전세 전용 필드 추가
+                    propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
+                    // monthlyRent는 전세에서 불필요하므로 추가하지 않음
+
+                    // === 전세 매물 처리 ===
+
+                    // [저장소 1] 매물 원본 데이터 (Hash)
+                    // 키 패턴: property:charter:{propertyId}
+                    String charterPropertyKey = "property:charter:" + propertyId;
+                    redisHandler.redisTemplate.opsForHash().putAll(charterPropertyKey, propertyHash);
+
+                    // [저장소 2] 전세금 인덱스 (Sorted Set)
+                    // 키 패턴: idx:charterPrice:{지역구명}
+                    String charterPriceIndexKey = "idx:charterPrice:" + districtName;
+                    Double charterPrice = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
+                    redisHandler.redisTemplate.opsForZSet().add(charterPriceIndexKey, propertyId, charterPrice);
+                    indexKeyTracker.get("charterPrice").add(charterPriceIndexKey);
+
+                    // [저장소 3] 평수 인덱스 (Sorted Set)
+                    // 키 패턴: idx:area:{지역구명}:전세
+                    String charterAreaIndexKey = "idx:area:" + districtName + ":전세";
+                    Double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
+                    redisHandler.redisTemplate.opsForZSet().add(charterAreaIndexKey, propertyId, areaScore);
+                    indexKeyTracker.get("charterArea").add(charterAreaIndexKey);
+
+                } else if ("월세".equals(leaseType)) {
+                    // 월세 전용 필드 추가 (보증금 + 월세금 모두 필요)
+                    propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
+                    propertyHash.put("monthlyRent", property.getMonthlyRent() != null ? property.getMonthlyRent().toString() : "0");
+
+                    // === 월세 매물 처리 ===
+
+                    // [저장소 1] 매물 원본 데이터 (Hash)
+                    // 키 패턴: property:monthly:{propertyId}
+                    String monthlyPropertyKey = "property:monthly:" + propertyId;
+                    redisHandler.redisTemplate.opsForHash().putAll(monthlyPropertyKey, propertyHash);
+
+                    // [저장소 2] 보증금 인덱스 (Sorted Set) - 핵심 수정: 보증금만 저장
+                    // 키 패턴: idx:deposit:{지역구명}
+                    String depositIndexKey = "idx:deposit:" + districtName;
+                    Double depositPrice = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
+                    redisHandler.redisTemplate.opsForZSet().add(depositIndexKey, propertyId, depositPrice);
+                    indexKeyTracker.get("deposit").add(depositIndexKey);
+
+                    // [저장소 3] 월세금 인덱스 (Sorted Set) - 핵심 수정: 월세금만 저장
+                    // 키 패턴: idx:monthlyRent:{지역구명}:월세
+                    String monthlyRentIndexKey = "idx:monthlyRent:" + districtName + ":월세";
+                    Double monthlyRentPrice = property.getMonthlyRent() != null ? property.getMonthlyRent().doubleValue() : 0.0;
+                    redisHandler.redisTemplate.opsForZSet().add(monthlyRentIndexKey, propertyId, monthlyRentPrice);
+                    indexKeyTracker.get("monthlyRent").add(monthlyRentIndexKey);
+
+                    // [저장소 4] 평수 인덱스 (Sorted Set)
+                    // 키 패턴: idx:area:{지역구명}:월세
+                    String monthlyAreaIndexKey = "idx:area:" + districtName + ":월세";
+                    Double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
+                    redisHandler.redisTemplate.opsForZSet().add(monthlyAreaIndexKey, propertyId, areaScore);
+                    indexKeyTracker.get("monthlyArea").add(monthlyAreaIndexKey);
+
+                } else {
+                    log.warn("알 수 없는 임대유형: {} - 매물 ID: {}", leaseType, propertyId);
+                    continue;
+                }
+
                 successCount++;
-
-                // 2. 가격 인덱스 저장 (Sorted Set) - 키 패턴: idx:price:{지역구명}:{임대유형}
-                String priceIndexKey = "idx:price:" + property.getDistrictName() + ":" + property.getLeaseType();
-                Double priceScore = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
-                redisHandler.redisTemplate.opsForZSet().add(priceIndexKey, property.getPropertyId(), priceScore);
-
-                // 3. 평수 인덱스 저장 (Sorted Set) - 키 패턴: idx:area:{지역구명}:{임대유형}
-                String areaIndexKey = "idx:area:" + property.getDistrictName() + ":" + property.getLeaseType();
-                Double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
-                redisHandler.redisTemplate.opsForZSet().add(areaIndexKey, property.getPropertyId(), areaScore);
-
                 // 지역구별 통계 업데이트
-                districtStats.merge(property.getDistrictName(), 1, Integer::sum);
+                districtStats.merge(districtName, 1, Integer::sum);
 
             } catch (Exception e) {
                 log.debug("매물 Redis 저장 실패: {}", property.getPropertyId(), e);
@@ -512,16 +571,31 @@ public class BatchScheduler {
         log.info("Redis 데이터 적재 완료 - 성공: {}건 / 전체: {}건", successCount, properties.size());
         log.info("지역구별 매물 수: {}", districtStats);
 
-        // 생성된 인덱스 확인 로그
-        log.info("생성된 Redis 구조:");
-        log.info("- 매물 원본 데이터: property:{{id}} Hash 구조");
-        log.info("- 가격 인덱스: idx:price:{{지역구}}:{{임대유형}} Sorted Set");
-        log.info("- 평수 인덱스: idx:area:{{지역구}}:{{임대유형}} Sorted Set");
+        // 각 인덱스별 생성된 Key 개수 통계 출력
+        log.info("=== 생성된 인덱스별 Key 개수 통계 ===");
+        log.info("- 전세금 인덱스 (idx:charterPrice): {}개 Key", indexKeyTracker.get("charterPrice").size());
+        log.info("- 보증금 인덱스 (idx:deposit): {}개 Key", indexKeyTracker.get("deposit").size());
+        log.info("- 월세금 인덱스 (idx:monthlyRent): {}개 Key", indexKeyTracker.get("monthlyRent").size());
+        log.info("- 전세 평수 인덱스 (idx:area:*:전세): {}개 Key", indexKeyTracker.get("charterArea").size());
+        log.info("- 월세 평수 인덱스 (idx:area:*:월세): {}개 Key", indexKeyTracker.get("monthlyArea").size());
+
+        // 생성된 Redis 구조 확인 로그
+        log.info("=== 생성된 Redis 구조 ===");
+        log.info("전세 매물:");
+        log.info("- 매물 원본 데이터: property:charter:{{id}} Hash 구조");
+        log.info("- 전세금 인덱스: idx:charterPrice:{{지역구명}} Sorted Set");
+        log.info("- 평수 인덱스: idx:area:{{지역구명}}:전세 Sorted Set");
+
+        log.info("월세 매물:");
+        log.info("- 매물 원본 데이터: property:monthly:{{id}} Hash 구조");
+        log.info("- 보증금 인덱스: idx:deposit:{{지역구명}} Sorted Set");
+        log.info("- 월세금 인덱스: idx:monthlyRent:{{지역구명}}:월세 Sorted Set");
+        log.info("- 평수 인덱스: idx:area:{{지역구명}}:월세 Sorted Set");
     }
 
     /**
-     * B-04: 지역구별 정규화 범위 계산 및 저장
-     * 실시간 추천 점수 계산 성능 최적화를 위해 지역구별·임대유형별 가격 및 평수의 정규화 범위를 사전 계산하여 Redis에 저장
+     * B-04: 지역구별 정규화 범위 계산 및 저장 - 수정된 버전
+     * 월세의 경우 보증금과 월세금을 각각 독립적으로 정규화 범위 계산
      */
     private void calculateAndStoreNormalizationBounds(List<Property> properties) {
         log.info("=== B-04: 지역구별 정규화 범위 계산 및 저장 시작 ===");
@@ -555,8 +629,8 @@ public class BatchScheduler {
                     continue;
                 }
 
-                // 2. 이 가격 산정 및 3. 정규화 범위 계산
-                NormalizationBounds bounds = calculateBoundsForGroup(groupProperties, groupKey);
+                // 2. 수정된 정규화 범위 계산 (월세의 경우 보증금과 월세금 분리)
+                NormalizationBounds bounds = calculateBoundsForGroupFixed(groupProperties, groupKey);
 
                 if (bounds == null) {
                     log.warn("그룹 [{}] 스킵 - 유효한 데이터 부족", groupKey);
@@ -565,10 +639,10 @@ public class BatchScheduler {
                 }
 
                 // 4. Redis 저장
-                storeBoundsToRedis(groupKey, bounds, groupProperties.size(), currentTime);
+                storeBoundsToRedisFixed(groupKey, bounds, groupProperties.size(), currentTime);
 
                 validGroups++;
-                log.info("그룹 [{}] 처리 완료 - 가격범위: [{} ~ {}], 평수범위: [{} ~ {}]",
+                log.info("그룹 [{}] 처리 완료 - 범위: 가격[{} ~ {}], 평수[{} ~ {}]",
                         groupKey, bounds.minPrice, bounds.maxPrice, bounds.minArea, bounds.maxArea);
 
             } catch (Exception e) {
@@ -584,6 +658,127 @@ public class BatchScheduler {
         log.info("- 유효한 그룹: {}", validGroups);
         log.info("- 매물 수 부족으로 스킵된 그룹: {}", skippedGroupsInsufficientData);
         log.info("- 유효 데이터 부족으로 스킵된 그룹: {}", skippedGroupsInvalidData);
+    }
+
+    /**
+     * 수정된 정규화 범위 계산 - 월세의 경우 보증금과 월세금을 각각 처리
+     */
+    private NormalizationBounds calculateBoundsForGroupFixed(List<Property> groupProperties, String groupKey) {
+        String[] keyParts = groupKey.split(":");
+        if (keyParts.length != 2) {
+            log.warn("잘못된 그룹 키 형식: {}", groupKey);
+            return null;
+        }
+
+        String leaseType = keyParts[1];
+        List<Double> prices = new ArrayList<>();
+        List<Double> areas = new ArrayList<>();
+
+        for (Property property : groupProperties) {
+            // 임대유형별 가격 계산 방식 분리
+            if ("전세".equals(leaseType)) {
+                // 전세: 보증금(전세금)만 사용
+                if (property.getDeposit() != null && property.getDeposit() > 0) {
+                    prices.add(property.getDeposit().doubleValue());
+                }
+            } else if ("월세".equals(leaseType)) {
+                // 월세: 보증금만 사용 (월세금은 별도 정규화)
+                if (property.getDeposit() != null && property.getDeposit() > 0) {
+                    prices.add(property.getDeposit().doubleValue());
+                }
+            }
+
+            // 평수 수집
+            if (property.getAreaInPyeong() != null && property.getAreaInPyeong() > 0) {
+                areas.add(property.getAreaInPyeong());
+            }
+        }
+
+        if (prices.isEmpty() || areas.isEmpty()) {
+            log.debug("그룹 [{}] - 유효한 가격 또는 평수 데이터 없음", groupKey);
+            return null;
+        }
+
+        // 정규화 범위 계산
+        double minPrice = Collections.min(prices);
+        double maxPrice = Collections.max(prices);
+        double minArea = Collections.min(areas);
+        double maxArea = Collections.max(areas);
+
+        // 제로 분산 방지
+        if (minPrice == maxPrice) {
+            maxPrice = minPrice + 1000.0;
+            log.debug("그룹 [{}] - 가격 제로 분산 방지: {} -> {}", groupKey, minPrice, maxPrice);
+        }
+
+        if (minArea == maxArea) {
+            maxArea = minArea + 1.0;
+            log.debug("그룹 [{}] - 평수 제로 분산 방지: {} -> {}", groupKey, minArea, maxArea);
+        }
+
+        return new NormalizationBounds(minPrice, maxPrice, minArea, maxArea);
+    }
+
+    /**
+     * 월세 전용 정규화 범위 저장 - 보증금과 월세금 각각 저장
+     */
+    private void storeBoundsToRedisFixed(String groupKey, NormalizationBounds bounds,
+                                         int propertyCount, String currentTime) {
+        String[] keyParts = groupKey.split(":");
+        if (keyParts.length != 2) return;
+
+        String districtName = keyParts[0];
+        String leaseType = keyParts[1];
+
+        if ("전세".equals(leaseType)) {
+            // 전세용 정규화 범위 저장
+            String redisKey = "bounds:" + districtName + ":전세";
+            Map<String, Object> boundsHash = new HashMap<>();
+            boundsHash.put("minPrice", String.valueOf(bounds.minPrice));    // 전세금 최소
+            boundsHash.put("maxPrice", String.valueOf(bounds.maxPrice));    // 전세금 최대
+            boundsHash.put("minArea", String.valueOf(bounds.minArea));
+            boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
+            boundsHash.put("propertyCount", String.valueOf(propertyCount));
+            boundsHash.put("lastUpdated", currentTime);
+
+            redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
+
+        } else if ("월세".equals(leaseType)) {
+            // 월세용 정규화 범위 저장 - 보증금과 월세금 각각 계산
+            List<Property> monthlyProperties = groupPropertiesByDistrictAndLeaseType(null)
+                    .getOrDefault(groupKey, Collections.emptyList());
+
+            // 월세금 범위 별도 계산
+            List<Double> monthlyRents = new ArrayList<>();
+            for (Property property : monthlyProperties) {
+                if (property.getMonthlyRent() != null && property.getMonthlyRent() > 0) {
+                    monthlyRents.add(property.getMonthlyRent().doubleValue());
+                }
+            }
+
+            double minMonthlyRent = monthlyRents.isEmpty() ? 0.0 : Collections.min(monthlyRents);
+            double maxMonthlyRent = monthlyRents.isEmpty() ? 500.0 : Collections.max(monthlyRents);
+
+            // 제로 분산 방지
+            if (minMonthlyRent == maxMonthlyRent) {
+                maxMonthlyRent = minMonthlyRent + 10.0;
+            }
+
+            String redisKey = "bounds:" + districtName + ":월세";
+            Map<String, Object> boundsHash = new HashMap<>();
+            boundsHash.put("minDeposit", String.valueOf(bounds.minPrice));      // 보증금 최소
+            boundsHash.put("maxDeposit", String.valueOf(bounds.maxPrice));      // 보증금 최대
+            boundsHash.put("minMonthlyRent", String.valueOf(minMonthlyRent));   // 월세금 최소
+            boundsHash.put("maxMonthlyRent", String.valueOf(maxMonthlyRent));   // 월세금 최대
+            boundsHash.put("minArea", String.valueOf(bounds.minArea));
+            boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
+            boundsHash.put("propertyCount", String.valueOf(propertyCount));
+            boundsHash.put("lastUpdated", currentTime);
+
+            redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
+        }
+
+        log.debug("Redis 저장 완료 - Key: bounds:{}:{}, Count: {}", districtName, leaseType, propertyCount);
     }
 
     /**
@@ -720,92 +915,6 @@ public class BatchScheduler {
         return true;
     }
 
-
-    /**
-     * 2. 이 가격 산정 및 3. 정규화 범위 계산
-     */
-    private NormalizationBounds calculateBoundsForGroup(List<Property> groupProperties, String groupKey) {
-        List<Double> totalPrices = new ArrayList<>();
-        List<Double> areas = new ArrayList<>();
-
-        for (Property property : groupProperties) {
-            // 2. 이 가격 산정
-            double totalPrice = calculateTotalPrice(property);
-            if (totalPrice > 0) {
-                totalPrices.add(totalPrice);
-            }
-
-            // 평수 수집
-            if (property.getAreaInPyeong() != null && property.getAreaInPyeong() > 0) {
-                areas.add(property.getAreaInPyeong());
-            }
-        }
-
-
-        if (totalPrices.isEmpty() || areas.isEmpty()) {
-            log.debug("그룹 [{}] - 유효한 가격 또는 평수 데이터 없음", groupKey);
-            return null;
-        }
-
-        // 3. 정규화 범위 계산
-        double minPrice = Collections.min(totalPrices);
-        double maxPrice = Collections.max(totalPrices);
-        double minArea = Collections.min(areas);
-        double maxArea = Collections.max(areas);
-
-        // 4. 품질 보장: 제로 분산 방지 (min = max인 경우 max값 조정)
-        if (minPrice == maxPrice) {
-            maxPrice = minPrice + 1000.0; // 100만원 차이 설정
-            log.debug("그룹 [{}] - 가격 제로 분산 방지: {} -> {}", groupKey, minPrice, maxPrice);
-        }
-
-        if (minArea == maxArea) {
-            maxArea = minArea + 1.0; // 1평 차이 설정
-            log.debug("그룹 [{}] - 평수 제로 분산 방지: {} -> {}", groupKey, minArea, maxArea);
-        }
-
-        return new NormalizationBounds(minPrice, maxPrice, minArea, maxArea);
-    }
-
-    /**
-     * 2. 이 가격 산정
-     * - 전세: 보증금
-     * - 월세: 보증금 + (월세 × 24개월)
-     */
-    private double calculateTotalPrice(Property property) {
-        double deposit = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
-        double monthlyRent = property.getMonthlyRent() != null ? property.getMonthlyRent().doubleValue() : 0.0;
-
-        if ("전세".equals(property.getLeaseType())) {
-            return deposit;
-        } else if ("월세".equals(property.getLeaseType())) {
-            return deposit + (monthlyRent * 24); // 월세 × 24개월
-        }
-
-        return deposit; // 기본적으로 보증금 반환
-    }
-
-    /**
-     * Redis에 정규화 범위 저장
-     * 키 패턴: bounds:{지역구명}:{임대유형}
-     */
-    private void storeBoundsToRedis(String groupKey, NormalizationBounds bounds,
-                                    int propertyCount, String currentTime) {
-        String redisKey = "bounds:" + groupKey;
-
-        Map<String, Object> boundsHash = new HashMap<>();
-        boundsHash.put("minPrice", String.valueOf(bounds.minPrice));
-        boundsHash.put("maxPrice", String.valueOf(bounds.maxPrice));
-        boundsHash.put("minArea", String.valueOf(bounds.minArea));
-        boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
-        boundsHash.put("propertyCount", String.valueOf(propertyCount));
-        boundsHash.put("lastUpdated", currentTime);
-
-        redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
-
-        log.debug("Redis 저장 완료 - Key: {}, Count: {}", redisKey, propertyCount);
-    }
-
     /**
      * 정규화 범위 데이터를 담는 내부 클래스
      */
@@ -832,7 +941,7 @@ public class BatchScheduler {
         log.info("=== B-05: 지역구별 안전성 점수 계산 및 Redis 저장 시작 ===");
 
         try {
-            // 1. 범죄 데이터 수집 (지역구별 총 범죄 발생 건수)
+            // 1. 범죄 데이터 수집 (지역구별 이 범죄 발생 건수)
             List<DistrictCrimeCountDto> crimeData = crimeRepository.findCrimeCount();
             Map<String, Long> crimeCountMap = new HashMap<>();
 
@@ -1002,7 +1111,7 @@ public class BatchScheduler {
      * 키 패턴: safety:{지역구명}
      */
     private void storeSafetyScoresToRedis(Map<String, Double> safetyScoreMap) {
-        log.info("Redis 안전성 점수 저장 시작 - 총 {}개 지역구", safetyScoreMap.size());
+        log.info("Redis 안전성 점수 저장 시작 - 이 {}개 지역구", safetyScoreMap.size());
 
         int successCount = 0;
         String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
