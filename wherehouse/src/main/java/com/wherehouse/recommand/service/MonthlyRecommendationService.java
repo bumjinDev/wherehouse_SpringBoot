@@ -416,8 +416,8 @@ public class MonthlyRecommendationService {
     }
 
     // ========================================
-    // 월세 응답 생성 메소드들
-    // ========================================
+// 월세 응답 생성 메소드들
+// ========================================
 
     /**
      * S-06: 월세 전용 최종 응답 생성
@@ -457,11 +457,21 @@ public class MonthlyRecommendationService {
             List<TopMonthlyPropertyDto> topProperties = selectTopMonthlyProperties(district.getPropertiesWithScores(), 3);
             String summary = generateDistrictSummary(district, rank, request.getPriority1());
 
+            // === 2차 명세: 월세 전용 상세 순위 정보 패널용 점수 계산 ===
+            Double averagePriceScore = calculateMonthlyAverageScore(district.getPropertiesWithScores(), "price");
+            Double averageSpaceScore = calculateMonthlyAverageScore(district.getPropertiesWithScores(), "space");
+            Double districtSafetyScore = calculateAverageFinalScore(district.getPropertiesWithScores());
+
             RecommendedMonthlyDistrictDto districtDto = RecommendedMonthlyDistrictDto.builder()
                     .rank(rank)
                     .districtName(district.getDistrictName())
                     .summary(summary)
                     .topProperties(topProperties)
+                    .averagePriceScore(averagePriceScore)
+                    .averageSpaceScore(averageSpaceScore)
+                    .districtSafetyScore(districtSafetyScore)
+                    .averageFinalScore(district.getAverageFinalScore())
+                    .representativeScore(district.getRepresentativeScore())
                     .build();
 
             recommendedDistricts.add(districtDto);
@@ -474,6 +484,49 @@ public class MonthlyRecommendationService {
                 .message(searchResult.getMessage())
                 .recommendedDistricts(recommendedDistricts)
                 .build();
+    }
+
+// === 2차 명세: 월세 전용 점수 계산 헬퍼 메서드 추가 ===
+    /**
+     * 월세 지역구 내 매물들의 특정 점수 평균 계산 (보증금+월세금 분리 처리)
+     */
+    private Double calculateMonthlyAverageScore(List<PropertyWithScore> propertiesWithScores, String scoreType) {
+        if (propertiesWithScores == null || propertiesWithScores.isEmpty()) {
+            return 0.0;
+        }
+
+        double totalScore = 0.0;
+        for (PropertyWithScore property : propertiesWithScores) {
+            switch (scoreType) {
+                case "price":
+                    // 월세는 priceScore가 이미 (보증금점수 + 월세금점수) / 2.0로 계산됨
+                    totalScore += property.getPriceScore();
+                    break;
+                case "space":
+                    totalScore += property.getSpaceScore();
+                    break;
+                default:
+                    return 0.0;
+            }
+        }
+
+        return totalScore / propertiesWithScores.size();
+    }
+
+    /**
+     * 매물별 최종 추천 점수(finalScore)의 평균 계산
+     */
+    private Double calculateAverageFinalScore(List<PropertyWithScore> propertiesWithScores) {
+        if (propertiesWithScores == null || propertiesWithScores.isEmpty()) {
+            return 0.0;
+        }
+
+        double totalFinalScore = 0.0;
+        for (PropertyWithScore property : propertiesWithScores) {
+            totalFinalScore += property.getFinalScore();
+        }
+
+        return totalFinalScore / propertiesWithScores.size();
     }
 
     /**

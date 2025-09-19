@@ -400,8 +400,8 @@ public class CharterRecommendationService {
     }
 
     // ========================================
-    // 전세 응답 생성 메소드들
-    // ========================================
+// 전세 응답 생성 메소드들
+// ========================================
 
     /**
      * S-06: 전세 전용 최종 응답 생성
@@ -441,10 +441,10 @@ public class CharterRecommendationService {
             List<TopCharterPropertyDto> topProperties = selectTopCharterProperties(district.getPropertiesWithScores(), 3);
             String summary = generateDistrictSummary(district, rank, request.getPriority1());
 
-            // === 2차 명세: 상세 순위 정보 패널용 점수 계산 추가 ===
+            // === 2차 명세: 상세 순위 정보 패널용 점수 계산 ===
             Double averagePriceScore = calculateAverageScore(district.getPropertiesWithScores(), "price");
             Double averageSpaceScore = calculateAverageScore(district.getPropertiesWithScores(), "space");
-            Double districtSafetyScore = getFirstPropertySafetyScore(district.getPropertiesWithScores());
+            Double districtSafetyScore = calculateAverageFinalScore(district.getPropertiesWithScores());
 
             RecommendedCharterDistrictDto districtDto = RecommendedCharterDistrictDto.builder()
                     .rank(rank)
@@ -454,6 +454,8 @@ public class CharterRecommendationService {
                     .averagePriceScore(averagePriceScore)
                     .averageSpaceScore(averageSpaceScore)
                     .districtSafetyScore(districtSafetyScore)
+                    .averageFinalScore(district.getAverageFinalScore())
+                    .representativeScore(district.getRepresentativeScore())
                     .build();
 
             recommendedDistricts.add(districtDto);
@@ -495,15 +497,19 @@ public class CharterRecommendationService {
     }
 
     /**
-     * 지역구 안전성 점수 추출 (첫 번째 매물의 safetyScore 사용)
+     * 매물별 최종 추천 점수(finalScore)의 평균 계산
      */
-    private Double getFirstPropertySafetyScore(List<PropertyWithScore> propertiesWithScores) {
+    private Double calculateAverageFinalScore(List<PropertyWithScore> propertiesWithScores) {
         if (propertiesWithScores == null || propertiesWithScores.isEmpty()) {
-            return 50.0; // 기본값
+            return 0.0;
         }
 
-        PropertyWithScore firstProperty = propertiesWithScores.get(0);
-        return firstProperty.getSafetyScore();
+        double totalFinalScore = 0.0;
+        for (PropertyWithScore property : propertiesWithScores) {
+            totalFinalScore += property.getFinalScore();
+        }
+
+        return totalFinalScore / propertiesWithScores.size();
     }
 
     /**

@@ -699,20 +699,18 @@ function renderMonthlyDistrictCards(districts) {
     });
 }
 
-/**
- * 전세 지역구 카드 생성 - 실제 응답 구조에 맞게 수정
- */
 function createCharterDistrictCard(district, rank) {
     const card = document.createElement('div');
     card.className = 'charter_district_card';
     card.id = `charter_district_card_${rank}`;
 
-    // 실제 응답 필드명 사용 (스네이크 케이스)
     const topProperty = district.top_properties && district.top_properties.length > 0
         ? district.top_properties[0] : null;
 
     const priceText = topProperty ? formatCharterPrice(topProperty) : '매물 정보 없음';
-    const scoreText = topProperty ? `${topProperty.final_score.toFixed(1)}점` : '-';
+    // 개별 매물 점수 대신 지역구 평균 점수 사용
+    const scoreText = district.averageFinalScore ?
+        `${Math.floor(district.averageFinalScore * 100) / 100}점` : '-';
 
     card.innerHTML = `
         <div class="charter_district_header">
@@ -736,25 +734,14 @@ function createCharterDistrictCard(district, rank) {
         </div>
         
         <div class="charter_district_buttons">
-            <button class="charter_btn_detail_rank" onclick="showPropertyModal('${district.district_name}', 'charter', ${rank})">상세 매물들 보기</button>
-            <button class="charter_btn_property_list">지역구 추천 정보</button>
+            <button class="charter_btn_detail_rank" onclick="showDetailRankModal('${district.district_name}', 'charter', ${rank})">지역구 추천 정보</button>
+            <button class="charter_btn_property_list" onclick="showCharterPropertyListModal('${district.district_name}', ${rank})">상세 매물들 보기</button>
         </div>
     `;
 
     return card;
 }
 
-
-/**
- * 전세 가격 형식화
- */
-function formatCharterPrice(property) {
-    return `전세 ${property.price.toLocaleString()}만원`;
-}
-
-/**
- * 월세 지역구 카드 생성 - 상세 순위 정보 버튼 기능 추가
- */
 function createMonthlyDistrictCard(district, rank) {
     const card = document.createElement('div');
     card.className = 'monthly_district_card';
@@ -764,7 +751,9 @@ function createMonthlyDistrictCard(district, rank) {
         ? district.top_properties[0] : null;
 
     const priceText = topProperty ? formatMonthlyPrice(topProperty) : '매물 정보 없음';
-    const scoreText = topProperty ? `${topProperty.final_score.toFixed(1)}점` : '-';
+    // 개별 매물 점수 대신 지역구 평균 점수 사용
+    const scoreText = district.averageFinalScore ?
+        `${Math.floor(district.averageFinalScore * 100) / 100}점` : '-';
 
     card.innerHTML = `
         <div class="monthly_district_header">
@@ -795,6 +784,15 @@ function createMonthlyDistrictCard(district, rank) {
 
     return card;
 }
+
+/**
+ * 전세 가격 형식화
+ */
+function formatCharterPrice(property) {
+    return `전세 ${property.price.toLocaleString()}만원`;
+}
+
+
 
 /**
  * 입력 페이지 표시
@@ -878,49 +876,7 @@ function showPropertyModal(districtName, rentalType, rank) {
     document.body.classList.add('modal_open');
 }
 
-/**
- * 전세 지역구 카드 생성 - 상세 순위 정보 버튼 기능 추가
- */
-function createCharterDistrictCard(district, rank) {
-    const card = document.createElement('div');
-    card.className = 'charter_district_card';
-    card.id = `charter_district_card_${rank}`;
 
-    const topProperty = district.top_properties && district.top_properties.length > 0
-        ? district.top_properties[0] : null;
-
-    const priceText = topProperty ? formatCharterPrice(topProperty) : '매물 정보 없음';
-    const scoreText = topProperty ? `${topProperty.final_score.toFixed(1)}점` : '-';
-
-    card.innerHTML = `
-        <div class="charter_district_header">
-            <span class="charter_district_rank">${rank}.</span>
-            <span class="charter_district_name">${district.district_name}</span>
-        </div>
-        
-        <div class="charter_district_info">
-            <div class="charter_info_row">
-                <span class="charter_info_label">대표 매물:</span>
-                <span class="charter_info_value charter_price_value">${priceText}</span>
-            </div>
-            <div class="charter_info_row">
-                <span class="charter_info_label">추천 점수:</span>
-                <span class="charter_info_value charter_score_value">${scoreText}</span>
-            </div>
-            <div class="charter_info_row">
-                <span class="charter_info_label">추천 근거:</span>
-                <span class="charter_info_value">${district.summary || '정보 없음'}</span>
-            </div>
-        </div>
-        
-        <div class="charter_district_buttons">
-            <button class="charter_btn_detail_rank" onclick="showDetailRankModal('${district.district_name}', 'charter', ${rank})">지역구 추천 정보</button>
-            <button class="charter_btn_property_list" onclick="showCharterPropertyListModal('${district.district_name}', ${rank})">상세 매물들 보기</button>
-        </div>
-    `;
-
-    return card;
-}
 
 /**
  * 매물 모달 닫기
@@ -1164,7 +1120,7 @@ function initializeValidation() {
 }
 
 /**
- * 상세 순위 정보 모달 표시
+ * 상세 순위 정보 모달 표시 (전세/월세 공통)
  */
 function showDetailRankModal(districtName, rentalType, rank) {
     console.log(`상세 순위 정보 모달 표시: ${districtName} (${rentalType}) - 순위: ${rank}`);
@@ -1180,8 +1136,11 @@ function showDetailRankModal(districtName, rentalType, rank) {
         return;
     }
 
-    // 해당 지역구 찾기
-    const district = currentRecommendationData.recommendedDistricts.find(d => d.district_name === districtName);
+    // 해당 지역구 찾기 - 필드명 통일 처리
+    const district = currentRecommendationData.recommendedDistricts.find(d =>
+        (d.district_name || d.districtName) === districtName
+    );
+
     if (!district) {
         console.error(`지역구를 찾을 수 없습니다: ${districtName}`);
         return;
@@ -1200,10 +1159,15 @@ function showDetailRankModal(districtName, rentalType, rank) {
     if (rankDistrictName) rankDistrictName.textContent = districtName;
     if (rankPosition) rankPosition.textContent = `${rank}위`;
 
-    // === 2차 명세: 3개 점수 데이터 표시 ===
-    updateScoreDisplay('average_price_score', 'price_score_bar', district.averagePriceScore || 0);
-    updateScoreDisplay('average_space_score', 'space_score_bar', district.averageSpaceScore || 0);
-    updateScoreDisplay('district_safety_score', 'safety_score_bar', district.districtSafetyScore || 0);
+    // === 2차 명세: 백엔드에서 추가된 3개 점수 데이터 사용 ===
+    // 필드명 호환성 처리 (camelCase와 snake_case 모두 지원)
+    const avgPriceScore = district.averagePriceScore || district.average_price_score || 0;
+    const avgSpaceScore = district.averageSpaceScore || district.average_space_score || 0;
+    const districtSafety = district.districtSafetyScore || district.district_safety_score || 0;
+
+    updateScoreDisplay('average_price_score', 'price_score_bar', avgPriceScore);
+    updateScoreDisplay('average_space_score', 'space_score_bar', avgSpaceScore);
+    updateScoreDisplay('district_safety_score', 'safety_score_bar', districtSafety);
 
     // 종합 평가 텍스트 설정
     const summaryText = document.getElementById('rank_summary_text');
@@ -1392,7 +1356,8 @@ function createCharterPropertyCard(property, rank) {
     const priceText = `전세 ${(property.price || 0).toLocaleString()}만원`;
     const buildYearText = property.build_year ? `${property.build_year}년` : '정보없음';
     const floorText = property.floor ? `${property.floor}층` : '정보없음';
-    const scoreText = property.final_score ? `${property.final_score.toFixed(1)}점` : '-';
+    const scoreText = property.final_score ? `${Math.floor(property.final_score * 100) / 100}점` : '-';
+    //                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 버림 처리
 
     card.innerHTML = `
         <div class="charter_property_header">
@@ -1453,7 +1418,8 @@ function createMonthlyPropertyCard(property, rank) {
     const priceText = `보증금 ${deposit}만원 / 월세 ${monthly}만원`;
     const buildYearText = property.build_year ? `${property.build_year}년` : '정보없음';
     const floorText = property.floor ? `${property.floor}층` : '정보없음';
-    const scoreText = property.final_score ? `${property.final_score.toFixed(1)}점` : '-';
+    const scoreText = property.final_score ? `${Math.floor(property.final_score * 100) / 100}점` : '-';
+    //                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 버림 처리
 
     card.innerHTML = `
         <div class="monthly_property_header">
