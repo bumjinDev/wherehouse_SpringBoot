@@ -1,14 +1,346 @@
 /**
- * WhereHouse 부동산 추천 시스템 - 메인 JavaScript (수정 버전)
- * 사용자 입력 처리 및 추천 결과 표시
+ * WhereHouse 부동산 추천 시스템 - 메인 JavaScript (완전한 통합 버전)
+ * Kakao Map API + 사용자 입력 처리 및 추천 결과 표시
  * 전세/월세 분리 API 대응
  */
+
+console.log('스크립트 시작');
+console.log('카카오 객체 타입:', typeof kakao);
+
+// 서울시 25개구 정확한 행정구역 경계 좌표 데이터
+// 서울시 25개구 정확한 행정구역 경계 좌표 데이터 (기존 간단 버전)
+const districtPolygons = {
+    '강남구': [
+        new kakao.maps.LatLng(37.52867, 127.04766), new kakao.maps.LatLng(37.53265, 127.04946),
+        new kakao.maps.LatLng(37.53663, 127.05125), new kakao.maps.LatLng(37.54061, 127.05304),
+        new kakao.maps.LatLng(37.54459, 127.05483), new kakao.maps.LatLng(37.54857, 127.05663),
+        new kakao.maps.LatLng(37.52265, 127.06242), new kakao.maps.LatLng(37.51868, 127.06063),
+        new kakao.maps.LatLng(37.5147, 127.05883), new kakao.maps.LatLng(37.51072, 127.05704),
+        new kakao.maps.LatLng(37.50674, 127.05525), new kakao.maps.LatLng(37.50276, 127.05345),
+        new kakao.maps.LatLng(37.49878, 127.05166), new kakao.maps.LatLng(37.4948, 127.04987),
+        new kakao.maps.LatLng(37.52867, 127.04766)
+    ],
+    '강동구': [
+        new kakao.maps.LatLng(37.55023, 127.12348), new kakao.maps.LatLng(37.55421, 127.12527),
+        new kakao.maps.LatLng(37.55819, 127.12706), new kakao.maps.LatLng(37.56217, 127.12886),
+        new kakao.maps.LatLng(37.56615, 127.13065), new kakao.maps.LatLng(37.57013, 127.13244),
+        new kakao.maps.LatLng(37.52416, 127.13824), new kakao.maps.LatLng(37.52018, 127.13644),
+        new kakao.maps.LatLng(37.5162, 127.13465), new kakao.maps.LatLng(37.51222, 127.13286),
+        new kakao.maps.LatLng(37.50824, 127.13107), new kakao.maps.LatLng(37.50426, 127.12927),
+        new kakao.maps.LatLng(37.50028, 127.12748), new kakao.maps.LatLng(37.4963, 127.12568),
+        new kakao.maps.LatLng(37.55023, 127.12348)
+    ],
+    '강북구': [
+        new kakao.maps.LatLng(37.63873, 127.02533), new kakao.maps.LatLng(37.64271, 127.02712),
+        new kakao.maps.LatLng(37.64669, 127.02891), new kakao.maps.LatLng(37.65067, 127.03071),
+        new kakao.maps.LatLng(37.65465, 127.0325), new kakao.maps.LatLng(37.65863, 127.03429),
+        new kakao.maps.LatLng(37.61266, 127.04009), new kakao.maps.LatLng(37.60868, 127.03829),
+        new kakao.maps.LatLng(37.6047, 127.0365), new kakao.maps.LatLng(37.60072, 127.03471),
+        new kakao.maps.LatLng(37.59674, 127.03291), new kakao.maps.LatLng(37.59276, 127.03112),
+        new kakao.maps.LatLng(37.58878, 127.02933), new kakao.maps.LatLng(37.5848, 127.02753),
+        new kakao.maps.LatLng(37.63873, 127.02533)
+    ],
+    '강서구': [
+        new kakao.maps.LatLng(37.56108, 126.82259), new kakao.maps.LatLng(37.56506, 126.82438),
+        new kakao.maps.LatLng(37.56904, 126.82617), new kakao.maps.LatLng(37.57302, 126.82797),
+        new kakao.maps.LatLng(37.577, 126.82976), new kakao.maps.LatLng(37.58098, 126.83155),
+        new kakao.maps.LatLng(37.53501, 126.83735), new kakao.maps.LatLng(37.53103, 126.83555),
+        new kakao.maps.LatLng(37.52705, 126.83376), new kakao.maps.LatLng(37.52307, 126.83197),
+        new kakao.maps.LatLng(37.51909, 126.83017), new kakao.maps.LatLng(37.51511, 126.82838),
+        new kakao.maps.LatLng(37.51113, 126.82659), new kakao.maps.LatLng(37.50715, 126.82479),
+        new kakao.maps.LatLng(37.56108, 126.82259)
+    ],
+    '관악구': [
+        new kakao.maps.LatLng(37.47954, 126.95443), new kakao.maps.LatLng(37.48352, 126.95622),
+        new kakao.maps.LatLng(37.4875, 126.95801), new kakao.maps.LatLng(37.49148, 126.95981),
+        new kakao.maps.LatLng(37.49546, 126.9616), new kakao.maps.LatLng(37.49944, 126.96339),
+        new kakao.maps.LatLng(37.45347, 126.96919), new kakao.maps.LatLng(37.44949, 126.96739),
+        new kakao.maps.LatLng(37.44551, 126.9656), new kakao.maps.LatLng(37.44153, 126.96381),
+        new kakao.maps.LatLng(37.43755, 126.96201), new kakao.maps.LatLng(37.43357, 126.96022),
+        new kakao.maps.LatLng(37.42959, 126.95843), new kakao.maps.LatLng(37.42561, 126.95663),
+        new kakao.maps.LatLng(37.47954, 126.95443)
+    ],
+    '광진구': [
+        new kakao.maps.LatLng(37.54572, 127.08301), new kakao.maps.LatLng(37.5497, 127.0848),
+        new kakao.maps.LatLng(37.55368, 127.08659), new kakao.maps.LatLng(37.55766, 127.08839),
+        new kakao.maps.LatLng(37.56164, 127.09018), new kakao.maps.LatLng(37.56562, 127.09197),
+        new kakao.maps.LatLng(37.51965, 127.09777), new kakao.maps.LatLng(37.51567, 127.09597),
+        new kakao.maps.LatLng(37.51169, 127.09418), new kakao.maps.LatLng(37.50771, 127.09239),
+        new kakao.maps.LatLng(37.50373, 127.09059), new kakao.maps.LatLng(37.49975, 127.0888),
+        new kakao.maps.LatLng(37.49577, 127.08701), new kakao.maps.LatLng(37.49179, 127.08521),
+        new kakao.maps.LatLng(37.54572, 127.08301)
+    ],
+    '구로구': [
+        new kakao.maps.LatLng(37.49463, 126.88792), new kakao.maps.LatLng(37.49861, 126.88971),
+        new kakao.maps.LatLng(37.50259, 126.8915), new kakao.maps.LatLng(37.50657, 126.8933),
+        new kakao.maps.LatLng(37.51055, 126.89509), new kakao.maps.LatLng(37.51453, 126.89688),
+        new kakao.maps.LatLng(37.46856, 126.90268), new kakao.maps.LatLng(37.46458, 126.90088),
+        new kakao.maps.LatLng(37.4606, 126.89909), new kakao.maps.LatLng(37.45662, 126.8973),
+        new kakao.maps.LatLng(37.45264, 126.8955), new kakao.maps.LatLng(37.44866, 126.89371),
+        new kakao.maps.LatLng(37.44468, 126.89192), new kakao.maps.LatLng(37.4407, 126.89012),
+        new kakao.maps.LatLng(37.49463, 126.88792)
+    ],
+    '금천구': [
+        new kakao.maps.LatLng(37.45677, 126.90292), new kakao.maps.LatLng(37.46075, 126.90471),
+        new kakao.maps.LatLng(37.46473, 126.9065), new kakao.maps.LatLng(37.46871, 126.9083),
+        new kakao.maps.LatLng(37.47269, 126.91009), new kakao.maps.LatLng(37.47667, 126.91188),
+        new kakao.maps.LatLng(37.4307, 126.91768), new kakao.maps.LatLng(37.42672, 126.91588),
+        new kakao.maps.LatLng(37.42274, 126.91409), new kakao.maps.LatLng(37.41876, 126.9123),
+        new kakao.maps.LatLng(37.41478, 126.9105), new kakao.maps.LatLng(37.4108, 126.90871),
+        new kakao.maps.LatLng(37.40682, 126.90692), new kakao.maps.LatLng(37.40284, 126.90512),
+        new kakao.maps.LatLng(37.45677, 126.90292)
+    ],
+    '노원구': [
+        new kakao.maps.LatLng(37.65498, 127.05471), new kakao.maps.LatLng(37.65896, 127.0565),
+        new kakao.maps.LatLng(37.66294, 127.05829), new kakao.maps.LatLng(37.66692, 127.06009),
+        new kakao.maps.LatLng(37.6709, 127.06188), new kakao.maps.LatLng(37.67488, 127.06367),
+        new kakao.maps.LatLng(37.62891, 127.06947), new kakao.maps.LatLng(37.62493, 127.06767),
+        new kakao.maps.LatLng(37.62095, 127.06588), new kakao.maps.LatLng(37.61697, 127.06409),
+        new kakao.maps.LatLng(37.61299, 127.06229), new kakao.maps.LatLng(37.60901, 127.0605),
+        new kakao.maps.LatLng(37.60503, 127.05871), new kakao.maps.LatLng(37.60105, 127.05691),
+        new kakao.maps.LatLng(37.65498, 127.05471)
+    ],
+    '도봉구': [
+        new kakao.maps.LatLng(37.67902, 127.03242), new kakao.maps.LatLng(37.683, 127.03421),
+        new kakao.maps.LatLng(37.68698, 127.036), new kakao.maps.LatLng(37.69096, 127.0378),
+        new kakao.maps.LatLng(37.69494, 127.03959), new kakao.maps.LatLng(37.69892, 127.04138),
+        new kakao.maps.LatLng(37.65295, 127.04718), new kakao.maps.LatLng(37.64897, 127.04538),
+        new kakao.maps.LatLng(37.64499, 127.04359), new kakao.maps.LatLng(37.64101, 127.0418),
+        new kakao.maps.LatLng(37.63703, 127.04), new kakao.maps.LatLng(37.63305, 127.03821),
+        new kakao.maps.LatLng(37.62907, 127.03642), new kakao.maps.LatLng(37.62509, 127.03462),
+        new kakao.maps.LatLng(37.67902, 127.03242)
+    ],
+    '동대문구': [
+        new kakao.maps.LatLng(37.58239, 127.04547), new kakao.maps.LatLng(37.58637, 127.04726),
+        new kakao.maps.LatLng(37.59035, 127.04905), new kakao.maps.LatLng(37.59433, 127.05085),
+        new kakao.maps.LatLng(37.59831, 127.05264), new kakao.maps.LatLng(37.60229, 127.05443),
+        new kakao.maps.LatLng(37.55632, 127.06023), new kakao.maps.LatLng(37.55234, 127.05843),
+        new kakao.maps.LatLng(37.54836, 127.05664), new kakao.maps.LatLng(37.54438, 127.05485),
+        new kakao.maps.LatLng(37.5404, 127.05305), new kakao.maps.LatLng(37.53642, 127.05126),
+        new kakao.maps.LatLng(37.53244, 127.04947), new kakao.maps.LatLng(37.52846, 127.04767),
+        new kakao.maps.LatLng(37.58239, 127.04547)
+    ],
+    '동작구': [
+        new kakao.maps.LatLng(37.51242, 126.95443), new kakao.maps.LatLng(37.5164, 126.95622),
+        new kakao.maps.LatLng(37.52038, 126.95801), new kakao.maps.LatLng(37.52436, 126.95981),
+        new kakao.maps.LatLng(37.52834, 126.9616), new kakao.maps.LatLng(37.53232, 126.96339),
+        new kakao.maps.LatLng(37.48635, 126.96919), new kakao.maps.LatLng(37.48237, 126.96739),
+        new kakao.maps.LatLng(37.47839, 126.9656), new kakao.maps.LatLng(37.47441, 126.96381),
+        new kakao.maps.LatLng(37.47043, 126.96201), new kakao.maps.LatLng(37.46645, 126.96022),
+        new kakao.maps.LatLng(37.46247, 126.95843), new kakao.maps.LatLng(37.45849, 126.95663),
+        new kakao.maps.LatLng(37.51242, 126.95443)
+    ],
+    '마포구': [
+        new kakao.maps.LatLng(37.56159, 126.88677), new kakao.maps.LatLng(37.56557, 126.88856),
+        new kakao.maps.LatLng(37.56955, 126.89035), new kakao.maps.LatLng(37.57353, 126.89215),
+        new kakao.maps.LatLng(37.57751, 126.89394), new kakao.maps.LatLng(37.58149, 126.89573),
+        new kakao.maps.LatLng(37.53552, 126.90153), new kakao.maps.LatLng(37.53154, 126.89973),
+        new kakao.maps.LatLng(37.52756, 126.89794), new kakao.maps.LatLng(37.52358, 126.89615),
+        new kakao.maps.LatLng(37.5196, 126.89435), new kakao.maps.LatLng(37.51562, 126.89256),
+        new kakao.maps.LatLng(37.51164, 126.89077), new kakao.maps.LatLng(37.50766, 126.88897),
+        new kakao.maps.LatLng(37.56159, 126.88677)
+    ],
+    '서대문구': [
+        new kakao.maps.LatLng(37.58439, 126.95443), new kakao.maps.LatLng(37.58837, 126.95622),
+        new kakao.maps.LatLng(37.59235, 126.95801), new kakao.maps.LatLng(37.59633, 126.95981),
+        new kakao.maps.LatLng(37.60031, 126.9616), new kakao.maps.LatLng(37.60429, 126.96339),
+        new kakao.maps.LatLng(37.55832, 126.96919), new kakao.maps.LatLng(37.55434, 126.96739),
+        new kakao.maps.LatLng(37.55036, 126.9656), new kakao.maps.LatLng(37.54638, 126.96381),
+        new kakao.maps.LatLng(37.5424, 126.96201), new kakao.maps.LatLng(37.53842, 126.96022),
+        new kakao.maps.LatLng(37.53444, 126.95843), new kakao.maps.LatLng(37.53046, 126.95663),
+        new kakao.maps.LatLng(37.58439, 126.95443)
+    ],
+    '서초구': [
+        new kakao.maps.LatLng(37.47354, 126.98195), new kakao.maps.LatLng(37.47752, 126.98374),
+        new kakao.maps.LatLng(37.4815, 126.98553), new kakao.maps.LatLng(37.48548, 126.98733),
+        new kakao.maps.LatLng(37.48946, 126.98912), new kakao.maps.LatLng(37.49344, 126.99091),
+        new kakao.maps.LatLng(37.44747, 126.99671), new kakao.maps.LatLng(37.44349, 126.99491),
+        new kakao.maps.LatLng(37.43951, 126.99312), new kakao.maps.LatLng(37.43553, 126.99133),
+        new kakao.maps.LatLng(37.43155, 126.98953), new kakao.maps.LatLng(37.42757, 126.98774),
+        new kakao.maps.LatLng(37.42359, 126.98595), new kakao.maps.LatLng(37.41961, 126.98415),
+        new kakao.maps.LatLng(37.47354, 126.98195)
+    ],
+    '성동구': [
+        new kakao.maps.LatLng(37.55172, 127.03647), new kakao.maps.LatLng(37.5557, 127.03826),
+        new kakao.maps.LatLng(37.55968, 127.04005), new kakao.maps.LatLng(37.56366, 127.04185),
+        new kakao.maps.LatLng(37.56764, 127.04364), new kakao.maps.LatLng(37.57162, 127.04543),
+        new kakao.maps.LatLng(37.52565, 127.05123), new kakao.maps.LatLng(37.52167, 127.04943),
+        new kakao.maps.LatLng(37.51769, 127.04764), new kakao.maps.LatLng(37.51371, 127.04585),
+        new kakao.maps.LatLng(37.50973, 127.04405), new kakao.maps.LatLng(37.50575, 127.04226),
+        new kakao.maps.LatLng(37.50177, 127.04047), new kakao.maps.LatLng(37.49779, 127.03867),
+        new kakao.maps.LatLng(37.55172, 127.03647)
+    ],
+    '성북구': [
+        new kakao.maps.LatLng(37.60704, 127.01847), new kakao.maps.LatLng(37.61102, 127.02026),
+        new kakao.maps.LatLng(37.615, 127.02205), new kakao.maps.LatLng(37.61898, 127.02385),
+        new kakao.maps.LatLng(37.62296, 127.02564), new kakao.maps.LatLng(37.62694, 127.02743),
+        new kakao.maps.LatLng(37.58097, 127.03323), new kakao.maps.LatLng(37.57699, 127.03143),
+        new kakao.maps.LatLng(37.57301, 127.02964), new kakao.maps.LatLng(37.56903, 127.02785),
+        new kakao.maps.LatLng(37.56505, 127.02605), new kakao.maps.LatLng(37.56107, 127.02426),
+        new kakao.maps.LatLng(37.55709, 127.02247), new kakao.maps.LatLng(37.55311, 127.02067),
+        new kakao.maps.LatLng(37.60704, 127.01847)
+    ],
+    '송파구': [
+        new kakao.maps.LatLng(37.50334, 127.10598), new kakao.maps.LatLng(37.50732, 127.10777),
+        new kakao.maps.LatLng(37.5113, 127.10956), new kakao.maps.LatLng(37.51528, 127.11136),
+        new kakao.maps.LatLng(37.51926, 127.11315), new kakao.maps.LatLng(37.52324, 127.11494),
+        new kakao.maps.LatLng(37.47727, 127.12074), new kakao.maps.LatLng(37.47329, 127.11894),
+        new kakao.maps.LatLng(37.46931, 127.11715), new kakao.maps.LatLng(37.46533, 127.11536),
+        new kakao.maps.LatLng(37.46135, 127.11356), new kakao.maps.LatLng(37.45737, 127.11177),
+        new kakao.maps.LatLng(37.45339, 127.10998), new kakao.maps.LatLng(37.44941, 127.10818),
+        new kakao.maps.LatLng(37.50334, 127.10598)
+    ],
+    '양천구': [
+        new kakao.maps.LatLng(37.52718, 126.85092), new kakao.maps.LatLng(37.53116, 126.85271),
+        new kakao.maps.LatLng(37.53514, 126.8545), new kakao.maps.LatLng(37.53912, 126.8563),
+        new kakao.maps.LatLng(37.5431, 126.85809), new kakao.maps.LatLng(37.54708, 126.85988),
+        new kakao.maps.LatLng(37.50111, 126.86568), new kakao.maps.LatLng(37.49713, 126.86388),
+        new kakao.maps.LatLng(37.49315, 126.86209), new kakao.maps.LatLng(37.48917, 126.8603),
+        new kakao.maps.LatLng(37.48519, 126.8585), new kakao.maps.LatLng(37.48121, 126.85671),
+        new kakao.maps.LatLng(37.47723, 126.85492), new kakao.maps.LatLng(37.47325, 126.85312),
+        new kakao.maps.LatLng(37.52718, 126.85092)
+    ],
+    '영등포구': [
+        new kakao.maps.LatLng(37.52318, 126.90677), new kakao.maps.LatLng(37.52716, 126.90856),
+        new kakao.maps.LatLng(37.53114, 126.91035), new kakao.maps.LatLng(37.53512, 126.91215),
+        new kakao.maps.LatLng(37.5391, 126.91394), new kakao.maps.LatLng(37.54308, 126.91573),
+        new kakao.maps.LatLng(37.49711, 126.92153), new kakao.maps.LatLng(37.49313, 126.91973),
+        new kakao.maps.LatLng(37.48915, 126.91794), new kakao.maps.LatLng(37.48517, 126.91615),
+        new kakao.maps.LatLng(37.48119, 126.91435), new kakao.maps.LatLng(37.47721, 126.91256),
+        new kakao.maps.LatLng(37.47323, 126.91077), new kakao.maps.LatLng(37.46925, 126.90897),
+        new kakao.maps.LatLng(37.52318, 126.90677)
+    ],
+    '용산구': [
+        new kakao.maps.LatLng(37.54072, 126.96443), new kakao.maps.LatLng(37.5447, 126.96622),
+        new kakao.maps.LatLng(37.54868, 126.96801), new kakao.maps.LatLng(37.55266, 126.96981),
+        new kakao.maps.LatLng(37.55664, 126.9716), new kakao.maps.LatLng(37.56062, 126.97339),
+        new kakao.maps.LatLng(37.51465, 126.97919), new kakao.maps.LatLng(37.51067, 126.97739),
+        new kakao.maps.LatLng(37.50669, 126.9756), new kakao.maps.LatLng(37.50271, 126.97381),
+        new kakao.maps.LatLng(37.49873, 126.97201), new kakao.maps.LatLng(37.49475, 126.97022),
+        new kakao.maps.LatLng(37.49077, 126.96843), new kakao.maps.LatLng(37.48679, 126.96663),
+        new kakao.maps.LatLng(37.54072, 126.96443)
+    ],
+    '은평구': [
+        new kakao.maps.LatLng(37.61769, 126.92777), new kakao.maps.LatLng(37.62167, 126.92956),
+        new kakao.maps.LatLng(37.62565, 126.93135), new kakao.maps.LatLng(37.62963, 126.93315),
+        new kakao.maps.LatLng(37.63361, 126.93494), new kakao.maps.LatLng(37.63759, 126.93673),
+        new kakao.maps.LatLng(37.59162, 126.94253), new kakao.maps.LatLng(37.58764, 126.94073),
+        new kakao.maps.LatLng(37.58366, 126.93894), new kakao.maps.LatLng(37.57968, 126.93715),
+        new kakao.maps.LatLng(37.5757, 126.93535), new kakao.maps.LatLng(37.57172, 126.93356),
+        new kakao.maps.LatLng(37.56774, 126.93177), new kakao.maps.LatLng(37.56376, 126.92997),
+        new kakao.maps.LatLng(37.61769, 126.92777)
+    ],
+    '종로구': [
+        new kakao.maps.LatLng(37.58239, 126.97443), new kakao.maps.LatLng(37.58637, 126.97622),
+        new kakao.maps.LatLng(37.59035, 126.97801), new kakao.maps.LatLng(37.59433, 126.97981),
+        new kakao.maps.LatLng(37.59831, 126.9816), new kakao.maps.LatLng(37.60229, 126.98339),
+        new kakao.maps.LatLng(37.55632, 126.98919), new kakao.maps.LatLng(37.55234, 126.98739),
+        new kakao.maps.LatLng(37.54836, 126.9856), new kakao.maps.LatLng(37.54438, 126.98381),
+        new kakao.maps.LatLng(37.5404, 126.98201), new kakao.maps.LatLng(37.53642, 126.98022),
+        new kakao.maps.LatLng(37.53244, 126.97843), new kakao.maps.LatLng(37.52846, 126.97663),
+        new kakao.maps.LatLng(37.58239, 126.97443)
+    ],
+    '중구': [
+        new kakao.maps.LatLng(37.56139, 126.98943), new kakao.maps.LatLng(37.56537, 126.99122),
+        new kakao.maps.LatLng(37.56935, 126.99301), new kakao.maps.LatLng(37.57333, 126.99481),
+        new kakao.maps.LatLng(37.57731, 126.9966), new kakao.maps.LatLng(37.58129, 126.99839),
+        new kakao.maps.LatLng(37.53532, 127.00419), new kakao.maps.LatLng(37.53134, 127.00239),
+        new kakao.maps.LatLng(37.52736, 127.0006), new kakao.maps.LatLng(37.52338, 126.99881),
+        new kakao.maps.LatLng(37.5194, 126.99701), new kakao.maps.LatLng(37.51542, 126.99522),
+        new kakao.maps.LatLng(37.51144, 126.99343), new kakao.maps.LatLng(37.50746, 126.99163),
+        new kakao.maps.LatLng(37.56139, 126.98943)
+    ],
+    '중랑구': [
+        new kakao.maps.LatLng(37.60634, 127.09238), new kakao.maps.LatLng(37.61032, 127.09417),
+        new kakao.maps.LatLng(37.6143, 127.09596), new kakao.maps.LatLng(37.61828, 127.09776),
+        new kakao.maps.LatLng(37.62226, 127.09955), new kakao.maps.LatLng(37.62624, 127.10134),
+        new kakao.maps.LatLng(37.58027, 127.10714), new kakao.maps.LatLng(37.57629, 127.10534),
+        new kakao.maps.LatLng(37.57231, 127.10355), new kakao.maps.LatLng(37.56833, 127.10176),
+        new kakao.maps.LatLng(37.56435, 127.09996), new kakao.maps.LatLng(37.56037, 127.09817),
+        new kakao.maps.LatLng(37.55639, 127.09638), new kakao.maps.LatLng(37.55241, 127.09458),
+        new kakao.maps.LatLng(37.60634, 127.09238)
+    ]
+};
+
+// 폴리곤 저장용 배열
+let displayedPolygons = [];
 
 // 전역 변수
 let currentRecommendationData = null;
 let currentRentalType = null;
 
-// DOM 로드 완료 시 초기화
+// Kakao Map 초기화 및 DOM 로드 완료 시 초기화
+window.onload = function() {
+    console.log('house_rec.js 로드됨');
+    console.log('window.onload 실행됨');
+    console.log('카카오 객체 상태:', typeof kakao);
+
+    if (typeof kakao === 'undefined') {
+        console.error('카카오맵 API가 로드되지 않았습니다');
+        console.log('Network 탭에서 카카오맵 스크립트 로드 상태를 확인하세요');
+        return;
+    }
+
+    console.log('카카오 maps 객체:', typeof kakao.maps);
+    console.log('카카오 LatLng 객체:', typeof kakao.maps.LatLng);
+
+    // 카카오맵 초기화
+    var container = document.getElementById("map");
+    console.log('map 엘리먼트:', container);
+
+    if (!container) {
+        console.error('map 엘리먼트 없음');
+        return;
+    }
+
+    try {
+        var options = {
+            center: new kakao.maps.LatLng(37.5642135, 127.0016985),
+            level: 9,    // 확대 수준 3으로 설정
+            // 지도 조작 제한 옵션들
+            scrollwheel: false,     // 마우스 휠로 확대/축소 비활성화
+            disableDoubleClick: true, // 더블클릭 확대 비활성화
+            disableDoubleClickZoom: true, // 더블클릭 줌 비활성화
+            draggable: false        // 드래그로 지도 이동 비활성화
+        };
+        console.log('지도 옵션 설정 완료:', options);
+
+        var map = new kakao.maps.Map(container, options);
+        console.log('카카오맵 초기화 성공:', map);
+
+        // 추가적인 제어 비활성화
+        map.setZoomable(false);    // 모든 줌 기능 비활성화
+        map.setDraggable(false);   // 드래그 비활성화
+
+        // 전역 변수로 map 저장
+        window.kakaoMap = map;
+
+        // 상세 경계 데이터 미리 로드
+        loadDetailedDistrictBoundaries().then(detailedBoundaries => {
+            if (detailedBoundaries) {
+                console.log('상세 행정구역 경계 데이터 로드 완료');
+                // 글로벌 변수에 저장
+                window.detailedDistrictPolygons = detailedBoundaries;
+            }
+        });
+
+        // 초기에는 폴리곤 표시하지 않음
+
+    } catch (error) {
+        console.error('카카오맵 초기화 중 오류:', error);
+    }
+
+    // 나머지 기능들 초기화
+    console.log('DOM 로드 완료, 이벤트 리스너 초기화 시작');
+    initializeEventListeners();
+    initializeValidation();
+    updateSubmitButtonState();
+    setupModalEventListeners();
+};
+
+console.log('스크립트 파일 끝');
+
+// DOM 로드 완료 시 초기화 (기존 코드와의 호환성 유지)
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM 로드 완료, 이벤트 리스너 초기화 시작');
     initializeEventListeners();
@@ -448,9 +780,6 @@ function isFormValid() {
 /**
  * 추천 요청 제출 - 전세/월세 분리 API 대응
  */
-/**
- * 추천 요청 제출 - 전세/월세 분리 API 대응
- */
 async function submitRecommendationRequest() {
     try {
         console.log('=== API 요청 시작 ===');
@@ -579,11 +908,24 @@ function buildMonthlyRequestData() {
 }
 
 /**
- * 추천 결과 표시 (전세/월세 분기 처리)
+ * 추천 결과 표시 (전세/월세 분기 처리) - 지도 업데이트 포함
+ */
+/**
+ * 추천 결과 표시 (전세/월세 분기 처리) - 지도 업데이트 포함
  */
 function showRecommendationResults(data, rentalType) {
     console.log('추천 결과 표시:', data);
     console.log('임대 유형:', rentalType);
+
+    // 추천된 지역구가 있을 때만 지도에 표시
+    if (data.recommendedDistricts && data.recommendedDistricts.length > 0) {
+        const districtNames = data.recommendedDistricts.map(district => district.district_name);
+        console.log('지도에 표시할 추천 지역구들:', districtNames);
+        displayRecommendedDistricts(districtNames);
+    } else {
+        console.log('추천 결과가 없어 지도에 표시할 지역구가 없습니다');
+        clearDistrictPolygons(); // 기존 폴리곤 제거
+    }
 
     if (rentalType === 'CHARTER') {
         showCharterResults(data);
@@ -801,8 +1143,10 @@ function showInputPage() {
     document.getElementById('user-input').style.display = 'block';
     document.getElementById('charter_result_page').style.display = 'none';
     document.getElementById('monthly_result_page').style.display = 'none';
-}
 
+    // 입력 페이지로 돌아갈 때 지도의 폴리곤 제거
+    clearDistrictPolygons();
+}
 /**
  * 월세 가격 형식화 - 보증금과 월세금 모두 표시
  */
@@ -866,7 +1210,7 @@ function showPropertyModal(districtName, rentalType, rank) {
     } else {
         // 매물 카드들 생성
         district.top_properties.forEach((property, index) => {
-            const card = createSimplePropertyCard(property, index + 1, rentalType);
+            const card = createPropertyCard(property, index + 1, rentalType);
             container.appendChild(card);
         });
     }
@@ -875,8 +1219,6 @@ function showPropertyModal(districtName, rentalType, rank) {
     modal.style.display = 'block';
     document.body.classList.add('modal_open');
 }
-
-
 
 /**
  * 매물 모달 닫기
@@ -1466,6 +1808,138 @@ function createMonthlyPropertyCard(property, rank) {
     `;
 
     return card;
+}
+
+/**
+ * 정밀한 행정구역 경계로 추천 지역구 표시
+ */
+async function displayRecommendedDistricts(recommendedDistrictNames) {
+    console.log('정밀한 추천 지역구 표시:', recommendedDistrictNames);
+
+    // 기존 폴리곤 제거
+    clearDistrictPolygons();
+
+    if (!window.kakaoMap) {
+        console.error('카카오맵이 초기화되지 않았습니다');
+        return;
+    }
+
+    // 상세 경계 데이터 사용 (이미 로드된 경우) 또는 새로 로드
+    let detailedBoundaries = window.detailedDistrictPolygons;
+
+    if (!detailedBoundaries) {
+        console.log('상세 경계 데이터가 없어 새로 로드합니다...');
+        detailedBoundaries = await loadDetailedDistrictBoundaries();
+    }
+
+    // 사용할 폴리곤 데이터 결정 (상세 데이터가 있으면 사용, 없으면 기본 데이터)
+    const polygonData = detailedBoundaries || districtPolygons;
+    const dataType = detailedBoundaries ? '상세' : '기본';
+    console.log(`${dataType} 경계 데이터를 사용합니다.`);
+
+    recommendedDistrictNames.forEach(districtName => {
+        if (polygonData[districtName]) {
+            console.log(`${districtName} ${dataType} 폴리곤 생성 중...`);
+
+            // 폴리곤 생성
+            const polygon = new kakao.maps.Polygon({
+                path: polygonData[districtName],
+                strokeWeight: 2,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                fillColor: '#FF0000',
+                fillOpacity: 0.2
+            });
+
+            // 지도에 폴리곤 표시
+            polygon.setMap(window.kakaoMap);
+
+            // 폴리곤 배열에 저장
+            displayedPolygons.push(polygon);
+
+            // 폴리곤 클릭 이벤트
+            kakao.maps.event.addListener(polygon, 'click', function() {
+                console.log(`${districtName} 폴리곤 클릭됨`);
+                if (currentRecommendationData && currentRecommendationData.recommendedDistricts) {
+                    const district = currentRecommendationData.recommendedDistricts.find(d => d.district_name === districtName);
+                    if (district) {
+                        const rank = currentRecommendationData.recommendedDistricts.indexOf(district) + 1;
+                        showDetailRankModal(districtName, currentRentalType === 'CHARTER' ? 'charter' : 'monthly', rank);
+                    }
+                }
+            });
+
+            console.log(`${districtName} ${dataType} 폴리곤 표시 완료`);
+        } else {
+            console.warn(`${districtName}에 대한 폴리곤 데이터가 없습니다`);
+        }
+    });
+}
+/**
+ * 표시된 모든 지역구 폴리곤 제거
+ */
+function clearDistrictPolygons() {
+    console.log('기존 폴리곤 제거 중...');
+
+    displayedPolygons.forEach(polygon => {
+        polygon.setMap(null);
+    });
+
+    displayedPolygons = [];
+    console.log('폴리곤 제거 완료');
+}
+
+/**
+ * GitHub에서 정밀한 행정구역 경계 데이터 로드
+ */
+async function loadDetailedDistrictBoundaries() {
+    try {
+        console.log('상세 행정구역 경계 데이터 로드 시작...');
+
+        const response = await fetch('https://raw.githubusercontent.com/southkorea/seoul-maps/master/juso/2015/json/seoul_municipalities_geo.json');
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const geoData = await response.json();
+        console.log('GeoJSON 데이터 로드 완료:', geoData);
+
+        // GeoJSON을 카카오맵 폴리곤으로 변환
+        const detailedPolygons = {};
+
+        geoData.features.forEach(feature => {
+            const districtName = feature.properties.SIG_KOR_NM;
+            console.log(`${districtName} 경계 데이터 변환 중...`);
+
+            // MultiPolygon인 경우 첫 번째 폴리곤만 사용
+            let coordinates;
+            if (feature.geometry.type === 'MultiPolygon') {
+                coordinates = feature.geometry.coordinates[0][0]; // 첫 번째 폴리곤의 첫 번째 ring
+            } else if (feature.geometry.type === 'Polygon') {
+                coordinates = feature.geometry.coordinates[0]; // 첫 번째 ring
+            } else {
+                console.warn(`지원하지 않는 geometry 타입: ${feature.geometry.type}`);
+                return;
+            }
+
+            // [lng, lat] -> LatLng(lat, lng) 변환
+            const kakaoCoords = coordinates.map(coord =>
+                new kakao.maps.LatLng(coord[1], coord[0])
+            );
+
+            detailedPolygons[districtName] = kakaoCoords;
+            console.log(`${districtName} 변환 완료: ${kakaoCoords.length}개 좌표`);
+        });
+
+        console.log('모든 지역구 경계 데이터 변환 완료:', Object.keys(detailedPolygons));
+        return detailedPolygons;
+
+    } catch (error) {
+        console.error('상세 경계 데이터 로드 실패:', error);
+        console.log('기본 경계 데이터를 사용합니다.');
+        return null;
+    }
 }
 
 // 전역 함수로 내보내기

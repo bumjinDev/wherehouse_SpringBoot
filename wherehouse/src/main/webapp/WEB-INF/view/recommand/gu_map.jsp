@@ -161,7 +161,7 @@
             <div id="population-shame-graph-7"></div>
         </div>
     </div>
-    
+
     <script src="./js/gu_map.js"></script>
 </body>
 </html>
