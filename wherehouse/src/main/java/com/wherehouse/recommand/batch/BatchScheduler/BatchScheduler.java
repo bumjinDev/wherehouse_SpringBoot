@@ -82,7 +82,7 @@ public class BatchScheduler {
     }
 // 테스트용: 한번만 실행 (fixedDelay 사용)
 
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     @Scheduled(cron = "10 0 4 1 * *")
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 ===");

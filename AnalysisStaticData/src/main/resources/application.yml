@@ -4,25 +4,25 @@ server:
 # 국토부 API 설정
 molit:
   rent-api:
-    service-key: ${MOLIT_RENT_SERVICE_KEY:fcBMvnY9N4qmZ7KLrha0MT/hyJ5AwhwodoJbM8XUWJQgj6kpsQ1mrEPbyoan8bTIyK7x0ontbGJNQ7GWmSKNjg==}
+    service-key:
     base-url: https://apis.data.go.kr/1613000/RTMSDataSvcAptRent
     timeout: 30000
 
   # 매매 API 설정
   trade-api:
-    service-key: ${MOLIT_TRADE_SERVICE_KEY:your-service-key-here}
+    service-key:
     base-url: http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc
     timeout: 30000
 
   api:
     hospital:
-      service-key: ${HOSPITAL_API_SERVICE_KEY:fcBMvnY9N4qmZ7KLrha0MT/hyJ5AwhwodoJbM8XUWJQgj6kpsQ1mrEPbyoan8bTIyK7x0ontbGJNQ7GWmSKNjg==}
+      service-key:
 
 # 생활안전지도 API 설정(편의시설)
 apps:
   trade-api:
-    api-key: DE8OVA9S-DE8O-DE8O-DE8O-DE8OVA9S1C
-    base-url: https://safemap.go.kr/openApiService/data/getConvenienceStoreData.do
+    api-key:
+    base-url:
     facility-code: 509010
 
   analysis:
@@ -43,7 +43,7 @@ apps:
 
 # 카카오 API 설정
 kakao:
-  rest-api-key: 7fe07a684774ccd5fc8d9780ea9d750a
+  rest-api-key: 
   local-api:
     base-url: https://dapi.kakao.com/v2/local
     geocoding:
