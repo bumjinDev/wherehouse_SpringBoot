@@ -44,7 +44,7 @@ public class CharterRecommendationService {
             // S-01: 전 지역구 1차 검색 (전세 전용 인덱스 사용)
             Map<String, List<String>> districtProperties = performCharterStrictSearch(request, SEOUL_DISTRICTS);
 
-            // S-02 / S-03 : 폴백 조건 판단 및 확장 검색
+            // S-02: 폴백 조건 판단 및 확장 검색
             SearchResult searchResult = checkAndPerformCharterFallback(districtProperties, request);
 
             // S-04: 매물 단위 점수 계산 (전세 매물 대상)
@@ -256,6 +256,7 @@ public class CharterRecommendationService {
             Set<String> areaValidIds = areaValidObjects.stream()
                     .map(Object::toString)
                     .collect(Collectors.toSet());
+
             // 3. 교집합 연산
             priceValidIds.retainAll(areaValidIds);
             return new ArrayList<>(priceValidIds);
