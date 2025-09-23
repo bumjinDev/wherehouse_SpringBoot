@@ -116,18 +116,14 @@ public class MonthlyRecommendationService {
         return result;
     }
 
-    /**
-     * S-02: 월세 매물 폴백 조건 판단 및 확장 검색 수행
-     */
+    /** S-02: 월세 매물 폴백 조건 판단 및 확장 검색 수행 */
     private SearchResult checkAndPerformMonthlyFallback(Map<String, List<String>> districtProperties,
                                                         MonthlyRecommendationRequestDto request) {
 
         boolean hasInsufficientDistricts = districtProperties.values().stream()
                 .anyMatch(propertyList -> propertyList.size() < MIN_PROPERTIES_THRESHOLD);
-
         int totalPropertiesFound = districtProperties.values().stream()
                 .mapToInt(List::size).sum();
-
         int districtsWithProperties = districtProperties.size();
 
         log.info("S-02: 폴백 조건 판단 - 전체 매물: {}개, 매물 보유 지역구: {}개",
@@ -140,7 +136,6 @@ public class MonthlyRecommendationService {
                     .districtProperties(districtProperties)
                     .build();
         }
-
         log.info("일부 월세 지역구의 매물 부족 - S-03 확장 검색 수행");
         SearchResult expandedResult = performMonthlyExpandedSearch(request, districtProperties);
 
@@ -228,9 +223,7 @@ public class MonthlyRecommendationService {
                 .build();
     }
 
-    /**
-     * 월세 매물 검색 - 3개 인덱스 교집합
-     */
+    /** 월세 매물 검색 - 3개 인덱스 교집합  */
     private List<String> findValidMonthlyPropertiesInDistrict(String district, MonthlyRecommendationRequestDto request) {
         try {
             // 1. 보증금 조건 매물 ID 조회
@@ -238,9 +231,7 @@ public class MonthlyRecommendationService {
             Set<Object> depositValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(depositIndexKey, request.getBudgetMin(), request.getBudgetMax());
 
-            if (depositValidObjects == null || depositValidObjects.isEmpty()) {
-                return Collections.emptyList();
-            }
+            if (depositValidObjects == null || depositValidObjects.isEmpty()) { return Collections.emptyList(); }
 
             Set<String> depositValidIds = depositValidObjects.stream()
                     .map(Object::toString)
@@ -251,9 +242,7 @@ public class MonthlyRecommendationService {
             Set<Object> monthlyRentValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(monthlyRentIndexKey, request.getMonthlyRentMin(), request.getMonthlyRentMax());
 
-            if (monthlyRentValidObjects == null || monthlyRentValidObjects.isEmpty()) {
-                return Collections.emptyList();
-            }
+            if (monthlyRentValidObjects == null || monthlyRentValidObjects.isEmpty()) { return Collections.emptyList(); }
 
             Set<String> monthlyRentValidIds = monthlyRentValidObjects.stream()
                     .map(Object::toString)
@@ -264,14 +253,11 @@ public class MonthlyRecommendationService {
             Set<Object> areaValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(areaIndexKey, request.getAreaMin(), request.getAreaMax());
 
-            if (areaValidObjects == null || areaValidObjects.isEmpty()) {
-                return Collections.emptyList();
-            }
+            if (areaValidObjects == null || areaValidObjects.isEmpty()) { return Collections.emptyList(); }
 
             Set<String> areaValidIds = areaValidObjects.stream()
                     .map(Object::toString)
                     .collect(Collectors.toSet());
-
             // 4. 3개 조건 교집합 연산
             depositValidIds.retainAll(monthlyRentValidIds);
             depositValidIds.retainAll(areaValidIds);
@@ -356,9 +342,7 @@ public class MonthlyRecommendationService {
         return result;
     }
 
-    /**
-     * S-05: 지역구 단위 점수 계산 및 정렬
-     */
+    /** * S-05: 지역구 단위 점수 계산 및 정렬 */
     private List<DistrictWithScore> calculateDistrictScoresAndSort(
             Map<String, List<PropertyWithScore>> districtPropertiesWithScores) {
 
@@ -381,7 +365,6 @@ public class MonthlyRecommendationService {
                 districtScores.add(districtWithScore);
                 continue;
             }
-
             double totalFinalScore = propertiesWithScores.stream()
                     .mapToDouble(PropertyWithScore::getFinalScore)
                     .sum();
@@ -410,7 +393,6 @@ public class MonthlyRecommendationService {
 
             return d1.getDistrictName().compareTo(d2.getDistrictName());
         });
-
         log.info("S-05: 지역구 점수 계산 및 정렬 완료 - {}개 지역구", districtScores.size());
         return districtScores;
     }

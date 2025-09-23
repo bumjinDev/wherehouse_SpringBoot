@@ -14,47 +14,37 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 유흥주점 데이터 분석용 테이블 생성 처리 컴포넌트 (서울 지역 필터링)
+ * 유흥주점 데이터 분석용 테이블 생성 처리 컴포넌트 (서울 지역 필터링, 파싱 로직 보강)
  *
  * 기존 ENTERTAINMENT_BARS 테이블에서 서울 지역 데이터만 조회하여
  * 분석 전용 ANALYSIS_ENTERTAINMENT_STATISTICS 테이블로 복사하는 작업을 수행한다.
+ * 숙박업 문서의 강화된 파싱 로직을 적용하여 좌표 계산 성공률 향상
  *
  * 주요 기능:
  * - 원본 유흥주점 통계 데이터 중 서울 지역만 조회 및 검증
  * - 지정된 7개 필드만 복사
- * - Kakao Local API를 통한 위도, 경도 좌표 계산 및 추가
+ * - 강화된 주소 전처리를 통한 Kakao Local API 위도, 경도 좌표 계산 및 추가
  * - 분석용 테이블 데이터 품질 검증
  * - 영업상태별 및 업종별 분포 로깅
  *
  * @author Safety Analysis System
- * @since 1.1
+ * @since 1.2 (파싱 로직 보강)
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class EntertainmentDataProcessor {
 
-    // 원본 유흥주점 통계 테이블 접근을 위한 Repository
     private final EntertainmentBarsRepository originalEntertainmentRepository;
-
-    // 분석용 유흥주점 통계 테이블 접근을 위한 Repository
     private final AnalysisEntertainmentRepository analysisEntertainmentRepository;
-
-    // Kakao API 좌표 계산을 위한 서비스
     private final EntertainmentCoordinateService coordinateService;
 
     /**
-     * 유흥주점 데이터 분석용 테이블 생성 메인 프로세스 (서울 지역 한정)
-     *
-     * 작업 순서:
-     * 1. 기존 분석용 데이터 존재 여부 확인
-     * 2. 원본 유흥주점 데이터 중 서울 지역만 조회 및 검증
-     * 3. 데이터 변환 및 Kakao API 좌표 계산 후 분석용 테이블 저장
-     * 4. 데이터 품질 검증 및 결과 로깅
+     * 유흥주점 데이터 분석용 테이블 생성 메인 프로세스 (서울 지역 한정, 파싱 로직 보강)
      */
     @Transactional
     public void processAnalysisEntertainmentData() {
-        log.info("=== 유흥주점 데이터 분석용 테이블 생성 작업 시작 (서울 지역 한정) ===");
+        log.info("=== 유흥주점 데이터 분석용 테이블 생성 작업 시작 (서울 지역 한정, 파싱 로직 보강) ===");
 
         // Step 1: 기존 분석용 데이터 중복 처리 방지를 위한 존재 여부 확인
         long existingAnalysisDataCount = analysisEntertainmentRepository.count();
@@ -72,16 +62,16 @@ public class EntertainmentDataProcessor {
 
         log.info("서울 지역 유흥주점 통계 데이터 {} 개 발견", originalEntertainmentDataList.size());
 
-        // Step 3: 데이터 변환 및 저장 작업 수행
-        int successfulConversionCount = 0;      // 성공적으로 변환된 데이터 개수
-        int failedConversionCount = 0;          // 변환 실패한 데이터 개수
-        int coordinateCalculationSuccessCount = 0; // 좌표 계산 성공 개수
-        int coordinateCalculationFailedCount = 0;  // 좌표 계산 실패 개수
+        // Step 3: 데이터 변환 및 저장 작업 수행 (강화된 파싱 로직 적용)
+        int successfulConversionCount = 0;
+        int failedConversionCount = 0;
+        int coordinateCalculationSuccessCount = 0;
+        int coordinateCalculationFailedCount = 0;
 
         // 처리 진행률 추적
         int processedCount = 0;
         int totalCount = originalEntertainmentDataList.size();
-        int logInterval = Math.max(1, totalCount / 10); // 10% 간격으로 로그 출력
+        int logInterval = Math.max(1, totalCount / 10);
 
         for (EntertainmentBars originalEntertainmentData : originalEntertainmentDataList) {
             processedCount++;
@@ -90,7 +80,7 @@ public class EntertainmentDataProcessor {
                 // 원본 데이터를 분석용 엔티티로 변환 (지정된 7개 필드만)
                 AnalysisEntertainmentStatistics analysisTargetEntertainmentData = convertToAnalysisEntity(originalEntertainmentData);
 
-                // Kakao API를 통한 좌표 계산 및 설정
+                // 강화된 파싱 로직을 통한 Kakao API 좌표 계산 및 설정
                 Double[] coordinates = calculateCoordinatesForEntertainment(originalEntertainmentData);
                 if (coordinates != null) {
                     analysisTargetEntertainmentData.setLatitude(coordinates[0]);
@@ -125,31 +115,25 @@ public class EntertainmentDataProcessor {
         }
 
         // Step 4: 변환 작업 결과 로깅
-        log.info("유흥주점 데이터 분석용 테이블 생성 작업 완료 (서울 지역 한정)");
+        log.info("유흥주점 데이터 분석용 테이블 생성 작업 완료 (서울 지역 한정, 파싱 로직 보강)");
         log.info("- 데이터 변환: 성공 {} 개, 실패 {} 개", successfulConversionCount, failedConversionCount);
         log.info("- 좌표 계산: 성공 {} 개, 실패 {} 개", coordinateCalculationSuccessCount, coordinateCalculationFailedCount);
 
         // Step 5: 최종 데이터 검증 및 품질 확인
         performFinalDataValidation();
 
-        log.info("=== 유흥주점 데이터 분석용 테이블 생성 작업 종료 (서울 지역 한정) ===");
+        log.info("=== 유흥주점 데이터 분석용 테이블 생성 작업 종료 (서울 지역 한정, 파싱 로직 보강) ===");
     }
 
     /**
      * 서울 지역 유흥주점 데이터만 필터링하여 조회
-     *
-     * jibunAddress 또는 roadAddress에 "서울"이 포함된 데이터만 반환한다.
-     *
-     * @return 서울 지역 유흥주점 데이터 리스트
      */
     private List<EntertainmentBars> getSeoulEntertainmentData() {
         log.info("서울 지역 유흥주점 데이터 필터링 시작...");
 
-        // 전체 데이터 조회
         List<EntertainmentBars> allEntertainmentData = originalEntertainmentRepository.findAll();
         log.info("전체 유흥주점 데이터 {} 개 중 서울 지역 데이터 필터링 중...", allEntertainmentData.size());
 
-        // 서울 지역 데이터만 필터링
         List<EntertainmentBars> seoulEntertainmentData = allEntertainmentData.stream()
                 .filter(this::isSeoulAddress)
                 .toList();
@@ -164,9 +148,6 @@ public class EntertainmentDataProcessor {
 
     /**
      * 주소가 서울 지역인지 확인
-     *
-     * @param entertainmentBars 유흥주점 데이터
-     * @return 서울 지역 여부
      */
     private boolean isSeoulAddress(EntertainmentBars entertainmentBars) {
         // 도로명주소 우선 확인
@@ -194,41 +175,27 @@ public class EntertainmentDataProcessor {
 
     /**
      * 원본 유흥주점 엔티티를 분석용 엔티티로 변환
-     *
-     * 지정된 7개 필드만 복사한다.
-     * 좌표 정보는 별도 메서드에서 계산하여 설정한다.
-     *
-     * @param originalEntertainmentData 원본 유흥주점 엔티티
-     * @return 분석용 유흥주점 통계 엔티티
      */
     private AnalysisEntertainmentStatistics convertToAnalysisEntity(EntertainmentBars originalEntertainmentData) {
         return AnalysisEntertainmentStatistics.builder()
-                // 지정된 7개 필드만 복사
-                .businessStatusName(originalEntertainmentData.getBusinessStatusName())     // 영업상태명
-                .phoneNumber(originalEntertainmentData.getPhoneNumber())                   // 전화번호
-                .jibunAddress(originalEntertainmentData.getJibunAddress())                 // 지번주소
-                .roadAddress(originalEntertainmentData.getRoadAddress())                   // 도로명주소
-                .businessName(originalEntertainmentData.getBusinessName())                 // 사업장명
-                .businessCategory(originalEntertainmentData.getBusinessCategory())         // 업종구분
-                .hygieneBusinessType(originalEntertainmentData.getHygieneBusinessType())   // 위생업종
-
-                // 좌표 정보는 별도 설정 (초기값 null)
+                .businessStatusName(originalEntertainmentData.getBusinessStatusName())
+                .phoneNumber(originalEntertainmentData.getPhoneNumber())
+                .jibunAddress(originalEntertainmentData.getJibunAddress())
+                .roadAddress(originalEntertainmentData.getRoadAddress())
+                .businessName(originalEntertainmentData.getBusinessName())
+                .businessCategory(originalEntertainmentData.getBusinessCategory())
+                .hygieneBusinessType(originalEntertainmentData.getHygieneBusinessType())
                 .latitude(null)
                 .longitude(null)
                 .build();
     }
 
     /**
-     * 유흥주점 주소 정보 기반 Kakao API 좌표 계산
-     *
-     * 도로명주소를 우선으로 하고, 없는 경우 지번주소를 활용하여 좌표를 계산한다.
-     *
-     * @param entertainmentData 원본 유흥주점 데이터
-     * @return 위도, 경도 배열 [latitude, longitude] 또는 null
+     * 유흥주점 주소 정보 기반 강화된 파싱 로직 적용 Kakao API 좌표 계산
      */
     private Double[] calculateCoordinatesForEntertainment(EntertainmentBars entertainmentData) {
         try {
-            // 1순위: 도로명주소 기반 좌표 계산
+            // 1순위: 도로명주소 기반 좌표 계산 (강화된 파싱 로직 적용)
             if (entertainmentData.getRoadAddress() != null && !entertainmentData.getRoadAddress().trim().isEmpty()) {
                 Double[] coordinates = coordinateService.calculateCoordinatesFromRoadAddress(entertainmentData.getRoadAddress());
                 if (coordinates != null) {
@@ -236,7 +203,7 @@ public class EntertainmentDataProcessor {
                 }
             }
 
-            // 2순위: 지번주소 기반 좌표 계산
+            // 2순위: 지번주소 기반 좌표 계산 (강화된 파싱 로직 적용)
             if (entertainmentData.getJibunAddress() != null && !entertainmentData.getJibunAddress().trim().isEmpty()) {
                 Double[] coordinates = coordinateService.calculateCoordinatesFromAddress(entertainmentData.getJibunAddress());
                 if (coordinates != null) {
@@ -255,30 +222,22 @@ public class EntertainmentDataProcessor {
     }
 
     /**
-     * 분석용 데이터의 최종 검증 및 품질 확인
-     *
-     * 작업 내용:
-     * - 전체 데이터 개수 확인
-     * - 영업상태별 분포 상위 5개 로깅
-     * - 업종별 분포 로깅
-     * - 좌표 정보 완성도 확인
-     * - 데이터 검증 과정에서 발생하는 오류 처리
+     * 분석용 데이터의 최종 검증 및 품질 확인 (파싱 로직 보강 효과 검증 포함)
      */
     private void performFinalDataValidation() {
         try {
-            // 최종 저장된 분석용 데이터 개수 확인
             long finalAnalysisDataCount = analysisEntertainmentRepository.count();
             log.info("최종 분석용 유흥주점 데이터 저장 완료 (서울 지역): {} 개", finalAnalysisDataCount);
 
-            // 영업상태별 분포 조회 및 로깅 (피어슨 상관분석 검증용)
+            // 영업상태별 분포 조회 및 로깅
             List<Object[]> entertainmentCountByStatusList = analysisEntertainmentRepository.findEntertainmentCountByBusinessStatus();
             log.info("영업상태별 분포 (상위 5개):");
 
             entertainmentCountByStatusList.stream()
                     .limit(5)
                     .forEach(statusRow -> {
-                        String businessStatus = (String) statusRow[0];       // 영업상태명
-                        Long statusCount = (Long) statusRow[1];              // 해당 상태 수
+                        String businessStatus = (String) statusRow[0];
+                        Long statusCount = (Long) statusRow[1];
                         log.info("  {} : {} 개", businessStatus, statusCount);
                     });
 
@@ -287,16 +246,16 @@ public class EntertainmentDataProcessor {
             log.info("업종별 분포:");
 
             entertainmentCountByCategoryList.forEach(categoryRow -> {
-                String businessCategory = (String) categoryRow[0];      // 업종명
-                Long categoryCount = (Long) categoryRow[1];             // 해당 업종 수
+                String businessCategory = (String) categoryRow[0];
+                Long categoryCount = (Long) categoryRow[1];
                 log.info("  {} : {} 개", businessCategory, categoryCount);
             });
 
-            // 좌표 정보 완성도 확인
+            // 좌표 정보 완성도 확인 (파싱 로직 보강 효과 측정)
             long coordinateCompleteCount = analysisEntertainmentRepository.findAllWithCoordinates().size();
             long coordinateMissingCount = analysisEntertainmentRepository.countMissingCoordinates();
 
-            log.info("좌표 정보 완성도:");
+            log.info("좌표 정보 완성도 (파싱 로직 보강 효과):");
             log.info("  좌표 보유: {} 개 ({:.1f}%)", coordinateCompleteCount,
                     (double) coordinateCompleteCount / finalAnalysisDataCount * 100);
             log.info("  좌표 누락: {} 개 ({:.1f}%)", coordinateMissingCount,

@@ -1,4 +1,4 @@
-package com.WhereHouse.AnalysisData.karaoke.component;
+package com.WhereHouse.AnalysisData.karaoke.processor;
 
 import com.WhereHouse.AnalysisData.karaoke.entity.AnalysisKaraokeRooms;
 import com.WhereHouse.AnalysisData.karaoke.repository.AnalysisKaraokeRepository;
@@ -32,10 +32,10 @@ public class KaraokeDataProcessor {
     private final AnalysisKaraokeRepository analysisKaraokeRepository;
     private final KaraokeGeocodingService karaokeGeocodingService;
 
-    @Value("${app.analysis.karaoke-rooms.batch-size}")
+    @Value("${apps.analysis.karaoke-rooms.batch-size}")
     private Integer batchSize;
 
-    @Value("${app.analysis.karaoke-rooms.geocoding-delay}")
+    @Value("${apps.analysis.karaoke-rooms.geocoding-delay}")
     private Integer geocodingDelay;
 
     private static final Pattern DISTRICT_PATTERN = Pattern.compile("서울특별시\\s+([가-힣]+구)");

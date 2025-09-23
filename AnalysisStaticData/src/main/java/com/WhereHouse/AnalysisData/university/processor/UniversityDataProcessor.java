@@ -22,12 +22,12 @@ import java.util.List;
  * 주요 기능:
  * - 원본 대학교 통계 데이터 조회 및 검증
  * - CREATED_AT 필드 제외한 모든 대학교 정보 필드 복사
- * - 주소 기반 위도, 경도 좌표 계산 및 추가
+ * - Kakao Local API를 통한 위도, 경도 좌표 계산 및 추가
  * - 분석용 테이블 데이터 품질 검증
  * - 시도별 대학교 수 및 대학 유형별 분포 로깅
  *
  * @author Safety Analysis System
- * @since 1.0
+ * @since 1.1
  */
 @Component
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class UniversityDataProcessor {
     // 분석용 대학교 통계 테이블 접근을 위한 Repository
     private final AnalysisUniversityRepository analysisUniversityRepository;
 
-    // 좌표 계산을 위한 서비스
+    // Kakao API 좌표 계산을 위한 서비스
     private final UniversityCoordinateService coordinateService;
 
     /**
@@ -49,7 +49,7 @@ public class UniversityDataProcessor {
      * 작업 순서:
      * 1. 기존 분석용 데이터 존재 여부 확인
      * 2. 원본 대학교 데이터 조회 및 검증
-     * 3. 데이터 변환 및 좌표 계산 후 분석용 테이블 저장
+     * 3. 데이터 변환 및 Kakao API 좌표 계산 후 분석용 테이블 저장
      * 4. 데이터 품질 검증 및 결과 로깅
      */
     @Transactional
@@ -78,12 +78,19 @@ public class UniversityDataProcessor {
         int coordinateCalculationSuccessCount = 0; // 좌표 계산 성공 개수
         int coordinateCalculationFailedCount = 0;  // 좌표 계산 실패 개수
 
+        // 처리 진행률 추적
+        int processedCount = 0;
+        int totalCount = originalUniversityDataList.size();
+        int logInterval = Math.max(1, totalCount / 10); // 10% 간격으로 로그 출력
+
         for (UniversityStatistics originalUniversityData : originalUniversityDataList) {
+            processedCount++;
+
             try {
                 // 원본 데이터를 분석용 엔티티로 변환 (CREATED_AT 필드 제외)
                 AnalysisUniversityStatistics analysisTargetUniversityData = convertToAnalysisEntity(originalUniversityData);
 
-                // 좌표 계산 및 설정
+                // Kakao API를 통한 좌표 계산 및 설정
                 Double[] coordinates = calculateCoordinatesForUniversity(originalUniversityData);
                 if (coordinates != null) {
                     analysisTargetUniversityData.setLatitude(coordinates[0]);
@@ -102,6 +109,12 @@ public class UniversityDataProcessor {
                         originalUniversityData.getUniversityType(),
                         coordinates != null ? coordinates[0] : "없음",
                         coordinates != null ? coordinates[1] : "없음");
+
+                // 진행률 로그 (10% 간격)
+                if (processedCount % logInterval == 0 || processedCount == totalCount) {
+                    double progressPercentage = (double) processedCount / totalCount * 100;
+                    log.info("진행률: {:.1f}% 완료 ({}/{})", progressPercentage, processedCount, totalCount);
+                }
 
             } catch (Exception dataConversionException) {
                 log.error("분석용 데이터 생성 실패 - 대학명: {}, 오류: {}",
@@ -146,9 +159,7 @@ public class UniversityDataProcessor {
 
                 // 주소 정보
                 .roadAddress(originalUniversityData.getRoadAddress())                         // 도로명주소
-                .locationAddress(originalUniversityData.getLocationAddress())                 // 지번주소
                 .roadPostalCode(originalUniversityData.getRoadPostalCode())                   // 도로명우편번호
-                .locationPostalCode(originalUniversityData.getLocationPostalCode())           // 지번우편번호
 
                 // 연락처 정보
                 .homepageUrl(originalUniversityData.getHomepageUrl())                         // 홈페이지주소
@@ -171,26 +182,18 @@ public class UniversityDataProcessor {
     }
 
     /**
-     * 대학교 주소 정보 기반 좌표 계산
+     * 대학교 주소 정보 기반 Kakao API 좌표 계산
      *
-     * 도로명주소를 우선으로 하고, 없는 경우 지번주소를 활용하여 좌표를 계산한다.
+     * 도로명주소를 활용하여 Kakao Local API로 좌표를 계산한다.
      *
      * @param universityData 원본 대학교 데이터
      * @return 위도, 경도 배열 [latitude, longitude] 또는 null
      */
     private Double[] calculateCoordinatesForUniversity(UniversityStatistics universityData) {
         try {
-            // 1순위: 도로명주소 기반 좌표 계산
+            // 도로명주소 기반 좌표 계산
             if (universityData.getRoadAddress() != null && !universityData.getRoadAddress().trim().isEmpty()) {
                 Double[] coordinates = coordinateService.calculateCoordinatesFromRoadAddress(universityData.getRoadAddress());
-                if (coordinates != null) {
-                    return coordinates;
-                }
-            }
-
-            // 2순위: 지번주소 기반 좌표 계산
-            if (universityData.getLocationAddress() != null && !universityData.getLocationAddress().trim().isEmpty()) {
-                Double[] coordinates = coordinateService.calculateCoordinatesFromLocationAddress(universityData.getLocationAddress());
                 if (coordinates != null) {
                     return coordinates;
                 }

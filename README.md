@@ -17,12 +17,46 @@
 서울 내 1인 가구의 주거지 선택 문제를 해결하기 위해, 사용자의 **예산과 안전/편의 선호도**를 기반으로 최적의 행정구를 추천하는 서비스입니다. Spring Boot 기반으로 **인증, 인가, 캐싱, CI/CD, 보안 정책, 추천 로직**을 포함한 전체 백엔드 시스템을 주도적으로 설계하고 구현했습니다.
 
 - **배포 URL**: [https://wherehouse.it.kr/wherehouse/](https://wherehouse.it.kr/wherehouse/)
+- **상세 문서**: [비즈니스 로직 명세서](./docs/specification.md) | [설계 근거 백서](./docs/design-rationale.md)
 
 ---
 
 ## 🧩 WhereHouse Architecture
 
 ![Architecture](https://github.com/user-attachments/assets/3f642b20-0713-453b-8be0-b3a10f56a950)
+
+### 추천 로직 데이터 흐름도
+
+```
+[사용자 요청 (Request)]
+       |
+       v
+[API Controller] → 전세/월세 분기
+       |
+       v
+[Recommendation Service (전세/월세)]
+       |
+       v
+[1. Strict Search (Redis ZSET 교집합)]
+       |
+       v
+[2. Fallback 조건 검사 (매물 수 < 3개?)] --(Yes)--> [3. Expanded Search (조건 완화 재검색)]
+       | (No)
+       v
+[4. 매물 상세 정보 조회 (Redis Hash)]
+       |
+       v
+[5. 매물별 점수 계산 (정규화 및 가중치 적용)]
+       |
+       v
+[6. 지역구별 점수 계산 (대표 점수 산출)]
+       |
+       v
+[7. Top 3 지역구 정렬]
+       |
+       v
+[API Controller] → 최종 응답 (Response)
+```
 
 ---
 
@@ -43,19 +77,243 @@
 - **정범진**: 상세지도 클릭 이벤트 기반 좌표 처리, CCTV 마커 표시 구현
 
 ### **2차 프로젝트: Servlet 기반 개발**
-- **한준원**: 주거지 추천 알고리즘 구현
+- **한준원**: 1차 주거지 추천 알고리즘 구현
 - **이재서**: 상세지도 서비스 Servlet 전환
 - **정범진**: 로그인/회원가입 및 게시판 기능 구현
 
 ### **3차 프로젝트: Spring Boot 전환 및 인프라 구성**
-- **정범진**: 전체 백엔드 구조(Spring Boot), 인증 시스템, 배포 자동화 담당
+- **정범진**: 전체 백엔드 구조(Spring Boot), 인증 시스템, 데이터 파이프라인 및 추천 알고리즘 설계/구현, 배포 자동화 담당
 - **이재서**: 상세지도 기능 Spring Boot 전환
 
 ---
 
 ## 💻 주요 기술 구현 내용
 
-### **1. JWT를 활용한 Stateless 인증 시스템**
+### **1. 배치 기반 데이터 파이프라인 및 Redis 인덱싱 시스템**
+
+> 실시간 추천 성능을 위해 국토교통부 API 데이터를 사전 처리하여 Redis에 최적화된 검색 인덱스 구조로 저장하는 자동화 파이프라인을 구축했습니다.
+
+#### **왜 이 구조를 선택했는가?**
+기존 시스템은 매 요청마다 DB에서 복잡한 Join 연산을 수행하여 응답 속도가 느렸습니다. 이를 해결하기 위해 "계산은 미리, 검색은 빠르게"라는 원칙으로 배치-캐시 분리 아키텍처를 설계했습니다.
+
+#### **1.1. 데이터 수집 및 정제**
+
+-   **스케줄링**: `@Scheduled` 어노테이션으로 **매월 1일 새벽 4시 10분**에 자동 실행
+-   **API 연동**: 
+    - 국토교통부 전월세 실거래가 API (`/getRTMSDataSvcAptRent`) 호출
+    - 서울시 25개 자치구 코드 매핑 (`SEOUL_DISTRICT_CODES`) 기반 순회
+    - 페이징 처리 (1000건/페이지)로 전체 데이터 수집
+    - Rate Limit 방지를 위한 200ms 호출 간격 설정
+-   **데이터 정제**:
+    - XML 응답 파싱 → `Property` DTO 변환
+    - 면적 단위 변환 (㎡ × 0.3025 → 평수)
+    - 월세금 유무 기반 임대유형 자동 판별 (전세/월세)
+    - 법정동명 + 지번 조합으로 전체 주소 생성
+
+#### **1.2. Redis 다중 인덱스 구조 설계**
+
+**핵심 설계 철학: Redis를 단순 캐시가 아닌 검색 엔진으로 활용**
+
+전통적인 RDBMS의 B-Tree 인덱스 대신, Redis Sorted Set의 O(log N) 범위 검색 특성을 활용하여 초고속 필터링 시스템을 구현했습니다.
+
+**전세 매물 저장 구조:**
+```
+[원본 데이터] property:charter:{UUID}
+  → Hash: {propertyId, aptNm, deposit, area, floor, buildYear, address...}
+
+[검색 인덱스 1] idx:charterPrice:{지역구명}
+  → Sorted Set: score=전세금, member=propertyId
+  
+[검색 인덱스 2] idx:area:{지역구명}:전세  
+  → Sorted Set: score=평수, member=propertyId
+```
+
+**월세 매물 저장 구조:**
+```
+[원본 데이터] property:monthly:{UUID}
+  → Hash: {propertyId, aptNm, deposit, monthlyRent, area...}
+
+[검색 인덱스 1] idx:deposit:{지역구명}
+  → Sorted Set: score=보증금, member=propertyId
+  
+[검색 인덱스 2] idx:monthlyRent:{지역구명}:월세
+  → Sorted Set: score=월세금, member=propertyId
+  
+[검색 인덱스 3] idx:area:{지역구명}:월세
+  → Sorted Set: score=평수, member=propertyId  
+```
+
+**핵심 장점:**
+- **빠른 범위 검색**: Redis Sorted Set의 `ZRANGEBYSCORE` 명령으로 가격/평수 범위 조건을 효율적으로 필터링
+- **교집합 연산 최적화**: 전세는 2개, 월세는 3개 인덱스의 교집합으로 모든 조건을 만족하는 매물 ID 즉시 추출
+- **Pipeline 배치 조회**: 필터링된 매물 ID 리스트를 `executePipelined`로 일괄 조회하여 네트워크 왕복 시간 최소화
+
+#### **1.3. 정규화 범위 사전 계산**
+
+**왜 정규화가 필요한가?**  
+강남구 전세 3억과 노원구 전세 1억을 단순 비교하면 불공정합니다. 각 지역구 내에서의 상대적 가성비를 평가하기 위해 지역구별 min/max 범위를 사전 계산하여 0~100점 척도로 정규화합니다.
+
+**전세 정규화 구조:**
+```
+bounds:{지역구명}:전세
+  → Hash: {minPrice, maxPrice, minArea, maxArea, propertyCount, lastUpdated}
+```
+
+**월세 정규화 구조 (보증금/월세금 분리):**
+```
+bounds:{지역구명}:월세  
+  → Hash: {minDeposit, maxDeposit, minMonthlyRent, maxMonthlyRent, minArea, maxArea...}
+```
+
+실시간 점수 계산 시 이 범위 값으로 0~100점 정규화하여 지역구 간 공정한 비교 가능
+
+#### **1.4. 안전성 점수 계산 및 저장**
+
+**객관적 지표 기반 안전성 점수화**
+
+단순 범죄 건수가 아닌, 인구 밀도와 유흥업소 밀집도를 고려한 회귀 분석 모델을 적용하여 과학적인 안전성 지표를 산출했습니다.
+
+**데이터 수집:**
+- `crimeRepository`: 지역구별 범죄 발생 건수
+- `populationRepository`: 지역구별 인구수  
+- `entertainmentRepository`: 영업 중인 유흥업소 수
+
+**계산 로직:**
+1. **범죄율 산출**: `(범죄 건수 / 인구수) × 100,000` (인구 10만명당)
+2. **독립변수 정규화**: 유흥업소 수와 인구수를 각각 0~1 구간으로 정규화
+3. **회귀 분석 기반 위험도 계산**: 
+   - 범죄위험도 = 정규화된_유흥업소밀도 × 1.0229 - 정규화된_인구밀도 × 0.0034
+4. **안전성 점수 변환**: `100 - (범죄위험도 × 10)`
+5. **최종 정규화**: 원본 점수를 0~100점 구간으로 재정규화
+
+**저장 구조:**
+```
+safety:{지역구명}
+  → Hash: {districtName, safetyScore, lastUpdated, version}
+```
+
+-   **관련 소스**: `BatchScheduler.java`, `AnalysisCrimeRepository.java`, `AnalysisEntertainmentRepository.java`, `AnalysisPopulationDensityRepository.java`
+
+---
+
+### **2. 2단계 폴백을 적용한 하이브리드 추천 알고리즘**
+
+> 사용자 조건을 만족하는 매물이 부족할 때 우선순위에 따라 점진적으로 조건을 완화하여 '결과 없음'을 최소화하는 지능형 검색 시스템입니다.
+
+#### **왜 폴백 시스템이 필요한가?**
+기존 시스템의 가장 큰 문제는 조건을 만족하는 매물이 없을 때 빈 결과를 반환한다는 점이었습니다. 하지만 사용자는 "완벽한 매물"이 아니라도 "차선책"을 원합니다. 이를 위해 사용자의 우선순위를 존중하면서도 유연하게 대안을 제시하는 다단계 폴백 알고리즘을 설계했습니다.
+
+#### **2.1. 1단계: Strict Search (엄격한 검색)**
+
+**전세 검색 (2개 인덱스 교집합):**
+```java
+// idx:charterPrice:{지역구} 에서 전세금 범위 조건 필터링
+Set<String> priceValidIds = redis.zrangebyscore("idx:charterPrice:강남구", 20000, 30000);
+
+// idx:area:{지역구}:전세 에서 평수 범위 조건 필터링  
+Set<String> areaValidIds = redis.zrangebyscore("idx:area:강남구:전세", 20.0, 30.0);
+
+// 두 조건을 모두 만족하는 매물 ID 추출
+priceValidIds.retainAll(areaValidIds);
+```
+
+**월세 검색 (3개 인덱스 교집합):**
+```java
+Set<String> depositValidIds = redis.zrangebyscore("idx:deposit:마포구", 5000, 10000);
+Set<String> monthlyRentValidIds = redis.zrangebyscore("idx:monthlyRent:마포구:월세", 50, 100);
+Set<String> areaValidIds = redis.zrangebyscore("idx:area:마포구:월세", 15.0, 25.0);
+
+depositValidIds.retainAll(monthlyRentValidIds);
+depositValidIds.retainAll(areaValidIds);
+```
+
+**안전성 사전 필터링:**
+- `minSafetyScore` 옵션이 있을 경우 지역구 레벨에서 먼저 필터링
+- `safety:{지역구명}` 조회 → 기준 미달 지역구는 검색 대상에서 제외
+
+#### **2.2. 2단계: Fallback 판단 및 Expanded Search**
+
+**폴백 조건:**
+- 지역구별 매물 수가 3개 미만일 경우 해당 지역구만 확장 검색 수행
+
+**확장 전략 (우선순위 역순):**
+1. **3순위 조건 완화**:
+   - PRICE 3순위: `budgetMax × (1 + budgetFlexibility/100)` 확대
+   - SPACE 3순위: `areaMin = absoluteMinArea` 완화
+   - SAFETY 3순위: `minSafetyScore` 하향 조정
+
+2. **2순위 조건 추가 완화** (3순위 완화로 부족 시):
+   - 동일 파라미터로 2순위 조건도 완화하여 재검색
+
+**사용자 중심 설계:**  
+1순위 조건은 절대 완화하지 않아 사용자의 핵심 가치를 보존합니다.
+
+**응답 메시지:**
+```json
+{
+  "searchStatus": "SUCCESS_EXPANDED",
+  "message": "원하시는 조건의 전세 매물이 부족하여, 평수 조건을 15평으로, 안전 점수 조건을 70점으로 완화하여 찾았어요."
+}
+```
+
+#### **2.3. 매물별 점수 계산 로직**
+
+**점수 정규화:**
+```java
+// 가격 점수 (낮을수록 높은 점수)
+priceScore = 100 - ((현재가격 - 지역구최저가) / (지역구최고가 - 지역구최저가) × 100);
+
+// 평수 점수 (넓을수록 높은 점수)  
+spaceScore = ((현재평수 - 지역구최소평수) / (지역구최대평수 - 지역구최소평수) × 100);
+
+// 안전 점수
+safetyScore = 지역구_안전성_점수; // Redis safety:{지역구} 조회
+```
+
+**우선순위별 가중치 적용:**
+```java
+// 사용자 우선순위 설정: priority1="PRICE", priority2="SAFETY", priority3="SPACE"
+Map<String, Double> weights = {
+    priority1: 0.6,  // 60%
+    priority2: 0.3,  // 30%  
+    priority3: 0.1   // 10%
+};
+
+finalScore = (priceScore × weights.get("PRICE")) +
+             (safetyScore × weights.get("SAFETY")) +
+             (spaceScore × weights.get("SPACE"));
+```
+
+**월세 특별 처리:**
+- PRICE 가중치를 보증금과 월세금에 50%씩 분배
+```java
+depositScore = 100 - ((보증금 - 최저보증금) / (최고보증금 - 최저보증금) × 100);
+monthlyRentScore = 100 - ((월세 - 최저월세) / (최고월세 - 최저월세) × 100);
+
+finalScore = (depositScore × 0.3) + (monthlyRentScore × 0.3) + 
+             (safetyScore × 0.3) + (spaceScore × 0.1);
+```
+
+#### **2.4. 지역구 순위 결정**
+
+**대표 점수 산출:**
+```java
+// 매물의 평균 품질과 선택의 폭을 동시 고려
+representativeScore = 평균_finalScore × Math.log(매물개수 + 1);
+```
+
+**정렬 우선순위:**
+1. 대표 점수 내림차순
+2. 매물 개수 내림차순 (동점 시)
+3. 지역구명 알파벳 순 (2차 동점 시)
+
+**Top 3 지역구 선정 후 각 지역구별 상위 3개 매물 반환**
+
+-   **관련 소스**: `CharterRecommendationService.java`, `MonthlyRecommendationService.java`, `RecommendationController.java`
+
+---
+
+### **3. JWT를 활용한 Stateless 인증 시스템**
 
 > 서버의 확장성을 확보하고 클라이언트와의 결합도를 낮추기 위해, 순수 JWT 기반의 Stateless 인증 시스템을 구축했습니다.
 
@@ -68,7 +326,7 @@
 
 ---
 
-### **2. Spring Security FilterChain 모듈화**
+### **4. Spring Security FilterChain 모듈화**
 
 > 단일 필터 체인으로 모든 경로의 보안을 관리할 때 발생하는 복잡성을 해결하기 위해, URL 패턴별로 보안 책임을 분리하는 모듈화된 구조를 도입하여 유지보수성과 유연성을 확보했습니다.
 
@@ -82,31 +340,16 @@
 
 ---
 
-### **3. Redis 이원화 캐시 전략**
-
-> 반복적인 DB 조회로 인한 응답 지연을 해결하기 위해 **Cache-Aside 패턴**을 도입했습니다. 특히, 데이터의 변경 빈도에 따라 캐시 유효기간(TTL)을 차등 적용하는 **이원화 전략**으로 캐시 효율과 데이터 정합성을 동시에 확보했습니다.
-
--   **구현 세부사항**:
-    -   **Cache-Aside 패턴**: 서비스 로직은 DB 조회 전 항상 Redis를 먼저 확인합니다. Cache Hit 시 DB 접근 없이 즉시 데이터를 반환하고, Cache Miss 발생 시에만 DB에서 데이터를 조회하여 Redis에 저장한 후 반환합니다.
-    -   **이원화 TTL 전략**:
-        -   **전체 지도 데이터 (변경 빈도 낮음)**: **24시간**의 긴 TTL을 설정하여 캐시 효율 극대화.
-        -   **사용자 선택 지역 데이터 (요청 기반)**: **1시간**의 짧은 TTL을 설정하여 데이터 최신성 확보.
--   **성과**: **평균 응답 속도 35% 단축** 및 **SQL 쿼리 호출 99% 감소**.
-
--   **관련 소스**: `MapDataService.java`
-
----
-
-### **4. 계층형 아키텍처 설계**
+### **5. 계층형 아키텍처 설계**
 
 > **관심사의 분리(SoC)** 원칙에 기반하여 각 계층의 독립성을 확보하고 유지보수성을 극대화했습니다. 특히 프레임워크 기술과 핵심 도메인 로직을 분리하여 시스템의 유연성을 높였습니다.
 
 -   **세부 구현**:
-    -   **DTO-Entity 분리**: 클라이언트 통신을 위한 `DTO`와 영속성을 위한 `Entity`를 명확히 분리하고, 전용 `Converter`를 통해 계층 간 데이터 변환을 담당했습니다. 이를 통해 DB 스키마 변경이 프레젠테ATION 계층에 미치는 영향을 차단했습니다.
-    -   **API-View 컨트롤러 분리**: JSON 응답을 위한 `@RestController`와 JSP 페이지 렌더링을 위한 `@Controller`의 역할을 명확히 구분하여 설계했습니다.
+    -   **DTO-Entity 분리**: 클라이언트 통신을 위한 `DTO`와 영속성을 위한 `Entity`를 명확히 분리하고, 전용 `Converter`를 통해 계층 간 데이터 변환을 담당했습니다. 이를 통해 DB 스키마 변경이 프레젠테이션 계층에 미치는 영향을 차단했습니다.
+    -   **API-View 컨트롤러 분리**: JSON 응답을 위한 `@RestController`와 JSP 페이지 렌더링을 위한 `@Controller`의 역할을 명확히 구분하여 설계했습니다. `RecommendationController`가 전세/월세 요청을 각각 다른 DTO(`CharterRecommendationRequestDto`, `MonthlyRecommendationRequestDto`)로 받아 처리하여 API의 명확성을 확보했습니다.
     -   **도메인-보안 모델 분리**: 핵심 비즈니스 로직을 담는 도메인 엔티티(`MembersEntity`)와 Spring Security 인증을 위한 보안 엔티티(`AuthenticationEntity`)를 분리하여 프레임워크 종속성을 최소화했습니다.
 
--   **관련 소스**: `BoardConverter.java`, `MemberConverter.java`, `MembersEntity.java`, `AuthenticationEntity.java`, `UserEntityDetails.java`
+-   **관련 소스**: `BoardConverter.java`, `MemberConverter.java`, `MembersEntity.java`, `AuthenticationEntity.java`, `UserEntityDetails.java`, `RecommendationController.java`
 
 ---
 
@@ -200,11 +443,11 @@
 
 ## 📈 성능 최적화 결과
 
-| **최적화 영역** | **개선 전** | **개선 후** | **개선율** | **핵심 기술** |
-|-------------|------------|------------|-----------|-------------|
-| **평균 응답 속도** | 기준값 | 단축됨 | **35% ↓** | Redis 이원화 캐시 |
-| **SQL 쿼리 호출** | 매번 DB 조회 | 캐시 우선 조회 | **99% ↓** | Cache-Aside 패턴 |
-| **캐시 적중률** | 0% (캐시 없음) | 높은 적중률 | **대폭 향상** | TTL 차등 전략 |
+| **최적화 영역** | **개선 전 (DB 직접 조회)** | **개선 후 (Redis 기반)** | **핵심 기술** |
+|-------------|------------|------------|-----------|
+| **추천 로직 응답 속도** | 복잡한 Join 및 Full Scan으로 지연 발생 | 메모리 기반 인덱스 검색으로 빠른 응답 | Redis Sorted Set, Hash, Pipelining |
+| **DB 부하** | 모든 사용자 요청 시마다 DB 조회 발생 | DB 조회 없음 (배치 시점에만 1회 접근) | Batch Scheduler, Cache-Aside Pattern |
+| **검색 확장성** | 데이터 증가 시 성능 저하 우려 | 인덱스 구조로 안정적인 검색 성능 유지 | Redis Sorted Set 인덱싱 |
 
 ---
 
@@ -239,6 +482,8 @@ WhereHouse
 - 입력값을 기반으로 전략 패턴 기반 추천 서비스가 호출되며, 행정구 단위 Top 3 지역이 추천됩니다.
 - 추천 결과는 지역 이름, 평균 시세, 안전/편의 점수를 포함하여 표시됩니다.
 - KakaoMap을 기반으로 각 추천 지역 위치를 시각적으로 함께 제공합니다.
+- **결과 분리 표시**: 전세/월세 유형에 따라 별도의 UI와 API를 통해 맞춤형 추천 결과를 제공합니다.
+- **인터랙티브 모달**: 추천된 지역구 클릭 시, 상세 점수 패널과 상세 매물 목록을 모달창으로 제공하여 사용자가 페이지 이동 없이 심층적인 정보를 탐색할 수 있도록 UX를 개선했습니다.
 
 ![추천 페이지](https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37)
 
@@ -247,6 +492,7 @@ WhereHouse
 - KakaoMap API를 기반으로 동작하며, 지역에 따라 마커 데이터가 동적으로 갱신됩니다.
 - 마커 클릭 시 관련 정보(시설명, 유형 등)를 확인할 수 있습니다.
 - 사용자 경험을 고려해 각 요소는 레이어 방식으로 표시됩니다.
+- **추천 결과 연동**: 추천된 Top 3 지역구의 경계를 Kakao Map API와 GeoJSON 데이터를 연동하여 지도 위에 시각적으로 표시합니다.
 
 ![상세지도 페이지](https://github.com/user-attachments/assets/ba07bf7d-f11b-4355-b81d-42c6b8ad9376)
 
@@ -263,5 +509,23 @@ WhereHouse
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker)
 ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens)
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-232F3E?style=for-the-badge&logo=amazonaws)
+
+---
+
+## 📚 상세 문서
+
+### 프로젝트 개선 계획서
+- [1. 프로젝트 기획서](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/1.%20프로젝트%20기획서.md) - 2단계 폴백 하이브리드 추천 시스템 기획
+- [2. 부동산 추천 로직 2단계 폴백 시스템 설계 근거](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/2.%20부동산%20추천%20로직%202단계%20폴백%20시스템%20설계%20근거.md) - 알고리즘 설계 배경 및 의사결정 과정
+- [3. 부동산 추천 시스템 - 매물 정보 데이터 연동 명세서](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/3.%20부동산%20추천%20시스템%20-%20매물%20정보%20데이터%20연동%20명세서.md) - 국토교통부 API 연동 상세
+- [4. 부동산 추천 시스템 - 안전성 점수 데이터 연동 명세서](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/4.%20부동산%20추천%20시스템%20-%20안전성%20점수%20데이터%20연동%20명세서.md) - 회귀 분석 기반 안전성 지표 산출
+- [5. 부동산 추천 시스템 안전성 점수 설계서](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/5.%20부동산%20추천%20시스템%20안전성%20점수%20설계서.md) - 범죄율 정규화 및 점수 계산 로직
+- [6. 안전성 점수 산출을 위한 데이터 분석 프로세스 명세서](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/6.%20안전성%20점수%20산출을%20위한%20데이터%20분석%20프로세스%20명세서.md) - 통계 분석 방법론
+
+### 실제 비즈니스 로직 설계
+- [부동산 추천 시스템 비즈니스 로직 설계 명세서](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/5.%20실제%20비즈니스%20로직%20설계/부동산%20추천%20시스템%20비즈니스%20로직%20설계%20명세서.md) - 배치 처리 및 실시간 추천 서비스 전체 구현
+
+### UI 설계 명세서
+- [WhereHouse 부동산 추천 시스템 UI 설계 명세서](./docs/9.%20추가지%20서비스(recommand)%20프로젝트%20개선%20계획서/6.%20UI%20설계%20명세서/WhereHouse%20부동산%20추천%20시스템%20UI%20설계%20명세서.md) - 사용자 인터페이스 상세 설계
 
 ---

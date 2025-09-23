@@ -46,10 +46,10 @@ public class PoliceDataProcessor {
     // Kakao 지오코딩 API 서비스
     private final KakaoGeocodingService geocodingService;
 
-    @Value("${app.analysis.police-facility.batch-size}")
+    @Value("${apps.analysis.police-facility.batch-size}")
     private Integer batchSize;
 
-    @Value("${app.analysis.police-facility.geocoding-delay}")
+    @Value("${apps.analysis.police-facility.geocoding-delay}")
     private Integer geocodingDelay;
 
     // 서울시 구 이름 추출을 위한 정규식 패턴
@@ -102,6 +102,14 @@ public class PoliceDataProcessor {
 
             for (PoliceFacility originalPoliceData : currentBatch) {
                 try {
+                    // 서울 주소가 아니면 스킵
+                    if (!originalPoliceData.getAddress().contains("서울")) {
+                        log.debug("서울이 아닌 주소 스킵: {} - {}",
+                                originalPoliceData.getFacilityName(),
+                                originalPoliceData.getAddress());
+                        continue;
+                    }
+
                     // 원본 데이터를 분석용 엔티티로 변환 (좌표 제외)
                     AnalysisPoliceFacility analysisTargetPoliceData = convertToAnalysisEntity(originalPoliceData);
 
@@ -134,7 +142,7 @@ public class PoliceDataProcessor {
                                 geocodingResult.getErrorMessage());
                     }
 
-                    // 분석용 테이블에 데이터 저장
+                    // 분석용 테이블에 데이터 저장 (서울 주소만 여기까지 도달)
                     analysisPoliceRepository.save(analysisTargetPoliceData);
                     processedCount++;
 

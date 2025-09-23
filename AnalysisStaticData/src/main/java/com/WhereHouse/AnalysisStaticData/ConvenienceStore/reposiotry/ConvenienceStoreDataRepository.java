@@ -14,6 +14,8 @@ import java.util.Optional;
 @Repository
 public interface ConvenienceStoreDataRepository extends JpaRepository<ConvenienceStoreData, Long> {
 
+    // === 기존 메서드들 유지 ===
+
     // 관리번호로 조회
     Optional<ConvenienceStoreData> findByManagementNumber(String managementNumber);
 
@@ -68,7 +70,6 @@ public interface ConvenienceStoreDataRepository extends JpaRepository<Convenienc
                 WHEN ROAD_ADDRESS LIKE '%영등포구%' THEN '영등포구'
                 WHEN ROAD_ADDRESS LIKE '%동작구%' THEN '동작구'
                 WHEN ROAD_ADDRESS LIKE '%관악구%' THEN '관악구'
-                WHEN ROAD_ADDRESS LIKE '%서초구%' THEN '서초구'
                 WHEN ROAD_ADDRESS LIKE '%강서구%' THEN '강서구'
                 WHEN ROAD_ADDRESS LIKE '%양천구%' THEN '양천구'
                 WHEN ROAD_ADDRESS LIKE '%구로구%' THEN '구로구'
@@ -100,7 +101,6 @@ public interface ConvenienceStoreDataRepository extends JpaRepository<Convenienc
                 WHEN ROAD_ADDRESS LIKE '%영등포구%' THEN '영등포구'
                 WHEN ROAD_ADDRESS LIKE '%동작구%' THEN '동작구'
                 WHEN ROAD_ADDRESS LIKE '%관악구%' THEN '관악구'
-                WHEN ROAD_ADDRESS LIKE '%서초구%' THEN '서초구'
                 WHEN ROAD_ADDRESS LIKE '%강서구%' THEN '강서구'
                 WHEN ROAD_ADDRESS LIKE '%양천구%' THEN '양천구'
                 WHEN ROAD_ADDRESS LIKE '%구로구%' THEN '구로구'
@@ -120,4 +120,65 @@ public interface ConvenienceStoreDataRepository extends JpaRepository<Convenienc
     // 영업중인 편의점 페이징 조회
     @Query("SELECT c FROM ConvenienceStoreData c WHERE c.businessStatusCode = '1' AND c.businessStatusName LIKE '%영업%'")
     Page<ConvenienceStoreData> findActiveStores(Pageable pageable);
+
+    // === 분석용 데이터 처리를 위한 추가 메서드들 ===
+
+    /**
+     * 전체 원천 데이터 개수 조회
+     */
+    @Query("SELECT COUNT(c) FROM ConvenienceStoreData c")
+    long getTotalSourceCount();
+
+    /**
+     * 배치 처리를 위한 페이지네이션 조회
+     * 분석에 필요한 핵심 필드만 추출 (메모리 최적화)
+     */
+    @Query("SELECT new map(" +
+            "c.businessName as businessName, " +
+            "c.detailedStatusName as detailedStatusName, " +
+            "c.phoneNumber as phoneNumber, " +
+            "c.lotAddress as lotAddress, " +
+            "c.roadAddress as roadAddress" +
+            ") FROM ConvenienceStoreData c " +
+            "ORDER BY c.id")
+    Page<java.util.Map<String, Object>> findAnalysisFieldsOnly(Pageable pageable);
+
+    /**
+     * 유효한 주소 정보를 가진 데이터만 조회
+     */
+    @Query("SELECT c FROM ConvenienceStoreData c " +
+            "WHERE (c.roadAddress IS NOT NULL AND TRIM(c.roadAddress) != '') " +
+            "   OR (c.lotAddress IS NOT NULL AND TRIM(c.lotAddress) != '') " +
+            "ORDER BY c.id")
+    Page<ConvenienceStoreData> findWithValidAddress(Pageable pageable);
+
+    /**
+     * 원천 데이터의 상세영업상태별 분포 조회
+     */
+    @Query("SELECT c.detailedStatusName, COUNT(c) " +
+            "FROM ConvenienceStoreData c " +
+            "GROUP BY c.detailedStatusName " +
+            "ORDER BY COUNT(c) DESC")
+    List<Object[]> getSourceStatusDistribution();
+
+    /**
+     * 주소 정보 품질 통계
+     */
+    @Query("SELECT " +
+            "COUNT(c) as totalCount, " +
+            "COUNT(CASE WHEN c.roadAddress IS NOT NULL AND TRIM(c.roadAddress) != '' THEN 1 END) as roadAddressCount, " +
+            "COUNT(CASE WHEN c.lotAddress IS NOT NULL AND TRIM(c.lotAddress) != '' THEN 1 END) as lotAddressCount, " +
+            "COUNT(CASE WHEN (c.roadAddress IS NOT NULL AND TRIM(c.roadAddress) != '') " +
+            "              OR (c.lotAddress IS NOT NULL AND TRIM(c.lotAddress) != '') THEN 1 END) as validAddressCount " +
+            "FROM ConvenienceStoreData c")
+    Object[] getAddressQualityStats();
+
+    /**
+     * 샘플 데이터 조회 (테스트용)
+     */
+    @Query("SELECT c FROM ConvenienceStoreData c " +
+            "WHERE (c.roadAddress IS NOT NULL AND TRIM(c.roadAddress) != '') " +
+            "   OR (c.lotAddress IS NOT NULL AND TRIM(c.lotAddress) != '') " +
+            "ORDER BY c.id")
+    List<ConvenienceStoreData> findSampleData(Pageable pageable);
 }

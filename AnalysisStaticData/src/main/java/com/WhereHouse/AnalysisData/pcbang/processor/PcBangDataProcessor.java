@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * PC방 위치 데이터 분석용 테이블 생성 처리 컴포넌트
@@ -102,34 +101,55 @@ public class PcBangDataProcessor {
                 AnalysisPcBangStatistics analysisTargetPcBangData = convertToAnalysisEntity(originalPcBangData);
 
                 // 카카오맵 API를 통한 좌표 변환 시도
-                String targetAddress = determineTargetAddress(originalPcBangData);
-                if (targetAddress != null && !targetAddress.equals("데이터없음")) {
+                AddressInfo addressInfo = determineAndCleanAddress(originalPcBangData);
+
+                if (addressInfo.getCleanedAddress() != null) {
                     try {
-                        KakaoAddressApiClient.AddressSearchResponse response = kakaoAddressApiClient.searchAddress(targetAddress);
+                        log.debug("주소 정제 완료: [{}] {} → {}",
+                                addressInfo.getAddressType(),
+                                addressInfo.getCleanedAddress().length() > 50 ?
+                                        addressInfo.getCleanedAddress().substring(0, 50) + "..." :
+                                        addressInfo.getCleanedAddress(),
+                                addressInfo.getCleanedAddress());
+
+                        // 여러 형태로 주소 검색 시도 (원본 PC방 데이터도 전달)
+                        KakaoAddressApiClient.AddressSearchResponse response =
+                                tryMultipleAddressFormats(addressInfo.getCleanedAddress(), originalPcBangData);
 
                         if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
                             KakaoAddressApiClient.Document document = response.getDocuments().get(0);
                             analysisTargetPcBangData.setLatitude(new BigDecimal(document.getLatitude()));
                             analysisTargetPcBangData.setLongitude(new BigDecimal(document.getLongitude()));
+                            analysisTargetPcBangData.setGeocodingStatus(
+                                    "좌표변환 성공(" + addressInfo.getAddressType() + ")");
                             apiSuccessCount++;
 
                             log.debug("좌표 변환 성공: {} → lat: {}, lng: {}",
-                                    targetAddress, document.getLatitude(), document.getLongitude());
+                                    addressInfo.getCleanedAddress(), document.getLatitude(), document.getLongitude());
                         } else {
-                            log.debug("좌표 변환 실패 (결과 없음): {}", targetAddress);
+                            analysisTargetPcBangData.setGeocodingStatus(
+                                    "좌표변환 실패: 모든 주소 형태 시도했으나 결과 없음(" + addressInfo.getAddressType() + ")");
+                            log.debug("좌표 변환 실패 (모든 형태 시도 실패): {}", addressInfo.getCleanedAddress());
                             apiFailedCount++;
                         }
 
-                        // API 호출 제한 준수를 위한 대기
+                        // API 호출 제한 준수를 위한 추가 대기 (여러 번 호출했으므로)
                         Thread.sleep(requestDelay);
 
                     } catch (Exception apiException) {
-                        log.warn("카카오맵 API 호출 실패: {} - {}", targetAddress, apiException.getMessage());
+                        analysisTargetPcBangData.setGeocodingStatus(
+                                "좌표변환 실패: API 오류 - " + apiException.getMessage());
+                        log.warn("카카오맵 API 호출 실패: {} - {}", addressInfo.getCleanedAddress(), apiException.getMessage());
                         apiFailedCount++;
 
                         // API 에러 시 더 긴 대기
                         Thread.sleep(requestDelay * 5);
                     }
+                } else {
+                    // 주소 정제 실패 또는 주소 없음
+                    analysisTargetPcBangData.setGeocodingStatus(addressInfo.getStatusMessage());
+                    log.debug("주소 사용 불가: {}", addressInfo.getStatusMessage());
+                    apiFailedCount++;
                 }
 
                 // 분석용 테이블에 데이터 저장
@@ -187,31 +207,233 @@ public class PcBangDataProcessor {
                 // 좌표 정보 (초기값, API 호출로 업데이트 예정)
                 .latitude(BigDecimal.ZERO)                                                      // 위도 (카카오맵 API)
                 .longitude(BigDecimal.ZERO)                                                     // 경도 (카카오맵 API)
+
+                // 좌표변환 상태 (초기값, API 호출 결과로 업데이트 예정)
+                .geocodingStatus("좌표변환 대기중")                                                 // 좌표변환 상태 메시지
                 .build();
     }
 
     /**
-     * 카카오맵 API 호출에 사용할 주소 결정
-     * 도로명주소 우선, 없으면 지번주소 사용
+     * 카카오맵 API 호출에 사용할 주소 정제 및 결정
+     * 1순위: 도로명주소 → 성공 시 바로 반환, 실패 시 2순위 시도
+     * 2순위: 지번주소 → 도로명주소 실패한 경우에만 시도
+     * 주소에서 괄호, 층수, 호수 등 API가 처리 못하는 부분 제거
      *
      * @param originalPcBangData 원본 PC방 데이터
-     * @return 변환에 사용할 주소 또는 null
+     * @return AddressInfo 객체 (정제된 주소, 사용된 주소 타입, 상태 메시지)
      */
-    private String determineTargetAddress(PcBangs originalPcBangData) {
+    private AddressInfo determineAndCleanAddress(PcBangs originalPcBangData) {
         String roadAddress = originalPcBangData.getRoadAddress();
         String jibunAddress = originalPcBangData.getJibunAddress();
 
-        // 도로명주소 우선 사용
+        // 1순위: 도로명주소 체크 및 정제
         if (roadAddress != null && !roadAddress.trim().isEmpty() && !roadAddress.equals("데이터없음")) {
-            return roadAddress.trim();
+            String cleanedAddress = cleanAddressForAPI(roadAddress);
+            if (cleanedAddress != null) {
+                return new AddressInfo(cleanedAddress, "도로명주소", "도로명주소 사용");
+            }
         }
 
-        // 도로명주소가 없으면 지번주소 사용
+        // 2순위: 지번주소 체크 및 정제 (도로명주소가 없거나 정제 실패한 경우에만)
         if (jibunAddress != null && !jibunAddress.trim().isEmpty() && !jibunAddress.equals("데이터없음")) {
-            return jibunAddress.trim();
+            String cleanedAddress = cleanAddressForAPI(jibunAddress);
+            if (cleanedAddress != null) {
+                return new AddressInfo(cleanedAddress, "지번주소", "지번주소 사용(도로명주소 없음 또는 정제 불가)");
+            }
+        }
+
+        // 둘 다 사용 불가
+        return new AddressInfo(null, "없음", "도로명주소/지번주소 모두 없음 또는 정제 불가");
+    }
+
+    /**
+     * 카카오맵 API가 처리할 수 있도록 주소 정제
+     * - 괄호 및 괄호 안 내용 제거: (건물명), (층수), (호수) 등
+     * - 층/호 정보 제거: 1층, 2호, B1층 등
+     * - 기타 불필요한 정보 제거
+     * - 여러 형태로 변환하여 API 호출 시도
+     *
+     * @param rawAddress 원본 주소
+     * @return 정제된 주소 (null이면 사용 불가)
+     */
+    private String cleanAddressForAPI(String rawAddress) {
+        if (rawAddress == null || rawAddress.trim().isEmpty()) {
+            return null;
+        }
+
+        String cleaned = rawAddress.trim();
+
+        // 괄호 및 괄호 안 내용 제거
+        cleaned = cleaned.replaceAll("\\([^\\)]*\\)", "");
+        cleaned = cleaned.replaceAll("\\)[^\\(]*", ""); // 남은 ) 제거
+
+        // 층/호 정보 제거 (숫자+층, 숫자+호, B+숫자+층 등)
+        cleaned = cleaned.replaceAll("\\s*[B0-9]+층\\s*", " ");
+        cleaned = cleaned.replaceAll("\\s*[0-9]+호\\s*", " ");
+        cleaned = cleaned.replaceAll("\\s*[B0-9]+F\\s*", " ");
+
+        // 기타 상세 위치 정보 제거
+        cleaned = cleaned.replaceAll("\\s*지하\\s*", " ");
+        cleaned = cleaned.replaceAll("\\s*옥상\\s*", " ");
+        cleaned = cleaned.replaceAll("\\s*,\\s*", " ");
+
+        // "서울특별시" → "서울"로 단순화
+        cleaned = cleaned.replace("서울특별시", "서울");
+
+        // 다중 공백을 단일 공백으로 변환
+        cleaned = cleaned.replaceAll("\\s+", " ");
+        cleaned = cleaned.trim();
+
+        // 최소 길이 체크 (너무 짧으면 사용 불가)
+        if (cleaned.length() < 5) {
+            return null;
+        }
+
+        return cleaned;
+    }
+
+    /**
+     * 주소를 여러 형태로 변환하여 API 호출 시도
+     * 1차: 정제된 전체 주소 (도로명주소 우선)
+     * 2차: 더 단순한 형태 (시/도 제거)
+     * 3차: 도로명만 추출
+     * 4차: 지번주소로 재시도 (도로명 검색이 모두 실패한 경우)
+     */
+    private KakaoAddressApiClient.AddressSearchResponse tryMultipleAddressFormats(String baseAddress, PcBangs originalData) {
+        // 1차 시도: 정제된 전체 주소
+        log.debug("1차 주소 검색 시도: {}", baseAddress);
+        KakaoAddressApiClient.AddressSearchResponse response = kakaoAddressApiClient.searchAddress(baseAddress);
+
+        if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
+            log.debug("1차 시도 성공: {} 개 결과", response.getDocuments().size());
+            return response;
+        }
+
+        // API 호출 간격
+        try { Thread.sleep(requestDelay); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+
+        // 2차 시도: "서울" 제거한 형태
+        String simplified = baseAddress.replace("서울", "").trim();
+        if (!simplified.equals(baseAddress) && simplified.length() >= 5) {
+            log.debug("2차 주소 검색 시도: {}", simplified);
+            response = kakaoAddressApiClient.searchAddress(simplified);
+
+            if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
+                log.debug("2차 시도 성공: {} 개 결과", response.getDocuments().size());
+                return response;
+            }
+
+            try { Thread.sleep(requestDelay); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+
+        // 3차 시도: 도로명과 번호만 추출
+        String roadOnly = extractRoadNameAndNumber(baseAddress);
+        if (roadOnly != null && !roadOnly.equals(baseAddress) && !roadOnly.equals(simplified)) {
+            log.debug("3차 주소 검색 시도 (도로명만): {}", roadOnly);
+            response = kakaoAddressApiClient.searchAddress(roadOnly);
+
+            if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
+                log.debug("3차 시도 성공: {} 개 결과", response.getDocuments().size());
+                return response;
+            }
+
+            try { Thread.sleep(requestDelay); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+
+        // 4차 시도: 지번주소로 재시도 (모든 도로명 시도가 실패한 경우)
+        String jibunAddress = originalData.getJibunAddress();
+        if (jibunAddress != null && !jibunAddress.trim().isEmpty() && !jibunAddress.equals("데이터없음")) {
+            String cleanedJibun = cleanAddressForAPI(jibunAddress);
+            if (cleanedJibun != null && !cleanedJibun.equals(baseAddress)) {
+                log.debug("4차 주소 검색 시도 (지번주소): {}", cleanedJibun);
+                response = kakaoAddressApiClient.searchAddress(cleanedJibun);
+
+                if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
+                    log.debug("4차 시도 성공 (지번주소): {} 개 결과", response.getDocuments().size());
+                    return response;
+                }
+
+                try { Thread.sleep(requestDelay); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+
+                // 5차 시도: 지번주소에서 "서울" 제거
+                String simplifiedJibun = cleanedJibun.replace("서울", "").trim();
+                if (!simplifiedJibun.equals(cleanedJibun) && simplifiedJibun.length() >= 5) {
+                    log.debug("5차 주소 검색 시도 (지번주소 단순화): {}", simplifiedJibun);
+                    response = kakaoAddressApiClient.searchAddress(simplifiedJibun);
+
+                    if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
+                        log.debug("5차 시도 성공 (지번주소 단순화): {} 개 결과", response.getDocuments().size());
+                        return response;
+                    }
+
+                    try { Thread.sleep(requestDelay); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                }
+
+                // 6차 시도: 지번주소에서 동과 번지만 추출
+                String jibunOnly = extractJibunDongAndNumber(cleanedJibun);
+                if (jibunOnly != null && !jibunOnly.equals(cleanedJibun) && !jibunOnly.equals(simplifiedJibun)) {
+                    log.debug("6차 주소 검색 시도 (지번 동+번지만): {}", jibunOnly);
+                    response = kakaoAddressApiClient.searchAddress(jibunOnly);
+
+                    if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
+                        log.debug("6차 시도 성공 (지번 동+번지만): {} 개 결과", response.getDocuments().size());
+                        return response;
+                    }
+                }
+            }
+        }
+
+        log.debug("모든 주소 형태 시도 실패");
+        return new KakaoAddressApiClient.AddressSearchResponse();
+    }
+
+    /**
+     * 도로명과 번호만 추출 (예: "종로구 율곡로 245" → "율곡로 245")
+     */
+    private String extractRoadNameAndNumber(String address) {
+        // "구 도로명 번호" 패턴 추출
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(".*구\\s+([가-힣\\w]+로\\d*[가-길]*\\s+\\d+[\\-\\d]*)");
+        java.util.regex.Matcher matcher = pattern.matcher(address);
+
+        if (matcher.find()) {
+            return matcher.group(1).trim();
         }
 
         return null;
+    }
+
+    /**
+     * 지번주소에서 동과 번지만 추출 (예: "종로구 창신동 15-23" → "창신동 15-23")
+     */
+    private String extractJibunDongAndNumber(String address) {
+        // "구 동명 번지" 패턴 추출
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(".*구\\s+([가-힣]+동\\s+\\d+[\\-\\d]*)");
+        java.util.regex.Matcher matcher = pattern.matcher(address);
+
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+
+        return null;
+    }
+
+    /**
+     * 주소 정보를 담는 내부 클래스
+     */
+    private static class AddressInfo {
+        private final String cleanedAddress;
+        private final String addressType;
+        private final String statusMessage;
+
+        public AddressInfo(String cleanedAddress, String addressType, String statusMessage) {
+            this.cleanedAddress = cleanedAddress;
+            this.addressType = addressType;
+            this.statusMessage = statusMessage;
+        }
+
+        public String getCleanedAddress() { return cleanedAddress; }
+        public String getAddressType() { return addressType; }
+        public String getStatusMessage() { return statusMessage; }
     }
 
     /**
@@ -276,13 +498,23 @@ public class PcBangDataProcessor {
 
             // 좌표 변환 성공률 확인
             long totalCount = analysisPcBangRepository.count();
-            long coordinateSuccessCount = analysisPcBangRepository.count(); // 실제로는 좌표가 0이 아닌 것들을 세어야 함
+            long successfulGeocodedCount = analysisPcBangRepository.countSuccessfulGeocodedData();
 
-            // 좌표 데이터 품질 확인을 위한 쿼리 (0이 아닌 좌표를 가진 데이터 개수)
-            // 실제 구현에서는 @Query로 별도 메서드를 만들어야 함
             log.info("좌표 변환 결과 요약:");
             log.info("  - 전체 데이터: {} 개", totalCount);
-            log.info("  - 좌표 보유: 계산 필요 (0이 아닌 lat/lng)");
+            log.info("  - 좌표 변환 성공: {} 개", successfulGeocodedCount);
+            log.info("  - 좌표 변환 실패: {} 개", totalCount - successfulGeocodedCount);
+            log.info("  - 성공률: {:.1f}%", totalCount > 0 ? (double)successfulGeocodedCount / totalCount * 100 : 0.0);
+
+            // 좌표변환 상태별 분포 조회 및 로깅
+            List<Object[]> geocodingStatusDistributionList = analysisPcBangRepository.findGeocodingStatusDistribution();
+            log.info("좌표변환 상태별 분포:");
+
+            geocodingStatusDistributionList.forEach(statusRow -> {
+                String geocodingStatus = (String) statusRow[0];           // 좌표변환 상태
+                Long statusCount = (Long) statusRow[1];                   // 개수
+                log.info("  {} : {} 개 업소", geocodingStatus, statusCount);
+            });
 
         } catch (Exception dataValidationException) {
             log.error("분석용 데이터 검증 과정에서 오류가 발생했습니다: {}",

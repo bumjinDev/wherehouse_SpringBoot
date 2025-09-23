@@ -10,20 +10,21 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * 개선된 유흥주점 좌표 계산 서비스 (강화된 주소 전처리)
+ * 개선된 유흥주점 좌표 계산 서비스 (숙박업 기반 강화된 주소 전처리)
  *
+ * 숙박업 문서의 파싱 로직을 기반으로 유흥주점 특화 전처리 적용
  * "데이터없음" 처리 및 실제 데이터 기반 전처리 로직 추가
  * 복잡한 층수 정보, 괄호 내용, 특수 문자 처리 강화
  * Spring Boot의 UriComponentsBuilder가 한글 인코딩을 자동 처리한다.
  *
  * @author Safety Analysis System
- * @since 1.1
+ * @since 1.2
  */
 @Service
 @Slf4j
 public class EntertainmentCoordinateService {
 
-    @Value("${kakao.api.key}")
+    @Value("${kakao.rest-api-key}")
     private String kakaoApiKey;
 
     private final RestTemplate restTemplate;
@@ -45,7 +46,6 @@ public class EntertainmentCoordinateService {
      * 도로명주소 기반 좌표 계산 (데이터없음 처리 추가)
      */
     public Double[] calculateCoordinatesFromRoadAddress(String roadAddress) {
-        // "데이터없음" 체크 추가
         if (roadAddress == null || roadAddress.trim().isEmpty() || "데이터없음".equals(roadAddress.trim())) {
             log.warn("도로명주소가 비어있거나 데이터없음입니다: {}", roadAddress);
             return null;
@@ -53,7 +53,6 @@ public class EntertainmentCoordinateService {
 
         log.debug("도로명주소 좌표 계산 시작: {}", roadAddress);
 
-        // 도로명주소 전처리 시도
         String[] roadAddressVariations = generateRoadAddressVariations(roadAddress);
 
         for (String variation : roadAddressVariations) {
@@ -73,7 +72,6 @@ public class EntertainmentCoordinateService {
      * 지번주소 기반 좌표 계산 (데이터없음 처리 추가)
      */
     public Double[] calculateCoordinatesFromAddress(String address) {
-        // "데이터없음" 체크 추가
         if (address == null || address.trim().isEmpty() || "데이터없음".equals(address.trim())) {
             log.warn("지번주소가 비어있거나 데이터없음입니다: {}", address);
             return null;
@@ -81,7 +79,6 @@ public class EntertainmentCoordinateService {
 
         log.debug("지번주소 좌표 계산 시작: {}", address);
 
-        // 지번주소 전처리 시도
         String[] addressVariations = generateJibunAddressVariations(address);
 
         for (String variation : addressVariations) {
@@ -98,7 +95,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 도로명주소 변형 생성 (강화된 전처리)
+     * 도로명주소 변형 생성 (숙박업 기반 강화된 전처리)
      */
     private String[] generateRoadAddressVariations(String roadAddress) {
         String original = roadAddress.trim();
@@ -107,7 +104,7 @@ public class EntertainmentCoordinateService {
                 original,                                           // 원본
                 cleanRoadAddress(original),                         // 기본 정제
                 removeComplexFloorInfo(cleanRoadAddress(original)), // 복잡한 층수 정보 제거
-                removeEntertainmentInfo(cleanRoadAddress(original)), // 유흥업소명 제거
+                removeEntertainmentBusinessInfo(cleanRoadAddress(original)), // 유흥업소명 제거
                 removeBuildingName(cleanRoadAddress(original)),     // 건물명 제거
                 extractCoreRoadAddress(cleanRoadAddress(original)), // 핵심 도로명주소만
                 removeAllSpecialInfo(cleanRoadAddress(original))    // 모든 부가 정보 제거
@@ -115,7 +112,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 지번주소 변형 생성 (강화된 전처리)
+     * 지번주소 변형 생성 (숙박업 기반 강화된 전처리)
      */
     private String[] generateJibunAddressVariations(String address) {
         String original = address.trim();
@@ -124,7 +121,7 @@ public class EntertainmentCoordinateService {
                 original,                                           // 원본
                 cleanJibunAddress(original),                        // 기본 정제
                 removeComplexFloorInfo(cleanJibunAddress(original)), // 복잡한 층수 정보 제거
-                removeEntertainmentInfo(cleanJibunAddress(original)), // 유흥업소명 제거
+                removeEntertainmentBusinessInfo(cleanJibunAddress(original)), // 유흥업소명 제거
                 removeBuildingName(cleanJibunAddress(original)),    // 건물명 제거
                 extractCoreJibunAddress(cleanJibunAddress(original)), // 핵심 지번주소만
                 removeDetailInfo(cleanJibunAddress(original)),      // 상세정보 제거
@@ -134,7 +131,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 도로명주소 전용 정제 (강화된 버전)
+     * 도로명주소 전용 정제 (숙박업 기반 강화된 버전)
      */
     private String cleanRoadAddress(String address) {
         if (address == null || address.trim().isEmpty()) {
@@ -162,7 +159,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 지번주소 전용 정제 (강화된 버전)
+     * 지번주소 전용 정제 (숙박업 기반 강화된 버전)
      */
     private String cleanJibunAddress(String address) {
         if (address == null || address.trim().isEmpty()) {
@@ -190,7 +187,12 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 복잡한 층수 정보 제거 (강화된 버전)
+     * 복잡한 층수 정보 제거 (숙박업 기반 강화된 버전)
+     *
+     * 예시 처리:
+     * - "서울시 강남구 테헤란로10길 11, 13 3-10층" → "서울시 강남구 테헤란로10길 11"
+     * - "서울시 마포구 월드컵북로2길 19, 2-5층" → "서울시 마포구 월드컵북로2길 19"
+     * - "서울시 동대문구 경동시장로12길 45, 2,3,지하1층" → "서울시 동대문구 경동시장로12길 45"
      */
     private String removeComplexFloorInfo(String address) {
         if (address == null) return address;
@@ -220,17 +222,15 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 핵심 도로명주소만 추출 (강화된 버전)
+     * 핵심 도로명주소만 추출 (숙박업 기반 강화된 버전)
      */
     private String extractCoreRoadAddress(String address) {
         if (address == null) return address;
 
-        // 도로명주소 패턴: 시/도 구/군 도로명 번지
         String[] parts = address.split("\\s+");
         StringBuilder core = new StringBuilder();
 
         for (String part : parts) {
-            // 도로명 키워드 확인 (로, 길)
             if (part.contains("로") || part.contains("길")) {
                 if (core.length() > 0) core.append(" ");
                 core.append(part);
@@ -240,7 +240,6 @@ public class EntertainmentCoordinateService {
                 if (currentIndex + 1 < parts.length) {
                     String nextPart = parts[currentIndex + 1];
                     if (nextPart.matches(".*[0-9]+.*")) {
-                        // 순수한 번지수만 추출 (쉼표나 기타 정보 제거)
                         String pureBungi = nextPart.replaceAll("[^0-9\\-].*", "");
                         if (!pureBungi.isEmpty()) {
                             core.append(" ").append(pureBungi);
@@ -249,7 +248,6 @@ public class EntertainmentCoordinateService {
                 }
                 break;
             } else {
-                // 시/도, 구/군 부분 추가
                 if (core.length() > 0) core.append(" ");
                 core.append(part);
             }
@@ -259,7 +257,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 모든 부가 정보 제거 (최후의 수단)
+     * 모든 부가 정보 제거 (숙박업 기반 최후의 수단)
      */
     private String removeAllSpecialInfo(String address) {
         if (address == null) return address;
@@ -287,7 +285,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 유흥주점 관련 상호명/업체명 정보 제거
+     * 유흥주점 관련 상호명/업체명 정보 제거 (유흥주점 특화)
      */
     private String removeEntertainmentBusinessInfo(String address) {
         if (address == null) return address;
@@ -295,10 +293,10 @@ public class EntertainmentCoordinateService {
         String cleaned = address.trim();
 
         // 유흥주점 관련 키워드 제거
-        cleaned = cleaned.replaceAll("(룸|카페|바|pub|클럽|나이트|노래방|단란주점|유흥주점)", "").trim();
+        cleaned = cleaned.replaceAll("(룸|카페|바|pub|클럽|나이트|노래방|단란주점|유흥주점|룸살롱|호프|비어|맥주)", "").trim();
 
         // 일반적인 업소명 제거
-        cleaned = cleaned.replaceAll("(엔터테인먼트|레저|라운지|살롱|스튜디오|하우스)", "").trim();
+        cleaned = cleaned.replaceAll("(엔터테인먼트|레저|라운지|살롱|스튜디오|하우스|플라자|센터)", "").trim();
 
         // 연속된 공백 정리
         cleaned = cleaned.replaceAll("\\s+", " ").trim();
@@ -307,24 +305,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 상호명/업체명 정보 제거
-     */
-    private String removeEntertainmentInfo(String address) {
-        if (address == null) return address;
-
-        String cleaned = address.trim();
-
-        // 유흥 관련 키워드 제거
-        cleaned = cleaned.replaceAll("(룸|카페|바|클럽|나이트|노래방|단란주점)", "").trim();
-
-        // 연속된 공백 정리
-        cleaned = cleaned.replaceAll("\\s+", " ").trim();
-
-        return cleaned.length() < 5 ? address : cleaned;
-    }
-
-    /**
-     * 건물명 제거 (실제 데이터 기준)
+     * 건물명 제거 (숙박업 기반 실제 데이터 기준)
      */
     private String removeBuildingName(String address) {
         if (address == null) return address;
@@ -332,10 +313,10 @@ public class EntertainmentCoordinateService {
         String cleaned = address.trim();
 
         // 실제 데이터에서 나타나는 건물명 패턴 제거
-        cleaned = cleaned.replaceAll("(타워|빌딩|센터|플라자|상가)", "").trim();
+        cleaned = cleaned.replaceAll("(타워|빌딩|센터|플라자|상가|빌라)", "").trim();
 
         // 일반적인 건물명 패턴
-        cleaned = cleaned.replaceAll("([가-힣]+빌딩|[가-힣]+타워|[가-힣]+센터)", "").trim();
+        cleaned = cleaned.replaceAll("([가-힣]+빌딩|[가-힣]+타워|[가-힣]+센터|[가-힣]+플라자)", "").trim();
 
         // 연속된 공백 정리
         cleaned = cleaned.replaceAll("\\s+", " ").trim();
@@ -344,7 +325,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 핵심 지번주소만 추출 (도로명주소 구분 처리)
+     * 핵심 지번주소만 추출 (숙박업 기반 도로명주소 구분 처리)
      */
     private String extractCoreJibunAddress(String address) {
         if (address == null) return address;
@@ -352,7 +333,7 @@ public class EntertainmentCoordinateService {
         // 도로명주소인지 확인 (로, 길 포함)
         if (address.contains("로") || address.contains("길")) {
             // 도로명주소는 번지까지만 남기고 나머지 제거
-            String cleaned = address.replaceAll("(층|호|건물|상가|센터).*", "").trim();
+            String cleaned = address.replaceAll("(층|호|건물|상가|센터|룸|카페|바).*", "").trim();
             return cleaned.length() < 5 ? address : cleaned;
         } else {
             // 지번주소만 기존 로직 적용
@@ -362,7 +343,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 세부 정보 제거
+     * 세부 정보 제거 (숙박업 기반)
      */
     private String removeDetailInfo(String address) {
         if (address == null) return address;
@@ -371,7 +352,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 구+동까지만 추출
+     * 구+동까지만 추출 (숙박업 기반)
      */
     private String extractDistrictAndDong(String address) {
         if (address == null) return address;
@@ -401,7 +382,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 괄호 안의 동명 추출
+     * 괄호 안의 동명 추출 (숙박업 기반)
      */
     private String extractDongFromBrackets(String address) {
         if (address == null) return null;
@@ -418,7 +399,7 @@ public class EntertainmentCoordinateService {
     }
 
     /**
-     * 구/군 단위까지만 추출
+     * 구/군 단위까지만 추출 (숙박업 기반)
      */
     private String extractDistrictOnly(String address) {
         if (address == null) return address;
@@ -442,9 +423,6 @@ public class EntertainmentCoordinateService {
     /**
      * Kakao Local API를 호출하여 주소를 좌표로 변환
      * UriComponentsBuilder가 자동으로 한글 인코딩 처리
-     *
-     * @param address 변환할 주소
-     * @return 위도, 경도 배열 [latitude, longitude] 또는 null
      */
     private Double[] callKakaoGeocodingApi(String address) {
         totalApiCalls++;
@@ -497,10 +475,6 @@ public class EntertainmentCoordinateService {
 
     /**
      * Kakao API 응답을 파싱하여 좌표 추출
-     *
-     * @param responseBody API 응답 JSON
-     * @param originalAddress 원본 주소 (로깅용)
-     * @return 위도, 경도 배열 [latitude, longitude] 또는 null
      */
     private Double[] parseKakaoApiResponse(String responseBody, String originalAddress) {
         try {
@@ -508,7 +482,6 @@ public class EntertainmentCoordinateService {
             JsonNode documentsNode = rootNode.path("documents");
 
             if (documentsNode.isArray() && documentsNode.size() > 0) {
-                // 첫 번째 결과 사용
                 JsonNode firstResult = documentsNode.get(0);
 
                 // 도로명주소 결과 우선 선택
@@ -535,9 +508,6 @@ public class EntertainmentCoordinateService {
 
     /**
      * JSON 노드에서 좌표 정보 추출
-     *
-     * @param node 좌표 정보가 포함된 JSON 노드
-     * @return 위도, 경도 배열 [latitude, longitude] 또는 null
      */
     private Double[] extractCoordinatesFromNode(JsonNode node) {
         try {
@@ -569,10 +539,6 @@ public class EntertainmentCoordinateService {
 
     /**
      * 한국 영역 내 좌표인지 검증
-     *
-     * @param latitude 위도
-     * @param longitude 경도
-     * @return 유효한 한국 좌표 여부
      */
     private boolean isValidKoreanCoordinate(double latitude, double longitude) {
         // 한국 좌표 범위 (대략적)

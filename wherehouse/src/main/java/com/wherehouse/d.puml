@@ -1,0 +1,70 @@
+@startuml
+!pragma useHandwritten false
+skinparam handwritten false
+
+autonumber "<b>[0]"
+
+hide footbox
+
+skinparam defaultFontName "SansSerif"
+skinparam sequence {
+    ParticipantBackgroundColor #F2F2F2
+    ArrowColor #2C3E50
+    LifeLineBorderColor #2C3E50
+}
+
+actor "Controller" as controller
+participant "MemberService" as service
+participant "UserEntityRepository" as userRepo
+participant "BCryptPasswordEncoder" as encoder
+participant "IMembersRepository" as membersRepo
+participant "JWTUtil" as jwtUtil
+
+controller -> service : editMember(currentToken, memberDTO)
+activate service
+
+group 1. 기존 정보 조회 및 데이터 준비
+    service -> userRepo : findById(id)
+    activate userRepo
+    userRepo --> service : Optional<UserEntity>
+    deactivate userRepo
+    note right: 기존 회원의 Role 정보 조회
+
+    service -> encoder : encode(password)
+    activate encoder
+    encoder --> service : encodedPassword
+    deactivate encoder
+end
+
+group 2. 닉네임 중복 검사 및 DB 수정
+    service -> membersRepo : isNEditickNameAllowed(membersEntity, userEntity)
+    activate membersRepo
+    membersRepo --> service : Optional<MembersEntity>
+    deactivate membersRepo
+
+    alt 닉네임 중복
+        service --> controller : throws NicknameAlreadyExistsException
+    else 닉네임 사용 가능
+        service -> membersRepo : editMember(membersEntity, userEntity)
+        activate membersRepo
+        note right: 회원 테이블과 인증 테이블 정보 동시 갱신
+        membersRepo --> service
+        deactivate membersRepo
+    end
+end
+
+group 3. JWT 토큰 갱신
+    service -> service : editToken(currentToken, "username", newNickName)
+    activate service
+    service -> jwtUtil : modifyClaim(token, claim, value)
+    activate jwtUtil
+    jwtUtil --> service : newJwt
+    deactivate jwtUtil
+    service --> service : newJwt
+    deactivate service
+end
+
+service --> controller : newJwt
+deactivate service
+
+@enduml

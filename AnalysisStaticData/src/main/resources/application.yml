@@ -1,0 +1,171 @@
+server:
+  port: 8080
+
+# 국토부 API 설정
+molit:
+  rent-api:
+    service-key: ${MOLIT_RENT_SERVICE_KEY:fcBMvnY9N4qmZ7KLrha0MT/hyJ5AwhwodoJbM8XUWJQgj6kpsQ1mrEPbyoan8bTIyK7x0ontbGJNQ7GWmSKNjg==}
+    base-url: https://apis.data.go.kr/1613000/RTMSDataSvcAptRent
+    timeout: 30000
+
+  # 매매 API 설정
+  trade-api:
+    service-key: ${MOLIT_TRADE_SERVICE_KEY:your-service-key-here}
+    base-url: http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc
+    timeout: 30000
+
+  api:
+    hospital:
+      service-key: ${HOSPITAL_API_SERVICE_KEY:fcBMvnY9N4qmZ7KLrha0MT/hyJ5AwhwodoJbM8XUWJQgj6kpsQ1mrEPbyoan8bTIyK7x0ontbGJNQ7GWmSKNjg==}
+
+# 생활안전지도 API 설정(편의시설)
+apps:
+  trade-api:
+    api-key: DE8OVA9S-DE8O-DE8O-DE8O-DE8OVA9S1C
+    base-url: https://safemap.go.kr/openApiService/data/getConvenienceStoreData.do
+    facility-code: 509010
+
+  analysis:
+    karaoke-rooms:
+      batch-size: 50                # 배치 처리 단위
+      geocoding-delay: 100          # API 호출 간격 (ms) - Rate Limit 준수
+    police-facility:
+      batch-size: 50                # 배치 처리 단위
+      geocoding-delay: 100          # API 호출 간격 (ms) - Rate Limit 준수
+      seoul-bounds: # 서울시 영역 검증용 좌표 범위
+        min-lat: 37.4269            # 최소 위도
+        max-lat: 37.7019            # 최대 위도
+        min-lng: 126.7342           # 최소 경도
+        max-lng: 127.2698           # 최대 경도
+      active-status: # 영업 중 상태 코드
+        - "1"                       # 정상영업
+        - "2"                       # 부분영업
+
+# 카카오 API 설정
+kakao:
+  rest-api-key: 7fe07a684774ccd5fc8d9780ea9d750a
+  local-api:
+    base-url: https://dapi.kakao.com/v2/local
+    geocoding:
+      url: "https://dapi.kakao.com/v2/local/search/address.json"
+    request-delay: 100
+  api:
+    geocoding:
+      url: "https://dapi.kakao.com/v2/local/search/address.json"
+      timeout: 5000                 # 응답 대기 시간 (ms)
+      retry-count: 3                # 실패 시 재시도 횟수
+      rate-limit: 100               # 분당 요청 제한 (Kakao API 정책 준수)
+
+
+# 로깅 설정lodgment
+logging:
+  level:
+    com.realestate: DEBUG
+    com.WhereHouse: DEBUG
+    org.springframework.web.reactive: INFO
+    reactor.netty: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 스프링 기본 설정
+spring:
+  application:
+    name: APITest
+  profiles:
+    active: dev
+  output:
+    ansi:
+      enabled: always
+
+  # Oracle Database 설정 추가
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
+    username: SCOTT
+    password: tiger
+
+    hikari:
+      auto-commit: false
+      idle-timeout: 30000
+      max-lifetime: 1800000
+
+  # JPA 설정 추가
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+        format_sql: false
+        default_batch_fetch_size: 50
+        jdbc.fetch_size: 100
+        cache.use_query_cache: false
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    open-in-view: false
+
+# CSV 파일 설정 추가
+app:
+  csv:
+    crime-data-path: classpath:data/5대_범죄_발생현황_2023.csv
+
+    resident-center-data-path: classpath:data/서울시_주민센터_2024.csv
+
+    financial-institution-data-path: classpath:data/금융기관_2025.csv
+
+    cctv-data-path: classpath:data/CCTV정보_20250701.csv
+
+    streetlight-data-path: classpath:data/서울시 가로등 위치 정보_20231221.csv
+
+    entertainment-bars-data-path: classpath:data/서울시 유흥주점영업 인허가 정보_20250825.csv
+
+    danran-bars-data-path: classpath:data/서울시 단란주점영업 인허가 정보_20250825.csv
+
+    pc-bangs-data-path: classpath:data/서울시 인터넷컴퓨터게임시설제공업 인허가 정보_20250825.csv
+
+    karaoke-rooms-data-path: classpath:data/서울시 노래연습장업 인허가 정보_20250825.csv
+
+    lodging-data-path: classpath:data/숙박업_20250802.csv
+
+    subway-station-path: classpath:data/서울교통공사_역주소 및 전화번호_20250318.csv
+
+    school-data-path: classpath:data/전국초중등학교위치표준데이터_20250402.csv
+
+    university-data-path: classpath:data/전국대학및전문대학정보표준데이터_20250108.csv
+
+    mart-data-path: classpath:data/서울시 대규모점포 인허가 정보_20250827.csv
+
+    cultural-sports-data-path: classpath:data/서울시 영화상영관 인허가 정보_20250827.csv
+
+    police-facility-data-path: classpath:data/경찰청_전국 지구대 파출소 주소 현황_20250604.csv
+
+    population-density-path: classpath:data/인구밀도_202509011.csv
+
+    convenience-path: classpath:data/서울시 안전상비의약품 판매업소 인허가 정보_202509.csv
+
+    hospital-path: classpath:data/서울시 병원 인허가 정보_202509.csv
+---
+# 개발 환경
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: INFO
+    com.realestate: DEBUG
+    com.WhereHouse: DEBUG
+
+---
+# 운영 환경
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: WARN
+    com.realestate: INFO
+    com.WhereHouse: INFO

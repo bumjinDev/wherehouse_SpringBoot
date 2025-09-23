@@ -31,27 +31,53 @@ public class KakaoAddressApiClient {
     public AddressSearchResponse searchAddress(String address) {
         String url = baseUrl + "/search/address.json";
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("query", address);
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + restApiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        String fullUrl = url + "?query=" + address;
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
+            log.debug("카카오 API 호출 시작: {}", fullUrl);
+
             ResponseEntity<AddressSearchResponse> response = restTemplate.exchange(
-                    builder.toUriString(),
+                    fullUrl,
                     HttpMethod.GET,
                     entity,
                     AddressSearchResponse.class
             );
 
-            return response.getBody();
+            log.debug("카카오 API 응답 상태: {}", response.getStatusCode());
+            AddressSearchResponse responseBody = response.getBody();
+
+            if (responseBody != null && responseBody.getMeta() != null) {
+                log.debug("카카오 API 응답: total_count={}, documents_size={}",
+                        responseBody.getMeta().getTotal_count(),
+                        responseBody.getDocuments() != null ? responseBody.getDocuments().size() : 0);
+            }
+
+            return responseBody;
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.error("카카오 API HTTP 클라이언트 오류: address={}", address);
+            log.error("  - 상태코드: {}", e.getStatusCode());
+            log.error("  - 응답내용: {}", e.getResponseBodyAsString());
+            log.error("  - URL: {}", fullUrl);
+            return new AddressSearchResponse();
+        } catch (org.springframework.web.client.HttpServerErrorException e) {
+            log.error("카카오 API HTTP 서버 오류: address={}", address);
+            log.error("  - 상태코드: {}", e.getStatusCode());
+            log.error("  - 응답내용: {}", e.getResponseBodyAsString());
+            log.error("  - URL: {}", fullUrl);
+            return new AddressSearchResponse();
         } catch (Exception e) {
             log.error("카카오 주소 검색 API 호출 실패: address={}, error={}", address, e.getMessage());
-            return new AddressSearchResponse(); // 빈 객체 반환
+            log.error("  - URL: {}", fullUrl);
+            log.error("  - Exception Type: {}", e.getClass().getSimpleName());
+            if (e.getCause() != null) {
+                log.error("  - Cause: {}", e.getCause().getMessage());
+            }
+            return new AddressSearchResponse();
         }
     }
 

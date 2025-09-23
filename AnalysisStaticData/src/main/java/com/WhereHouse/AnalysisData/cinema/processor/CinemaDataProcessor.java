@@ -64,7 +64,8 @@ public class CinemaDataProcessor {
         }
 
         // Step 2: 원본 문화체육업 통계 데이터 조회 및 영화관 필터링
-        List<CulturalSportsBusiness> originalCinemaDataList = originalCinemaRepository.findByCultureSportsTypeName("영화상영업");
+        List<CulturalSportsBusiness> originalCinemaDataList = originalCinemaRepository.findAll();
+
         if (originalCinemaDataList.isEmpty()) {
             log.warn("원본 영화관 데이터가 존재하지 않습니다. 먼저 CinemaDataLoader를 통해 CSV 데이터를 로드해주세요.");
             return;

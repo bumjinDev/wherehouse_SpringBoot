@@ -48,14 +48,8 @@ public class AnalysisUniversityStatistics {
     @Column(name = "ROAD_ADDRESS")
     private String roadAddress;
 
-    @Column(name = "LOCATION_ADDRESS")
-    private String locationAddress;
-
     @Column(name = "ROAD_POSTAL_CODE")
     private String roadPostalCode;
-
-    @Column(name = "LOCATION_POSTAL_CODE")
-    private String locationPostalCode;
 
     @Column(name = "HOMEPAGE_URL")
     private String homepageUrl;

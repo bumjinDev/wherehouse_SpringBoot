@@ -44,4 +44,7 @@ public class AnalysisPcBangStatistics {
 
     @Column(name = "LONGITUDE", precision = 10, scale = 8)
     private BigDecimal longitude;
+
+    @Column(name = "GEOCODING_STATUS", length = 4000)
+    private String geocodingStatus;
 }

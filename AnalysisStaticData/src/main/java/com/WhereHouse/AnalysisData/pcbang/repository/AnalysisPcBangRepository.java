@@ -37,4 +37,10 @@ public interface AnalysisPcBangRepository extends JpaRepository<AnalysisPcBangSt
             "GROUP BY SUBSTR(ROAD_ADDRESS, 1, INSTR(ROAD_ADDRESS, ' ', 1, 2) - 1) " +
             "ORDER BY pc_bang_count DESC", nativeQuery = true)
     List<Object[]> findSeoulDistrictPcBangDensityRanking();
+
+    @Query("SELECT a.geocodingStatus, COUNT(a) FROM AnalysisPcBangStatistics a GROUP BY a.geocodingStatus ORDER BY COUNT(a) DESC")
+    List<Object[]> findGeocodingStatusDistribution();
+
+    @Query("SELECT COUNT(a) FROM AnalysisPcBangStatistics a WHERE a.latitude != 0.0 AND a.longitude != 0.0")
+    long countSuccessfulGeocodedData();
 }

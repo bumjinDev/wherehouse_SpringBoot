@@ -169,7 +169,7 @@ public class BankCountDataProcessor {
 
             // 구별 은행 밀도 순위 조회 및 로깅 (피어슨 상관분석 검증용)
             List<Object[]> districtBankDensityRankingList = analysisBankCountRepository.findDistrictBankDensityRanking();
-            log.info("서울시 구별 은행 밀도 순위 (상위 5개구):"););
+            log.info("서울시 구별 은행 밀도 순위 (상위 5개구):");
 
             districtBankDensityRankingList.stream()
                     .limit(5)

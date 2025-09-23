@@ -80,9 +80,10 @@ public class BatchScheduler {
         codes.put("11740", "강동구");
         SEOUL_DISTRICT_CODES = Collections.unmodifiableMap(codes);
     }
+// 테스트용: 한번만 실행 (fixedDelay 사용)
 
-    // 테스트용: 한번만 실행 (fixedDelay 사용)
 //    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    @Scheduled(cron = "10 0 4 1 * *")
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 ===");
 
@@ -113,19 +114,18 @@ public class BatchScheduler {
      * 서울시 25개 자치구를 순회하며 모든 매물 데이터를 수집
      */
     private List<Property> collectAllDistrictData() {
+
         log.info("서울시 25개 자치구 매물 데이터 수집 시작");
 
         List<Property> allProperties = new ArrayList<>();
         // 수정: 현재 날짜 기준 전월로 변경
         String dealYmd = LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
-
         // 디버깅용: 실제 조회하는 년월 로그
         log.info("조회 기준 년월: {} (현재 날짜 기준 전월)", dealYmd);
 
         for (Map.Entry<String, String> district : SEOUL_DISTRICT_CODES.entrySet()) {
             String districtCode = district.getKey();
             String districtName = district.getValue();
-
             log.info(">>> {} ({}) 매물 데이터 수집 시작", districtName, districtCode);
 
             try {
@@ -133,17 +133,12 @@ public class BatchScheduler {
                         districtCode, districtName, dealYmd);
 
                 allProperties.addAll(districtProperties);
-
                 log.info(">>> {} 매물 데이터 수집 완료: {}건", districtName, districtProperties.size());
-
                 // API 호출 간격 조절 (Rate Limit 방지)
                 Thread.sleep(200);
 
-            } catch (Exception e) {
-                log.error(">>> {} 매물 데이터 수집 실패", districtName, e);
-            }
+            } catch (Exception e) { log.error(">>> {} 매물 데이터 수집 실패", districtName, e); }
         }
-
         log.info("전 지역구 매물 데이터 수집 완료: 이 {}건", allProperties.size());
         return allProperties;
     }
@@ -383,14 +378,12 @@ public class BatchScheduler {
                 property.setDealDate(String.format("%s-%02d-%02d",
                         dealYear, Integer.parseInt(dealMonth), Integer.parseInt(dealDay)));
             }
-
             // 계산된 값들 설정
             property.calculateAreaInPyeong();
             property.determineLeaseType();
             property.generateAddress();
 
             // 안전성 점수는 API에서 제공되지 않으므로 설정하지 않음
-
             return property;
 
         } catch (Exception e) {
@@ -451,7 +444,7 @@ public class BatchScheduler {
 
     /**
      * B-03: Redis 데이터 적재 - 수정된 버전
-     * 명세서에 따른 전세/월세 완전 분리 구조로 저장
+     *      * 명세서에 따른 전세/월세 완전 분리 구조로 저장
      * 핵심 수정사항: 월세 매물의 보증금과 월세금을 각각 독립된 인덱스로 분리
      */
     private void storeDataToRedis(List<Property> properties) {

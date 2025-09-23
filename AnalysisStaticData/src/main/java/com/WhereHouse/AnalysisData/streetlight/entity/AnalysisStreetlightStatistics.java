@@ -36,9 +36,9 @@ public class AnalysisStreetlightStatistics {
     @Column(name = "JIBUN_ADDRESS")
     private String jibunAddress;
 
-    @Column(name = "LATITUDE", precision = 10, scale = 8)
-    private BigDecimal latitude;
+    @Column(name = "LATITUDE")
+    private Double latitude;
 
-    @Column(name = "LONGITUDE", precision = 10, scale = 8)
-    private BigDecimal longitude;
+    @Column(name = "LONGITUDE")
+    private Double longitude;
 }

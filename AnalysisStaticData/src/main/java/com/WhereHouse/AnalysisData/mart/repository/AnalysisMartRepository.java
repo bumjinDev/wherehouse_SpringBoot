@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AnalysisMartRepository extends JpaRepository<AnalysisMartStatistics, Long> {
@@ -15,9 +14,7 @@ public interface AnalysisMartRepository extends JpaRepository<AnalysisMartStatis
 
     List<AnalysisMartStatistics> findByBusinessTypeName(String businessTypeName);
 
-    Optional<AnalysisMartStatistics> findByManagementNo(String managementNo);
-
-    boolean existsByManagementNo(String managementNo);
+    boolean existsByBusinessName(String businessName);
 
     @Query("SELECT COUNT(a) FROM AnalysisMartStatistics a")
     long countAnalysisData();

@@ -6,13 +6,13 @@ import com.WhereHouse.AnalysisData.streetlight.repository.AnalysisStreetlightRep
 import com.WhereHouse.AnalysisStaticData.StreetLightRaw.Entity.StreetlightRawData;
 import com.WhereHouse.AnalysisStaticData.StreetLightRaw.Repository.StreetlightRawDataRepository;
 // KakaoMap API 클라이언트 import
-import com.WhereHouse.AnalysisData.streetlight.client.KakaoAddressApiClient;
+import com.WhereHouse.AnalysisData.streetlight.client.StreetLightKakaoAddressApiClient;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -43,7 +43,7 @@ public class StreetlightDataProcessor {
     private final AnalysisStreetlightRepository analysisStreetlightRepository;
 
     // KakaoMap API 클라이언트
-    private final KakaoAddressApiClient kakaoAddressApiClient;
+    private final StreetLightKakaoAddressApiClient kakaoAddressApiClient;
 
     /**
      * 가로등 데이터 분석용 테이블 생성 메인 프로세스
@@ -133,8 +133,8 @@ public class StreetlightDataProcessor {
 
         // 기본 정보 설정
         String managementNumber = originalStreetlightData.getManagementNumber();
-        Double latitude = originalStreetlightData.getLatitude());
-        Double longitude = originalStreetlightData.getLongitude());
+        Double latitude = originalStreetlightData.getLatitude();
+        Double longitude = originalStreetlightData.getLongitude();
 
         // 주소 정보 초기화
         String districtName = "주소정보없음";
@@ -152,15 +152,15 @@ public class StreetlightDataProcessor {
                 String longitudeStr = longitude.toString();
 
                 // KakaoMap API 호출
-                KakaoAddressApiClient.CoordinateToAddressResponse response =
+                StreetLightKakaoAddressApiClient.CoordinateToAddressResponse response =
                         kakaoAddressApiClient.coordinateToAddress(longitudeStr, latitudeStr);
 
                 if (response.getDocuments() != null && !response.getDocuments().isEmpty()) {
-                    KakaoAddressApiClient.CoordinateToAddressResponse.Document document = response.getDocuments().get(0);
+                    StreetLightKakaoAddressApiClient.CoordinateToAddressResponse.Document document = response.getDocuments().get(0);
 
                     // 도로명 주소 정보 추출
                     if (document.getRoadAddress() != null) {
-                        KakaoAddressApiClient.CoordinateToAddressResponse.RoadAddress roadAddr = document.getRoadAddress();
+                        StreetLightKakaoAddressApiClient.CoordinateToAddressResponse.RoadAddress roadAddr = document.getRoadAddress();
                         districtName = roadAddr.getRegion2DepthName(); // 구
                         dongName = roadAddr.getRegion3DepthName();     // 동
                         roadAddress = roadAddr.getAddressName();       // 전체 도로명 주소
@@ -168,7 +168,7 @@ public class StreetlightDataProcessor {
 
                     // 지번 주소 정보 추출 (도로명 주소가 없을 경우 대안)
                     if (document.getAddress() != null) {
-                        KakaoAddressApiClient.CoordinateToAddressResponse.Address addr = document.getAddress();
+                        StreetLightKakaoAddressApiClient.CoordinateToAddressResponse.Address addr = document.getAddress();
                         if ("주소정보없음".equals(districtName)) {
                             districtName = addr.getRegion2DepthName(); // 구
                             dongName = addr.getRegion3DepthName();     // 동

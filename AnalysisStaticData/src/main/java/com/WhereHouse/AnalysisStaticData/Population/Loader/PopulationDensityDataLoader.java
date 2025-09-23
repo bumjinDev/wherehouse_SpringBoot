@@ -1,7 +1,7 @@
 package com.WhereHouse.AnalysisStaticData.Population.Loader;
 
-import com.WhereHouse.AnalysisStaticData.Population.entity.AnalysisPopulationDensity;
-import com.WhereHouse.AnalysisStaticData.Population.repository.AnalysisPopulationDensityRepository;
+import com.WhereHouse.AnalysisStaticData.Population.entity.PopulationDensity;
+import com.WhereHouse.AnalysisStaticData.Population.repository.PopulationDensityRepository;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +25,15 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PopulationDensityDataLoader implements CommandLineRunner {
+public class PopulationDensityDataLoader {  //  implements CommandLineRunner
 
-    private final AnalysisPopulationDensityRepository repository;
+    private final PopulationDensityRepository repository;
     private final ResourceLoader resourceLoader;
 
-    @Value("${app.csv.population-density-path:classpath:data/인구밀도_202509011.csv}")
+    @Value("${app.csv.population-density-path:classpath:인구밀도_202509011.csv}")
     private String csvFilePath;
 
-    @Override
+//    @Override
     @Transactional
     public void run(String... args) {
         long existingCount = repository.count();
@@ -43,10 +43,10 @@ public class PopulationDensityDataLoader implements CommandLineRunner {
         }
 
         try {
-            List<AnalysisPopulationDensity> dataList = loadFromCsv();
+            List<PopulationDensity> dataList = loadFromCsv();
 
             if (!dataList.isEmpty()) {
-                List<AnalysisPopulationDensity> savedList = repository.saveAll(dataList);
+                List<PopulationDensity> savedList = repository.saveAll(dataList);
                 log.info("서울시 인구밀도 데이터 로딩 완료 - 총 {} 건 저장", savedList.size());
                 logDataSummary(savedList);
             } else {
@@ -59,8 +59,8 @@ public class PopulationDensityDataLoader implements CommandLineRunner {
         }
     }
 
-    private List<AnalysisPopulationDensity> loadFromCsv() throws IOException, CsvException {
-        List<AnalysisPopulationDensity> dataList = new ArrayList<>();
+    private List<PopulationDensity> loadFromCsv() throws IOException, CsvException {
+        List<PopulationDensity> dataList = new ArrayList<>();
 
         Resource resource = resourceLoader.getResource(csvFilePath);
         if (!resource.exists()) {
@@ -95,7 +95,7 @@ public class PopulationDensityDataLoader implements CommandLineRunner {
                 String[] record = records.get(i);
 
                 try {
-                    AnalysisPopulationDensity data = parseCsvRecord(record, i + 1);
+                    PopulationDensity data = parseCsvRecord(record, i + 1);
                     if (data != null) {
                         // 중복 체크
                         if (!repository.existsByDistrictNameAndYear(data.getDistrictName(), data.getYear())) {
@@ -127,7 +127,7 @@ public class PopulationDensityDataLoader implements CommandLineRunner {
         return dataList;
     }
 
-    private AnalysisPopulationDensity parseCsvRecord(String[] record, int lineNumber) {
+    private PopulationDensity parseCsvRecord(String[] record, int lineNumber) {
         if (record.length < 6) {
             log.debug("CSV 레코드 길이 부족 - 행 {}: {} (최소 6개 필요)", lineNumber, record.length);
             return null;
@@ -161,7 +161,7 @@ public class PopulationDensityDataLoader implements CommandLineRunner {
                 return null;
             }
 
-            AnalysisPopulationDensity entity = AnalysisPopulationDensity.builder()
+            PopulationDensity entity = PopulationDensity.builder()
                     .districtName(districtName)
                     .year(2024)
                     .populationCount(populationCount)
@@ -214,29 +214,29 @@ public class PopulationDensityDataLoader implements CommandLineRunner {
         }
     }
 
-    private void logDataSummary(List<AnalysisPopulationDensity> dataList) {
+    private void logDataSummary(List<PopulationDensity> dataList) {
         if (dataList.isEmpty()) {
             return;
         }
 
         long totalPopulation = dataList.stream()
-                .mapToLong(AnalysisPopulationDensity::getPopulationCount)
+                .mapToLong(PopulationDensity::getPopulationCount)
                 .sum();
 
-        AnalysisPopulationDensity maxDensity = dataList.stream()
+        PopulationDensity maxDensity = dataList.stream()
                 .max((a, b) -> a.getPopulationDensity().compareTo(b.getPopulationDensity()))
                 .orElse(null);
 
-        AnalysisPopulationDensity minDensity = dataList.stream()
+        PopulationDensity minDensity = dataList.stream()
                 .min((a, b) -> a.getPopulationDensity().compareTo(b.getPopulationDensity()))
                 .orElse(null);
 
-        AnalysisPopulationDensity maxPopulation = dataList.stream()
+        PopulationDensity maxPopulation = dataList.stream()
                 .max((a, b) -> a.getPopulationCount().compareTo(b.getPopulationCount()))
                 .orElse(null);
 
         BigDecimal totalArea = dataList.stream()
-                .map(AnalysisPopulationDensity::getAreaSize)
+                .map(PopulationDensity::getAreaSize)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         log.info("=== 서울시 인구밀도 데이터 요약 ===");

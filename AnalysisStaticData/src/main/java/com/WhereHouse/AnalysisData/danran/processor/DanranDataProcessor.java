@@ -32,10 +32,10 @@ public class DanranDataProcessor {
     private final AnalysisDanranRepository analysisDanranRepository;
     private final DanranGeocodingService danranGeocodingService;
 
-    @Value("${app.analysis.danran-bars.batch-size}")
+    @Value("${apps.analysis.karaoke-rooms.batch-size}")
     private Integer batchSize;
 
-    @Value("${app.analysis.danran-bars.geocoding-delay}")
+    @Value("${apps.analysis.karaoke-rooms.geocoding-delay}")
     private Integer geocodingDelay;
 
     private static final Pattern DISTRICT_PATTERN = Pattern.compile("서울특별시\\s+([가-힣]+구)");

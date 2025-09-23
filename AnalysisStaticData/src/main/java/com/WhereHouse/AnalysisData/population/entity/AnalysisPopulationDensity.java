@@ -21,8 +21,8 @@ public class AnalysisPopulationDensity {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "DISTRICT_NAME", length = 50)
-    private String districtName;
+    @Column(name = "DISTRICT_NAME", length = 100)
+    private String districtName;  // 1차 파일과 동일한 필드명
 
     @Column(name = "YEAR")
     private Integer year;

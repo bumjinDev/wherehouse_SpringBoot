@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class KakaoConvenienceCoordinateService {
 
-    @Value("${kakao.api.key}")
+    @Value("${kakao.rest-api-key}")
     private String kakaoApiKey;
 
     private final RestTemplate restTemplate;

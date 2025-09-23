@@ -36,22 +36,22 @@ public class KakaoGeocodingService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${kakao.api.key}")
+    @Value("${kakao.rest-api-key}")
     private String kakaoApiKey;
 
-    @Value("${kakao.api.geocoding.url}")
+    @Value("${kakao.local-api.geocoding.url}")
     private String geocodingUrl;
 
-    @Value("${app.analysis.police-facility.seoul-bounds.min-lat}")
+    @Value("${apps.analysis.police-facility.seoul-bounds.min-lat}")
     private Double seoulMinLat;
 
-    @Value("${app.analysis.police-facility.seoul-bounds.max-lat}")
+    @Value("${apps.analysis.police-facility.seoul-bounds.max-lat}")
     private Double seoulMaxLat;
 
-    @Value("${app.analysis.police-facility.seoul-bounds.min-lng}")
+    @Value("${apps.analysis.police-facility.seoul-bounds.min-lng}")
     private Double seoulMinLng;
 
-    @Value("${app.analysis.police-facility.seoul-bounds.max-lng}")
+    @Value("${apps.analysis.police-facility.seoul-bounds.max-lng}")
     private Double seoulMaxLng;
 
     /**

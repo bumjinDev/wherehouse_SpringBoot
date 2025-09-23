@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class KakaoCoordinateService {
 
-    @Value("${kakao.api.key}")
+    @Value("${kakao.rest-api-key}")
     private String kakaoApiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -180,23 +180,37 @@ public class KakaoCoordinateService {
      */
     private BigDecimal[] callKakaoApi(String address) {
         try {
-            String url = UriComponentsBuilder
-                    .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address.json")
-                    .queryParam("query", address)
-                    .encode()
-                    .toUriString();
+            // 수동으로 URL 조합 (UriComponentsBuilder 사용하지 않음)
+//            String encodedAddress = java.net.URLEncoder.encode(address, "UTF-8");
+//            String url = "https://dapi.kakao.com/v2/local/search/address.json?query=" + encodedAddress;
+            String url = "https://dapi.kakao.com/v2/local/search/address.json?query=" + address;
+
+            log.debug("=== Kakao API 호출 디버깅 ===");
+            log.debug("원본 주소: {}", address);
+//            log.debug("인코딩된 주소: {}", encodedAddress);
+//            log.debug("최종 URL: {}", url);
+            log.debug("최종 URL: {}", address);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "KakaoAK " + kakaoApiKey);
+            headers.set("Content-Type", "application/json;charset=UTF-8");
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
+
+            log.debug("응답 상태 코드: {}", response.getStatusCode());
+            log.debug("응답 헤더: {}", response.getHeaders());
+            log.debug("응답 본문: {}", response.getBody());
+            log.debug("=============================");
+
             if (response.getStatusCode().is2xxSuccessful()) {
                 return parseCoordinatesFromResponse(response.getBody());
+            } else {
+                log.warn("API 호출 실패 - 상태코드: {}, 주소: {}", response.getStatusCode(), address);
             }
         } catch (Exception e) {
-            log.warn("Kakao API 호출 중 오류 발생 - 주소: {}, 오류: {}", address, e.getMessage());
+            log.error("Kakao API 호출 중 오류 발생 - 주소: {}, 오류: {}", address, e.getMessage(), e);
         }
 
         return null;

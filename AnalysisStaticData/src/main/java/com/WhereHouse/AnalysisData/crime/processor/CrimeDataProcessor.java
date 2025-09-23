@@ -52,49 +52,88 @@ public class CrimeDataProcessor {
         log.info("=== 범죄 데이터 분석용 테이블 생성 작업 시작 ===");
 
         // Step 1: 기존 분석용 데이터 중복 처리 방지를 위한 존재 여부 확인
+        log.info("Step 1: 기존 분석용 데이터 존재 여부 확인 중...");
         long existingAnalysisDataCount = analysisCrimeRepository.count();
+        log.info("기존 분석용 데이터 개수: {} 개", existingAnalysisDataCount);
+
         if (existingAnalysisDataCount > 0) {
             log.info("분석용 범죄 데이터가 이미 존재합니다 (총 {} 개). 작업을 스킵합니다.", existingAnalysisDataCount);
             return;
         }
 
         // Step 2: 원본 범죄 통계 데이터 조회 및 검증
+        log.info("Step 2: 원본 범죄 통계 데이터 조회 시작...");
         List<CrimeStatistics> originalCrimeDataList = originalCrimeRepository.findAll();
+        log.info("원본 데이터 조회 완료. 조회된 데이터 개수: {} 개", originalCrimeDataList.size());
+
         if (originalCrimeDataList.isEmpty()) {
             log.warn("원본 범죄 통계 데이터가 존재하지 않습니다. 먼저 CrimeDataLoader를 통해 CSV 데이터를 로드해주세요.");
+            log.warn("원본 테이블명 확인: CRIME_STATISTICS");
+            log.warn("원본 Repository 패키지: com.WhereHouse.AnalysisStaticData.CriminalInfoSave.repository");
             return;
         }
 
         log.info("원본 범죄 통계 데이터 {} 개 구 발견", originalCrimeDataList.size());
 
+        // 원본 데이터 샘플 로깅
+        if (!originalCrimeDataList.isEmpty()) {
+            CrimeStatistics sampleData = originalCrimeDataList.get(0);
+            log.info("원본 데이터 샘플: {} 구, 총 발생 {} 건",
+                    sampleData.getDistrictName(), sampleData.getTotalOccurrence());
+        }
+
         // Step 3: 데이터 변환 및 저장 작업 수행
+        log.info("Step 3: 데이터 변환 및 저장 작업 시작...");
         int successfulConversionCount = 0;  // 성공적으로 변환된 데이터 개수
         int failedConversionCount = 0;      // 변환 실패한 데이터 개수
+        int totalDataCount = originalCrimeDataList.size();
 
-        for (CrimeStatistics originalCrimeData : originalCrimeDataList) {
+        for (int i = 0; i < originalCrimeDataList.size(); i++) {
+            CrimeStatistics originalCrimeData = originalCrimeDataList.get(i);
+
             try {
+                log.debug("처리 중: [{}/{}] {} 구", i + 1, totalDataCount, originalCrimeData.getDistrictName());
+
                 // 원본 데이터를 분석용 엔티티로 변환 (CREATED_AT 필드 제외)
                 AnalysisCrimeStatistics analysisTargetCrimeData = convertToAnalysisEntity(originalCrimeData);
 
                 // 분석용 테이블에 데이터 저장
-                analysisCrimeRepository.save(analysisTargetCrimeData);
-                successfulConversionCount++;
+                AnalysisCrimeStatistics savedData = analysisCrimeRepository.save(analysisTargetCrimeData);
 
-                log.debug("분석용 데이터 생성 완료: {} 구 (총 범죄 발생: {} 건)",
-                        originalCrimeData.getDistrictName(), originalCrimeData.getTotalOccurrence());
+                if (savedData.getId() != null) {
+                    successfulConversionCount++;
+                    log.info("✅ [{}/{}] 저장 성공: {} 구 (ID: {}, 총 범죄 발생: {} 건)",
+                            i + 1, totalDataCount, originalCrimeData.getDistrictName(),
+                            savedData.getId(), originalCrimeData.getTotalOccurrence());
+                } else {
+                    throw new RuntimeException("저장된 데이터의 ID가 null입니다.");
+                }
 
             } catch (Exception dataConversionException) {
-                log.error("분석용 데이터 생성 실패 - 구명: {}, 오류: {}",
-                        originalCrimeData.getDistrictName(), dataConversionException.getMessage());
                 failedConversionCount++;
+                log.error("❌ [{}/{}] 저장 실패 - 구명: {}, 오류: {}",
+                        i + 1, totalDataCount, originalCrimeData.getDistrictName(),
+                        dataConversionException.getMessage(), dataConversionException);
+            }
+
+            // 진행률 로깅 (10% 단위)
+            if ((i + 1) % Math.max(1, totalDataCount / 10) == 0) {
+                double progressRate = ((double)(i + 1) / totalDataCount) * 100;
+                log.info("📊 진행률: {:.1f}% ({}/{})", progressRate, i + 1, totalDataCount);
             }
         }
 
         // Step 4: 변환 작업 결과 로깅
+        log.info("Step 4: 변환 작업 결과 집계");
         log.info("범죄 데이터 분석용 테이블 생성 작업 완료 - 성공: {} 개, 실패: {} 개",
                 successfulConversionCount, failedConversionCount);
 
+        if (failedConversionCount > 0) {
+            log.warn("실패한 데이터가 {} 개 있습니다. 로그를 확인해주세요.", failedConversionCount);
+        }
+
         // Step 5: 최종 데이터 검증 및 품질 확인
+        log.info("Step 5: 최종 데이터 검증 시작");
         performFinalDataValidation();
 
         log.info("=== 범죄 데이터 분석용 테이블 생성 작업 종료 ===");

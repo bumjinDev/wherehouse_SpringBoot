@@ -22,12 +22,12 @@ import java.util.List;
  * 주요 기능:
  * - 원본 대형마트/백화점 통계 데이터 조회 및 검증
  * - CREATED_AT 필드 제외한 모든 상점 정보 필드 복사
- * - 부정확한 기존 좌표를 무시하고 주소 기반 위도, 경도 재계산
+ * - Kakao Local API를 통한 위도, 경도 좌표 계산 및 추가
  * - 분석용 테이블 데이터 품질 검증
  * - 영업상태별 및 업태별 분포 로깅
  *
  * @author Safety Analysis System
- * @since 1.0
+ * @since 1.1
  */
 @Component
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class MartDataProcessor {
     // 분석용 대형마트/백화점 통계 테이블 접근을 위한 Repository
     private final AnalysisMartRepository analysisMartRepository;
 
-    // 좌표 계산을 위한 서비스
+    // Kakao API 좌표 계산을 위한 서비스
     private final MartCoordinateService coordinateService;
 
     /**
@@ -49,7 +49,7 @@ public class MartDataProcessor {
      * 작업 순서:
      * 1. 기존 분석용 데이터 존재 여부 확인
      * 2. 원본 대형마트/백화점 데이터 조회 및 검증
-     * 3. 데이터 변환 및 좌표 재계산 후 분석용 테이블 저장
+     * 3. 데이터 변환 및 Kakao API 좌표 계산 후 분석용 테이블 저장
      * 4. 데이터 품질 검증 및 결과 로깅
      */
     @Transactional
@@ -78,13 +78,20 @@ public class MartDataProcessor {
         int coordinateCalculationSuccessCount = 0; // 좌표 계산 성공 개수
         int coordinateCalculationFailedCount = 0;  // 좌표 계산 실패 개수
 
+        // 처리 진행률 추적
+        int processedCount = 0;
+        int totalCount = originalMartDataList.size();
+        int logInterval = Math.max(1, totalCount / 10); // 10% 간격으로 로그 출력
+
         for (MartStatistics originalMartData : originalMartDataList) {
+            processedCount++;
+
             try {
                 // 원본 데이터를 분석용 엔티티로 변환 (CREATED_AT 필드 제외)
                 AnalysisMartStatistics analysisTargetMartData = convertToAnalysisEntity(originalMartData);
 
-                // 좌표 재계산 및 설정 (기존 COORD_X, COORD_Y 무시)
-                Double[] coordinates = recalculateCoordinatesForMart(originalMartData);
+                // Kakao API를 통한 좌표 계산 및 설정
+                Double[] coordinates = calculateCoordinatesForMart(originalMartData);
                 if (coordinates != null) {
                     analysisTargetMartData.setLatitude(coordinates[0]);
                     analysisTargetMartData.setLongitude(coordinates[1]);
@@ -104,6 +111,12 @@ public class MartDataProcessor {
                         coordinates != null ? coordinates[0] : "없음",
                         coordinates != null ? coordinates[1] : "없음");
 
+                // 진행률 로그 (10% 간격)
+                if (processedCount % logInterval == 0 || processedCount == totalCount) {
+                    double progressPercentage = (double) processedCount / totalCount * 100;
+                    log.info("진행률: {:.1f}% 완료 ({}/{})", progressPercentage, processedCount, totalCount);
+                }
+
             } catch (Exception dataConversionException) {
                 log.error("분석용 데이터 생성 실패 - 상점명: {}, 오류: {}",
                         originalMartData.getBusinessName(), dataConversionException.getMessage());
@@ -114,7 +127,7 @@ public class MartDataProcessor {
         // Step 4: 변환 작업 결과 로깅
         log.info("대형마트/백화점 데이터 분석용 테이블 생성 작업 완료");
         log.info("- 데이터 변환: 성공 {} 개, 실패 {} 개", successfulConversionCount, failedConversionCount);
-        log.info("- 좌표 재계산: 성공 {} 개, 실패 {} 개", coordinateCalculationSuccessCount, coordinateCalculationFailedCount);
+        log.info("- 좌표 계산: 성공 {} 개, 실패 {} 개", coordinateCalculationSuccessCount, coordinateCalculationFailedCount);
 
         // Step 5: 최종 데이터 검증 및 품질 확인
         performFinalDataValidation();
@@ -126,54 +139,20 @@ public class MartDataProcessor {
      * 원본 대형마트/백화점 통계 엔티티를 분석용 엔티티로 변환
      *
      * CREATED_AT 필드를 제외한 모든 상점 정보 필드를 복사한다.
-     * 좌표 정보는 별도 메서드에서 재계산하여 설정한다.
+     * 좌표 정보는 별도 메서드에서 계산하여 설정한다.
      *
      * @param originalMartData 원본 대형마트/백화점 통계 엔티티
      * @return 분석용 대형마트/백화점 통계 엔티티
      */
     private AnalysisMartStatistics convertToAnalysisEntity(MartStatistics originalMartData) {
         return AnalysisMartStatistics.builder()
-                // 기본 정보
-                .localGovtCode(originalMartData.getLocalGovtCode())                           // 지자체코드
-                .managementNo(originalMartData.getManagementNo())                             // 관리번호
-
-                // 인허가 정보
-                .licenseDate(originalMartData.getLicenseDate())                               // 인허가일자
-                .licenseCancelDate(originalMartData.getLicenseCancelDate())                   // 인허가취소일자
-
-                // 영업상태 정보
-                .businessStatusCode(originalMartData.getBusinessStatusCode())                 // 영업상태코드
+                // 지정된 6개 필드만 복사
                 .businessStatusName(originalMartData.getBusinessStatusName())                 // 영업상태명
-                .detailStatusCode(originalMartData.getDetailStatusCode())                     // 상세상태코드
-                .detailStatusName(originalMartData.getDetailStatusName())                     // 상세상태명
-
-                // 폐업/휴업 정보
-                .closureDate(originalMartData.getClosureDate())                               // 폐업일자
-                .suspensionStartDate(originalMartData.getSuspensionStartDate())               // 휴업시작일자
-                .suspensionEndDate(originalMartData.getSuspensionEndDate())                   // 휴업종료일자
-                .reopenDate(originalMartData.getReopenDate())                                 // 재개업일자
-
-                // 연락처 및 면적 정보
                 .phoneNumber(originalMartData.getPhoneNumber())                               // 전화번호
-                .locationArea(originalMartData.getLocationArea())                             // 소재지면적
-
-                // 주소 정보
-                .locationPostalCode(originalMartData.getLocationPostalCode())                 // 소재지우편번호
                 .address(originalMartData.getAddress())                                       // 주소
                 .roadAddress(originalMartData.getRoadAddress())                               // 도로명주소
-                .roadPostalCode(originalMartData.getRoadPostalCode())                         // 도로명우편번호
-
-                // 사업장 정보
                 .businessName(originalMartData.getBusinessName())                             // 사업장명
-
-                // 데이터 갱신 정보
-                .lastUpdateDate(originalMartData.getLastUpdateDate())                         // 최종수정일자
-                .dataUpdateType(originalMartData.getDataUpdateType())                         // 데이터갱신구분
-                .dataUpdateDate(originalMartData.getDataUpdateDate())                         // 데이터갱신일자
-
-                // 업종 정보
                 .businessTypeName(originalMartData.getBusinessTypeName())                     // 업태구분명
-                .storeTypeName(originalMartData.getStoreTypeName())                           // 점포구분명
 
                 // 좌표 정보는 별도 설정 (초기값 null)
                 .latitude(null)
@@ -182,15 +161,14 @@ public class MartDataProcessor {
     }
 
     /**
-     * 대형마트/백화점 주소 정보 기반 좌표 재계산
+     * 대형마트/백화점 주소 정보 기반 Kakao API 좌표 계산
      *
-     * 기존 COORD_X, COORD_Y 값은 부정확하므로 무시하고,
-     * 도로명주소를 우선으로 하고, 없는 경우 지번주소를 활용하여 좌표를 재계산한다.
+     * 도로명주소를 우선으로 하고, 없는 경우 지번주소를 활용하여 좌표를 계산한다.
      *
      * @param martData 원본 대형마트/백화점 데이터
      * @return 위도, 경도 배열 [latitude, longitude] 또는 null
      */
-    private Double[] recalculateCoordinatesForMart(MartStatistics martData) {
+    private Double[] calculateCoordinatesForMart(MartStatistics martData) {
         try {
             // 1순위: 도로명주소 기반 좌표 계산
             if (martData.getRoadAddress() != null && !martData.getRoadAddress().trim().isEmpty()) {
@@ -208,11 +186,11 @@ public class MartDataProcessor {
                 }
             }
 
-            log.debug("좌표 재계산 실패 - 상점명: {}, 주소 정보 부족", martData.getBusinessName());
+            log.debug("좌표 계산 실패 - 상점명: {}, 주소 정보 부족", martData.getBusinessName());
             return null;
 
         } catch (Exception coordinateCalculationException) {
-            log.error("좌표 재계산 중 오류 발생 - 상점명: {}, 오류: {}",
+            log.error("좌표 계산 중 오류 발생 - 상점명: {}, 오류: {}",
                     martData.getBusinessName(), coordinateCalculationException.getMessage());
             return null;
         }

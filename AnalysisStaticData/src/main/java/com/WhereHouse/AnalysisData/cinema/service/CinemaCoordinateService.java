@@ -23,7 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class CinemaCoordinateService {
 
-    @Value("${kakao.api.key}")
+    @Value("${kakao.rest-api-key}")
     private String kakaoApiKey;
 
     private final RestTemplate restTemplate;

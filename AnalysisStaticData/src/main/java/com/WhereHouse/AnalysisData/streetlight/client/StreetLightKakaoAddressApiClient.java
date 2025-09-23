@@ -38,7 +38,7 @@ import java.util.List;
 @Slf4j
 public class StreetLightKakaoAddressApiClient {
 
-    @Value("${app.kakao.api.key}")
+    @Value("${kakao.rest-api-key}")
     private String kakaoApiKey;
 
     private final RestTemplate restTemplate;

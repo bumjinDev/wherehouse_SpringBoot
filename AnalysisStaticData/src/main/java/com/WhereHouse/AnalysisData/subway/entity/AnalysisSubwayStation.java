@@ -1,4 +1,4 @@
-package com.wherehouse.AnalysisData.subway.entity;
+package com.WhereHouse.AnalysisData.subway.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

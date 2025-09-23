@@ -27,7 +27,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class HospitalCsvLoader implements CommandLineRunner {
+public class HospitalCsvLoader  {   // implements CommandLineRunner
 
     private final HospitalDataRepository repository;
 
@@ -49,7 +49,7 @@ public class HospitalCsvLoader implements CommandLineRunner {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     };
 
-    @Override
+//    @Override
     @Transactional
     public void run(String... args) throws Exception {
         log.info("병원 CSV 데이터 로딩 시작...");
@@ -97,6 +97,8 @@ public class HospitalCsvLoader implements CommandLineRunner {
     }
 
     private HospitalData mapRowToEntity(String[] row) {
+
+
         return HospitalData.builder()
                 .openLocalGovCode(getStringValue(row, 0))
                 .managementNumber(getStringValue(row, 1))
@@ -127,7 +129,9 @@ public class HospitalCsvLoader implements CommandLineRunner {
     }
 
     private String getStringValue(String[] row, int index) {
+
         if (index >= row.length || row[index] == null || row[index].trim().isEmpty()) return null;
+        String val = row[index].trim();
         return row[index].trim();
     }
 

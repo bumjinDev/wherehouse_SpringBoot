@@ -16,6 +16,8 @@ public interface AnalysisLodgingRepository extends JpaRepository<AnalysisLodging
 
     List<AnalysisLodgingStatistics> findByHygieneBusinessType(String hygieneBusinessType);
 
+    boolean existsByBusinessName(String businessName);
+
     @Query("SELECT COUNT(a) FROM AnalysisLodgingStatistics a")
     long countAnalysisData();
 
