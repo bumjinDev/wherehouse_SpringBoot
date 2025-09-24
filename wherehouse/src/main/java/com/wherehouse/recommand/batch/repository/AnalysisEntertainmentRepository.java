@@ -50,7 +50,7 @@ public interface AnalysisEntertainmentRepository extends JpaRepository<AnalysisE
             "        END AS district " +
             "    FROM ANALYSIS_ENTERTAINMENT_STATISTICS e " +
             "    WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%') " +
-            "      AND e.BUSINESS_STATUS_NAME = '영업중' " +
+            "      AND e.BUSINESS_STATUS_NAME = '영업/정상' " +
             ") " +
             "WHERE district IS NOT NULL " +
             "GROUP BY district " +

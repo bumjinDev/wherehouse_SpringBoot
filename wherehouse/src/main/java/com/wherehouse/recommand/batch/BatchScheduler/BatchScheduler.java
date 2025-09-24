@@ -83,6 +83,11 @@ public class BatchScheduler {
 
     // 테스트용: 한번만 실행 (fixedDelay 사용)
 //    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    /**
+     * 매일 새벽 4시 0분 40초에 배치 프로세스를 실행합니다.
+     * cron = "[초] [분] [시] [일] [월] [요일]"
+     */
+    @Scheduled(cron = "40 0 4 * * *")
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 ===");
 
@@ -597,6 +602,10 @@ public class BatchScheduler {
      * B-04: 지역구별 정규화 범위 계산 및 저장 - 수정된 버전
      * 월세의 경우 보증금과 월세금을 각각 독립적으로 정규화 범위 계산
      */
+    /**
+     * B-04: 지역구별 정규화 범위 계산 및 저장 - 수정된 버전
+     * 월세의 경우 보증금과 월세금을 각각 독립적으로 정규화 범위 계산
+     */
     private void calculateAndStoreNormalizationBounds(List<Property> properties) {
         log.info("=== B-04: 지역구별 정규화 범위 계산 및 저장 시작 ===");
 
@@ -638,8 +647,9 @@ public class BatchScheduler {
                     continue;
                 }
 
-                // 4. Redis 저장
-                storeBoundsToRedisFixed(groupKey, bounds, groupProperties.size(), currentTime);
+                // 4. Redis 저장 (수정된 호출)
+                // groupProperties 리스트를 직접 전달하도록 변경
+                storeBoundsToRedisFixed(groupKey, bounds, groupProperties, currentTime);
 
                 validGroups++;
                 log.info("그룹 [{}] 처리 완료 - 범위: 가격[{} ~ {}], 평수[{} ~ {}]",
@@ -648,7 +658,6 @@ public class BatchScheduler {
             } catch (Exception e) {
                 log.error("그룹 [{}] 처리 중 오류 발생", groupKey, e);
             }
-
             processedGroups++;
         }
 
@@ -722,13 +731,17 @@ public class BatchScheduler {
     /**
      * 월세 전용 정규화 범위 저장 - 보증금과 월세금 각각 저장
      */
+    /**
+     * 월세 전용 정규화 범위 저장 - 보증금과 월세금 각각 저장 (수정된 버전)
+     */
     private void storeBoundsToRedisFixed(String groupKey, NormalizationBounds bounds,
-                                         int propertyCount, String currentTime) {
+                                         List<Property> groupProperties, String currentTime) {
         String[] keyParts = groupKey.split(":");
         if (keyParts.length != 2) return;
 
         String districtName = keyParts[0];
         String leaseType = keyParts[1];
+        int propertyCount = groupProperties.size();
 
         if ("전세".equals(leaseType)) {
             // 전세용 정규화 범위 저장
@@ -745,12 +758,11 @@ public class BatchScheduler {
 
         } else if ("월세".equals(leaseType)) {
             // 월세용 정규화 범위 저장 - 보증금과 월세금 각각 계산
-            List<Property> monthlyProperties = groupPropertiesByDistrictAndLeaseType(null)
-                    .getOrDefault(groupKey, Collections.emptyList());
 
             // 월세금 범위 별도 계산
             List<Double> monthlyRents = new ArrayList<>();
-            for (Property property : monthlyProperties) {
+            // 전달받은 groupProperties를 직접 사용하여 NullPointerException 회피
+            for (Property property : groupProperties) {
                 if (property.getMonthlyRent() != null && property.getMonthlyRent() > 0) {
                     monthlyRents.add(property.getMonthlyRent().doubleValue());
                 }

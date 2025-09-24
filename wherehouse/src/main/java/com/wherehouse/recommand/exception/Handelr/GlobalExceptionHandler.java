@@ -200,7 +200,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGenericException(Exception ex) {
 
-        log.error("예상치 못한 에러 발생", ex);
+        log.error(ex.getMessage());
 
         ErrorResponseDto errorResponse = ErrorResponseDto.builder()
                 .errorCode(ErrorCode.SERVER_ERROR.getCode())
