@@ -2,6 +2,7 @@ package com.wherehouse.JWT.SecurityConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -70,7 +71,7 @@ public class SecurityConfig {
         ((ProviderManager) authenticationManager).getProviders().add(userAuthenticationProvider());
         return authenticationManager;
     }
-    
+
     /* [회원관리 서비스 - 로그인] : 로그인 요청 처리를 처리 */
     @Bean
     public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
@@ -80,6 +81,7 @@ public class SecurityConfig {
             .addFilterAt(new LoginFilter(authenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
     /* [회원관리 서비스 - 로그 아웃] : Spring MVC Controller 아닌 Spring Security Handler 적용. */
     @Bean
     public SecurityFilterChain logoutFilterChain(HttpSecurity http, CookieLogoutHandler cookieLogoutHandler) throws Exception {
@@ -92,6 +94,7 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/")
             );  return http.build();
     }
+
     /* [회원관리 서비스 - 모든 요청] : Spring MVC Controller 아닌 Spring Security Handler 적용. */
     @Bean
     public SecurityFilterChain membersServiceFilterChain(HttpSecurity http) throws Exception {
@@ -109,6 +112,7 @@ public class SecurityConfig {
 		        		 .accessDeniedHandler(new JwtAccessDeniedHandler()));               // 인가 실패 처리
         return http.build();
     }
+
     /* [게시글 서비스 - 모든 요청] : 각 요청 경로 및 HTTP Method 별 권한 필요한 위치 설정 */
     @Bean
     public SecurityFilterChain boardServcieFilterChain(HttpSecurity http) throws Exception {
@@ -148,6 +152,4 @@ public class SecurityConfig {
 	            )
 	    ));  return http.build();
     }
-
-
 }
