@@ -121,8 +121,8 @@ mybatis:
 server:
   port: 8185
   servlet:
-    #context-path: /wherehouse
-    context-path: /  # 외장 Tomcat 환경에서는 ROOT 컨텍스트 사용
+    context-path: /wherehouse
+#    context-path: /  # 외장 Tomcat 환경에서는 ROOT 컨텍스트 사용
 
   # HTTP 에러 응답 설정
   error:
