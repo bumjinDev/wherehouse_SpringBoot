@@ -91,7 +91,7 @@ dependencies {
 
 	/* 테스트 코드 작성을 위한 Junit 의존성 추가 */
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'	// 테스트 작성용 api(@Test 등등) 과 테스트 엔진을 별도로 의존성 추가 안하고 하나로 추가.
-/* jsp 의존성 추가 */
+	/* jsp 의존성 추가 */
 	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
 	implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0'		// jsp 내 jstl 태그 인식할 수 있도록 하는 의존성 추가
 	/* 클래스 "Jwts" 생성 및 빌드 패턴 적용.
@@ -124,20 +124,11 @@ dependencies {
 	// @Valid 의존성 : 컨트롤러 내 null 및 정규식 대로 값 잘 요청 들어 왔는지 검증
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-
-	// Spring Boot 기본
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-
 	// Jackson (JSON 처리) - spring-boot-starter-web에 포함되지만 명시적 추가
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'com.fasterxml.jackson.core:jackson-core'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310' // LocalDateTime 처리용
-
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
 
 	// 테스트
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
