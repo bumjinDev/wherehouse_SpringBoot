@@ -13,13 +13,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class WherehouseApplication extends SpringBootServletInitializer{
 
 
-	@Override 
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) { 
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(WherehouseApplication.class);
 	}
-	
+
 	public static void main(String[] args) {
 
-	    SpringApplication.run(WherehouseApplication.class, args);
+		SpringApplication.run(WherehouseApplication.class, args);
 	}
 }
