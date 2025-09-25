@@ -149,23 +149,5 @@ public class SecurityConfig {
 	    ));  return http.build();
     }
 
-    /* [메인 페이지 및 추천 서비스 API] : 모든 사용자의 접근을 허용 */
-    @Bean
-    public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/**") // 모든 요청을 대상으로 함
-                .authorizeHttpRequests(auth -> auth
-                        // 아래 경로들은 인증 없이 접근 허용
-                        .requestMatchers("/", "/wherehouse/", "/api/recommendations/**", "/css/**", "/js/**", "/images/**").permitAll()
-                        .anyRequest().authenticated() // 그 외 나머지 모든 요청은 인증을 요구
-                )
-                .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (필요에 따라 설정)
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // JWT 인증 필터는 여기에도 추가해야 인증이 필요한 다른 경로들이 보호됩니다.
-                .addFilterBefore(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler())
-                                .accessDeniedHandler(new JwtAccessDeniedHandler())
-                );
-        return http.build();
-    }
+
 }
