@@ -16,67 +16,93 @@ spring:
       idle-timeout: 30000  # 30초 후 미사용 커넥션 종료
       max-lifetime: 1800000  # 30분 후 커넥션 강제 종료
 
-#  # Redis 연결 설정 (메모리 사용량 최적화)
-#  redis:
-#    #host: 172.30.248.154  # Local(no 127.0.0.1)
-#    host: 43.202.178.156 # (aws - 확인 완료)
-#    port: 6379
-#    timeout: 3000ms  # 3초 타임아웃 (무제한에서 변경)
-#    lettuce:
-#      pool:
-#        max-active: 20   # 동시에 처리 가능한 최대 요청 개수 (100->20으로 축소)
-#        max-idle: 10     # 최대 유휴 커넥션 개수 (50->10으로 축소)
-#        min-idle: 5      # 최소 유휴 커넥션 개수 (10->5로 축소)
-#        max-wait: 2000ms # 대기 시간 제한 설정 (-1ms에서 변경)
-#        time-between-eviction-runs: 30s  # 유휴 커넥션 정리 주기 (10s->30s로 변경)
+  # Redis 연결 설정
   data:
     redis:
-      host: 43.202.178.156
+      #host: 172.30.248.154  # Local(no 127.0.0.1)
+      host: 43.202.178.156 # (aws - 확인 완료)
       port: 6379
-      timeout: 3000ms
-    # 나머지 설정은 Spring Boot 기본값 사용
+      timeout: 0  # 0초 무제한 타임아웃 설정
+      lettuce:
+        pool:
+          max-active: 100   # 동시에 처리 가능한 최대 요청 개수
+          max-idle: 50       # 최대 유휴 커넥션 개수
+          min-idle: 10       # 최소 유휴 커넥션 개수
+          max-wait: -1ms     # 무제한 대기 설정 (-1ms)
+          time-between-eviction-runs: 10s  # 유휴 커넥션 정리 주기 (10초)
 
-  # Jackson JSON 처리 설정 (Spring Boot 2.7.x 호환)
+  # Jackson JSON 처리 설정 (추가)
   jackson:
     # ========== JSON 직렬화/역직렬화 핵심 설정 ==========
+
+    # 프로퍼티 명명 전략: Java camelCase를 JSON snake_case로 변환
+    # 예: budgetMin(Java) → budget_min(JSON)
+    # CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES도 동일한 효과
     property-naming-strategy: SNAKE_CASE
+
+    # null 값 처리: null인 필드는 JSON 응답에서 제외
+    # 장점: 응답 크기 감소, 클라이언트 파싱 간소화
+    # 단점: 클라이언트가 null과 누락을 구분할 수 없음
     default-property-inclusion: NON_NULL
+
+    # 날짜/시간 기본 포맷 설정 (문자열로 변환될 때 사용)
     date-format: "yyyy-MM-dd HH:mm:ss"
     time-zone: Asia/Seoul
 
     # ========== JSON → Java 객체 변환 (Deserialization) 설정 ==========
     deserialization:
+      # 알 수 없는 프로퍼티 처리: true이면 에러 발생, false면 무시
+      # true 권장 이유: 잘못된 요청 데이터 조기 발견, API 계약 명확화
+      # 동작: 클라이언트가 {"unknownField": "value"} 보내면 400 에러 응답
       fail-on-unknown-properties: true
+
+      # 빈 문자열을 null로 변환하지 않음
+      # false: ""와 null을 구분해서 처리
+      # true: ""를 null로 자동 변환
       accept-empty-string-as-null-object: false
+
+      # 빈 배열/컬렉션을 null로 변환하지 않음
       accept-empty-array-as-null-object: false
 
     # ========== Java 객체 → JSON 변환 (Serialization) 설정 ==========
     serialization:
+      # 날짜를 timestamp(숫자) 대신 문자열로 출력
+      # false: "2024-03-15 10:30:45" (가독성 좋음)
+      # true: 1710472245000 (숫자 timestamp)
       write-dates-as-timestamps: false
+
+      # 빈 객체 직렬화 실패 무시
+      # false: 빈 객체도 {}로 정상 출력
+      # true: 빈 객체 직렬화 시 에러 발생
       fail-on-empty-beans: false
+
+      # Map을 정렬된 순서로 출력 (디버깅 시 유용)
       order-map-entries-by-keys: true
 
-  # JPA/Hibernate 설정 (Spring Boot 2.7.x 호환)
+  # JPA/Hibernate 설정
   jpa:
     hibernate:
       ddl-auto: none # 개발 환경에서는 update, 운영 환경에서는 none 추천
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.Oracle12cDialect # Oracle12c 방언 사용
+        dialect: org.hibernate.dialect.OracleDialect # Hibernate Dialect 설정
         format_sql: true # SQL 포맷 정리
         default_batch_fetch_size: 50 # Batch Fetch 최적화
         jdbc.fetch_size: 100 # JDBC fetch size 설정
         cache.use_query_cache: false # Hibernate Query 캐시 비활성화
-        # Spring Boot 2.7.x에서 사용하는 네이밍 전략
-        physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # Naming Strategy 설정
     open-in-view: false # Lazy Loading 오류 방지 (OSIV OFF)
 
-  # Spring MVC 설정 (Spring Boot 2.7.x 호환)
+  # Spring MVC 설정
   mvc:
     view:
       prefix: /WEB-INF/view/
       suffix: .jsp
-    # Spring Boot 2.7.x에서는 pathmatch 설정 불필요 (기본적으로 ANT 패턴 사용)
+
+    # URL 패턴 매칭 전략 설정
+    pathmatch:
+      # ANT 패턴 매처 사용 (/api/test/** 같은 패턴 지원)
+      matching-strategy: ANT_PATH_MATCHER
 
   # 멀티파트 파일 업로드 설정
   servlet:
@@ -95,7 +121,8 @@ mybatis:
 server:
   port: 8185
   servlet:
-    context-path: /wherehouse  # Spring Boot 2.7.x에서는 외장 Tomcat과 정상 작동
+    context-path: /wherehouse
+  #    context-path: /  # 외장 Tomcat 환경에서는 ROOT 컨텍스트 사용
 
   # HTTP 에러 응답 설정
   error:
@@ -116,19 +143,35 @@ logging:
     name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
   level:
     root: INFO  # 기본 로그 레벨 설정
-    # 메모리 누수 관련 로그 추가
-    org.apache.catalina: WARN
-    org.apache.tomcat: WARN
+
+    # 개발 중 JSON 처리 디버깅을 위한 상세 로그 (필요시 활성화)
+    # com.wherehouse: DEBUG
+    # org.springframework.web: DEBUG
+    # org.springframework.validation: DEBUG
+    # com.fasterxml.jackson: DEBUG  # Jackson 라이브러리 디버그 로그
 
   # 로그 출력 형식 설정
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
-# ========== Spring Boot 2.7.x 호환성 개선 ==========
+# ========== Jackson 설정이 실제 동작하는 시점 ==========
 #
-# 1. Redis 연결 풀 최적화로 메모리 사용량 감소
-# 2. Jackson 설정 단순화
-# 3. JPA/Hibernate 방언을 Oracle12c로 변경
-# 4. MVC pathmatch 설정 제거 (2.7.x에서는 기본값 사용)
-# 5. 컨텍스트 경로 설정 유지 (2.7.x에서는 외장 Tomcat과 정상 작동)
+# 1. 요청 처리 시 (JSON → Java 객체)
+#    - 클라이언트가 JSON 요청 전송
+#    - Jackson이 deserialization 설정에 따라 변환
+#    - fail-on-unknown-properties: true 설정으로 잘못된 필드 차단
+#    - @Valid 어노테이션이 Bean Validation 실행
+#    - 검증 실패 시 MethodArgumentNotValidException 발생
+#
+# 2. 응답 처리 시 (Java 객체 → JSON)
+#    - Controller에서 응답 객체 반환
+#    - Jackson이 serialization 설정에 따라 JSON 변환
+#    - property-naming-strategy: SNAKE_CASE로 필드명 변환
+#    - default-property-inclusion: NON_NULL로 null 필드 제외
+#    - write-dates-as-timestamps: false로 날짜를 문자열 형태로 출력
+#
+# 3. 에러 발생 지점
+#    - JSON 파싱 에러: HttpMessageNotReadableException
+#    - Bean Validation 에러: MethodArgumentNotValidException
+#    - 모든 예외는 GlobalExceptionHandler가 처리하여 일관된 에러 응답 제공
