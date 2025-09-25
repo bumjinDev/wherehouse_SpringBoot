@@ -19,9 +19,7 @@ public class WherehouseApplication extends SpringBootServletInitializer{
 	}
 	
 	public static void main(String[] args) {
-		
+
 	    SpringApplication.run(WherehouseApplication.class, args);
 	}
-	
-	
 }
