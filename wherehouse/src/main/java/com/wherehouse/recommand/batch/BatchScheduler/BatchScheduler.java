@@ -82,12 +82,12 @@ public class BatchScheduler {
     }
 
     // 테스트용: 한번만 실행 (fixedDelay 사용)
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     /**
      * 매일 새벽 4시 0분 40초에 배치 프로세스를 실행합니다.
      * cron = "[초] [분] [시] [일] [월] [요일]"
      */
-    @Scheduled(cron = "40 0 4 * * *")
+//    @Scheduled(cron = "40 0 4 * * *")
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 ===");
 
