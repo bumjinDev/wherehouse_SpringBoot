@@ -1,4 +1,4 @@
-# WHEREHOUSE: 서울시 1인가구 주거지 추천 서비스
+# WHEREHOUSE: 서울시 1인가구 주거지 추천 서비스 입니다.
 
 ![Wherehouse Banner](https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8)
 
@@ -498,7 +498,7 @@ WhereHouse
 - 상세 매물 모달: '상세 매물들 보기' 버튼 클릭 시, 해당 지역구의 상위 매물 목록을 점수와 함께 모달창에서 즉시 확인할 수 있습니다.
 - 지도 시각화 연동: 추천된 Top 3 지역구의 경계가 Kakao Map API와 GeoJSON 데이터를 통해 지도 위에 시각적으로 표시되어 직관적인 위치 파악을 돕습니다.
 
-![추천 페이지](https://github.com/user-attachments/assets/cc102f19-21ea-45ee-a1d4-69e3e6ba4c37)
+![추천 페이지](https://github.com/user-attachments/assets/40506233-db0d-4585-808e-8d29bd0b1a9c)
 
 ### **[상세 지도 페이지]**
 - 지도 위 특정 지역 클릭 시, 반경 500m 이내 CCTV 위치 및 생활 편의시설(약국, 편의점 등)을 시각적으로 표시합니다.
