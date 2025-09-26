@@ -43,7 +43,7 @@
                                 거주지 추천
                             </a>
                             <ul class="nav_btn_house_rec_dropdown dropdown-menu me-5 dropdown-menu-end text-end" id="">
-                                <li><a class="dropdown-item nav_choose" href="../main">직접 입력 추천</a></li>
+                                <li><a class="dropdown-item nav_choose" href="./main">직접 입력 추천</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
