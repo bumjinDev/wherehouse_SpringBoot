@@ -1,0 +1,32 @@
+# ===============================================
+# DATA SOURCE CONFIGURATION
+# ===============================================
+app:
+  datasource:
+    # Source Database (Local)
+    source:
+      url: jdbc:oracle:thin:@localhost:1521/XE
+      username: SCOTT
+      password: tiger
+      driver-class-name: oracle.jdbc.OracleDriver
+    # Destination Database (Remote)
+    destination:
+      url: jdbc:oracle:thin:@43.202.178.156:1521/XE
+      username: SCOTT
+      password: tiger
+      driver-class-name: oracle.jdbc.OracleDriver
+
+# ===============================================
+# JPA & HIBERNATE SETTINGS
+# ===============================================
+spring:
+  jpa:
+    # ddl-auto=validate ? ???? ??? ??? ????, ?? ??? ??
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  application:
+    name: database

@@ -29,7 +29,35 @@ public class AnalysisCrimeStatistics {
     @Column(name = "TOTAL_OCCURRENCE")
     private Integer totalOccurrence;
 
-    // ... (제공된 파일의 나머지 필드들을 여기에 포함) ...
+    @Column(name = "TOTAL_ARREST")
+    private Integer totalArrest;
+
+    @Column(name = "MURDER_OCCURRENCE")
+    private Integer murderOccurrence;
+
+    @Column(name = "MURDER_ARREST")
+    private Integer murderArrest;
+
+    @Column(name = "ROBBERY_OCCURRENCE")
+    private Integer robberyOccurrence;
+
+    @Column(name = "ROBBERY_ARREST")
+    private Integer robberyArrest;
+
+    @Column(name = "SEXUAL_CRIME_OCCURRENCE")
+    private Integer sexualCrimeOccurrence;
+
+    @Column(name = "SEXUAL_CRIME_ARREST")
+    private Integer sexualCrimeArrest;
+
+    @Column(name = "THEFT_OCCURRENCE")
+    private Integer theftOccurrence;
+
+    @Column(name = "THEFT_ARREST")
+    private Integer theftArrest;
+
+    @Column(name = "VIOLENCE_OCCURRENCE")
+    private Integer violenceOccurrence;
 
     @Column(name = "VIOLENCE_ARREST")
     private Integer violenceArrest;

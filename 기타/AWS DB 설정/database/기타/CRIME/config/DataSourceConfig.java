@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
-@Configuration
+@Configuration // 고유한 이름 지정
 public class DataSourceConfig {
 
     // =========================================================================
-    // SOURCE (LOCAL DB) CONFIGURATION
+    // SOURCE (e.g., LOCAL DB) CONFIGURATION
     // =========================================================================
     @Primary
     @Bean(name = "sourceProperties")
@@ -39,8 +39,7 @@ public class DataSourceConfig {
     public LocalContainerEntityManagerFactoryBean sourceEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("sourceDataSource") DataSource dataSource) {
         return builder
                 .dataSource(dataSource)
-                // 👇 인구밀도(Population)와 범죄(Crime) Entity 패키지를 모두 스캔하도록 경로 추가
-                .packages("com.aws.database.Population.domain", "com.aws.database.Crime.domain")
+                .packages("com.aws.database.CRIME.domain") // Entity 패키지 경로 수정
                 .persistenceUnit("source")
                 .build();
     }
@@ -54,8 +53,7 @@ public class DataSourceConfig {
     @Configuration
     @EnableTransactionManagement
     @EnableJpaRepositories(
-            // 👇 인구밀도(Population)와 범죄(Crime) Source Repository 패키지를 모두 스캔하도록 경로 추가
-            basePackages = {"com.aws.database.Population.source", "com.aws.database.Crime.source"},
+            basePackages = "com.aws.database.CRIME.source", // Source Repository 패키지 경로 수정
             entityManagerFactoryRef = "sourceEntityManagerFactory",
             transactionManagerRef = "sourceTransactionManager"
     )
@@ -63,7 +61,7 @@ public class DataSourceConfig {
 
 
     // =========================================================================
-    // DESTINATION (REMOTE DB) CONFIGURATION
+    // DESTINATION (e.g., REMOTE DB) CONFIGURATION
     // =========================================================================
     @Bean(name = "destinationProperties")
     @ConfigurationProperties("app.datasource.destination")
@@ -80,8 +78,7 @@ public class DataSourceConfig {
     public LocalContainerEntityManagerFactoryBean destinationEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("destinationDataSource") DataSource dataSource) {
         return builder
                 .dataSource(dataSource)
-                // 👇 인구밀도(Population)와 범죄(Crime) Entity 패키지를 모두 스캔하도록 경로 추가
-                .packages("com.aws.database.Population.domain", "com.aws.database.Crime.domain")
+                .packages("com.aws.database.CRIME.domain") // Entity 패키지 경로 수정
                 .persistenceUnit("destination")
                 .build();
     }
@@ -94,8 +91,7 @@ public class DataSourceConfig {
     @Configuration
     @EnableTransactionManagement
     @EnableJpaRepositories(
-            // 👇 인구밀도(Population)와 범죄(Crime) Destination Repository 패키지를 모두 스캔하도록 경로 추가
-            basePackages = {"com.aws.database.Population.destination", "com.aws.database.Crime.destination"},
+            basePackages = "com.aws.database.CRIME.destination", // Destination Repository 패키지 경로 수정
             entityManagerFactoryRef = "destinationEntityManagerFactory",
             transactionManagerRef = "destinationTransactionManager"
     )

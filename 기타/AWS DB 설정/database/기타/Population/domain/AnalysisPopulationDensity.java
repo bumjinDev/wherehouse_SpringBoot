@@ -1,4 +1,4 @@
-package com.aws.database.Population;
+package com.aws.database.Population.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -16,11 +16,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@EnableTransactionManagement
 public class DataSourceConfig {
 
     // =========================================================================
-    // SOURCE (ORIGINAL DATA DB) CONFIGURATION
+    // SOURCE (LOCAL DB) CONFIGURATION
     // =========================================================================
     @Primary
     @Bean(name = "sourceProperties")
@@ -40,7 +39,7 @@ public class DataSourceConfig {
     public LocalContainerEntityManagerFactoryBean sourceEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("sourceDataSource") DataSource dataSource) {
         return builder
                 .dataSource(dataSource)
-                .packages("com.WhereHouse.AnalysisData.domain") // Entity 패키지
+                .packages("com.aws.database.entertainment.domain") // Shared Entity package
                 .persistenceUnit("source")
                 .build();
     }
@@ -52,14 +51,49 @@ public class DataSourceConfig {
     }
 
     @Configuration
+    @EnableTransactionManagement
     @EnableJpaRepositories(
-            basePackages = "com.WhereHouse.AnalysisData.source", // Source DB용 Repository 패키지
+            basePackages = "com.aws.database.ENTERTAINMENT.source", // Source DB Repository package
             entityManagerFactoryRef = "sourceEntityManagerFactory",
             transactionManagerRef = "sourceTransactionManager"
     )
     public static class SourceDbConfig {}
 
 
-// =========================================================================
-// DESTINATION (ANALYSIS DB) CONFIGURATION
-// =
+    // =========================================================================
+    // DESTINATION (REMOTE DB) CONFIGURATION
+    // =========================================================================
+    @Bean(name = "destinationProperties")
+    @ConfigurationProperties("app.datasource.destination")
+    public DataSourceProperties destinationDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean(name = "destinationDataSource")
+    public DataSource destinationDataSource(@Qualifier("destinationProperties") DataSourceProperties properties) {
+        return properties.initializeDataSourceBuilder().build();
+    }
+
+    @Bean(name = "destinationEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean destinationEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("destinationDataSource") DataSource dataSource) {
+        return builder
+                .dataSource(dataSource)
+                .packages("com.aws.database.entertainment.domain") // Shared Entity package
+                .persistenceUnit("destination")
+                .build();
+    }
+
+    @Bean(name = "destinationTransactionManager")
+    public PlatformTransactionManager destinationTransactionManager(@Qualifier("destinationEntityManagerFactory") LocalContainerEntityManagerFactoryBean entityManagerFactory) {
+        return new JpaTransactionManager(entityManagerFactory.getObject());
+    }
+
+    @Configuration
+    @EnableTransactionManagement
+    @EnableJpaRepositories(
+            basePackages = "com.aws.database.ENTERTAINMENT.destination", // Destination DB Repository package
+            entityManagerFactoryRef = "destinationEntityManagerFactory",
+            transactionManagerRef = "destinationTransactionManager"
+    )
+    public static class DestinationDbConfig {}
+}

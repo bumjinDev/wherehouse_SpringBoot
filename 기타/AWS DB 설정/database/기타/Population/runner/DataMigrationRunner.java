@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class DataMigrationRunner implements CommandLineRunner {
+public class DataMigrationRunner  { // implements CommandLineRunner
 
     private static final Logger log = LoggerFactory.getLogger(DataMigrationRunner.class);
 
     private final SourcePopulationRepository sourceRepository;
     private final DestinationPopulationRepository destinationRepository;
 
-    @Override
+//    @Override
     @Transactional("destinationTransactionManager") // 트랜잭션은 Destination DB 기준으로 관리
     public void run(String... args) {
         log.info("======================================================");

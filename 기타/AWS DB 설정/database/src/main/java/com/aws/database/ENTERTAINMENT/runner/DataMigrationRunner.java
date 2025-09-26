@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class DataMigrationRunner { // implements CommandLineRunner
+public class DataMigrationRunner implements CommandLineRunner { //
 
     private static final Logger log = LoggerFactory.getLogger(DataMigrationRunner.class);
 

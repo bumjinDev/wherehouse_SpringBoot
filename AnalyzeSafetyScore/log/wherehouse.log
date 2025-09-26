@@ -1,22 +1,22 @@
-2025-09-12T11:38:06.253+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : Starting AnalyzeSafetyScoreApplication using Java 17.0.11 with PID 8104 (E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\AnalyzeSafetyScore\build\classes\java\main started by wjdqj in E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\AnalyzeSafetyScore)
-2025-09-12T11:38:06.258+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : No active profile set, falling back to 1 default profile: "default"
-2025-09-12T11:38:06.922+09:00  INFO 8104 --- [wherehouse] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-09-12T11:38:07.042+09:00  INFO 8104 --- [wherehouse] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 110 ms. Found 18 JPA repository interfaces.
-2025-09-12T11:38:07.386+09:00  INFO 8104 --- [wherehouse] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8185 (http)
-2025-09-12T11:38:07.398+09:00  INFO 8104 --- [wherehouse] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-09-12T11:38:07.398+09:00  INFO 8104 --- [wherehouse] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.44]
-2025-09-12T11:38:07.442+09:00  INFO 8104 --- [wherehouse] [main] o.a.c.c.C.[.[localhost].[/wherehouse]    : Initializing Spring embedded WebApplicationContext
-2025-09-12T11:38:07.442+09:00  INFO 8104 --- [wherehouse] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1144 ms
-2025-09-12T11:38:07.629+09:00  INFO 8104 --- [wherehouse] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-09-12T11:38:07.685+09:00  INFO 8104 --- [wherehouse] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
-2025-09-12T11:38:07.718+09:00  INFO 8104 --- [wherehouse] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-09-12T11:38:07.973+09:00  INFO 8104 --- [wherehouse] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-09-12T11:38:07.998+09:00  WARN 8104 --- [wherehouse] [main] com.zaxxer.hikari.HikariConfig           : HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
-2025-09-12T11:38:07.998+09:00  INFO 8104 --- [wherehouse] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-09-12T11:38:08.369+09:00  INFO 8104 --- [wherehouse] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@24a3d414
-2025-09-12T11:38:08.371+09:00  INFO 8104 --- [wherehouse] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-09-12T11:38:08.493+09:00  WARN 8104 --- [wherehouse] [main] org.hibernate.orm.deprecation            : HHH90000025: OracleDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-09-12T11:38:08.570+09:00  INFO 8104 --- [wherehouse] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2025-09-23T20:49:46.488+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : Starting AnalyzeSafetyScoreApplication using Java 17.0.11 with PID 20488 (E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\AnalyzeSafetyScore\build\classes\java\main started by wjdqj in E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\AnalyzeSafetyScore)
+2025-09-23T20:49:46.493+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : No active profile set, falling back to 1 default profile: "default"
+2025-09-23T20:49:47.055+09:00  INFO 20488 --- [wherehouse] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-09-23T20:49:47.153+09:00  INFO 20488 --- [wherehouse] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 90 ms. Found 18 JPA repository interfaces.
+2025-09-23T20:49:47.490+09:00  INFO 20488 --- [wherehouse] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8185 (http)
+2025-09-23T20:49:47.500+09:00  INFO 20488 --- [wherehouse] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-09-23T20:49:47.500+09:00  INFO 20488 --- [wherehouse] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.44]
+2025-09-23T20:49:47.537+09:00  INFO 20488 --- [wherehouse] [main] o.a.c.c.C.[.[localhost].[/wherehouse]    : Initializing Spring embedded WebApplicationContext
+2025-09-23T20:49:47.538+09:00  INFO 20488 --- [wherehouse] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1009 ms
+2025-09-23T20:49:47.693+09:00  INFO 20488 --- [wherehouse] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-09-23T20:49:47.731+09:00  INFO 20488 --- [wherehouse] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
+2025-09-23T20:49:47.758+09:00  INFO 20488 --- [wherehouse] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-09-23T20:49:47.971+09:00  INFO 20488 --- [wherehouse] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-09-23T20:49:47.994+09:00  WARN 20488 --- [wherehouse] [main] com.zaxxer.hikari.HikariConfig           : HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2025-09-23T20:49:47.994+09:00  INFO 20488 --- [wherehouse] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-09-23T20:49:48.322+09:00  INFO 20488 --- [wherehouse] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@4070ace9
+2025-09-23T20:49:48.324+09:00  INFO 20488 --- [wherehouse] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-09-23T20:49:48.493+09:00  WARN 20488 --- [wherehouse] [main] org.hibernate.orm.deprecation            : HHH90000025: OracleDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-09-23T20:49:48.651+09:00  INFO 20488 --- [wherehouse] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
 	Database version: 19.3
@@ -24,65 +24,65 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2025-09-12T11:38:09.483+09:00  INFO 8104 --- [wherehouse] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-09-12T11:38:09.485+09:00  INFO 8104 --- [wherehouse] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-09-12T11:38:09.676+09:00  INFO 8104 --- [wherehouse] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-09-12T11:38:11.234+09:00  INFO 8104 --- [wherehouse] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8185 (http) with context path '/wherehouse'
-2025-09-12T11:38:11.243+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : Started AnalyzeSafetyScoreApplication in 5.388 seconds (process running for 5.846)
-2025-09-12T11:38:11.246+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:11.246+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 안전성 분석용 데이터 ETL 프로세스 시작 ===
-2025-09-12T11:38:11.246+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 경찰시설 변수 제외 모델 ===
-2025-09-12T11:38:11.246+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:11.371+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 범죄 통계 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.523+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] CCTV 인프라 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.544+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 영화관 시설 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.612+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 편의점 현황 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.623+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 인구 밀도 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.693+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] PC방 시설 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.727+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 가로등 인프라 - 총 33개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.742+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 의료 시설 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.751+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 치안 인프라 (참고용) - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.769+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 노래연습장 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.790+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 단란주점 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.804+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 교육 시설 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.818+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 대형마트/백화점 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.832+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 주민센터 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.884+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 숙박업 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.921+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 유흥주점 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.932+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 지하철역 - 총 25개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.967+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 고등교육기관 - 총 21개 자치구 데이터 수집 완료
-2025-09-12T11:38:11.972+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:11.972+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 피어슨 상관분석 시작: 17개 환경 변수 vs 범죄율 ===
-2025-09-12T11:38:11.972+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === (경찰시설 포함 - 참고용) ===
-2025-09-12T11:38:11.972+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 모든 피어슨 상관분석 완료 ===
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 다중회귀분석 시작: 7개 변수 vs 범죄율 (경찰시설 제외) ===
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : === 다중회귀분석 시작: 7개 변수 vs 범죄율 (경찰시설 제외) ===
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
-2025-09-12T11:38:13.298+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : 데이터 검증 완료: 25개 자치구, 7개 변수 (경찰시설 제외)
-2025-09-12T11:38:13.299+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : 독립변수 행렬 구성 완료 (경찰시설 제외): 25×7
-2025-09-12T11:38:13.499+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
-2025-09-12T11:38:13.499+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : === 다중회귀분석 완료 (경찰시설 제외) ===
-2025-09-12T11:38:13.499+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
-2025-09-12T11:38:13.501+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.501+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 다중회귀분석 기반 방향성 가중치 산출 결과 (경찰시설 제외) ===
-2025-09-12T11:38:13.563+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.564+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.564+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 경찰시설 제외 효과 분석 ===
-2025-09-12T11:38:13.565+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.565+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.565+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 안전성 점수 모델 분석 완료 (경찰시설 제외) ===
-2025-09-12T11:38:13.565+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.565+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:13.565+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 모든 데이터 처리 완료. 총 소요 시간: 2319ms
-2025-09-12T11:38:13.565+09:00  INFO 8104 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
-2025-09-12T11:38:48.815+09:00  INFO 8104 --- [wherehouse] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-09-12T11:38:48.863+09:00  INFO 8104 --- [wherehouse] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-09-12T11:38:48.867+09:00  INFO 8104 --- [wherehouse] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-09-12T11:38:48.870+09:00  INFO 8104 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2025-09-12T11:38:48.878+09:00  INFO 8104 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-09-23T20:49:49.551+09:00  INFO 20488 --- [wherehouse] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-09-23T20:49:49.554+09:00  INFO 20488 --- [wherehouse] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-09-23T20:49:49.716+09:00  INFO 20488 --- [wherehouse] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-09-23T20:49:52.322+09:00  INFO 20488 --- [wherehouse] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8185 (http) with context path '/wherehouse'
+2025-09-23T20:49:52.330+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.AnalyzeSafetyScoreApplication      : Started AnalyzeSafetyScoreApplication in 6.256 seconds (process running for 6.721)
+2025-09-23T20:49:52.332+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:52.332+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 안전성 분석용 데이터 ETL 프로세스 시작 ===
+2025-09-23T20:49:52.333+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 경찰시설 변수 제외 모델 ===
+2025-09-23T20:49:52.333+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:52.438+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 범죄 통계 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.625+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] CCTV 인프라 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.666+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 영화관 시설 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.747+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 편의점 현황 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.750+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 인구 밀도 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.776+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] PC방 시설 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.845+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 가로등 인프라 - 총 33개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.859+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 의료 시설 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.867+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 치안 인프라 (참고용) - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.882+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 노래연습장 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.902+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 단란주점 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.914+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 교육 시설 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.927+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 대형마트/백화점 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.944+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 주민센터 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:53.991+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 숙박업 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:54.022+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 유흥주점 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:54.030+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 지하철역 - 총 25개 자치구 데이터 수집 완료
+2025-09-23T20:49:54.085+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : [데이터 요약] 고등교육기관 - 총 21개 자치구 데이터 수집 완료
+2025-09-23T20:49:54.089+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.089+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 피어슨 상관분석 시작: 17개 환경 변수 vs 범죄율 ===
+2025-09-23T20:49:54.089+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === (경찰시설 포함 - 참고용) ===
+2025-09-23T20:49:54.089+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.781+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.781+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 모든 피어슨 상관분석 완료 ===
+2025-09-23T20:49:54.781+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.781+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.781+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 다중회귀분석 시작: 7개 변수 vs 범죄율 (경찰시설 제외) ===
+2025-09-23T20:49:54.782+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.782+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
+2025-09-23T20:49:54.782+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : === 다중회귀분석 시작: 7개 변수 vs 범죄율 (경찰시설 제외) ===
+2025-09-23T20:49:54.782+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
+2025-09-23T20:49:54.782+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : 데이터 검증 완료: 25개 자치구, 7개 변수 (경찰시설 제외)
+2025-09-23T20:49:54.782+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : 독립변수 행렬 구성 완료 (경찰시설 제외): 25×7
+2025-09-23T20:49:54.793+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
+2025-09-23T20:49:54.794+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : === 다중회귀분석 완료 (경찰시설 제외) ===
+2025-09-23T20:49:54.794+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.MultipleRegressionAnalysis    : ==================================================
+2025-09-23T20:49:54.795+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.795+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 다중회귀분석 기반 방향성 가중치 산출 결과 (경찰시설 제외) ===
+2025-09-23T20:49:54.795+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.795+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.795+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 경찰시설 제외 효과 분석 ===
+2025-09-23T20:49:54.795+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.796+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.796+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 안전성 점수 모델 분석 완료 (경찰시설 제외) ===
+2025-09-23T20:49:54.796+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.796+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:49:54.796+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : === 모든 데이터 처리 완료. 총 소요 시간: 2463ms
+2025-09-23T20:49:54.796+09:00  INFO 20488 --- [wherehouse] [main] c.w.A.main.AnalysisDataProcessor         : ==================================================
+2025-09-23T20:50:05.999+09:00  INFO 20488 --- [wherehouse] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-09-23T20:50:06.043+09:00  INFO 20488 --- [wherehouse] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-09-23T20:50:06.047+09:00  INFO 20488 --- [wherehouse] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-09-23T20:50:06.049+09:00  INFO 20488 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-09-23T20:50:06.055+09:00  INFO 20488 --- [wherehouse] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
