@@ -19,8 +19,8 @@ spring:
   # Redis 연결 설정
   data:
     redis:
-      #host: 172.30.248.154  # Local(no 127.0.0.1)
-      host: 43.202.178.156 # (aws - 확인 완료)
+      host: 172.30.248.154  # Local(no 127.0.0.1)
+      #host: 43.202.178.156 # (aws - 확인 완료)
       port: 6379
       timeout: 0  # 0초 무제한 타임아웃 설정
       lettuce:
@@ -121,7 +121,7 @@ mybatis:
 server:
   port: 8185
   servlet:
-    context-path: /wherehouse
+    context-path: /wherehouse # 이 설정은 내장 톰켓 환경에서만 유효하며 외장 톰켓 환경에서는 server.xml을 따름..
 
   # HTTP 에러 응답 설정
   error:
