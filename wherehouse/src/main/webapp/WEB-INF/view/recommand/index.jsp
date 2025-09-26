@@ -550,30 +550,16 @@
                                         <ul class="nav-flex-column">
                                             <div class="nav-item mb-2">
                                                 <a class="nav-link p-0 text-muted"
-                                                    href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/1.%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%ED%9A%8D%EC%84%9C"
+                                                    href="https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/9.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%84%9C%EB%B9%84%EC%8A%A4(recommand)%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B0%9C%EC%84%A0%20%EA%B3%84%ED%9A%8D%EC%84%9C/1.%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B0%9C%EC%84%A0%20%EA%B8%B0%ED%9A%8D%20%EB%B0%8F%20%EC%84%A4%EA%B3%84%EC%84%9C/1.%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%ED%9A%8D%EC%84%9C.md"
                                                     target='_blank'>
                                                     Project Plan pres.
                                                 </a>
                                             </div>
                                             <div class="nav-item mb-2">
                                                 <a class="nav-link p-0 text-muted"
-                                                    href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/2.%EA%B0%9C%EB%B0%9C%EA%B3%84%ED%9A%8D%EC%84%9C"
+                                                    href="https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/9.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%84%9C%EB%B9%84%EC%8A%A4(recommand)%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B0%9C%EC%84%A0%20%EA%B3%84%ED%9A%8D%EC%84%9C/5.%20%EC%8B%A4%EC%A0%9C%20%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4%20%EB%A1%9C%EC%A7%81%20%EC%84%A4%EA%B3%84%EC%84%9C/%EB%B6%80%EB%8F%99%EC%82%B0%20%EC%B6%94%EC%B2%9C%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4%20%EB%A1%9C%EC%A7%81%20%EC%84%A4%EA%B3%84%20%EB%AA%85%EC%84%B8%EC%84%9C.md"
                                                     target='_blank'>
                                                     Develop Plan
-                                                </a>
-                                            </div>
-                                            <div class="nav-item mb-2">
-                                                <a class="nav-link p-0 text-muted"
-                                                    href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/3.%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%20%EC%A0%95%EC%9D%98%EC%84%9C_%EB%B6%84%EC%84%9D%EC%84%9C"
-                                                    target='_blank'>
-                                                    Function Specification
-                                                </a>
-                                            </div>
-                                            <div class="nav-item mb-2">
-                                                <a class="nav-link p-0 text-muted"
-                                                    href="https://github.com/bumjinDev/wherehouse_SpringBoot/tree/master/4.%ED%99%94%EB%A9%B4%20%EC%84%A4%EA%B3%84%EC%84%9C"
-                                                    target='_blank'>
-                                                    Wire Frame
                                                 </a>
                                             </div>
                                         </ul>
@@ -584,6 +570,6 @@
                                 </div>
                             </footer>
                         </div>
+                    </footer>
                 </body>
-
                 </html>

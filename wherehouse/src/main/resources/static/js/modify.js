@@ -20,7 +20,7 @@ window.onload = function () {
             const response = await fetch("/wherehouse/members/edit", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, pw, nickName, tel, email })
+                body: JSON.stringify({ id, pw, nick_name: nickName, tel, email })
             });
 
             if (response.ok) {

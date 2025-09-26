@@ -19,7 +19,13 @@ window.onload = function () {
             const response = await fetch("/wherehouse/members/join", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, pw, nickName, tel, email })
+                body: JSON.stringify({
+                    id: id,           // 변수명과 키가 같으면 생략 가능
+                    pw: pw,
+                    nick_name: nickName,  // 여기가 문제
+                    tel: tel,
+                    email: email
+                })
             });
 
             if (response.ok) {
@@ -36,7 +42,7 @@ window.onload = function () {
 				/* 재 입력 해야 되니 리다이렉트 대신 공백 값으로 치환 */
 				document.getElementById("pw").value = '';
 				document.getElementById("pw_check").value = '';
-				document.getElementById("nickname").value = '';
+				document.getElementById("nickName").value = '';
 				document.getElementById("tel").value = '';
 				document.getElementById("email").value = '';
 				
