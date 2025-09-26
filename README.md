@@ -1,4 +1,4 @@
-# WHEREHOUSE: 서울시 1인가구 주거지 추천 서비스...
+# WHEREHOUSE: 서울시 1인가구 주거지 추천 서비스.
 
 ![Wherehouse Banner](https://github.com/user-attachments/assets/eca1f421-5684-4a0e-8273-31b827b5b1f8)
 
