@@ -15,7 +15,7 @@
     <!-- 이모티콘 용 -->
     <script src="https://kit.fontawesome.com/eafa49c7a2.js" crossorigin="anonymous"></script>
     <script src="/wherehouse/js/LoadMapData.js"></script>
-    <!-- <script src="<c:url value="/json/mapData.json"/>" type="text/javascript"></script> --> 
+
 
     <link rel="stylesheet" href="<c:url value="/css/information.css"/>">
 <title>상세 페이지</title>
