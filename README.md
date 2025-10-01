@@ -16,7 +16,7 @@
 **[프로젝트 개요]**  
 서울 내 1인 가구의 주거지 선택 문제를 해결하기 위해, 사용자의 **예산과 안전/편의 선호도**를 기반으로 최적의 행정구를 추천하는 서비스입니다. Spring Boot 기반으로 **인증, 인가, 캐싱, CI/CD, 보안 정책, 추천 로직**을 포함한 전체 백엔드 시스템을 주도적으로 설계하고 구현했습니다.
 
-- **배포 URL**: [https://wherehouse.it.kr:8443/wherehouse/](https://wherehouse.it.kr:8443/wherehouse/)
+- **배포 URL [ 임시 배포 중지 ] - 사유 : 정부의 공공데이터 API 서버 점검** : [https://wherehouse.it.kr:8443/wherehouse/](https://wherehouse.it.kr:8443/wherehouse/)
 - **상세 문서**: [비즈니스 로직 명세서](./docs/specification.md) | [설계 근거 백서](./docs/design-rationale.md)
 
 ---
