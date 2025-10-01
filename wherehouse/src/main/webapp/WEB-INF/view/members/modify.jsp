@@ -81,7 +81,7 @@
                     <input type="button" value="취소"
                            class="btn btn-primary btn-xs mt-1 mb-4"
                            style="width:100%; height:60px;"
-                           onclick="window.location.href='/wherehouse/loginSuccess'">
+                           onclick="window.location.href='/wherehouse'">
                 </div>
 
             </div>
