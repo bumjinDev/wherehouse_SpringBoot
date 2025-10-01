@@ -1,0 +1,48 @@
+# ===============================================
+# DATA SOURCE CONFIGURATION
+# ===============================================
+app:
+  datasource:
+    # Source Database (Local)
+    source:
+      url: jdbc:oracle:thin:@localhost:1521/XE
+      username: SCOTT
+      password: tiger
+      driver-class-name: oracle.jdbc.OracleDriver
+      # Source DB를 위한 JPA 설정
+      jpa:
+        hibernate:
+          ddl-auto: none  # Source는 스키마를 건드리지 않음
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.OracleDialect
+
+    # Destination Database (Remote)
+    destination:
+      url: jdbc:oracle:thin:@43.202.178.156:1521/XE
+      username: SCOTT
+      password: tiger
+      driver-class-name: oracle.jdbc.OracleDriver
+      # Destination DB를 위한 JPA 설정
+      jpa:
+        hibernate:
+          ddl-auto: update # Destination은 스키마 자동 생성/업데이트
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.OracleDialect
+
+# ===============================================
+# JPA & HIBERNATE GLOBAL SETTINGS
+# ===============================================
+spring:
+  # 전역 JPA 설정은 삭제하고, 각 datasource에 개별 설정했으므로 비워둠
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # Naming Strategy는 Java Config에서 직접 설정하므로 여기서 제외하거나 유지 가능
+        naming:
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  application:
+    name: database

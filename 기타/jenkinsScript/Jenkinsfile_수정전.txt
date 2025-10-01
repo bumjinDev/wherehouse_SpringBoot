@@ -1,0 +1,375 @@
+// Jenkinsfile - 개선된 버전
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK17'
+        gradle 'Gradle-latest'
+    }
+
+    environment {
+        MOLIT_RENT_API_SERVICE_KEY = credentials('molit-api-key')
+        JWT_SECRET_KEY = credentials('jwt-secret-key')
+        
+        // 배포 서버 정보
+        DEPLOY_USER = 'root'
+        DEPLOY_SERVER = '43.202.178.156'
+        TOMCAT_HOME = '/opt/tomcat'
+        APP_NAME = 'wherehouse'
+        WAR_FILE = 'wherehouse.war'
+    }
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        retry(1)
+        timestamps()
+    }
+
+    stages {
+        // 1. Git 소스 코드 복제
+        stage('Git Clone') {
+            steps {
+                script {
+                    echo "=== Git Clone 시작 ==="
+                    // 작업공간 정리
+                    cleanWs()
+                    
+                    git branch: 'master', 
+                        url: 'https://github.com/bumjinDev/wherehouse_SpringBoot.git',
+                        credentialsId: 'github-credentials' // GitHub credentials 설정 필요시
+                    
+                    echo "=== Git Clone 완료 ==="
+                }
+            }
+        }
+
+        // 2. 빌드 환경 설정 및 권한 부여
+        stage('Setup Build Environment') {
+            steps {
+                script {
+                    echo "=== 빌드 환경 설정 시작 ==="
+                    dir('wherehouse') {
+                        // gradlew 파일 존재 확인
+                        if (!fileExists('./gradlew')) {
+                            error "gradlew 파일이 존재하지 않습니다."
+                        }
+                        
+                        // gradlew 실행 권한 부여
+                        sh 'chmod +x ./gradlew'
+                        
+                        // Gradle 버전 확인
+                        sh './gradlew --version'
+                        
+                        echo "=== 빌드 환경 설정 완료 ==="
+                    }
+                }
+            }
+        }
+
+        // 3. 의존성 다운로드 및 컴파일 테스트
+        stage('Dependencies & Compile Test') {
+            steps {
+                script {
+                    echo "=== 의존성 검사 및 컴파일 테스트 시작 ==="
+                    dir('wherehouse') {
+                        try {
+                            // 의존성 다운로드
+                            sh './gradlew dependencies'
+                            
+                            // 컴파일 테스트
+                            sh './gradlew compileJava'
+                            
+                            echo "=== 의존성 검사 및 컴파일 테스트 완료 ==="
+                        } catch (Exception e) {
+                            error "의존성 또는 컴파일 오류: ${e.getMessage()}"
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. WAR 파일 빌드
+        stage('Build WAR') {
+            steps {
+                script {
+                    echo "=== WAR 파일 빌드 시작 ==="
+                    dir('wherehouse') {
+                        try {
+                            // 이전 빌드 결과물 정리
+                            sh './gradlew clean'
+                            
+                            // WAR 파일 빌드
+                            sh './gradlew bootWar'
+                            
+                            // 빌드 결과 확인
+                            if (!fileExists("build/libs/${env.WAR_FILE}")) {
+                                error "WAR 파일 빌드가 실패했습니다."
+                            }
+                            
+                            // WAR 파일 크기 확인
+                            sh "ls -lah build/libs/${env.WAR_FILE}"
+                            
+                            echo "=== WAR 파일 빌드 완료 ==="
+                        } catch (Exception e) {
+                            error "WAR 빌드 오류: ${e.getMessage()}"
+                        }
+                    }
+                }
+            }
+        }
+
+        // 5. 배포 전 서버 연결 테스트
+        stage('Pre-Deploy Server Check') {
+            steps {
+                script {
+                    echo "=== 배포 서버 연결 테스트 시작 ==="
+                    try {
+                        // SSH 연결 테스트
+                        sh """
+                            ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no \
+                            ${env.DEPLOY_USER}@${env.DEPLOY_SERVER} 'echo "SSH 연결 성공"'
+                        """
+                        
+                        // 톰캣 디렉토리 존재 확인
+                        sh """
+                            ssh -o StrictHostKeyChecking=no \
+                            ${env.DEPLOY_USER}@${env.DEPLOY_SERVER} \
+                            'test -d ${env.TOMCAT_HOME} && echo "톰캣 디렉토리 확인됨" || exit 1'
+                        """
+                        
+                        echo "=== 배포 서버 연결 테스트 완료 ==="
+                    } catch (Exception e) {
+                        error "서버 연결 테스트 실패: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        // 6. 애플리케이션 배포
+        stage('Deploy Application') {
+            steps {
+                script {
+                    echo "=== 애플리케이션 배포 시작 ==="
+                    try {
+                        // WAR 파일 존재 확인
+                        if (!fileExists("wherehouse/build/libs/${env.WAR_FILE}")) {
+                            error "WAR 파일이 존재하지 않습니다: wherehouse/build/libs/${env.WAR_FILE}"
+                        }
+                        
+                        // WAR 파일을 배포 서버로 복사
+                        sh """
+                            echo "WAR 파일 복사 중: wherehouse/build/libs/${env.WAR_FILE}"
+                            ls -la wherehouse/build/libs/${env.WAR_FILE}
+                            
+                            scp -v -o StrictHostKeyChecking=no \
+                            wherehouse/build/libs/${env.WAR_FILE} \
+                            ${env.DEPLOY_USER}@${env.DEPLOY_SERVER}:${env.TOMCAT_HOME}/webapps/
+                            
+                            echo "WAR 파일 복사 완료"
+                        """
+                        
+                        // 복사 결과 확인
+                        sh """
+                            ssh -o StrictHostKeyChecking=no \
+                            ${env.DEPLOY_USER}@${env.DEPLOY_SERVER} \
+                            'ls -la ${env.TOMCAT_HOME}/webapps/${env.WAR_FILE} && echo "WAR 파일 복사 확인됨"'
+                        """
+                        
+                        // 원격 서버에서 배포 실행
+                        sh """
+                            ssh -o StrictHostKeyChecking=no \
+                            ${env.DEPLOY_USER}@${env.DEPLOY_SERVER} << 'DEPLOY_SCRIPT'
+
+                            set -e  # 오류 발생 시 스크립트 중단
+
+                            echo "=== 배포 스크립트 시작 ==="
+
+                            # 환경 변수 설정
+                            TOMCAT_HOME="${env.TOMCAT_HOME}"
+                            APP_NAME="${env.APP_NAME}"
+                            WAR_FILE="${env.WAR_FILE}"
+                            TIMESTAMP=\$(date +'%Y%m%d_%H%M%S')
+
+                            # 1. 현재 실행 중인 톰캣 프로세스 확인 및 중지
+                            echo "현재 톰캣 프로세스 확인 중..."
+                            TOMCAT_PID=\$(ps -ef | grep "\$TOMCAT_HOME" | grep -v grep | awk '{print \$2}' | head -1)
+                            
+                            if [ -n "\$TOMCAT_PID" ]; then
+                                echo "톰캣 프로세스 \$TOMCAT_PID 종료 중..."
+                                kill -TERM \$TOMCAT_PID
+                                
+                                # Graceful shutdown 대기 (최대 30초)
+                                for i in \$(seq 1 30); do
+                                    if ! kill -0 \$TOMCAT_PID 2>/dev/null; then
+                                        echo "톰캣이 정상적으로 종료되었습니다."
+                                        break
+                                    fi
+                                    if [ \$i -eq 30 ]; then
+                                        echo "강제 종료합니다..."
+                                        kill -9 \$TOMCAT_PID
+                                    fi
+                                    sleep 1
+                                done
+                            else
+                                echo "실행 중인 톰캣 프로세스가 없습니다."
+                            fi
+
+                            # 2. 기존 애플리케이션 백업
+                            if [ -d "\$TOMCAT_HOME/webapps/\$APP_NAME" ]; then
+                                echo "기존 애플리케이션 백업 중..."
+                                mv "\$TOMCAT_HOME/webapps/\$APP_NAME" "\$TOMCAT_HOME/webapps/\${APP_NAME}_backup_\$TIMESTAMP"
+                            fi
+
+                            # 3. 새 WAR 파일 존재 확인
+                            echo "새 WAR 파일 존재 확인 중..."
+                            if [ ! -f "\$TOMCAT_HOME/webapps/\$WAR_FILE" ]; then
+                                echo "오류: 새 WAR 파일이 복사되지 않았습니다: \$TOMCAT_HOME/webapps/\$WAR_FILE"
+                                ls -la "\$TOMCAT_HOME/webapps/"
+                                exit 1
+                            fi
+                            
+                            echo "새 WAR 파일 정보:"
+                            ls -la "\$TOMCAT_HOME/webapps/\$WAR_FILE"
+
+                            # 4. 기존 WAR 파일을 백업으로 복사 (이동이 아닌 복사)
+                            if [ -f "\$TOMCAT_HOME/webapps/\$WAR_FILE" ]; then
+                                echo "기존 WAR 파일을 백업으로 복사 중..."
+                                cp "\$TOMCAT_HOME/webapps/\$WAR_FILE" "\$TOMCAT_HOME/webapps/\${WAR_FILE}.backup_\$TIMESTAMP"
+                            fi
+
+                            # 5. WAR 파일 권한 설정
+                            echo "WAR 파일 권한 설정 중..."
+                            chown tomcat:tomcat "\$TOMCAT_HOME/webapps/\$WAR_FILE"
+                            chmod 755 "\$TOMCAT_HOME/webapps/\$WAR_FILE"
+                            ls -la "\$TOMCAT_HOME/webapps/\$WAR_FILE"
+
+                            # 6. 톰캣 로그 디렉토리 권한 확인
+                            if [ -d "\$TOMCAT_HOME/logs" ]; then
+                                chown -R tomcat:tomcat "\$TOMCAT_HOME/logs"
+                            fi
+
+                            # 7. 톰캣 재시작
+                            echo "톰캣 시작 중..."
+                            sudo -u tomcat "\$TOMCAT_HOME/bin/startup.sh"
+
+                            # 8. 톰캣 시작 확인 (최대 2분 대기)
+                            echo "톰캣 시작 확인 중..."
+                            for i in \$(seq 1 120); do
+                                if [ -f "\$TOMCAT_HOME/logs/catalina.out" ]; then
+                                    if grep -q "Server startup in" "\$TOMCAT_HOME/logs/catalina.out" 2>/dev/null; then
+                                        echo "톰캣이 성공적으로 시작되었습니다."
+                                        break
+                                    fi
+                                fi
+                                
+                                if [ \$i -eq 120 ]; then
+                                    echo "경고: 톰캣 시작 확인 시간이 초과되었습니다."
+                                    echo "톰캣 로그를 확인해주세요:"
+                                    tail -n 20 "\$TOMCAT_HOME/logs/catalina.out" 2>/dev/null || echo "로그 파일을 읽을 수 없습니다."
+                                fi
+                                sleep 1
+                            done
+
+                            # 9. 애플리케이션 배포 확인
+                            sleep 10
+                            if [ -d "\$TOMCAT_HOME/webapps/\$APP_NAME" ]; then
+                                echo "애플리케이션이 성공적으로 배포되었습니다."
+                            else
+                                echo "경고: 애플리케이션 디렉토리가 생성되지 않았습니다."
+                            fi
+
+                            # 10. 이전 백업 파일 정리 (7일 이전 파일만 유지)
+                            echo "이전 백업 파일 정리 중..."
+                            find "\$TOMCAT_HOME/webapps/" -name "*backup_*" -mtime +7 -delete 2>/dev/null || true
+
+                            echo "=== 배포 스크립트 완료 ==="
+
+DEPLOY_SCRIPT
+                        """
+                        
+                        echo "=== 애플리케이션 배포 완료 ==="
+                    } catch (Exception e) {
+                        error "배포 실패: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        // 7. 배포 후 헬스 체크
+        stage('Health Check') {
+            steps {
+                script {
+                    echo "=== 애플리케이션 헬스 체크 시작 ==="
+                    try {
+                        // 30초 대기 후 헬스 체크 시작
+                        sleep(30)
+                        
+                        // 기본 연결 테스트 (포트 8080 또는 설정된 포트)
+                        sh """
+                            ssh -o StrictHostKeyChecking=no \
+                            ${env.DEPLOY_USER}@${env.DEPLOY_SERVER} \
+                            'netstat -tlnp | grep :8080 && echo "톰캣 포트 확인됨"'
+                        """
+                        
+                        // 애플리케이션 디렉토리 확인
+                        sh """
+                            ssh -o StrictHostKeyChecking=no \
+                            ${env.DEPLOY_USER}@${env.DEPLOY_SERVER} \
+                            'ls -la ${env.TOMCAT_HOME}/webapps/${env.APP_NAME}/ | head -5'
+                        """
+                        
+                        echo "=== 애플리케이션 헬스 체크 완료 ==="
+                    } catch (Exception e) {
+                        // 헬스 체크 실패는 경고로 처리하고 계속 진행
+                        echo "경고: 헬스 체크 실패 - ${e.getMessage()}"
+                        echo "수동으로 애플리케이션 상태를 확인해주세요."
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "=== 파이프라인 실행 완료 ==="
+            
+            // 빌드 결과물 아카이브 (선택사항)
+            script {
+                if (fileExists('wherehouse/build/libs/wherehouse.war')) {
+                    archiveArtifacts artifacts: 'wherehouse/build/libs/*.war', 
+                                   fingerprint: true,
+                                   allowEmptyArchive: false
+                }
+            }
+        }
+        
+        success {
+            echo "🎉 배포가 성공적으로 완료되었습니다!"
+            echo "애플리케이션 URL: http://${env.DEPLOY_SERVER}:8080/${env.APP_NAME}"
+            
+            // 성공 알림 (선택사항 - Slack, 이메일 등)
+            // slackSend channel: '#deploy', 
+            //           color: 'good', 
+            //           message: "✅ ${env.JOB_NAME} - ${env.BUILD_NUMBER} 배포 성공"
+        }
+        
+        failure {
+            echo "❌ 배포 중 오류가 발생했습니다."
+            echo "빌드 로그를 확인하여 문제를 해결해주세요."
+            
+            // 실패 알림 (선택사항)
+            // slackSend channel: '#deploy', 
+            //           color: 'danger', 
+            //           message: "❌ ${env.JOB_NAME} - ${env.BUILD_NUMBER} 배포 실패"
+        }
+        
+        cleanup {
+            script {
+                echo "=== 파이프라인 정리 작업 시작 ==="
+                // 작업공간 정리 (필요시 주석 해제)
+                // cleanWs()
+                echo "=== 파이프라인 정리 작업 완료 ==="
+            }
+        }
+    }
+}
