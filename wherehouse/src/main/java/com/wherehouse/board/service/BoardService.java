@@ -401,17 +401,14 @@ public class BoardService implements IBoardService {
      */
     @Override
     public void createReply(String token, CommentVO commentVO) {
-
-        // (1) JWT 서명 키 복원
-        Key signingKey = extractSigningKey(token);
-
         // (2) 게시글 존재 여부 검증(404)
         boardRepository.findById(commentVO.getBoardId())
-            .orElseThrow(() -> new BoardNotFoundException("댓글 작성 요청 대상 게시글이 이미 삭제되어 게시글을 작성할 수 없습니다."));
+                .orElseThrow(() -> new BoardNotFoundException(
+                        "댓글 작성 요청 대상 게시글이 이미 삭제되어 게시글을 작성할 수 없습니다."));
 
         // (3) VO에 사용자 정보 설정
-        commentVO.setUserId(jwtUtil.extractUserId(token));
-        commentVO.setUserName(jwtUtil.extractUsername(token));
+        commentVO.setUserId(extractUserIdFromToken(token));     // 수정
+        commentVO.setUserName(extractUserNameFromToken(token)); // 수정
 
         // (4) 댓글 저장
         boardRepository.createComment(commentConverter.toEntity(commentVO));

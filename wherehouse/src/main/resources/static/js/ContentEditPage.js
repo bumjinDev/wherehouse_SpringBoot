@@ -22,10 +22,10 @@ async function requestBoardModify() {
     /* 요청 페이로드 구성: 서버 DTO 필드에 맞춰 key 매핑 */
     const payload = {
 		
-        boardId: boardId,
+        board_id: boardId,
         title: title,
         region: region,
-        boardContent: boardContent
+        board_content: boardContent
     };
 
     try {

@@ -22,7 +22,7 @@ async function requestBoardWrite() {
     const payload = {
 		
         title: boardTitle,
-        boardContent: boardContent,
+        board_content: boardContent,
         region: boardRegion
     };
 

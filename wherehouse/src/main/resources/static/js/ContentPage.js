@@ -97,8 +97,8 @@ async function writeReply() {
 
     const payload = {
 		
-        boardId: boardId,
-        replyContent: replyContent
+        board_id: boardId,
+        reply_content: replyContent
     };
 
     try {

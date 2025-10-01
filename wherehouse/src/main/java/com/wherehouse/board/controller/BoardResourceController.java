@@ -120,6 +120,7 @@ public class BoardResourceController {
     public ResponseEntity<Void> writeReply(
             @CookieValue(value = "Authorization", required = false) String jwt,
             @RequestBody @Valid CommentVO commandtVO) {
+
         boardService.createReply(jwt, commandtVO);
         return ResponseEntity.status(201).build();
     }
