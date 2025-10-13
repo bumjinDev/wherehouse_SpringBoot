@@ -7,7 +7,7 @@ import com.wherehouse.information.model.controller.LocationAnalysisResponseDTO;
  * 위치 분석 서비스 인터페이스
  * 실제 구현은 LocationAnalysisServiceImpl 클래스에서 수행
  */
-public interface LocationAnalysisService {
+public interface ILocationAnalysisService {
 
     /**
      * 위치 분석을 수행하는 메인 메서드

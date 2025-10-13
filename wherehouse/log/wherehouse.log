@@ -76,3 +76,9 @@
 2025-10-13 11:13:16.218 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8185"]
 2025-10-13 11:13:16.243 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8185 (http) with context path '/wherehouse'
 2025-10-13 11:13:16.259 [main] INFO  c.wherehouse.WherehouseApplication - Started WherehouseApplication in 9.838 seconds (process running for 10.758)
+2025-10-13 11:13:36.551 [http-nio-8185-exec-2] INFO  o.a.c.c.C.[.[.[/wherehouse] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-10-13 11:13:36.551 [http-nio-8185-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-10-13 11:13:36.551 [http-nio-8185-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+2025-10-13 14:06:04.412 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-10-13 14:06:04.416 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-10-13 14:06:04.422 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

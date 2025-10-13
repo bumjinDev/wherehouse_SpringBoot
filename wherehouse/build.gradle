@@ -135,6 +135,17 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// Geohash 라이브러리 (배치 시스템용)
+	// 지오해시 계산을 위한 라이브러리
+	// 7자리 정밀도(약 150m x 150m) 계산에 사용
+	// GeohashIndexingEtlProcessor에서 사용
+	implementation 'ch.hsr:geohash:1.4.0'
+
+	// WebClient (외부 API 호출용)
+	// 카카오맵 API 연동을 위한 비동기 HTTP 클라이언트
+	// KakaoApiService에서 사용
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 	// 테스트
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

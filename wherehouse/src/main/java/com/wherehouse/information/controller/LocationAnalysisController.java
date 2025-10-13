@@ -3,7 +3,7 @@ package com.wherehouse.information.controller;
 import com.wherehouse.information.model.controller.LocationAnalysisRequestDTO;
 
 import com.wherehouse.information.model.controller.LocationAnalysisResponseDTO;
-import com.wherehouse.information.service.LocationAnalysisService;
+import com.wherehouse.information.service.ILocationAnalysisService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class LocationAnalysisController {
 
-	private final LocationAnalysisService locationAnalysisService;
+	private final ILocationAnalysisService locationAnalysisService;
 
 	@PostMapping("/location-analysis")
 	public ResponseEntity<LocationAnalysisResponseDTO> getLocationAnalysis(
