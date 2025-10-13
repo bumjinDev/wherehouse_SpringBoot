@@ -5,8 +5,8 @@ spring:
   # 데이터베이스 연결 설정
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
-    #url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
-    url: jdbc:oracle:thin:@43.202.178.156:1521:xe # Oracle SID 기반 URL (AWS 서버 - 확인 완료)
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
+    #url: jdbc:oracle:thin:@43.202.178.156:1521:xe # Oracle SID 기반 URL (AWS 서버 - 확인 완료)
     username: SCOTT
     password: tiger
 
@@ -19,8 +19,8 @@ spring:
   # Redis 연결 설정
   data:
     redis:
-      #host: 172.30.248.154  # Local(no 127.0.0.1)
-      host: 43.202.178.156 # (aws - 확인 완료)
+      host: 172.30.248.154  # Local(no 127.0.0.1)
+      #host: 43.202.178.156 # (aws - 확인 완료)
       port: 6379
       timeout: 0  # 0초 무제한 타임아웃 설정
       lettuce:
