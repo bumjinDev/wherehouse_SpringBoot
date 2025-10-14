@@ -32,4 +32,7 @@ public class SafetyScoreDto {
 
     @JsonProperty("arrest_rate")
     private Double arrestRate;  // 해당 지역 검거율 (0.0 ~ 1.0)
+
+    @JsonProperty("nearest_police_office")
+    private PoliceOfficeDto nearestPoliceOffice;  // 새로 추가
 }
