@@ -1,8 +1,8 @@
 package com.wherehouse.information.controller;
 
-import com.wherehouse.information.model.controller.LocationAnalysisRequestDTO;
+import com.wherehouse.information.model.LocationAnalysisRequestDTO;
 
-import com.wherehouse.information.model.controller.LocationAnalysisResponseDTO;
+import com.wherehouse.information.model.LocationAnalysisResponseDTO;
 import com.wherehouse.information.service.ILocationAnalysisService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

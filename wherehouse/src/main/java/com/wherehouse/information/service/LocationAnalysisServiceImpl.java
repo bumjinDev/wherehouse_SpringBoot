@@ -6,7 +6,7 @@ import com.wherehouse.information.dao.PoliceOfficeGeoRepository;
 import com.wherehouse.information.entity.ArrestRate;
 import com.wherehouse.information.entity.CctvGeo;
 import com.wherehouse.information.entity.PoliceOfficeGeo;
-import com.wherehouse.information.model.controller.*;
+import com.wherehouse.information.model.*;
 import com.wherehouse.information.util.GeohashService;
 import com.wherehouse.information.util.KakaoApiService;
 import com.wherehouse.redis.service.RedisSingleDataService;
@@ -118,6 +118,8 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      */
     private List<String> calculate9BlockGrid(LocationAnalysisRequestDTO request) {
         log.info("[R-01] 9-Block 그리드 범위 계산 시작");
+        log.info("[R-01] 요청 좌표: lat={}, lon={}",
+                request.getLatitude(), request.getLongitude());
 
         double latitude = request.getLatitude();
         double longitude = request.getLongitude();
@@ -488,11 +490,11 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                     log.info("[R-04] 주소 변환 캐시 히트");
                     // JSON 역직렬화하여 AddressDto 객체로 변환 후 결과에 설정
                     result.setAddress(objectMapper.readValue(cachedAddress,
-                            com.wherehouse.information.model.controller.AddressDto.class));
+                            AddressDto.class));
                 } else {
                     log.info("[R-04] 주소 변환 캐시 미스 - API 호출");
                     // 카카오맵 Reverse Geocoding API 호출 (좌표 → 주소 변환)
-                    com.wherehouse.information.model.controller.AddressDto addressDto =
+                    AddressDto addressDto =
                             kakaoApiService.getAddress(latitude, longitude);
 
                     result.setAddress(addressDto);
@@ -1414,7 +1416,7 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         private int totalCameraCount = 0;
         private PoliceOfficeGeo nearestPolice;
         private double distanceToNearestPolice = 0.0;
-        private com.wherehouse.information.model.controller.AddressDto address;
+        private AddressDto address;
         private double arrestRate = 0.0;
 
         /**
@@ -1455,11 +1457,11 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             this.distanceToNearestPolice = distanceToNearestPolice;
         }
 
-        public com.wherehouse.information.model.controller.AddressDto getAddress() {
+        public AddressDto getAddress() {
             return address;
         }
 
-        public void setAddress(com.wherehouse.information.model.controller.AddressDto address) {
+        public void setAddress(AddressDto address) {
             this.address = address;
         }
 
@@ -1606,7 +1608,7 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
     private static class ExternalApiResult {
 
         // 카카오맵 Reverse Geocoding API 응답 (도로명 + 지번 주소)
-        private com.wherehouse.information.model.controller.AddressDto address;
+        private AddressDto address;
 
         // 카카오맵 로컬 검색 API 응답 (15개 카테고리별 편의시설 목록)
         // Map<카테고리코드, List<장소정보>> 형태 (예: "CS2" -> [GS25, CU, ...])
@@ -1618,11 +1620,11 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         // API 호출 중 발생한 오류 메시지 목록 (장애 격리를 위한 오류 수집)
         private final List<String> errors = new ArrayList<>();
 
-        public com.wherehouse.information.model.controller.AddressDto getAddress() {
+        public AddressDto getAddress() {
             return address;
         }
 
-        public void setAddress(com.wherehouse.information.model.controller.AddressDto address) {
+        public void setAddress(AddressDto address) {
             this.address = address;
         }
 
@@ -1798,14 +1800,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         }
     }
 
-    private List<com.wherehouse.information.model.controller.AmenityDetailDto>
+    private List<com.wherehouse.information.model.AmenityDetailDto>
     convertToAmenityDetailDtos(List<AmenityDetailDto> internalList) {
 
-        List<com.wherehouse.information.model.controller.AmenityDetailDto> result = new ArrayList<>();
+        List<com.wherehouse.information.model.AmenityDetailDto> result = new ArrayList<>();
 
         for (AmenityDetailDto internal : internalList) {
-            com.wherehouse.information.model.controller.AmenityDetailDto dto =
-                    com.wherehouse.information.model.controller.AmenityDetailDto.builder()
+            com.wherehouse.information.model.AmenityDetailDto dto =
+                    com.wherehouse.information.model.AmenityDetailDto.builder()
                             .categoryCode(internal.getCategoryCode())
                             .categoryName(internal.getCategoryName())
                             .count(internal.getCount())
@@ -1817,14 +1819,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         return result;
     }
 
-    private List<com.wherehouse.information.model.controller.PlaceDto>
+    private List<com.wherehouse.information.model.PlaceDto>
     convertToPlaceDtos(List<PlaceDto> internalList) {
 
-        List<com.wherehouse.information.model.controller.PlaceDto> result = new ArrayList<>();
+        List<com.wherehouse.information.model.PlaceDto> result = new ArrayList<>();
 
         for (PlaceDto internal : internalList) {
-            com.wherehouse.information.model.controller.PlaceDto dto =
-                    com.wherehouse.information.model.controller.PlaceDto.builder()
+            com.wherehouse.information.model.PlaceDto dto =
+                    com.wherehouse.information.model.PlaceDto.builder()
                             .name(internal.getName())
                             .latitude(internal.getLatitude())
                             .longitude(internal.getLongitude())

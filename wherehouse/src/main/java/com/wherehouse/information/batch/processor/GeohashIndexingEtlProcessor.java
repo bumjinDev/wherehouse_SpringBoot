@@ -56,6 +56,7 @@ public class GeohashIndexingEtlProcessor {
      * 스케줄: 매일 새벽 4시 (cron = "0 0 4 * * ?")
      */
     @Scheduled(cron = "0 0 4 * * ?")
+    @Scheduled(cron = "5 46 * * * ?")
     @Transactional
     public void executeEtlProcess() {
         log.info("========================================");

@@ -2,7 +2,7 @@ package com.wherehouse.information.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wherehouse.information.model.controller.AddressDto;
+import com.wherehouse.information.model.AddressDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,8 @@ public class KakaoApiService {
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${kakao.api.key}")
+//    @Value("${kakao.api.key}")
+    @Value("${KAKAO_API_KEY}")
     private String kakaoApiKey;
 
     private static final String KAKAO_API_BASE_URL = "https://dapi.kakao.com";

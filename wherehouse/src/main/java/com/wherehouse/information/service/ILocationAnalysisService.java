@@ -1,7 +1,7 @@
 package com.wherehouse.information.service;
 
-import com.wherehouse.information.model.controller.LocationAnalysisRequestDTO;
-import com.wherehouse.information.model.controller.LocationAnalysisResponseDTO;
+import com.wherehouse.information.model.LocationAnalysisRequestDTO;
+import com.wherehouse.information.model.LocationAnalysisResponseDTO;
 
 /**
  * 위치 분석 서비스 인터페이스
