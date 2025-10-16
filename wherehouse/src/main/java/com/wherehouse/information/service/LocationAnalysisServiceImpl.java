@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
  * 사용자가 선택한 좌표 기반으로 주변 안전 인프라(CCTV, 파출소)와 편의시설을 분석하여
  * 종합 안전 점수 및 편의성 점수를 제공하는 핵심 비즈니스 로직 구현
  *
- * 처리 단계 (6.4.4 실시간 서비스 처리 단계)
+ * 처리 단계 (6.4.4절 실시간 서비스 처리 단계)
  * - R-01: '9-Block' 그리드 범위 계산 ✅ 구현 완료
  * - R-02: 단계별 캐시 조회 ✅ 구현 완료
  * - R-03: 선택된 데이터베이스 조회 ✅ 구현 완료
@@ -146,10 +146,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      *    - TTL: 5분 (동일 지역 반복 요청 패턴 대응)
      *    - 키 형식: "dto:{centerGeohashId}"
      *    - 히트 시: 즉시 반환, 전체 프로세스 스킵
-     * 2. 2단계 (Component Cache): 격자별 CCTV/파출소 원본 데이터 캐싱
+     * 2. 2단계 (Component Cache): 격자별 CCTV 원본 데이터 캐싱
      *    - TTL: 24시간 (공공 데이터 변경 주기 고려)
-     *    - 키 형식: "data:{geohashId}:{dataType}"
+     *    - 키 형식: "data:{geohashId}:cctv"
      *    - 히트: 캐시된 데이터 재사용, 미스: DB 조회(R-03)로 전환
+     *
+     * 주의사항
+     * - 파출소 데이터는 희소성으로 인해 Geohash 캐싱이 부적합하므로
+     *   이 단계에서는 CCTV 데이터만 캐싱하고, 파출소는 R-05에서 직접 쿼리
      *
      * 데이터 직렬화
      * - Jackson ObjectMapper를 사용한 JSON 직렬화/역직렬화
@@ -187,14 +191,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         log.info("[R-02-1단계] 캐시 미스. 2단계 캐시 조회 진행");
 
-        // 2단계 캐시 조회: 9개 격자 각각에 대해 CCTV/파출소 컴포넌트 데이터 조회
+        // 2단계 캐시 조회: 9개 격자 각각에 대해 CCTV 컴포넌트 데이터 조회
         log.info("[R-02-2단계] 개별 격자 데이터 캐시 조회 시작 (9개 격자)");
 
         CacheResult result = new CacheResult();
         result.setLevel1Hit(false);
         result.setNineBlockGeohashes(nineBlockGeohashes);
 
-        // 각 격자별로 CCTV, 파출소 데이터의 캐시 존재 여부 확인
+        // 각 격자별로 CCTV 데이터의 캐시 존재 여부 확인
         for (String geohashId : nineBlockGeohashes) {
             // CCTV 데이터 캐시 키 생성 및 조회 (형식: "data:{geohashId}:cctv")
             String cctvCacheKey = "data:" + geohashId + ":cctv";
@@ -220,38 +224,11 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                         geohashId, e.getMessage());
                 result.addCctvMiss(geohashId);
             }
-
-            // 파출소 데이터 캐시 키 생성 및 조회 (형식: "data:{geohashId}:police")
-            String policeCacheKey = "data:" + geohashId + ":police";
-            log.debug("[R-02-2단계] 파출소 캐시 조회 - Key: {}", policeCacheKey);
-
-            try {
-                String policeJson = redisSingleDataService.getSingleData(policeCacheKey);
-
-                if (policeJson != null && !policeJson.isEmpty()) {
-                    List<PoliceOfficeGeo> cachedPolice = objectMapper.readValue(
-                            policeJson,
-                            new TypeReference<List<PoliceOfficeGeo>>() {}
-                    );
-                    log.debug("[R-02-2단계] 파출소 캐시 히트 - GeohashId: {}, 개수: {}",
-                            geohashId, cachedPolice.size());
-                    result.addCachedPolice(geohashId, cachedPolice);
-                } else {
-                    log.debug("[R-02-2단계] 파출소 캐시 미스 - GeohashId: {}", geohashId);
-                    result.addPoliceMiss(geohashId);
-                }
-            } catch (Exception e) {
-                log.warn("[R-02-2단계] 파출소 캐시 조회 중 오류 - GeohashId: {}, 오류: {}",
-                        geohashId, e.getMessage());
-                result.addPoliceMiss(geohashId);
-            }
         }
 
         log.info("[R-02-2단계] 개별 격자 데이터 캐시 조회 완료");
         log.info("[R-02-2단계] CCTV 캐시 히트: {}개, 미스: {}개",
                 result.getCachedCctvData().size(), result.getCctvMisses().size());
-        log.info("[R-02-2단계] 파출소 캐시 히트: {}개, 미스: {}개",
-                result.getCachedPoliceData().size(), result.getPoliceMisses().size());
         log.info("[R-02] 단계별 캐시 조회 완료");
 
         return result;
@@ -267,12 +244,12 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      * 처리 흐름
      * 1. R-02에서 캐시 히트된 데이터를 결과 객체에 먼저 추가
      * 2. 캐시 미스 격자 목록에 대해서만 DB 조회 실행 (선택적 조회)
-     * 3. 조회된 데이터를 격자별로 그룹화 (groupCctvByGeohash, groupPoliceByGeohash)
+     * 3. 조회된 데이터를 격자별로 그룹화 (groupCctvByGeohash)
      * 4. 각 격자 데이터를 즉시 Redis 2단계 캐시에 저장 (TTL: 24시간)
      *
      * 인덱스 활용 전략
      * - 쿼리 패턴: WHERE geohash_id IN (...)
-     * - 사용 인덱스: IDX_CCTV_GEO_GEOHASH, IDX_POLICE_GEO_GEOHASH (B-Tree)
+     * - 사용 인덱스: IDX_CCTV_GEO_GEOHASH (B-Tree)
      * - 성능: 9개 격자 조회 시 9번의 Index Range Scan (각 밀리초 단위)
      *
      * 설계 근거
@@ -280,12 +257,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      * - 즉시 캐싱: 조회 직후 캐싱으로 다음 요청에서 재사용 보장
      * - 전체 컬럼 조회: ADDRESS, LATITUDE, LONGITUDE 등 모든 필드 포함
      *
-     * 성능 최적화 여지 (TODO)
-     * 현재 병목 구간: CCTV 조회와 파출소 조회가 순차 실행됨
-     * - 현재 소요 시간: CCTV(50ms) + 파출소(30ms) = 80ms
-     * - 병렬 처리 시: max(CCTV(50ms), 파출소(30ms)) = 50ms (약 37.5% 개선)
-     * - 개선 방법: CompletableFuture.supplyAsync()로 두 조회를 별도 스레드에서 실행
-     * - 참고: R-04에서 이미 동일한 병렬 처리 패턴 적용 중
+     * 주의사항
+     * - 파출소 데이터는 희소성으로 인해 Geohash 기반 조회가 부적합하므로
+     *   이 단계에서는 CCTV 데이터만 처리하고, 파출소는 R-05에서 직접 쿼리
      *
      * @param cacheResult R-02에서 반환된 캐시 조회 결과 객체 (히트 데이터 + 미스 목록)
      * @return DB 조회 결과 객체 (캐시 데이터 + 새로 조회한 데이터 통합)
@@ -297,10 +271,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         // 1. R-02에서 캐시 히트된 데이터를 결과 객체에 먼저 추가 (캐시 재사용)
         dbResult.getCctvData().putAll(cacheResult.getCachedCctvData());
-        dbResult.getPoliceData().putAll(cacheResult.getCachedPoliceData());
+        // 파출소는 R-05에서 직접 쿼리하므로 여기서는 제외
 
         // 2. CCTV 데이터 DB 조회 (캐시 미스 격자만 대상, IN 절로 일괄 조회)
-        // TODO: [병목 구간 1] CompletableFuture.supplyAsync()로 비동기 실행 가능
         List<String> cctvMisses = cacheResult.getCctvMisses();
         if (!cctvMisses.isEmpty()) {
             log.info("[R-03] CCTV 데이터 DB 조회 시작 - 대상 격자: {}개", cctvMisses.size());
@@ -334,44 +307,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             log.info("[R-03] CCTV 데이터는 모두 캐시에서 조회됨");
         }
 
-        // 3. 파출소 데이터 DB 조회 (캐시 미스 격자만 대상, IN 절로 일괄 조회)
-        // TODO: [병목 구간 2] CompletableFuture.supplyAsync()로 CCTV 조회와 병렬 실행 가능
-        List<String> policeMisses = cacheResult.getPoliceMisses();
-        if (!policeMisses.isEmpty()) {
-            log.info("[R-03] 파출소 데이터 DB 조회 시작 - 대상 격자: {}개", policeMisses.size());
-
-            try {
-                // B-Tree 인덱스(IDX_POLICE_GEO_GEOHASH)를 활용한 IN 절 조회
-                List<PoliceOfficeGeo> policeList = policeOfficeGeoRepository.findByGeohashIdIn(policeMisses);
-                log.info("[R-03] 파출소 DB 조회 완료 - 조회된 데이터: {}건", policeList.size());
-
-                // 조회된 파출소 리스트를 geohash_id 기준으로 그룹화 (Map<GeohashId, List<PoliceOfficeGeo>>)
-                Map<String, List<PoliceOfficeGeo>> groupedPolice = groupPoliceByGeohash(policeList);
-
-                // 격자별로 분류된 데이터를 순회하며 결과 객체에 추가 + Redis 2단계 캐시 저장
-                for (Map.Entry<String, List<PoliceOfficeGeo>> entry : groupedPolice.entrySet()) {
-                    String geohashId = entry.getKey();
-                    List<PoliceOfficeGeo> data = entry.getValue();
-
-                    // DatabaseQueryResult 객체에 해당 격자의 파출소 데이터 추가
-                    dbResult.getPoliceData().put(geohashId, data);
-
-                    // Redis 2단계 캐시에 저장 (키: "data:{geohashId}:police", TTL: 24시간)
-                    cacheGeohashData(geohashId, "police", data);
-                    log.debug("[R-03] 파출소 캐싱 완료 - GeohashId: {}, 개수: {}건", geohashId, data.size());
-                }
-
-            } catch (Exception e) {
-                log.error("[R-03] 파출소 DB 조회 중 오류 발생", e);
-                dbResult.addError("파출소 데이터 조회 실패: " + e.getMessage());
-            }
-        } else {
-            log.info("[R-03] 파출소 데이터는 모두 캐시에서 조회됨");
-        }
-
+        // 파출소 데이터 처리는 R-05로 이관됨
         log.info("[R-03] 데이터베이스 조회 완료");
-        log.info("[R-03] CCTV 총 격자: {}개, 파출소 총 격자: {}개",
-                dbResult.getCctvData().size(), dbResult.getPoliceData().size());
+        log.info("[R-03] CCTV 총 격자: {}개", dbResult.getCctvData().size());
 
         return dbResult;
     }
@@ -684,41 +622,37 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         log.info("[R-05] 반경 {}m 내 필터링된 CCTV: {}개 (총 카메라 대수: {}대)",
                 radius, filteredCctvList.size(), totalCameraCount);
 
-        // 2. 파출소 데이터 통합 및 가장 가까운 파출소 선정
-        log.info("[R-05] 파출소 데이터 통합 및 최근접 파출소 선정 시작");
-        List<PoliceOfficeGeo> allPoliceList = new ArrayList<>();
-
-        for (String geohashId : nineBlockGeohashes) {
-            List<PoliceOfficeGeo> policeInGrid = dbResult.getPoliceData().get(geohashId);
-            if (policeInGrid != null) {
-                allPoliceList.addAll(policeInGrid);
-            }
-        }
-
-        log.info("[R-05] 9개 격자에서 통합된 전체 파출소 개수: {}개", allPoliceList.size());
+        // 2. 파출소 데이터 - 격자 상관없이 가장 가까운 파출소 1개만 찾기
+        log.info("[R-05] 가장 가까운 파출소 검색 시작");
 
         PoliceOfficeGeo nearestPolice = null;
         double minDistance = Double.MAX_VALUE;
 
-        for (PoliceOfficeGeo police : allPoliceList) {
-            double distance = geohashService.calculateDistance(
-                    userLatitude, userLongitude,
-                    police.getLatitude(), police.getLongitude());
+        try {
+            // DB에서 직접 가장 가까운 파출소 1개 조회
+            List<PoliceOfficeGeo> nearestPoliceList = policeOfficeGeoRepository
+                    .findNearestPoliceStations(userLatitude, userLongitude, 1);
 
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearestPolice = police;
+            if (!nearestPoliceList.isEmpty()) {
+                nearestPolice = nearestPoliceList.get(0);
+                minDistance = geohashService.calculateDistance(
+                        userLatitude, userLongitude,
+                        nearestPolice.getLatitude(), nearestPolice.getLongitude());
+
+                log.info("[R-05] 가장 가까운 파출소 발견: {} (거리: {}m)",
+                        nearestPolice.getAddress(), Math.round(minDistance));
             }
+        } catch (Exception e) {
+            log.error("[R-05] 파출소 검색 중 오류 발생", e);
         }
 
         result.setNearestPolice(nearestPolice);
         result.setDistanceToNearestPolice(minDistance);
 
-        if (nearestPolice != null) {
-            log.info("[R-05] 가장 가까운 파출소: {} (거리: {}m)",
-                    nearestPolice.getAddress(), Math.round(minDistance));
-        } else {
-            log.warn("[R-05] 주변에 파출소가 없습니다.");
+
+
+        if (nearestPolice == null) {
+            log.warn("[R-05] 파출소를 찾을 수 없습니다.");
         }
 
         // 3. 외부 API 데이터 통합
@@ -1186,6 +1120,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         SafetyScoreDto safetyScore = new SafetyScoreDto();
         safetyScore.setTotal((int) Math.round(scoringResult.getSafetyScore()));
 
+        log.info("[R-07] nearestPolice: {}", integratedResult.getNearestPolice());
+        log.info("[R-07] policeDistance: {}", integratedResult.getDistanceToNearestPolice());
+
         // 파출소 거리 및 상세 정보 설정
         if (integratedResult.getNearestPolice() != null) {
             // 거리 정보
@@ -1199,6 +1136,7 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             policeDto.setDistance((int) Math.round(integratedResult.getDistanceToNearestPolice()));
 
             safetyScore.setNearestPoliceOffice(policeDto);
+
         } else {
             safetyScore.setPoliceDistance(null);
             safetyScore.setNearestPoliceOffice(null);
@@ -1209,7 +1147,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         // CCTV 상세 리스트 변환
         List<CctvDetailDto> cctvDetailList = new ArrayList<>();
+
         for (CctvGeo cctv : integratedResult.getFilteredCctvList()) {
+
             CctvDetailDto cctvDetail = new CctvDetailDto();
             cctvDetail.setAddress(cctv.getAddress());
             cctvDetail.setLatitude(cctv.getLatitude());

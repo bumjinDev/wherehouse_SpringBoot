@@ -47,4 +47,17 @@ public interface PoliceOfficeGeoRepository extends JpaRepository<PoliceOfficeGeo
      */
     @Query("SELECT p FROM PoliceOfficeGeo p WHERE p.geohashId IN :geohashIds")
     List<PoliceOfficeGeo> findByGeohashIdIn(@Param("geohashIds") List<String> geohashIds);
+
+    // Oracle용 - RADIANS 함수 없이 직접 계산 (π/180)
+    @Query(value = "SELECT * FROM ( " +
+            "SELECT p.*, " +
+            "(6371000 * ACOS(COS(:latitude * 3.14159265359 / 180) * COS(p.LATITUDE * 3.14159265359 / 180) * " +
+            "COS((p.LONGITUDE - :longitude) * 3.14159265359 / 180) + " +
+            "SIN(:latitude * 3.14159265359 / 180) * SIN(p.LATITUDE * 3.14159265359 / 180))) AS DISTANCE " +
+            "FROM POLICEOFFICE_GEO p " +
+            "ORDER BY DISTANCE " +
+            ") WHERE ROWNUM <= :limit", nativeQuery = true)
+    List<PoliceOfficeGeo> findNearestPoliceStations(@Param("latitude") double latitude,
+                                                    @Param("longitude") double longitude,
+                                                    @Param("limit") int limit);
 }

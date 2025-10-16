@@ -108,4 +108,6 @@ public class GeohashService {
 
         return EARTH_RADIUS * c;
     }
+
+
 }
