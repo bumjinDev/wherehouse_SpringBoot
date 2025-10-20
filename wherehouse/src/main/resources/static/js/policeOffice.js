@@ -1,55 +1,58 @@
-/**
- * [이재서] 파출소 호출
- */
-fetch("./information/policeOffice", {
-    method: "get",
+var policeMarker = null;
+
+// 페이지 로드 시 모든 파출소 마커 표시
+fetch("/wherehouse/api/police-offices", {
+    method: "GET",
     headers: {
         "Content-Type": "application/json",
     },
 })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(result => {
+        console.log(`파출소 데이터 로드 성공: ${result.length}개`);
+
         for (var policeOffice of result) {
-            // 마커 이미지의 이미지 주소
             var imageSrc = "./images/police_office_icon.png";
-            // 마커 이미지의 이미지 크기
             var imageSize = new kakao.maps.Size(52, 52);
-            // 마커 이미지를 생성
             var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
-            // 마커를 생성
+
             var marker = new kakao.maps.Marker({
-                map: map, // 마커를 표시할 지도
-                position: new kakao.maps.LatLng(policeOffice.latitude, policeOffice.longitude), // 마커를 표시할 위치
-                title: policeOffice.address, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시
-                image: markerImage, // 마커 이미지
-                opacity: 0.9, // 마커 투명도
+                map: map,
+                position: new kakao.maps.LatLng(policeOffice.latitude, policeOffice.longitude),
+                title: policeOffice.address,
+                image: markerImage,
+                opacity: 0.9,
                 zIndex: 2
             });
         }
+    })
+    .catch(error => {
+        console.error('파출소 데이터 로드 실패:', error);
     });
 
-function getLength_toMouseEvent(latlng, callback) {
-	fetch("./information/dist?latitude=" + latlng.Ma + "&longitude=" + latlng.La, {
-		method: "get",
-		headers: {
-			"Content-Type": "application/json",
-		},
-	})
-		.then(response => response.json())
-		.then(result => {
-			var polyline = new kakao.maps.Polyline({
-				path: [
-					new kakao.maps.LatLng(result.latitude, result.longitude),
-					new kakao.maps.LatLng(latlng.Ma, latlng.La)
-				],
-				strokeWeight: 0,
-				strokeColor: '#fff',
-				strokeOpacity: 0,
-				strokeStyle: 'solid'
-			});
-	
-			callback(polyline.getLength());
-		});	
-}
+function displayPoliceMarker(policeData) {
+    // 기존 마커 제거
+    if (policeMarker) {
+        policeMarker.setMap(null);
+    }
 
-export {getLength_toMouseEvent}
+    if (policeData) {
+        var imageSrc = "./images/police_office_icon.png";
+        var imageSize = new kakao.maps.Size(52, 52);
+        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+        policeMarker = new kakao.maps.Marker({
+            map: map,
+            position: new kakao.maps.LatLng(policeData.latitude, policeData.longitude),
+            title: policeData.address,
+            image: markerImage,
+            opacity: 0.9,
+            zIndex: 2
+        });
+    }
+}

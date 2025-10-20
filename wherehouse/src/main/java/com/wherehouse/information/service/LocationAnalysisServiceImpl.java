@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * 위치 분석 서비스 구현체
@@ -30,13 +31,13 @@ import java.util.concurrent.CompletableFuture;
  * 종합 안전 점수 및 편의성 점수를 제공하는 핵심 비즈니스 로직 구현
  *
  * 처리 단계 (6.4.4절 실시간 서비스 처리 단계)
- * - R-01: '9-Block' 그리드 범위 계산 ✅ 구현 완료
- * - R-02: 단계별 캐시 조회 ✅ 구현 완료
- * - R-03: 선택된 데이터베이스 조회 ✅ 구현 완료
- * - R-04: 외부 API 호출 및 개별 데이터 캐싱 ✅ 구현 완료
- * - R-05: 데이터 통합, 필터링, 최종 응답 생성 대기 ⏳ 개발 예정
- * - R-06: 최종 점수 계산 ⏳ 개발 예정
- * - R-07: 최종 응답 생성 및 캐싱 ⏳ 개발 예정
+ * - R-01: '9-Block' 그리드 범위 계산 구현 완료
+ * - R-02: 단계별 캐시 조회 구현 완료
+ * - R-03: 선택된 데이터베이스 조회 구현 완료
+ * - R-04: 외부 API 호출 및 개별 데이터 캐싱 구현 완료
+ * - R-05: 데이터 통합, 필터링, 최종 응답 생성 대기 개발 예정
+ * - R-06: 최종 점수 계산 개발 예정
+ * - R-07: 최종 응답 생성 및 캐싱 개발 예정
  *
  * @author wherehouse-team
  * @since 1.0.0
@@ -1775,5 +1776,27 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             result.add(dto);
         }
         return result;
+    }
+
+    /* 최초로 상세지도 페이지 로드 시 모든 파출소 좌표 정보 가져오기. */
+    @Override
+    public List<PoliceOfficeResponseDTO> getAllPoliceOffices() {
+        log.info("[전체 파출소 조회] 시작");
+
+        // 모든 파출소 데이터 조회
+        List<PoliceOfficeGeo> allPoliceOffices = policeOfficeGeoRepository.findAllBySeoul();
+
+        // Entity를 DTO로 변환
+        List<PoliceOfficeResponseDTO> responseDTOs = allPoliceOffices.stream()
+                .map(police -> PoliceOfficeResponseDTO.builder()
+                        .address(police.getAddress())
+                        .latitude(police.getLatitude())
+                        .longitude(police.getLongitude())
+                        .build())
+                .collect(Collectors.toList());
+
+        log.info("[전체 파출소 조회] 완료 - 조회된 파출소: {}개", responseDTOs.size());
+
+        return responseDTOs;
     }
 }

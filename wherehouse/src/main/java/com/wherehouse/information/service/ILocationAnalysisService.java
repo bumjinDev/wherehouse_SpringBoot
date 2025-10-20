@@ -2,6 +2,9 @@ package com.wherehouse.information.service;
 
 import com.wherehouse.information.model.LocationAnalysisRequestDTO;
 import com.wherehouse.information.model.LocationAnalysisResponseDTO;
+import com.wherehouse.information.model.PoliceOfficeResponseDTO;
+
+import java.util.List;
 
 /**
  * 위치 분석 서비스 인터페이스
@@ -27,4 +30,5 @@ public interface ILocationAnalysisService {
      * @return 안전성, 편의성, 종합 점수 및 상세 정보를 포함한 응답 DTO
      */
     LocationAnalysisResponseDTO analyzeLocation(LocationAnalysisRequestDTO request);
+    List<PoliceOfficeResponseDTO> getAllPoliceOffices();
 }

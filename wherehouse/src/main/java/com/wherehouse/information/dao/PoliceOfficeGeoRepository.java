@@ -60,4 +60,13 @@ public interface PoliceOfficeGeoRepository extends JpaRepository<PoliceOfficeGeo
     List<PoliceOfficeGeo> findNearestPoliceStations(@Param("latitude") double latitude,
                                                     @Param("longitude") double longitude,
                                                     @Param("limit") int limit);
+
+    /**
+     * 서울 지역의 모든 파출소 조회
+     * 주소가 '서울'로 시작하는 파출소만 필터링
+     *
+     * @return 서울 지역 파출소 목록
+     */
+    @Query("SELECT p FROM PoliceOfficeGeo p WHERE p.address LIKE '서울%'")
+    List<PoliceOfficeGeo> findAllBySeoul();
 }
