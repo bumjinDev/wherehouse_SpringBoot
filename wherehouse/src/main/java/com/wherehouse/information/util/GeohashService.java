@@ -1,6 +1,8 @@
 package com.wherehouse.information.util;
 
 import ch.hsr.geohash.GeoHash;
+import com.wherehouse.logger.PerformanceLogger;
+import com.wherehouse.logger.result.R01.R01GeohashCalculationResult;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class GeohashService {
     /**
      * 좌표를 7자리 Geohash ID로 변환
      *
-     * @param latitude 위도
+     * @param latitude  위도
      * @param longitude 경도
      * @return 7자리 Geohash ID (예: "wydm7p1")
      */
@@ -41,45 +43,86 @@ public class GeohashService {
     /**
      * 9-Block 그리드 Geohash ID 목록 생성
      *
-     * @param latitude 중심 좌표 위도
+     * @param latitude  중심 좌표 위도
      * @param longitude 중심 좌표 경도
      * @return 9개의 Geohash ID 목록 (중심 1개 + 인접 8개)
-     *
+     * <p>
      * 그리드 구조:
      * [북서] [북쪽] [북동]
      * [서쪽] [중심] [동쪽]
      * [남서] [남쪽] [남동]
-     *
+     * <p>
      * 반환 예시:
      * ["wydm7p1",  // 중심
-     *  "wydm7p4",  // 북쪽
-     *  "wydm7p5",  // 북동
-     *  "wydm7p3",  // 동쪽
-     *  "wydm7p2",  // 남동
-     *  "wydm7nz",  // 남쪽
-     *  "wydm7nx",  // 남서
-     *  "wydm7p0",  // 서쪽
-     *  "wydm7p6"]  // 북서
+     * "wydm7p4",  // 북쪽
+     * "wydm7p5",  // 북동
+     * "wydm7p3",  // 동쪽
+     * "wydm7p2",  // 남동
+     * "wydm7nz",  // 남쪽
+     * "wydm7nx",  // 남서
+     * "wydm7p0",  // 서쪽
+     * "wydm7p6"]  // 북서
      */
     public List<String> calculate9BlockGeohashes(double latitude, double longitude) {
 
-        // 중심 격자 Geohash 생성
-        GeoHash centerHash = GeoHash.withCharacterPrecision(latitude, longitude, GEOHASH_PRECISION);
+        // R-01 계측 시작
+        PerformanceLogger perfLogger = PerformanceLogger.start(
+                "R-01",                          // step
+                "calculate9BlockGeohashes",       // action
+                "Utility",                        // layer
+                "GeohashService",                 // class
+                "calculate9BlockGeohashes"        // method
+        );
 
+        // 로깅 객체 1차 생성
+        R01GeohashCalculationResult r01GeohashCalculationResult = R01GeohashCalculationResult.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .precision(GEOHASH_PRECISION)
+                .isSuccess(true)
+                .errorMessage(null)  // 명시적으로 null 설정
+                .build();
+
+        /* 9개 격자 ID 반환할 객체 */
         List<String> nineBlockIds = new ArrayList<>();
 
-        // 1. 중심 격자 추가
-        nineBlockIds.add(centerHash.toBase32());
+        try {
+            // 중심 격자 Geohash 생성
+            GeoHash centerHash = GeoHash.withCharacterPrecision(latitude, longitude, GEOHASH_PRECISION);
 
-        // 2. 8방향 인접 격자 추가
-        GeoHash[] adjacents = centerHash.getAdjacent();
+            // 1. 중심 격자 추가
+            nineBlockIds.add(centerHash.toBase32());
+            // 2. 8방향 인접 격자 추가
+            GeoHash[] adjacents = centerHash.getAdjacent();
 
-        for (GeoHash adjacent : adjacents) {
-            nineBlockIds.add(adjacent.toBase32());
+            for (GeoHash adjacent : adjacents) {
+                nineBlockIds.add(adjacent.toBase32());
+            }
+
+            // 로깅 객체 내 멤버 변수 내 결과 값에 대한 추가 설정
+            r01GeohashCalculationResult.setCenterHash(centerHash.toBase32());
+            r01GeohashCalculationResult.setAdjacentHashes(nineBlockIds);
+            r01GeohashCalculationResult.setSuccess(true);
+            r01GeohashCalculationResult.setErrorMessage(null);
+
+            perfLogger.setResultData(r01GeohashCalculationResult);
+
+        } catch (Exception e) {
+
+            r01GeohashCalculationResult.setCenterHash(null);
+            r01GeohashCalculationResult.setAdjacentHashes(null);
+            r01GeohashCalculationResult.setSuccess(false);
+            r01GeohashCalculationResult.setErrorMessage(e.getMessage());
+            perfLogger.setResultData(r01GeohashCalculationResult);
+
+        } finally {
+            perfLogger.end();
         }
 
         return nineBlockIds;
     }
+
+
 
     /**
      * 두 좌표 간 거리 계산 (Haversine 공식)

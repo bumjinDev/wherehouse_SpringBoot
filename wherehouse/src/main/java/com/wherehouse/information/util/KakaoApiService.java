@@ -80,7 +80,9 @@ public class KakaoApiService {
             JsonNode documents = root.path("documents");
 
             if (documents.isEmpty()) {
+
                 log.warn("주소 변환 실패: 좌표({}, {})에 해당하는 주소 없음", latitude, longitude);
+
                 return AddressDto.builder()
                         .roadAddress("주소 없음")
                         .jibunAddress("주소 없음")
