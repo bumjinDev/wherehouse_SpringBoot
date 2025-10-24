@@ -1,0 +1,107 @@
+{
+  "metadata": {
+    "step": "R-01",
+    "log_file": "/home/claude/logs/wherehouse.log",
+    "extraction_time": "2025-10-24T04:01:03.002343",
+    "total_logs": 4,
+    "end_logs": 2,
+    "extractor_version": "1.0"
+  },
+  "logs": [
+    {
+      "timestamp": "2025-10-23T07:36:55.257935200Z",
+      "nanoTime": 21466959818700,
+      "traceId": "27ec5af0",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-01",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "calculate9BlockGrid",
+      "action": "calculate9BlockGrid",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-10-23T07:36:55.264936700Z",
+      "nanoTime": 21466968317700,
+      "traceId": "27ec5af0",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-01",
+      "layer": "Utility",
+      "class": "GeohashService",
+      "method": "calculate9BlockGeohashes",
+      "action": "calculate9BlockGeohashes",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-10-23T07:36:55.267940Z",
+      "nanoTime": 21466971340700,
+      "traceId": "27ec5af0",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-01",
+      "layer": "Utility",
+      "class": "GeohashService",
+      "method": "calculate9BlockGeohashes",
+      "action": "calculate9BlockGeohashes",
+      "status": "END",
+      "duration_ns": 3023000,
+      "duration_ms": 3,
+      "resultData": {
+        "latitude": 37.5663,
+        "longitude": 126.9779,
+        "precision": 7,
+        "centerHash": "wydm9qw",
+        "adjacentHashes": [
+          "wydm9qw",
+          "wydm9qy",
+          "wydm9qz",
+          "wydm9qx",
+          "wydm9qr",
+          "wydm9qq",
+          "wydm9qm",
+          "wydm9qt",
+          "wydm9qv"
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-10-23T07:36:55.280938900Z",
+      "nanoTime": 21466984472500,
+      "traceId": "27ec5af0",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-01",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "calculate9BlockGrid",
+      "action": "calculate9BlockGrid",
+      "status": "END",
+      "duration_ns": 24653800,
+      "duration_ms": 24,
+      "resultData": {
+        "requestLatitude": 37.5663,
+        "requestLongitude": 126.9779,
+        "requestRadius": 500,
+        "centerGeohashId": "wydm9qw",
+        "nineBlockGeohashes": [
+          "wydm9qw",
+          "wydm9qy",
+          "wydm9qz",
+          "wydm9qx",
+          "wydm9qr",
+          "wydm9qq",
+          "wydm9qm",
+          "wydm9qt",
+          "wydm9qv"
+        ],
+        "totalGridCount": 9,
+        "errorMessage": null,
+        "success": true
+      }
+    }
+  ]
+}

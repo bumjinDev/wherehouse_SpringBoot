@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "step": "R-06",
+    "log_file": "/home/claude/logs/wherehouse.log",
+    "extraction_time": "2025-10-24T06:51:37.925733",
+    "total_logs": 2,
+    "end_logs": 1,
+    "extractor_version": "1.0"
+  },
+  "logs": [
+    {
+      "timestamp": "2025-10-23T07:36:58.704924200Z",
+      "nanoTime": 21470407670400,
+      "traceId": "27ec5af0",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-06",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "calculateScores",
+      "action": "calculateScores",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-10-23T07:36:58.709892200Z",
+      "nanoTime": 21470413031800,
+      "traceId": "27ec5af0",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-06",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "calculateScores",
+      "action": "calculateScores",
+      "status": "END",
+      "duration_ns": 5361400,
+      "duration_ms": 5,
+      "resultData": {
+        "safetyScore": {
+          "policeDistanceScore": 66.95208952759094,
+          "policeDistance": 264.38328377927246,
+          "cctvScore": 43.333333333333336,
+          "cctvCount": 13,
+          "arrestRateScore": 86.6910799,
+          "arrestRate": 0.866910799,
+          "policeWeight": 0.3,
+          "cctvWeight": 0.4,
+          "arrestWeight": 0.3,
+          "finalScore": 63.426284161610624,
+          "success": true
+        },
+        "convenienceScore": {
+          "categoryScores": {
+            "CT1": 60.0,
+            "AT4": 30.0,
+            "CS2": 11.431706982486624,
+            "SC4": 2.0,
+            "BK9": 75.0,
+            "HP8": 100.0,
+            "AC5": 15.0,
+            "CE7": 30.0,
+            "SW8": 100.0,
+            "PO3": 45.0,
+            "FD6": 15.0,
+            "PK6": 45.0,
+            "PM9": 100.0
+          },
+          "categoryNames": {
+            "CT1": "문화시설",
+            "AT4": "관광명소",
+            "CS2": "편의점",
+            "SC4": "학교",
+            "MT1": "대형마트",
+            "BK9": "은행",
+            "HP8": "병원",
+            "AC5": "학원",
+            "CE7": "카페",
+            "SW8": "지하철역",
+            "PO3": "공공기관",
+            "FD6": "음식점",
+            "PK6": "주차장",
+            "OL7": "주유소",
+            "PM9": "약국"
+          },
+          "currentGu": "중구",
+          "guPopulation": 131214,
+          "finalScore": 48.34090053711436,
+          "success": true
+        },
+        "overallScore": 55.88359234936249,
+        "errorMessage": null,
+        "success": true
+      }
+    }
+  ]
+}
