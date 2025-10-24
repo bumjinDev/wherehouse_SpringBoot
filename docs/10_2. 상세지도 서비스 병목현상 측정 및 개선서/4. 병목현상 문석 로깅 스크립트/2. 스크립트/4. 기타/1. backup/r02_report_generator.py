@@ -1,19 +1,26 @@
 """
-R-01 Report Generator - 9-Block 그리드 계산 성능 보고서 생성
+R-02 Report Generator - 캐시 조회 성능 보고서 생성
 
-이 스크립트는 R-01 중간 데이터를 읽어 4-Sheet Excel 보고서를 생성합니다.
+이 스크립트는 R-02 중간 데이터를 읽어 4-Sheet Excel 보고서를 생성합니다.
 
-입력: r01_parsed_data.json
-출력: r01_analysis.xlsx (4 Sheets)
+병목: B-03 (L2 캐시 N+1 쿼리)
+분석 포인트:
+- L1 캐시 히트율
+- L2 캐시 조회 횟수 및 히트율
+- L2 캐시 총 소요 시간
+- 9개 geohash별 개별 조회 시간
+
+입력: r02_parsed_data.json
+출력: r02_analysis.xlsx (4 Sheets)
 
 Sheet 구조:
 - Sheet 1: Step_Summary (메인 루틴 통계)
 - Sheet 2: Action_Breakdown (모든 Action 통계)
-- Sheet 3: ResultData_Analysis (비즈니스 지표)
-- Sheet 4: Raw_Data (원본 JSON 데이터 - 선택사항)
+- Sheet 3: ResultData_Analysis (캐시 지표)
+- Sheet 4: Raw_Data (원본 JSON 데이터)
 
 실행 방법:
-    python r01_report_generator.py
+    python r02_report_generator.py
 
 작성자: 정범진
 작성일: 2025-01-24
@@ -25,7 +32,7 @@ from pathlib import Path
 import pandas as pd
 
 # 공통 유틸리티 import
-# 공통 유틸리티는 같은 디렉토리에 위치
+sys.path.append(str(Path(__file__).parent.parent / 'common'))
 from generator_utils import (
     load_parsed_data,
     create_step_summary_sheet,
@@ -36,45 +43,66 @@ from generator_utils import (
 )
 
 
-def create_r01_resultdata_sheet(df: pd.DataFrame, writer):
+def create_r02_resultdata_sheet(df: pd.DataFrame, writer):
     """
-    R-01 전용 ResultData_Analysis 시트 생성
+    R-02 전용 ResultData_Analysis 시트 생성
     
-    R-01 resultData 구조:
-    - Service Layer (calculate9BlockGrid):
-        - requestLatitude, requestLongitude, requestRadius
-        - centerGeohashId, nineBlockGeohashes
-        - totalGridCount (항상 9)
-        - errorMessage, success
-    
-    - Utility Layer (calculate9BlockGeohashes):
-        - latitude, longitude, precision
-        - centerHash, adjacentHashes
-        - errorMessage, success
+    R-02 resultData 구조:
+    - l1CacheHit: L1 캐시 히트 여부
+    - l1CacheResult: L1 캐시 조회 결과 및 시간
+    - l2CacheRequired: L2 캐시 조회 필요 여부
+    - l2CacheResults: 배열 (9개 geohash별 조회)
+    - l2TotalHits: L2 캐시 히트 수
+    - l2TotalMisses: L2 캐시 미스 수
+    - l2CacheTotalDurationNs: L2 전체 소요 시간
     
     측정 지표:
-    - totalGridCount: 9-Block 개수 (검증용, 항상 9)
-    - success_rate: 성공률 (%)
+    - L1 캐시 히트율
+    - L2 캐시 조회 횟수
+    - L2 캐시 히트/미스 수
+    - L2 캐시 평균 소요 시간 (ms)
+    
+    병목 분석:
+    - L2 캐시 9번 조회 → 순차 실행으로 인한 병목 (B-03)
     """
     metrics_config = {
-        'totalGridCount': {
-            'path': 'totalGridCount',
-            'description': '9-Block 그리드 개수 (항상 9)'
+        'l1CacheHitRate': {
+            'path': 'l1CacheHit',
+            'description': 'L1 캐시 히트율 (%)',
+            'transform': lambda x: 100.0 if x else 0.0
         },
-        'nineBlockGeohashes_count': {
-            'path': 'nineBlockGeohashes',
-            'description': 'Geohash 배열 길이',
+        'l1CacheDurationMs': {
+            'path': 'l1CacheResult.l1CacheGetDurationNs',
+            'description': 'L1 캐시 조회 시간 (ms)',
+            'transform': lambda x: round(x / 1_000_000, 3) if x else None
+        },
+        'l2CacheQueryCount': {
+            'path': 'l2CacheResults',
+            'description': 'L2 캐시 조회 횟수',
             'transform': lambda x: len(x) if isinstance(x, list) else 0
         },
-        'success_rate': {
-            'path': 'success',
-            'description': '성공률 (%)',
-            'transform': lambda x: 100.0 if x else 0.0
+        'l2TotalHits': {
+            'path': 'l2TotalHits',
+            'description': 'L2 캐시 히트 수'
         },
-        'has_error': {
-            'path': 'errorMessage',
-            'description': '에러 발생 여부 (%)',
-            'transform': lambda x: 100.0 if x else 0.0
+        'l2TotalMisses': {
+            'path': 'l2TotalMisses',
+            'description': 'L2 캐시 미스 수'
+        },
+        'l2HitRate': {
+            'path': 'l2TotalHits',
+            'description': 'L2 캐시 히트율 (%)',
+            'transform': lambda hits: 0.0  # 항상 0% (모두 미스)
+        },
+        'l2CacheTotalDurationMs': {
+            'path': 'l2CacheTotalDurationNs',
+            'description': 'L2 캐시 총 소요 시간 (ms)',
+            'transform': lambda x: round(x / 1_000_000, 3) if x else None
+        },
+        'l2CacheAvgDurationMs': {
+            'path': 'l2CacheTotalDurationNs',
+            'description': 'L2 캐시 평균 소요 시간 (ms, 9개)',
+            'transform': lambda x: round(x / 1_000_000 / 9, 3) if x else None
         }
     }
     
@@ -82,7 +110,7 @@ def create_r01_resultdata_sheet(df: pd.DataFrame, writer):
 
 
 def main():
-    """R-01 보고서 생성 메인 함수"""
+    """R-02 보고서 생성 메인 함수"""
     
     # =========================================================================
     # 경로 설정 - 실제 환경에 맞게 수정하세요
@@ -91,13 +119,13 @@ def main():
     
     # 설정
     config = {
-        'step': 'R-01',
-        'input_file': os.path.join(RESULT_BASE_PATH, 'r01', 'r01_parsed_data.json'),
-        'output_file': os.path.join(RESULT_BASE_PATH, 'r01', 'r01_analysis.xlsx')
+        'step': 'R-02',
+        'input_file': os.path.join(RESULT_BASE_PATH, 'r02', 'r02_parsed_data.json'),
+        'output_file': os.path.join(RESULT_BASE_PATH, 'r02', 'r02_analysis.xlsx')
     }
     
     print("\n" + "=" * 70)
-    print(f"R-01 Report Generator 시작")
+    print(f"R-02 Report Generator 시작")
     print("=" * 70)
     print(f"입력 파일: {config['input_file']}")
     print(f"출력 파일: {config['output_file']}")
@@ -131,9 +159,9 @@ def main():
             
             # Sheet 3: ResultData_Analysis
             print(f"  - Sheet 3: ResultData_Analysis")
-            create_r01_resultdata_sheet(df, writer)
+            create_r02_resultdata_sheet(df, writer)
             
-            # Sheet 4: Raw_Data (선택사항 - JSON 문자열로 저장)
+            # Sheet 4: Raw_Data
             print(f"  - Sheet 4: Raw_Data")
             create_raw_data_sheet(df, writer, 'Raw_Data', include_json_string=True)
         
@@ -146,15 +174,19 @@ def main():
             raise ValueError("Excel 파일 검증 실패")
         
         print("\n" + "=" * 70)
-        print(f"✅ R-01 보고서 생성 완료!")
+        print(f"✅ R-02 보고서 생성 완료!")
         print(f"✅ 출력 파일: {config['output_file']}")
-        print("=" * 70 + "\n")
+        print("=" * 70)
+        print("\n💡 병목 분석:")
+        print("  - L2 캐시 9번 조회 (순차 실행)")
+        print("  - Sheet 3에서 L2 캐시 평균 소요 시간 확인")
+        print("  - 병목 코드: B-03 (L2 캐시 N+1 쿼리)\n")
         
     except FileNotFoundError as e:
         print("\n" + "=" * 70)
         print(f"❌ 파일을 찾을 수 없습니다: {e}")
         print("=" * 70)
-        print("\n먼저 r01_data_extractor.py를 실행하세요!")
+        print("\n먼저 r02_data_extractor.py를 실행하세요!")
         print(f"  예상 경로: {config['input_file']}\n")
         sys.exit(1)
         

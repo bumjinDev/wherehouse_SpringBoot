@@ -22,7 +22,7 @@ import os
 from pathlib import Path
 
 # 공통 유틸리티 import
-sys.path.append(str(Path(__file__).parent.parent / 'common'))
+# 공통 유틸리티는 같은 디렉토리에 위치
 from extractor_utils import (
     parse_ndjson_log,
     clean_log_data,

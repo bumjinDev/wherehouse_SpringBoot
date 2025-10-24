@@ -25,7 +25,7 @@ from pathlib import Path
 import pandas as pd
 
 # 공통 유틸리티 import
-# 공통 유틸리티는 같은 디렉토리에 위치
+sys.path.append(str(Path(__file__).parent.parent / 'common'))
 from generator_utils import (
     load_parsed_data,
     create_step_summary_sheet,

@@ -31,7 +31,7 @@ from pathlib import Path
 import pandas as pd
 
 # 공통 유틸리티 import
-# 공통 유틸리티는 같은 디렉토리에 위치
+sys.path.insert(0, '/home/claude/common')
 from generator_utils import (
     load_parsed_data,
     create_step_summary_sheet,
@@ -164,7 +164,7 @@ def main():
     # =========================================================================
     # 경로 설정 - 실제 환경에 맞게 수정하세요
     # =========================================================================
-    RESULT_BASE_PATH = r'E:\devSpace\results'
+    RESULT_BASE_PATH = '/home/claude/results'
     
     # 설정
     config = {

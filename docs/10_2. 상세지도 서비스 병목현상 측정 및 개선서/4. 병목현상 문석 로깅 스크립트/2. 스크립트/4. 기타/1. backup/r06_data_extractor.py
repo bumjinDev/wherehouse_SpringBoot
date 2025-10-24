@@ -23,7 +23,7 @@ import os
 from pathlib import Path
 
 # 공통 유틸리티 import
-# 공통 유틸리티는 같은 디렉토리에 위치
+sys.path.insert(0, '/home/claude/common')
 from extractor_utils import (
     parse_ndjson_log,
     clean_log_data,
@@ -40,8 +40,8 @@ def main():
     # =========================================================================
     # 경로 설정 - 실제 환경에 맞게 수정하세요
     # =========================================================================
-    LOG_BASE_PATH = r'E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\wherehouse\log'
-    RESULT_BASE_PATH = r'E:\devSpace\results'
+    LOG_BASE_PATH = '/home/claude/logs'
+    RESULT_BASE_PATH = '/home/claude/results'
     
     # 설정
     config = {
