@@ -1,0 +1,2812 @@
+{
+  "metadata": {
+    "step": "R-02",
+    "extracted_at": "2025-11-21T19:28:40.991414",
+    "source_file": "E:\\devSpace\\SpringBootProjects\\wherehouse_SpringBoot-master\\wherehouse\\log\\wherehouse.log",
+    "total_logs": 40,
+    "end_logs": 20,
+    "output_file": "r02_parsed_data.json"
+  },
+  "logs": [
+    {
+      "timestamp": "2025-11-21T10:20:33.680206100Z",
+      "nanoTime": 26019694771700,
+      "traceId": "5d95222b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:33.987203900Z",
+      "nanoTime": 26020001520800,
+      "traceId": "5d95222b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 306749100,
+      "duration_ms": 306,
+      "resultData": {
+        "centerGeohashId": "wydm6d6",
+        "nineBlockGeohashes": [
+          "wydm6d6",
+          "wydm6dd",
+          "wydm6de",
+          "wydm6d7",
+          "wydm6d5",
+          "wydm6d4",
+          "wydm6d1",
+          "wydm6d3",
+          "wydm6d9"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm6d6",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 299323500,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm6d6",
+            "cacheKey": "data:wydm6d6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 600800
+          },
+          {
+            "geohashId": "wydm6dd",
+            "cacheKey": "data:wydm6dd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 597800
+          },
+          {
+            "geohashId": "wydm6de",
+            "cacheKey": "data:wydm6de:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 440800
+          },
+          {
+            "geohashId": "wydm6d7",
+            "cacheKey": "data:wydm6d7:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 255200
+          },
+          {
+            "geohashId": "wydm6d5",
+            "cacheKey": "data:wydm6d5:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 270400
+          },
+          {
+            "geohashId": "wydm6d4",
+            "cacheKey": "data:wydm6d4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 245900
+          },
+          {
+            "geohashId": "wydm6d1",
+            "cacheKey": "data:wydm6d1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 305600
+          },
+          {
+            "geohashId": "wydm6d3",
+            "cacheKey": "data:wydm6d3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 341400
+          },
+          {
+            "geohashId": "wydm6d9",
+            "cacheKey": "data:wydm6d9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 293600
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 4663700,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:20:44.248706500Z",
+      "nanoTime": 26030263382200,
+      "traceId": "41a9f7d4",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:44.252705700Z",
+      "nanoTime": 26030266935800,
+      "traceId": "41a9f7d4",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 3553600,
+      "duration_ms": 3,
+      "resultData": {
+        "centerGeohashId": "wydm9k9",
+        "nineBlockGeohashes": [
+          "wydm9k9",
+          "wydm9kc",
+          "wydm9kf",
+          "wydm9kd",
+          "wydm9k6",
+          "wydm9k3",
+          "wydm9k2",
+          "wydm9k8",
+          "wydm9kb"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm9k9",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 661100,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm9k9",
+            "cacheKey": "data:wydm9k9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 473300
+          },
+          {
+            "geohashId": "wydm9kc",
+            "cacheKey": "data:wydm9kc:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 337900
+          },
+          {
+            "geohashId": "wydm9kf",
+            "cacheKey": "data:wydm9kf:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 228600
+          },
+          {
+            "geohashId": "wydm9kd",
+            "cacheKey": "data:wydm9kd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 206200
+          },
+          {
+            "geohashId": "wydm9k6",
+            "cacheKey": "data:wydm9k6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 201600
+          },
+          {
+            "geohashId": "wydm9k3",
+            "cacheKey": "data:wydm9k3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 177600
+          },
+          {
+            "geohashId": "wydm9k2",
+            "cacheKey": "data:wydm9k2:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 179300
+          },
+          {
+            "geohashId": "wydm9k8",
+            "cacheKey": "data:wydm9k8:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 215000
+          },
+          {
+            "geohashId": "wydm9kb",
+            "cacheKey": "data:wydm9kb:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 238200
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 2334700,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:20:51.930224Z",
+      "nanoTime": 26037944570200,
+      "traceId": "bc578820",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:51.933202700Z",
+      "nanoTime": 26037947812300,
+      "traceId": "bc578820",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 3242100,
+      "duration_ms": 3,
+      "resultData": {
+        "centerGeohashId": "wydm8jp",
+        "nineBlockGeohashes": [
+          "wydm8jp",
+          "wydm8jr",
+          "wydm8m2",
+          "wydm8m0",
+          "wydm8kb",
+          "wydm8hz",
+          "wydm8hy",
+          "wydm8jn",
+          "wydm8jq"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm8jp",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 559500,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm8jp",
+            "cacheKey": "data:wydm8jp:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 305600
+          },
+          {
+            "geohashId": "wydm8jr",
+            "cacheKey": "data:wydm8jr:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 253600
+          },
+          {
+            "geohashId": "wydm8m2",
+            "cacheKey": "data:wydm8m2:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 263300
+          },
+          {
+            "geohashId": "wydm8m0",
+            "cacheKey": "data:wydm8m0:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 252000
+          },
+          {
+            "geohashId": "wydm8kb",
+            "cacheKey": "data:wydm8kb:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 229200
+          },
+          {
+            "geohashId": "wydm8hz",
+            "cacheKey": "data:wydm8hz:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 206900
+          },
+          {
+            "geohashId": "wydm8hy",
+            "cacheKey": "data:wydm8hy:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 266600
+          },
+          {
+            "geohashId": "wydm8jn",
+            "cacheKey": "data:wydm8jn:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 210600
+          },
+          {
+            "geohashId": "wydm8jq",
+            "cacheKey": "data:wydm8jq:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 199100
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 2260600,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:20:58.544054100Z",
+      "nanoTime": 26044558775700,
+      "traceId": "2d99f17e",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:58.548043100Z",
+      "nanoTime": 26044561960800,
+      "traceId": "2d99f17e",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 3185100,
+      "duration_ms": 3,
+      "resultData": {
+        "centerGeohashId": "wydjxbx",
+        "nineBlockGeohashes": [
+          "wydjxbx",
+          "wydjxbz",
+          "wydm80b",
+          "wydm808",
+          "wydm802",
+          "wydjxbr",
+          "wydjxbq",
+          "wydjxbw",
+          "wydjxby"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydjxbx",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 605400,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydjxbx",
+            "cacheKey": "data:wydjxbx:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 332500
+          },
+          {
+            "geohashId": "wydjxbz",
+            "cacheKey": "data:wydjxbz:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 401300
+          },
+          {
+            "geohashId": "wydm80b",
+            "cacheKey": "data:wydm80b:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 253100
+          },
+          {
+            "geohashId": "wydm808",
+            "cacheKey": "data:wydm808:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 188300
+          },
+          {
+            "geohashId": "wydm802",
+            "cacheKey": "data:wydm802:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 172400
+          },
+          {
+            "geohashId": "wydjxbr",
+            "cacheKey": "data:wydjxbr:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 147600
+          },
+          {
+            "geohashId": "wydjxbq",
+            "cacheKey": "data:wydjxbq:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 158600
+          },
+          {
+            "geohashId": "wydjxbw",
+            "cacheKey": "data:wydjxbw:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 256900
+          },
+          {
+            "geohashId": "wydjxby",
+            "cacheKey": "data:wydjxby:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 169700
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 2157100,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:04.812612300Z",
+      "nanoTime": 26050826379000,
+      "traceId": "b3c73500",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:04.814612100Z",
+      "nanoTime": 26050829284400,
+      "traceId": "b3c73500",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2905400,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydmkjp",
+        "nineBlockGeohashes": [
+          "wydmkjp",
+          "wydmkjr",
+          "wydmkm2",
+          "wydmkm0",
+          "wydmkkb",
+          "wydmkhz",
+          "wydmkhy",
+          "wydmkjn",
+          "wydmkjq"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydmkjp",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 652000,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydmkjp",
+            "cacheKey": "data:wydmkjp:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 301600
+          },
+          {
+            "geohashId": "wydmkjr",
+            "cacheKey": "data:wydmkjr:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 186800
+          },
+          {
+            "geohashId": "wydmkm2",
+            "cacheKey": "data:wydmkm2:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 154900
+          },
+          {
+            "geohashId": "wydmkm0",
+            "cacheKey": "data:wydmkm0:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 195700
+          },
+          {
+            "geohashId": "wydmkkb",
+            "cacheKey": "data:wydmkkb:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 184200
+          },
+          {
+            "geohashId": "wydmkhz",
+            "cacheKey": "data:wydmkhz:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 162100
+          },
+          {
+            "geohashId": "wydmkhy",
+            "cacheKey": "data:wydmkhy:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 184600
+          },
+          {
+            "geohashId": "wydmkjn",
+            "cacheKey": "data:wydmkjn:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 171200
+          },
+          {
+            "geohashId": "wydmkjq",
+            "cacheKey": "data:wydmkjq:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 237000
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1846300,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:09.385621800Z",
+      "nanoTime": 26055399765000,
+      "traceId": "19522106",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:09.388623900Z",
+      "nanoTime": 26055402876600,
+      "traceId": "19522106",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 3111600,
+      "duration_ms": 3,
+      "resultData": {
+        "centerGeohashId": "wydm9w6",
+        "nineBlockGeohashes": [
+          "wydm9w6",
+          "wydm9wd",
+          "wydm9we",
+          "wydm9w7",
+          "wydm9w5",
+          "wydm9w4",
+          "wydm9w1",
+          "wydm9w3",
+          "wydm9w9"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm9w6",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 486200,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm9w6",
+            "cacheKey": "data:wydm9w6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 323400
+          },
+          {
+            "geohashId": "wydm9wd",
+            "cacheKey": "data:wydm9wd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 198100
+          },
+          {
+            "geohashId": "wydm9we",
+            "cacheKey": "data:wydm9we:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 248200
+          },
+          {
+            "geohashId": "wydm9w7",
+            "cacheKey": "data:wydm9w7:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 310100
+          },
+          {
+            "geohashId": "wydm9w5",
+            "cacheKey": "data:wydm9w5:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 289300
+          },
+          {
+            "geohashId": "wydm9w4",
+            "cacheKey": "data:wydm9w4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 195500
+          },
+          {
+            "geohashId": "wydm9w1",
+            "cacheKey": "data:wydm9w1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 171200
+          },
+          {
+            "geohashId": "wydm9w3",
+            "cacheKey": "data:wydm9w3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 150100
+          },
+          {
+            "geohashId": "wydm9w9",
+            "cacheKey": "data:wydm9w9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 378000
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 2335800,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:17.225022400Z",
+      "nanoTime": 26063239110900,
+      "traceId": "d5730568",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:17.228024300Z",
+      "nanoTime": 26063241984600,
+      "traceId": "d5730568",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2873700,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydm8sb",
+        "nineBlockGeohashes": [
+          "wydm8sb",
+          "wydm8t0",
+          "wydm8t1",
+          "wydm8sc",
+          "wydm8s9",
+          "wydm8s8",
+          "wydm8kx",
+          "wydm8kz",
+          "wydm8mp"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm8sb",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 547000,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm8sb",
+            "cacheKey": "data:wydm8sb:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 245900
+          },
+          {
+            "geohashId": "wydm8t0",
+            "cacheKey": "data:wydm8t0:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 259700
+          },
+          {
+            "geohashId": "wydm8t1",
+            "cacheKey": "data:wydm8t1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 162700
+          },
+          {
+            "geohashId": "wydm8sc",
+            "cacheKey": "data:wydm8sc:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 159500
+          },
+          {
+            "geohashId": "wydm8s9",
+            "cacheKey": "data:wydm8s9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 132100
+          },
+          {
+            "geohashId": "wydm8s8",
+            "cacheKey": "data:wydm8s8:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 271500
+          },
+          {
+            "geohashId": "wydm8kx",
+            "cacheKey": "data:wydm8kx:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 243700
+          },
+          {
+            "geohashId": "wydm8kz",
+            "cacheKey": "data:wydm8kz:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 209900
+          },
+          {
+            "geohashId": "wydm8mp",
+            "cacheKey": "data:wydm8mp:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 225100
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1987800,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:23.755005800Z",
+      "nanoTime": 26069768871100,
+      "traceId": "eb0bc93d",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:23.759008600Z",
+      "nanoTime": 26069772993300,
+      "traceId": "eb0bc93d",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 4122200,
+      "duration_ms": 4,
+      "resultData": {
+        "centerGeohashId": "wydm9rv",
+        "nineBlockGeohashes": [
+          "wydm9rv",
+          "wydmc2j",
+          "wydmc2n",
+          "wydm9ry",
+          "wydm9rw",
+          "wydm9rt",
+          "wydm9rs",
+          "wydm9ru",
+          "wydmc2h"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm9rv",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 663900,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm9rv",
+            "cacheKey": "data:wydm9rv:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 437100
+          },
+          {
+            "geohashId": "wydmc2j",
+            "cacheKey": "data:wydmc2j:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 360000
+          },
+          {
+            "geohashId": "wydmc2n",
+            "cacheKey": "data:wydmc2n:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 233000
+          },
+          {
+            "geohashId": "wydm9ry",
+            "cacheKey": "data:wydm9ry:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 347300
+          },
+          {
+            "geohashId": "wydm9rw",
+            "cacheKey": "data:wydm9rw:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 241600
+          },
+          {
+            "geohashId": "wydm9rt",
+            "cacheKey": "data:wydm9rt:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 300300
+          },
+          {
+            "geohashId": "wydm9rs",
+            "cacheKey": "data:wydm9rs:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 583200
+          },
+          {
+            "geohashId": "wydm9ru",
+            "cacheKey": "data:wydm9ru:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 187000
+          },
+          {
+            "geohashId": "wydmc2h",
+            "cacheKey": "data:wydmc2h:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 171300
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 3029900,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:28.411035200Z",
+      "nanoTime": 26074425041700,
+      "traceId": "dbb24181",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:28.413049100Z",
+      "nanoTime": 26074427218800,
+      "traceId": "dbb24181",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2177100,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydmed1",
+        "nineBlockGeohashes": [
+          "wydmed1",
+          "wydmed3",
+          "wydmed6",
+          "wydmed4",
+          "wydme9f",
+          "wydme9c",
+          "wydme9b",
+          "wydmed0",
+          "wydmed2"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydmed1",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 421400,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydmed1",
+            "cacheKey": "data:wydmed1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 222100
+          },
+          {
+            "geohashId": "wydmed3",
+            "cacheKey": "data:wydmed3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 125900
+          },
+          {
+            "geohashId": "wydmed6",
+            "cacheKey": "data:wydmed6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 111900
+          },
+          {
+            "geohashId": "wydmed4",
+            "cacheKey": "data:wydmed4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 153000
+          },
+          {
+            "geohashId": "wydme9f",
+            "cacheKey": "data:wydme9f:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 290000
+          },
+          {
+            "geohashId": "wydme9c",
+            "cacheKey": "data:wydme9c:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 175200
+          },
+          {
+            "geohashId": "wydme9b",
+            "cacheKey": "data:wydme9b:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 114500
+          },
+          {
+            "geohashId": "wydmed0",
+            "cacheKey": "data:wydmed0:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 109200
+          },
+          {
+            "geohashId": "wydmed2",
+            "cacheKey": "data:wydmed2:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 155600
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1517400,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:34.025338300Z",
+      "nanoTime": 26080039282600,
+      "traceId": "e17c84a0",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:34.027321200Z",
+      "nanoTime": 26080041535900,
+      "traceId": "e17c84a0",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2253300,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydm9bf",
+        "nineBlockGeohashes": [
+          "wydm9bf",
+          "wydm9c4",
+          "wydm9c5",
+          "wydm9bg",
+          "wydm9be",
+          "wydm9bd",
+          "wydm9b9",
+          "wydm9bc",
+          "wydm9c1"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm9bf",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 462200,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm9bf",
+            "cacheKey": "data:wydm9bf:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 280700
+          },
+          {
+            "geohashId": "wydm9c4",
+            "cacheKey": "data:wydm9c4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 147200
+          },
+          {
+            "geohashId": "wydm9c5",
+            "cacheKey": "data:wydm9c5:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 138900
+          },
+          {
+            "geohashId": "wydm9bg",
+            "cacheKey": "data:wydm9bg:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 111900
+          },
+          {
+            "geohashId": "wydm9be",
+            "cacheKey": "data:wydm9be:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 110000
+          },
+          {
+            "geohashId": "wydm9bd",
+            "cacheKey": "data:wydm9bd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 144200
+          },
+          {
+            "geohashId": "wydm9b9",
+            "cacheKey": "data:wydm9b9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 246400
+          },
+          {
+            "geohashId": "wydm9bc",
+            "cacheKey": "data:wydm9bc:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 161500
+          },
+          {
+            "geohashId": "wydm9c1",
+            "cacheKey": "data:wydm9c1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 128600
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1533700,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:39.547543900Z",
+      "nanoTime": 26085561612600,
+      "traceId": "4e4be05b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:39.549543200Z",
+      "nanoTime": 26085563739700,
+      "traceId": "4e4be05b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2127100,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydme4z",
+        "nineBlockGeohashes": [
+          "wydme4z",
+          "wydme5p",
+          "wydme70",
+          "wydme6b",
+          "wydme68",
+          "wydme4x",
+          "wydme4w",
+          "wydme4y",
+          "wydme5n"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydme4z",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 482600,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydme4z",
+            "cacheKey": "data:wydme4z:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 201000
+          },
+          {
+            "geohashId": "wydme5p",
+            "cacheKey": "data:wydme5p:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 209300
+          },
+          {
+            "geohashId": "wydme70",
+            "cacheKey": "data:wydme70:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 188700
+          },
+          {
+            "geohashId": "wydme6b",
+            "cacheKey": "data:wydme6b:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 125500
+          },
+          {
+            "geohashId": "wydme68",
+            "cacheKey": "data:wydme68:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 174100
+          },
+          {
+            "geohashId": "wydme4x",
+            "cacheKey": "data:wydme4x:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 117500
+          },
+          {
+            "geohashId": "wydme4w",
+            "cacheKey": "data:wydme4w:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 116900
+          },
+          {
+            "geohashId": "wydme4y",
+            "cacheKey": "data:wydme4y:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 107900
+          },
+          {
+            "geohashId": "wydme5n",
+            "cacheKey": "data:wydme5n:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 108000
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1412400,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:43.950035100Z",
+      "nanoTime": 26089964267900,
+      "traceId": "d88f87e7",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:43.953035700Z",
+      "nanoTime": 26089966889000,
+      "traceId": "d88f87e7",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2621100,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydm9z8",
+        "nineBlockGeohashes": [
+          "wydm9z8",
+          "wydm9zb",
+          "wydm9zc",
+          "wydm9z9",
+          "wydm9z3",
+          "wydm9z2",
+          "wydm9xr",
+          "wydm9xx",
+          "wydm9xz"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm9z8",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 535000,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm9z8",
+            "cacheKey": "data:wydm9z8:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 297000
+          },
+          {
+            "geohashId": "wydm9zb",
+            "cacheKey": "data:wydm9zb:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 169600
+          },
+          {
+            "geohashId": "wydm9zc",
+            "cacheKey": "data:wydm9zc:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 129500
+          },
+          {
+            "geohashId": "wydm9z9",
+            "cacheKey": "data:wydm9z9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 162400
+          },
+          {
+            "geohashId": "wydm9z3",
+            "cacheKey": "data:wydm9z3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 169400
+          },
+          {
+            "geohashId": "wydm9z2",
+            "cacheKey": "data:wydm9z2:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 171600
+          },
+          {
+            "geohashId": "wydm9xr",
+            "cacheKey": "data:wydm9xr:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 184900
+          },
+          {
+            "geohashId": "wydm9xx",
+            "cacheKey": "data:wydm9xx:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 246600
+          },
+          {
+            "geohashId": "wydm9xz",
+            "cacheKey": "data:wydm9xz:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 172100
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1769200,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:48.445145Z",
+      "nanoTime": 26094459125200,
+      "traceId": "6f4d9b6e",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:48.447151900Z",
+      "nanoTime": 26094461222500,
+      "traceId": "6f4d9b6e",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2097300,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydm6ze",
+        "nineBlockGeohashes": [
+          "wydm6ze",
+          "wydm6zg",
+          "wydm6zu",
+          "wydm6zs",
+          "wydm6zk",
+          "wydm6z7",
+          "wydm6z6",
+          "wydm6zd",
+          "wydm6zf"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm6ze",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 465500,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm6ze",
+            "cacheKey": "data:wydm6ze:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 231800
+          },
+          {
+            "geohashId": "wydm6zg",
+            "cacheKey": "data:wydm6zg:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 161800
+          },
+          {
+            "geohashId": "wydm6zu",
+            "cacheKey": "data:wydm6zu:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 131500
+          },
+          {
+            "geohashId": "wydm6zs",
+            "cacheKey": "data:wydm6zs:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 127000
+          },
+          {
+            "geohashId": "wydm6zk",
+            "cacheKey": "data:wydm6zk:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 166700
+          },
+          {
+            "geohashId": "wydm6z7",
+            "cacheKey": "data:wydm6z7:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 161500
+          },
+          {
+            "geohashId": "wydm6z6",
+            "cacheKey": "data:wydm6z6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 121500
+          },
+          {
+            "geohashId": "wydm6zd",
+            "cacheKey": "data:wydm6zd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 109300
+          },
+          {
+            "geohashId": "wydm6zf",
+            "cacheKey": "data:wydm6zf:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 117900
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1384500,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:52.893508Z",
+      "nanoTime": 26098907978000,
+      "traceId": "da141549",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:52.895505200Z",
+      "nanoTime": 26098910002200,
+      "traceId": "da141549",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2024200,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydm7kk",
+        "nineBlockGeohashes": [
+          "wydm7kk",
+          "wydm7ks",
+          "wydm7kt",
+          "wydm7km",
+          "wydm7kj",
+          "wydm7kh",
+          "wydm7k5",
+          "wydm7k7",
+          "wydm7ke"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm7kk",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 432200,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm7kk",
+            "cacheKey": "data:wydm7kk:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 249900
+          },
+          {
+            "geohashId": "wydm7ks",
+            "cacheKey": "data:wydm7ks:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 181100
+          },
+          {
+            "geohashId": "wydm7kt",
+            "cacheKey": "data:wydm7kt:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 135000
+          },
+          {
+            "geohashId": "wydm7km",
+            "cacheKey": "data:wydm7km:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 113800
+          },
+          {
+            "geohashId": "wydm7kj",
+            "cacheKey": "data:wydm7kj:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 110800
+          },
+          {
+            "geohashId": "wydm7kh",
+            "cacheKey": "data:wydm7kh:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 110700
+          },
+          {
+            "geohashId": "wydm7k5",
+            "cacheKey": "data:wydm7k5:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 115300
+          },
+          {
+            "geohashId": "wydm7k7",
+            "cacheKey": "data:wydm7k7:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 118600
+          },
+          {
+            "geohashId": "wydm7ke",
+            "cacheKey": "data:wydm7ke:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 115600
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1310900,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:57.033010800Z",
+      "nanoTime": 26103047746000,
+      "traceId": "2d850537",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:57.035010100Z",
+      "nanoTime": 26103049674200,
+      "traceId": "2d850537",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 1928200,
+      "duration_ms": 1,
+      "resultData": {
+        "centerGeohashId": "wydmdvf",
+        "nineBlockGeohashes": [
+          "wydmdvf",
+          "wydmdy4",
+          "wydmdy5",
+          "wydmdvg",
+          "wydmdve",
+          "wydmdvd",
+          "wydmdv9",
+          "wydmdvc",
+          "wydmdy1"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydmdvf",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 443700,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydmdvf",
+            "cacheKey": "data:wydmdvf:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 283800
+          },
+          {
+            "geohashId": "wydmdy4",
+            "cacheKey": "data:wydmdy4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 128700
+          },
+          {
+            "geohashId": "wydmdy5",
+            "cacheKey": "data:wydmdy5:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 131300
+          },
+          {
+            "geohashId": "wydmdvg",
+            "cacheKey": "data:wydmdvg:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 103900
+          },
+          {
+            "geohashId": "wydmdve",
+            "cacheKey": "data:wydmdve:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 107100
+          },
+          {
+            "geohashId": "wydmdvd",
+            "cacheKey": "data:wydmdvd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 114200
+          },
+          {
+            "geohashId": "wydmdv9",
+            "cacheKey": "data:wydmdv9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 108700
+          },
+          {
+            "geohashId": "wydmdvc",
+            "cacheKey": "data:wydmdvc:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 106400
+          },
+          {
+            "geohashId": "wydmdy1",
+            "cacheKey": "data:wydmdy1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 98400
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1240800,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:01.731564200Z",
+      "nanoTime": 26107745718900,
+      "traceId": "a20b9902",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:01.734483300Z",
+      "nanoTime": 26107748866400,
+      "traceId": "a20b9902",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 3147500,
+      "duration_ms": 3,
+      "resultData": {
+        "centerGeohashId": "wydm1w3",
+        "nineBlockGeohashes": [
+          "wydm1w3",
+          "wydm1w9",
+          "wydm1wd",
+          "wydm1w6",
+          "wydm1w4",
+          "wydm1w1",
+          "wydm1w0",
+          "wydm1w2",
+          "wydm1w8"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm1w3",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 614600,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm1w3",
+            "cacheKey": "data:wydm1w3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 317200
+          },
+          {
+            "geohashId": "wydm1w9",
+            "cacheKey": "data:wydm1w9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 346600
+          },
+          {
+            "geohashId": "wydm1wd",
+            "cacheKey": "data:wydm1wd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 282300
+          },
+          {
+            "geohashId": "wydm1w6",
+            "cacheKey": "data:wydm1w6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 249600
+          },
+          {
+            "geohashId": "wydm1w4",
+            "cacheKey": "data:wydm1w4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 234400
+          },
+          {
+            "geohashId": "wydm1w1",
+            "cacheKey": "data:wydm1w1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 164100
+          },
+          {
+            "geohashId": "wydm1w0",
+            "cacheKey": "data:wydm1w0:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 159400
+          },
+          {
+            "geohashId": "wydm1w2",
+            "cacheKey": "data:wydm1w2:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 176900
+          },
+          {
+            "geohashId": "wydm1w8",
+            "cacheKey": "data:wydm1w8:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 197400
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 2238600,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:06.691884Z",
+      "nanoTime": 26112705643400,
+      "traceId": "4d2b3d71",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:06.692883800Z",
+      "nanoTime": 26112707592000,
+      "traceId": "4d2b3d71",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 1948600,
+      "duration_ms": 1,
+      "resultData": {
+        "centerGeohashId": "wydjpr3",
+        "nineBlockGeohashes": [
+          "wydjpr3",
+          "wydjpr9",
+          "wydjprd",
+          "wydjpr6",
+          "wydjpr4",
+          "wydjpr1",
+          "wydjpr0",
+          "wydjpr2",
+          "wydjpr8"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydjpr3",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 424700,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydjpr3",
+            "cacheKey": "data:wydjpr3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 279500
+          },
+          {
+            "geohashId": "wydjpr9",
+            "cacheKey": "data:wydjpr9:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 141200
+          },
+          {
+            "geohashId": "wydjprd",
+            "cacheKey": "data:wydjprd:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 123800
+          },
+          {
+            "geohashId": "wydjpr6",
+            "cacheKey": "data:wydjpr6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 111100
+          },
+          {
+            "geohashId": "wydjpr4",
+            "cacheKey": "data:wydjpr4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 109300
+          },
+          {
+            "geohashId": "wydjpr1",
+            "cacheKey": "data:wydjpr1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 108100
+          },
+          {
+            "geohashId": "wydjpr0",
+            "cacheKey": "data:wydjpr0:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 134100
+          },
+          {
+            "geohashId": "wydjpr2",
+            "cacheKey": "data:wydjpr2:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 112700
+          },
+          {
+            "geohashId": "wydjpr8",
+            "cacheKey": "data:wydjpr8:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 110300
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1285900,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:10.525984700Z",
+      "nanoTime": 26116539849200,
+      "traceId": "9d3e5d65",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:10.528984600Z",
+      "nanoTime": 26116543088400,
+      "traceId": "9d3e5d65",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 3239200,
+      "duration_ms": 3,
+      "resultData": {
+        "centerGeohashId": "wydjrx4",
+        "nineBlockGeohashes": [
+          "wydjrx4",
+          "wydjrx6",
+          "wydjrx7",
+          "wydjrx5",
+          "wydjrwg",
+          "wydjrwf",
+          "wydjrwc",
+          "wydjrx1",
+          "wydjrx3"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydjrx4",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 452900,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydjrx4",
+            "cacheKey": "data:wydjrx4:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 246200
+          },
+          {
+            "geohashId": "wydjrx6",
+            "cacheKey": "data:wydjrx6:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 269300
+          },
+          {
+            "geohashId": "wydjrx7",
+            "cacheKey": "data:wydjrx7:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 289100
+          },
+          {
+            "geohashId": "wydjrx5",
+            "cacheKey": "data:wydjrx5:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 257300
+          },
+          {
+            "geohashId": "wydjrwg",
+            "cacheKey": "data:wydjrwg:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 272200
+          },
+          {
+            "geohashId": "wydjrwf",
+            "cacheKey": "data:wydjrwf:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 292800
+          },
+          {
+            "geohashId": "wydjrwc",
+            "cacheKey": "data:wydjrwc:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 264900
+          },
+          {
+            "geohashId": "wydjrx1",
+            "cacheKey": "data:wydjrx1:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 263200
+          },
+          {
+            "geohashId": "wydjrx3",
+            "cacheKey": "data:wydjrx3:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 223100
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 2477300,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:14.710663400Z",
+      "nanoTime": 26120725370800,
+      "traceId": "7aa00089",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:14.712663400Z",
+      "nanoTime": 26120727160900,
+      "traceId": "7aa00089",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 1790100,
+      "duration_ms": 1,
+      "resultData": {
+        "centerGeohashId": "wydm75d",
+        "nineBlockGeohashes": [
+          "wydm75d",
+          "wydm75f",
+          "wydm75g",
+          "wydm75e",
+          "wydm757",
+          "wydm756",
+          "wydm753",
+          "wydm759",
+          "wydm75c"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydm75d",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 421300,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydm75d",
+            "cacheKey": "data:wydm75d:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 234300
+          },
+          {
+            "geohashId": "wydm75f",
+            "cacheKey": "data:wydm75f:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 126600
+          },
+          {
+            "geohashId": "wydm75g",
+            "cacheKey": "data:wydm75g:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 116000
+          },
+          {
+            "geohashId": "wydm75e",
+            "cacheKey": "data:wydm75e:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 106100
+          },
+          {
+            "geohashId": "wydm757",
+            "cacheKey": "data:wydm757:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 98600
+          },
+          {
+            "geohashId": "wydm756",
+            "cacheKey": "data:wydm756:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 105600
+          },
+          {
+            "geohashId": "wydm753",
+            "cacheKey": "data:wydm753:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 104400
+          },
+          {
+            "geohashId": "wydm759",
+            "cacheKey": "data:wydm759:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 102500
+          },
+          {
+            "geohashId": "wydm75c",
+            "cacheKey": "data:wydm75c:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 102100
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1146800,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:18.634318300Z",
+      "nanoTime": 26124648300000,
+      "traceId": "b7201ab3",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:18.636313400Z",
+      "nanoTime": 26124650345900,
+      "traceId": "b7201ab3",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-02",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performCacheLookup",
+      "action": "performCacheLookup",
+      "status": "END",
+      "duration_ns": 2045900,
+      "duration_ms": 2,
+      "resultData": {
+        "centerGeohashId": "wydjr8n",
+        "nineBlockGeohashes": [
+          "wydjr8n",
+          "wydjr8q",
+          "wydjr8r",
+          "wydjr8p",
+          "wydjpxz",
+          "wydjpxy",
+          "wydjpxv",
+          "wydjr8j",
+          "wydjr8m"
+        ],
+        "l1CacheHit": false,
+        "l1CacheResult": {
+          "cacheKey": "dto:wydjr8n",
+          "hit": false,
+          "valueSize": 0,
+          "l1CacheGetDurationNs": 414500,
+          "l1JsonDeserializeDurationNs": null
+        },
+        "l2CacheRequired": true,
+        "l2CacheResults": [
+          {
+            "geohashId": "wydjr8n",
+            "cacheKey": "data:wydjr8n:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 193900
+          },
+          {
+            "geohashId": "wydjr8q",
+            "cacheKey": "data:wydjr8q:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 129000
+          },
+          {
+            "geohashId": "wydjr8r",
+            "cacheKey": "data:wydjr8r:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 112800
+          },
+          {
+            "geohashId": "wydjr8p",
+            "cacheKey": "data:wydjr8p:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 210400
+          },
+          {
+            "geohashId": "wydjpxz",
+            "cacheKey": "data:wydjpxz:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 174000
+          },
+          {
+            "geohashId": "wydjpxy",
+            "cacheKey": "data:wydjpxy:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 171100
+          },
+          {
+            "geohashId": "wydjpxv",
+            "cacheKey": "data:wydjpxv:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 120000
+          },
+          {
+            "geohashId": "wydjr8j",
+            "cacheKey": "data:wydjr8j:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 110100
+          },
+          {
+            "geohashId": "wydjr8m",
+            "cacheKey": "data:wydjr8m:cctv",
+            "hit": false,
+            "dataType": "cctv",
+            "dataCount": 0,
+            "dataSize": 0,
+            "l2CacheGetDurationNs": 113300
+          }
+        ],
+        "l2TotalHits": 0,
+        "l2TotalMisses": 9,
+        "l2CacheTotalDurationNs": 1400000,
+        "l2JsonDeserializeTotalDurationNs": 0,
+        "errorMessage": null,
+        "success": true
+      }
+    }
+  ]
+}

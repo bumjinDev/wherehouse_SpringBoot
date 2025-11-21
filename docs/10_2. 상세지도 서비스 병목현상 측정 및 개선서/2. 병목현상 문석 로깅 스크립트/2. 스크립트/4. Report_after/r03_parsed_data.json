@@ -1,0 +1,2498 @@
+{
+  "metadata": {
+    "step": "R-03",
+    "extracted_at": "2025-11-21T19:45:48.420801",
+    "source_file": "E:\\devSpace\\SpringBootProjects\\wherehouse_SpringBoot-master\\wherehouse\\log\\wherehouse.log",
+    "total_logs": 40,
+    "end_logs": 20,
+    "output_file": "r03_parsed_data.json"
+  },
+  "logs": [
+    {
+      "timestamp": "2025-11-21T10:42:11.160213700Z",
+      "nanoTime": 27317174647400,
+      "traceId": "e5748c59",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:11.315030400Z",
+      "nanoTime": 27317329106700,
+      "traceId": "e5748c59",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 154459300,
+      "duration_ms": 154,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm6d6",
+          "wydm6dd",
+          "wydm6de",
+          "wydm6d7",
+          "wydm6d5",
+          "wydm6d4",
+          "wydm6d1",
+          "wydm6d3",
+          "wydm6d9"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm6d6",
+            "wydm6dd",
+            "wydm6de",
+            "wydm6d7",
+            "wydm6d5",
+            "wydm6d4",
+            "wydm6d1",
+            "wydm6d3",
+            "wydm6d9"
+          ],
+          "totalRowsReturned": 50,
+          "rowsPerGrid": {
+            "wydm6d9": 20,
+            "wydm6d4": 5,
+            "wydm6dd": 16,
+            "wydm6d3": 2,
+            "wydm6d1": 3,
+            "wydm6d6": 4
+          },
+          "queryExecutionTimeNs": 135615500,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm6d9",
+            "cacheKey": "data:wydm6d9:cctv",
+            "dataCount": 20,
+            "dataSize": 2782,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6d4",
+            "cacheKey": "data:wydm6d4:cctv",
+            "dataCount": 5,
+            "dataSize": 700,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6dd",
+            "cacheKey": "data:wydm6dd:cctv",
+            "dataCount": 16,
+            "dataSize": 2182,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6d3",
+            "cacheKey": "data:wydm6d3:cctv",
+            "dataCount": 2,
+            "dataSize": 278,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6d1",
+            "cacheKey": "data:wydm6d1:cctv",
+            "dataCount": 3,
+            "dataSize": 421,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6d6",
+            "cacheKey": "data:wydm6d6:cctv",
+            "dataCount": 4,
+            "dataSize": 557,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:18.258100600Z",
+      "nanoTime": 27324272290200,
+      "traceId": "09966b04",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:18.265087Z",
+      "nanoTime": 27324279048800,
+      "traceId": "09966b04",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 6758600,
+      "duration_ms": 6,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm9k9",
+          "wydm9kc",
+          "wydm9kf",
+          "wydm9kd",
+          "wydm9k6",
+          "wydm9k3",
+          "wydm9k2",
+          "wydm9k8",
+          "wydm9kb"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm9k9",
+            "wydm9kc",
+            "wydm9kf",
+            "wydm9kd",
+            "wydm9k6",
+            "wydm9k3",
+            "wydm9k2",
+            "wydm9k8",
+            "wydm9kb"
+          ],
+          "totalRowsReturned": 2,
+          "rowsPerGrid": {
+            "wydm9kf": 2
+          },
+          "queryExecutionTimeNs": 5186700,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm9kf",
+            "cacheKey": "data:wydm9kf:cctv",
+            "dataCount": 2,
+            "dataSize": 260,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:28.203273500Z",
+      "nanoTime": 27334217642200,
+      "traceId": "713b8877",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:28.214270Z",
+      "nanoTime": 27334228261800,
+      "traceId": "713b8877",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 10619600,
+      "duration_ms": 10,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm8jp",
+          "wydm8jr",
+          "wydm8m2",
+          "wydm8m0",
+          "wydm8kb",
+          "wydm8hz",
+          "wydm8hy",
+          "wydm8jn",
+          "wydm8jq"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm8jp",
+            "wydm8jr",
+            "wydm8m2",
+            "wydm8m0",
+            "wydm8kb",
+            "wydm8hz",
+            "wydm8hy",
+            "wydm8jn",
+            "wydm8jq"
+          ],
+          "totalRowsReturned": 19,
+          "rowsPerGrid": {
+            "wydm8jp": 2,
+            "wydm8jn": 2,
+            "wydm8m0": 2,
+            "wydm8jr": 3,
+            "wydm8jq": 1,
+            "wydm8kb": 1,
+            "wydm8hz": 7,
+            "wydm8hy": 1
+          },
+          "queryExecutionTimeNs": 5785200,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm8jp",
+            "cacheKey": "data:wydm8jp:cctv",
+            "dataCount": 2,
+            "dataSize": 256,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8jn",
+            "cacheKey": "data:wydm8jn:cctv",
+            "dataCount": 2,
+            "dataSize": 256,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8m0",
+            "cacheKey": "data:wydm8m0:cctv",
+            "dataCount": 2,
+            "dataSize": 255,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8jr",
+            "cacheKey": "data:wydm8jr:cctv",
+            "dataCount": 3,
+            "dataSize": 381,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8jq",
+            "cacheKey": "data:wydm8jq:cctv",
+            "dataCount": 1,
+            "dataSize": 128,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8kb",
+            "cacheKey": "data:wydm8kb:cctv",
+            "dataCount": 1,
+            "dataSize": 127,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8hz",
+            "cacheKey": "data:wydm8hz:cctv",
+            "dataCount": 7,
+            "dataSize": 893,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8hy",
+            "cacheKey": "data:wydm8hy:cctv",
+            "dataCount": 1,
+            "dataSize": 128,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:34.584396600Z",
+      "nanoTime": 27340598343400,
+      "traceId": "0694cf7d",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:34.590387200Z",
+      "nanoTime": 27340604138300,
+      "traceId": "0694cf7d",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 5794900,
+      "duration_ms": 5,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydjxbx",
+          "wydjxbz",
+          "wydm80b",
+          "wydm808",
+          "wydm802",
+          "wydjxbr",
+          "wydjxbq",
+          "wydjxbw",
+          "wydjxby"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydjxbx",
+            "wydjxbz",
+            "wydm80b",
+            "wydm808",
+            "wydm802",
+            "wydjxbr",
+            "wydjxbq",
+            "wydjxbw",
+            "wydjxby"
+          ],
+          "totalRowsReturned": 2,
+          "rowsPerGrid": {
+            "wydjxbq": 2
+          },
+          "queryExecutionTimeNs": 4690800,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydjxbq",
+            "cacheKey": "data:wydjxbq:cctv",
+            "dataCount": 2,
+            "dataSize": 272,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:39.123411500Z",
+      "nanoTime": 27345137564400,
+      "traceId": "867b115a",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:39.131417300Z",
+      "nanoTime": 27345145974500,
+      "traceId": "867b115a",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 8410100,
+      "duration_ms": 8,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydmkjp",
+          "wydmkjr",
+          "wydmkm2",
+          "wydmkm0",
+          "wydmkkb",
+          "wydmkhz",
+          "wydmkhy",
+          "wydmkjn",
+          "wydmkjq"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydmkjp",
+            "wydmkjr",
+            "wydmkm2",
+            "wydmkm0",
+            "wydmkkb",
+            "wydmkhz",
+            "wydmkhy",
+            "wydmkjn",
+            "wydmkjq"
+          ],
+          "totalRowsReturned": 21,
+          "rowsPerGrid": {
+            "wydmkm2": 1,
+            "wydmkjq": 15,
+            "wydmkhy": 1,
+            "wydmkhz": 1,
+            "wydmkm0": 3
+          },
+          "queryExecutionTimeNs": 5555000,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydmkm2",
+            "cacheKey": "data:wydmkm2:cctv",
+            "dataCount": 1,
+            "dataSize": 136,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmkjq",
+            "cacheKey": "data:wydmkjq:cctv",
+            "dataCount": 15,
+            "dataSize": 1996,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmkhy",
+            "cacheKey": "data:wydmkhy:cctv",
+            "dataCount": 1,
+            "dataSize": 154,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmkhz",
+            "cacheKey": "data:wydmkhz:cctv",
+            "dataCount": 1,
+            "dataSize": 145,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmkm0",
+            "cacheKey": "data:wydmkm0:cctv",
+            "dataCount": 3,
+            "dataSize": 447,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:43.534120600Z",
+      "nanoTime": 27349548042300,
+      "traceId": "0f584451",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:43.541121600Z",
+      "nanoTime": 27349555123600,
+      "traceId": "0f584451",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 7081300,
+      "duration_ms": 7,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm9w6",
+          "wydm9wd",
+          "wydm9we",
+          "wydm9w7",
+          "wydm9w5",
+          "wydm9w4",
+          "wydm9w1",
+          "wydm9w3",
+          "wydm9w9"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm9w6",
+            "wydm9wd",
+            "wydm9we",
+            "wydm9w7",
+            "wydm9w5",
+            "wydm9w4",
+            "wydm9w1",
+            "wydm9w3",
+            "wydm9w9"
+          ],
+          "totalRowsReturned": 9,
+          "rowsPerGrid": {
+            "wydm9w4": 1,
+            "wydm9w3": 1,
+            "wydm9w7": 3,
+            "wydm9w6": 1,
+            "wydm9w5": 2,
+            "wydm9we": 1
+          },
+          "queryExecutionTimeNs": 4257100,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm9w4",
+            "cacheKey": "data:wydm9w4:cctv",
+            "dataCount": 1,
+            "dataSize": 131,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9w3",
+            "cacheKey": "data:wydm9w3:cctv",
+            "dataCount": 1,
+            "dataSize": 126,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9w7",
+            "cacheKey": "data:wydm9w7:cctv",
+            "dataCount": 3,
+            "dataSize": 386,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9w6",
+            "cacheKey": "data:wydm9w6:cctv",
+            "dataCount": 1,
+            "dataSize": 130,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9w5",
+            "cacheKey": "data:wydm9w5:cctv",
+            "dataCount": 2,
+            "dataSize": 259,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9we",
+            "cacheKey": "data:wydm9we:cctv",
+            "dataCount": 1,
+            "dataSize": 132,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:47.554489800Z",
+      "nanoTime": 27353568461000,
+      "traceId": "84b3ad79",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:47.563492700Z",
+      "nanoTime": 27353577925700,
+      "traceId": "84b3ad79",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 9464700,
+      "duration_ms": 9,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm8sb",
+          "wydm8t0",
+          "wydm8t1",
+          "wydm8sc",
+          "wydm8s9",
+          "wydm8s8",
+          "wydm8kx",
+          "wydm8kz",
+          "wydm8mp"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm8sb",
+            "wydm8t0",
+            "wydm8t1",
+            "wydm8sc",
+            "wydm8s9",
+            "wydm8s8",
+            "wydm8kx",
+            "wydm8kz",
+            "wydm8mp"
+          ],
+          "totalRowsReturned": 20,
+          "rowsPerGrid": {
+            "wydm8s9": 2,
+            "wydm8s8": 2,
+            "wydm8mp": 4,
+            "wydm8kx": 2,
+            "wydm8t1": 4,
+            "wydm8t0": 2,
+            "wydm8sc": 2,
+            "wydm8kz": 1,
+            "wydm8sb": 1
+          },
+          "queryExecutionTimeNs": 5404200,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm8s9",
+            "cacheKey": "data:wydm8s9:cctv",
+            "dataCount": 2,
+            "dataSize": 257,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8s8",
+            "cacheKey": "data:wydm8s8:cctv",
+            "dataCount": 2,
+            "dataSize": 255,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8mp",
+            "cacheKey": "data:wydm8mp:cctv",
+            "dataCount": 4,
+            "dataSize": 408,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8kx",
+            "cacheKey": "data:wydm8kx:cctv",
+            "dataCount": 2,
+            "dataSize": 257,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8t1",
+            "cacheKey": "data:wydm8t1:cctv",
+            "dataCount": 4,
+            "dataSize": 409,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8t0",
+            "cacheKey": "data:wydm8t0:cctv",
+            "dataCount": 2,
+            "dataSize": 205,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8sc",
+            "cacheKey": "data:wydm8sc:cctv",
+            "dataCount": 2,
+            "dataSize": 205,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8kz",
+            "cacheKey": "data:wydm8kz:cctv",
+            "dataCount": 1,
+            "dataSize": 103,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm8sb",
+            "cacheKey": "data:wydm8sb:cctv",
+            "dataCount": 1,
+            "dataSize": 103,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:52.309642300Z",
+      "nanoTime": 27358324285900,
+      "traceId": "96579d7f",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:52.315556400Z",
+      "nanoTime": 27358330020200,
+      "traceId": "96579d7f",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 5734300,
+      "duration_ms": 5,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm9rv",
+          "wydmc2j",
+          "wydmc2n",
+          "wydm9ry",
+          "wydm9rw",
+          "wydm9rt",
+          "wydm9rs",
+          "wydm9ru",
+          "wydmc2h"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm9rv",
+            "wydmc2j",
+            "wydmc2n",
+            "wydm9ry",
+            "wydm9rw",
+            "wydm9rt",
+            "wydm9rs",
+            "wydm9ru",
+            "wydmc2h"
+          ],
+          "totalRowsReturned": 4,
+          "rowsPerGrid": {
+            "wydm9rw": 1,
+            "wydm9rt": 2,
+            "wydm9rs": 1
+          },
+          "queryExecutionTimeNs": 4133000,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm9rw",
+            "cacheKey": "data:wydm9rw:cctv",
+            "dataCount": 1,
+            "dataSize": 135,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9rt",
+            "cacheKey": "data:wydm9rt:cctv",
+            "dataCount": 2,
+            "dataSize": 241,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9rs",
+            "cacheKey": "data:wydm9rs:cctv",
+            "dataCount": 1,
+            "dataSize": 124,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:42:56.814127700Z",
+      "nanoTime": 27362828029600,
+      "traceId": "4692300d",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:42:56.822125700Z",
+      "nanoTime": 27362835999000,
+      "traceId": "4692300d",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 7969400,
+      "duration_ms": 7,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydmed1",
+          "wydmed3",
+          "wydmed6",
+          "wydmed4",
+          "wydme9f",
+          "wydme9c",
+          "wydme9b",
+          "wydmed0",
+          "wydmed2"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydmed1",
+            "wydmed3",
+            "wydmed6",
+            "wydmed4",
+            "wydme9f",
+            "wydme9c",
+            "wydme9b",
+            "wydmed0",
+            "wydmed2"
+          ],
+          "totalRowsReturned": 26,
+          "rowsPerGrid": {
+            "wydme9c": 5,
+            "wydmed0": 2,
+            "wydme9f": 1,
+            "wydmed1": 4,
+            "wydme9b": 4,
+            "wydmed6": 2,
+            "wydmed2": 1,
+            "wydmed3": 2,
+            "wydmed4": 5
+          },
+          "queryExecutionTimeNs": 4607400,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydme9c",
+            "cacheKey": "data:wydme9c:cctv",
+            "dataCount": 5,
+            "dataSize": 551,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmed0",
+            "cacheKey": "data:wydmed0:cctv",
+            "dataCount": 2,
+            "dataSize": 201,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme9f",
+            "cacheKey": "data:wydme9f:cctv",
+            "dataCount": 1,
+            "dataSize": 101,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmed1",
+            "cacheKey": "data:wydmed1:cctv",
+            "dataCount": 4,
+            "dataSize": 399,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme9b",
+            "cacheKey": "data:wydme9b:cctv",
+            "dataCount": 4,
+            "dataSize": 401,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmed6",
+            "cacheKey": "data:wydmed6:cctv",
+            "dataCount": 2,
+            "dataSize": 201,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmed2",
+            "cacheKey": "data:wydmed2:cctv",
+            "dataCount": 1,
+            "dataSize": 101,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmed3",
+            "cacheKey": "data:wydmed3:cctv",
+            "dataCount": 2,
+            "dataSize": 201,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmed4",
+            "cacheKey": "data:wydmed4:cctv",
+            "dataCount": 5,
+            "dataSize": 501,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:01.016823200Z",
+      "nanoTime": 27367031144900,
+      "traceId": "15ad8f5b",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:01.023828600Z",
+      "nanoTime": 27367038531700,
+      "traceId": "15ad8f5b",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 7386800,
+      "duration_ms": 7,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm9bf",
+          "wydm9c4",
+          "wydm9c5",
+          "wydm9bg",
+          "wydm9be",
+          "wydm9bd",
+          "wydm9b9",
+          "wydm9bc",
+          "wydm9c1"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm9bf",
+            "wydm9c4",
+            "wydm9c5",
+            "wydm9bg",
+            "wydm9be",
+            "wydm9bd",
+            "wydm9b9",
+            "wydm9bc",
+            "wydm9c1"
+          ],
+          "totalRowsReturned": 19,
+          "rowsPerGrid": {
+            "wydm9bg": 3,
+            "wydm9bf": 2,
+            "wydm9be": 3,
+            "wydm9bd": 2,
+            "wydm9c5": 1,
+            "wydm9b9": 3,
+            "wydm9bc": 2,
+            "wydm9c4": 1,
+            "wydm9c1": 2
+          },
+          "queryExecutionTimeNs": 4644500,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm9bg",
+            "cacheKey": "data:wydm9bg:cctv",
+            "dataCount": 3,
+            "dataSize": 431,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9bf",
+            "cacheKey": "data:wydm9bf:cctv",
+            "dataCount": 2,
+            "dataSize": 289,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9be",
+            "cacheKey": "data:wydm9be:cctv",
+            "dataCount": 3,
+            "dataSize": 442,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9bd",
+            "cacheKey": "data:wydm9bd:cctv",
+            "dataCount": 2,
+            "dataSize": 290,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9c5",
+            "cacheKey": "data:wydm9c5:cctv",
+            "dataCount": 1,
+            "dataSize": 147,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9b9",
+            "cacheKey": "data:wydm9b9:cctv",
+            "dataCount": 3,
+            "dataSize": 431,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9bc",
+            "cacheKey": "data:wydm9bc:cctv",
+            "dataCount": 2,
+            "dataSize": 296,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9c4",
+            "cacheKey": "data:wydm9c4:cctv",
+            "dataCount": 1,
+            "dataSize": 145,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9c1",
+            "cacheKey": "data:wydm9c1:cctv",
+            "dataCount": 2,
+            "dataSize": 292,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:05.720822200Z",
+      "nanoTime": 27371735173600,
+      "traceId": "80174d73",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:05.729825200Z",
+      "nanoTime": 27371744301000,
+      "traceId": "80174d73",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 9127400,
+      "duration_ms": 9,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydme4z",
+          "wydme5p",
+          "wydme70",
+          "wydme6b",
+          "wydme68",
+          "wydme4x",
+          "wydme4w",
+          "wydme4y",
+          "wydme5n"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydme4z",
+            "wydme5p",
+            "wydme70",
+            "wydme6b",
+            "wydme68",
+            "wydme4x",
+            "wydme4w",
+            "wydme4y",
+            "wydme5n"
+          ],
+          "totalRowsReturned": 21,
+          "rowsPerGrid": {
+            "wydme6b": 1,
+            "wydme4z": 1,
+            "wydme5n": 3,
+            "wydme70": 2,
+            "wydme68": 3,
+            "wydme4w": 3,
+            "wydme4x": 3,
+            "wydme4y": 5
+          },
+          "queryExecutionTimeNs": 5476700,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydme6b",
+            "cacheKey": "data:wydme6b:cctv",
+            "dataCount": 1,
+            "dataSize": 136,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme4z",
+            "cacheKey": "data:wydme4z:cctv",
+            "dataCount": 1,
+            "dataSize": 136,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme5n",
+            "cacheKey": "data:wydme5n:cctv",
+            "dataCount": 3,
+            "dataSize": 403,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme70",
+            "cacheKey": "data:wydme70:cctv",
+            "dataCount": 2,
+            "dataSize": 265,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme68",
+            "cacheKey": "data:wydme68:cctv",
+            "dataCount": 3,
+            "dataSize": 336,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme4w",
+            "cacheKey": "data:wydme4w:cctv",
+            "dataCount": 3,
+            "dataSize": 404,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme4x",
+            "cacheKey": "data:wydme4x:cctv",
+            "dataCount": 3,
+            "dataSize": 400,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydme4y",
+            "cacheKey": "data:wydme4y:cctv",
+            "dataCount": 5,
+            "dataSize": 642,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:10.907419800Z",
+      "nanoTime": 27376921360000,
+      "traceId": "c3b70168",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:10.915803600Z",
+      "nanoTime": 27376929783700,
+      "traceId": "c3b70168",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 8423700,
+      "duration_ms": 8,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm9z8",
+          "wydm9zb",
+          "wydm9zc",
+          "wydm9z9",
+          "wydm9z3",
+          "wydm9z2",
+          "wydm9xr",
+          "wydm9xx",
+          "wydm9xz"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm9z8",
+            "wydm9zb",
+            "wydm9zc",
+            "wydm9z9",
+            "wydm9z3",
+            "wydm9z2",
+            "wydm9xr",
+            "wydm9xx",
+            "wydm9xz"
+          ],
+          "totalRowsReturned": 20,
+          "rowsPerGrid": {
+            "wydm9xz": 5,
+            "wydm9z3": 2,
+            "wydm9z2": 2,
+            "wydm9zb": 4,
+            "wydm9xr": 2,
+            "wydm9xx": 1,
+            "wydm9z9": 2,
+            "wydm9z8": 2
+          },
+          "queryExecutionTimeNs": 4915500,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm9xz",
+            "cacheKey": "data:wydm9xz:cctv",
+            "dataCount": 5,
+            "dataSize": 639,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9z3",
+            "cacheKey": "data:wydm9z3:cctv",
+            "dataCount": 2,
+            "dataSize": 258,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9z2",
+            "cacheKey": "data:wydm9z2:cctv",
+            "dataCount": 2,
+            "dataSize": 226,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9zb",
+            "cacheKey": "data:wydm9zb:cctv",
+            "dataCount": 4,
+            "dataSize": 483,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9xr",
+            "cacheKey": "data:wydm9xr:cctv",
+            "dataCount": 2,
+            "dataSize": 226,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9xx",
+            "cacheKey": "data:wydm9xx:cctv",
+            "dataCount": 1,
+            "dataSize": 132,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9z9",
+            "cacheKey": "data:wydm9z9:cctv",
+            "dataCount": 2,
+            "dataSize": 231,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm9z8",
+            "cacheKey": "data:wydm9z8:cctv",
+            "dataCount": 2,
+            "dataSize": 241,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:15.221469Z",
+      "nanoTime": 27381235411800,
+      "traceId": "e5b69683",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:15.229468900Z",
+      "nanoTime": 27381244128400,
+      "traceId": "e5b69683",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 8716600,
+      "duration_ms": 8,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm6ze",
+          "wydm6zg",
+          "wydm6zu",
+          "wydm6zs",
+          "wydm6zk",
+          "wydm6z7",
+          "wydm6z6",
+          "wydm6zd",
+          "wydm6zf"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm6ze",
+            "wydm6zg",
+            "wydm6zu",
+            "wydm6zs",
+            "wydm6zk",
+            "wydm6z7",
+            "wydm6z6",
+            "wydm6zd",
+            "wydm6zf"
+          ],
+          "totalRowsReturned": 48,
+          "rowsPerGrid": {
+            "wydm6z6": 3,
+            "wydm6zf": 3,
+            "wydm6ze": 9,
+            "wydm6zu": 3,
+            "wydm6zd": 6,
+            "wydm6zs": 6,
+            "wydm6z7": 6,
+            "wydm6zg": 6,
+            "wydm6zk": 6
+          },
+          "queryExecutionTimeNs": 5474100,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm6z6",
+            "cacheKey": "data:wydm6z6:cctv",
+            "dataCount": 3,
+            "dataSize": 406,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6zf",
+            "cacheKey": "data:wydm6zf:cctv",
+            "dataCount": 3,
+            "dataSize": 409,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6ze",
+            "cacheKey": "data:wydm6ze:cctv",
+            "dataCount": 9,
+            "dataSize": 1225,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6zu",
+            "cacheKey": "data:wydm6zu:cctv",
+            "dataCount": 3,
+            "dataSize": 406,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6zd",
+            "cacheKey": "data:wydm6zd:cctv",
+            "dataCount": 6,
+            "dataSize": 823,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6zs",
+            "cacheKey": "data:wydm6zs:cctv",
+            "dataCount": 6,
+            "dataSize": 805,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6z7",
+            "cacheKey": "data:wydm6z7:cctv",
+            "dataCount": 6,
+            "dataSize": 814,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6zg",
+            "cacheKey": "data:wydm6zg:cctv",
+            "dataCount": 6,
+            "dataSize": 814,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm6zk",
+            "cacheKey": "data:wydm6zk:cctv",
+            "dataCount": 6,
+            "dataSize": 808,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:20.138583400Z",
+      "nanoTime": 27386152740900,
+      "traceId": "1dba7ba2",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:20.144603100Z",
+      "nanoTime": 27386159311100,
+      "traceId": "1dba7ba2",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 6570200,
+      "duration_ms": 6,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm7kk",
+          "wydm7ks",
+          "wydm7kt",
+          "wydm7km",
+          "wydm7kj",
+          "wydm7kh",
+          "wydm7k5",
+          "wydm7k7",
+          "wydm7ke"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm7kk",
+            "wydm7ks",
+            "wydm7kt",
+            "wydm7km",
+            "wydm7kj",
+            "wydm7kh",
+            "wydm7k5",
+            "wydm7k7",
+            "wydm7ke"
+          ],
+          "totalRowsReturned": 16,
+          "rowsPerGrid": {
+            "wydm7k5": 3,
+            "wydm7ke": 2,
+            "wydm7kh": 3,
+            "wydm7k7": 3,
+            "wydm7km": 3,
+            "wydm7kk": 2
+          },
+          "queryExecutionTimeNs": 4582300,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm7k5",
+            "cacheKey": "data:wydm7k5:cctv",
+            "dataCount": 3,
+            "dataSize": 412,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm7ke",
+            "cacheKey": "data:wydm7ke:cctv",
+            "dataCount": 2,
+            "dataSize": 271,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm7kh",
+            "cacheKey": "data:wydm7kh:cctv",
+            "dataCount": 3,
+            "dataSize": 409,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm7k7",
+            "cacheKey": "data:wydm7k7:cctv",
+            "dataCount": 3,
+            "dataSize": 409,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm7km",
+            "cacheKey": "data:wydm7km:cctv",
+            "dataCount": 3,
+            "dataSize": 412,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm7kk",
+            "cacheKey": "data:wydm7kk:cctv",
+            "dataCount": 2,
+            "dataSize": 273,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:25.021491800Z",
+      "nanoTime": 27391035543500,
+      "traceId": "c1bfac2f",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:25.027506300Z",
+      "nanoTime": 27391041515300,
+      "traceId": "c1bfac2f",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 5971800,
+      "duration_ms": 5,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydmdvf",
+          "wydmdy4",
+          "wydmdy5",
+          "wydmdvg",
+          "wydmdve",
+          "wydmdvd",
+          "wydmdv9",
+          "wydmdvc",
+          "wydmdy1"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydmdvf",
+            "wydmdy4",
+            "wydmdy5",
+            "wydmdvg",
+            "wydmdve",
+            "wydmdvd",
+            "wydmdv9",
+            "wydmdvc",
+            "wydmdy1"
+          ],
+          "totalRowsReturned": 21,
+          "rowsPerGrid": {
+            "wydmdy5": 3,
+            "wydmdvc": 5,
+            "wydmdy1": 3,
+            "wydmdv9": 1,
+            "wydmdve": 6,
+            "wydmdvg": 3
+          },
+          "queryExecutionTimeNs": 3909000,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydmdy5",
+            "cacheKey": "data:wydmdy5:cctv",
+            "dataCount": 3,
+            "dataSize": 399,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmdvc",
+            "cacheKey": "data:wydmdvc:cctv",
+            "dataCount": 5,
+            "dataSize": 660,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmdy1",
+            "cacheKey": "data:wydmdy1:cctv",
+            "dataCount": 3,
+            "dataSize": 383,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmdv9",
+            "cacheKey": "data:wydmdv9:cctv",
+            "dataCount": 1,
+            "dataSize": 133,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmdve",
+            "cacheKey": "data:wydmdve:cctv",
+            "dataCount": 6,
+            "dataSize": 728,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydmdvg",
+            "cacheKey": "data:wydmdvg:cctv",
+            "dataCount": 3,
+            "dataSize": 395,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:29.592534800Z",
+      "nanoTime": 27395606934200,
+      "traceId": "f153f37c",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:29.602532Z",
+      "nanoTime": 27395616409200,
+      "traceId": "f153f37c",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 9475000,
+      "duration_ms": 9,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm1w3",
+          "wydm1w9",
+          "wydm1wd",
+          "wydm1w6",
+          "wydm1w4",
+          "wydm1w1",
+          "wydm1w0",
+          "wydm1w2",
+          "wydm1w8"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm1w3",
+            "wydm1w9",
+            "wydm1wd",
+            "wydm1w6",
+            "wydm1w4",
+            "wydm1w1",
+            "wydm1w0",
+            "wydm1w2",
+            "wydm1w8"
+          ],
+          "totalRowsReturned": 60,
+          "rowsPerGrid": {
+            "wydm1w4": 1,
+            "wydm1wd": 18,
+            "wydm1w3": 3,
+            "wydm1w2": 5,
+            "wydm1w1": 4,
+            "wydm1w8": 4,
+            "wydm1w6": 3,
+            "wydm1w9": 20,
+            "wydm1w0": 2
+          },
+          "queryExecutionTimeNs": 6245700,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm1w4",
+            "cacheKey": "data:wydm1w4:cctv",
+            "dataCount": 1,
+            "dataSize": 138,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1wd",
+            "cacheKey": "data:wydm1wd:cctv",
+            "dataCount": 18,
+            "dataSize": 2491,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1w3",
+            "cacheKey": "data:wydm1w3:cctv",
+            "dataCount": 3,
+            "dataSize": 376,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1w2",
+            "cacheKey": "data:wydm1w2:cctv",
+            "dataCount": 5,
+            "dataSize": 573,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1w1",
+            "cacheKey": "data:wydm1w1:cctv",
+            "dataCount": 4,
+            "dataSize": 553,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1w8",
+            "cacheKey": "data:wydm1w8:cctv",
+            "dataCount": 4,
+            "dataSize": 579,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1w6",
+            "cacheKey": "data:wydm1w6:cctv",
+            "dataCount": 3,
+            "dataSize": 415,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1w9",
+            "cacheKey": "data:wydm1w9:cctv",
+            "dataCount": 20,
+            "dataSize": 2767,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm1w0",
+            "cacheKey": "data:wydm1w0:cctv",
+            "dataCount": 2,
+            "dataSize": 197,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:33.709325900Z",
+      "nanoTime": 27399723378300,
+      "traceId": "464e29c1",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:33.716335100Z",
+      "nanoTime": 27399730442600,
+      "traceId": "464e29c1",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 7064300,
+      "duration_ms": 7,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydjpr3",
+          "wydjpr9",
+          "wydjprd",
+          "wydjpr6",
+          "wydjpr4",
+          "wydjpr1",
+          "wydjpr0",
+          "wydjpr2",
+          "wydjpr8"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydjpr3",
+            "wydjpr9",
+            "wydjprd",
+            "wydjpr6",
+            "wydjpr4",
+            "wydjpr1",
+            "wydjpr0",
+            "wydjpr2",
+            "wydjpr8"
+          ],
+          "totalRowsReturned": 17,
+          "rowsPerGrid": {
+            "wydjpr0": 1,
+            "wydjpr1": 1,
+            "wydjprd": 3,
+            "wydjpr3": 2,
+            "wydjpr8": 1,
+            "wydjpr9": 6,
+            "wydjpr6": 3
+          },
+          "queryExecutionTimeNs": 4086000,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydjpr0",
+            "cacheKey": "data:wydjpr0:cctv",
+            "dataCount": 1,
+            "dataSize": 133,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpr1",
+            "cacheKey": "data:wydjpr1:cctv",
+            "dataCount": 1,
+            "dataSize": 134,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjprd",
+            "cacheKey": "data:wydjprd:cctv",
+            "dataCount": 3,
+            "dataSize": 399,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpr3",
+            "cacheKey": "data:wydjpr3:cctv",
+            "dataCount": 2,
+            "dataSize": 265,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpr8",
+            "cacheKey": "data:wydjpr8:cctv",
+            "dataCount": 1,
+            "dataSize": 133,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpr9",
+            "cacheKey": "data:wydjpr9:cctv",
+            "dataCount": 6,
+            "dataSize": 797,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpr6",
+            "cacheKey": "data:wydjpr6:cctv",
+            "dataCount": 3,
+            "dataSize": 400,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:37.607129300Z",
+      "nanoTime": 27403621324000,
+      "traceId": "ecca5a4a",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:37.615128200Z",
+      "nanoTime": 27403629300400,
+      "traceId": "ecca5a4a",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 7976400,
+      "duration_ms": 7,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydjrx4",
+          "wydjrx6",
+          "wydjrx7",
+          "wydjrx5",
+          "wydjrwg",
+          "wydjrwf",
+          "wydjrwc",
+          "wydjrx1",
+          "wydjrx3"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydjrx4",
+            "wydjrx6",
+            "wydjrx7",
+            "wydjrx5",
+            "wydjrwg",
+            "wydjrwf",
+            "wydjrwc",
+            "wydjrx1",
+            "wydjrx3"
+          ],
+          "totalRowsReturned": 55,
+          "rowsPerGrid": {
+            "wydjrx1": 7,
+            "wydjrx5": 11,
+            "wydjrx4": 5,
+            "wydjrx3": 2,
+            "wydjrwg": 13,
+            "wydjrwf": 6,
+            "wydjrx7": 8,
+            "wydjrx6": 3
+          },
+          "queryExecutionTimeNs": 5014700,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydjrx1",
+            "cacheKey": "data:wydjrx1:cctv",
+            "dataCount": 7,
+            "dataSize": 880,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjrx5",
+            "cacheKey": "data:wydjrx5:cctv",
+            "dataCount": 11,
+            "dataSize": 1387,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjrx4",
+            "cacheKey": "data:wydjrx4:cctv",
+            "dataCount": 5,
+            "dataSize": 630,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjrx3",
+            "cacheKey": "data:wydjrx3:cctv",
+            "dataCount": 2,
+            "dataSize": 257,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjrwg",
+            "cacheKey": "data:wydjrwg:cctv",
+            "dataCount": 13,
+            "dataSize": 1671,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjrwf",
+            "cacheKey": "data:wydjrwf:cctv",
+            "dataCount": 6,
+            "dataSize": 765,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjrx7",
+            "cacheKey": "data:wydjrx7:cctv",
+            "dataCount": 8,
+            "dataSize": 1033,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjrx6",
+            "cacheKey": "data:wydjrx6:cctv",
+            "dataCount": 3,
+            "dataSize": 381,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:41.284828800Z",
+      "nanoTime": 27407298584000,
+      "traceId": "d05d3011",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:41.290834900Z",
+      "nanoTime": 27407304639400,
+      "traceId": "d05d3011",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 6055400,
+      "duration_ms": 6,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydm75d",
+          "wydm75f",
+          "wydm75g",
+          "wydm75e",
+          "wydm757",
+          "wydm756",
+          "wydm753",
+          "wydm759",
+          "wydm75c"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydm75d",
+            "wydm75f",
+            "wydm75g",
+            "wydm75e",
+            "wydm757",
+            "wydm756",
+            "wydm753",
+            "wydm759",
+            "wydm75c"
+          ],
+          "totalRowsReturned": 31,
+          "rowsPerGrid": {
+            "wydm759": 3,
+            "wydm75d": 3,
+            "wydm753": 3,
+            "wydm757": 3,
+            "wydm75g": 8,
+            "wydm75f": 5,
+            "wydm75e": 6
+          },
+          "queryExecutionTimeNs": 3774100,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydm759",
+            "cacheKey": "data:wydm759:cctv",
+            "dataCount": 3,
+            "dataSize": 412,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm75d",
+            "cacheKey": "data:wydm75d:cctv",
+            "dataCount": 3,
+            "dataSize": 412,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm753",
+            "cacheKey": "data:wydm753:cctv",
+            "dataCount": 3,
+            "dataSize": 412,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm757",
+            "cacheKey": "data:wydm757:cctv",
+            "dataCount": 3,
+            "dataSize": 406,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm75g",
+            "cacheKey": "data:wydm75g:cctv",
+            "dataCount": 8,
+            "dataSize": 1093,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm75f",
+            "cacheKey": "data:wydm75f:cctv",
+            "dataCount": 5,
+            "dataSize": 679,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydm75e",
+            "cacheKey": "data:wydm75e:cctv",
+            "dataCount": 6,
+            "dataSize": 823,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:43:44.916581500Z",
+      "nanoTime": 27410930955900,
+      "traceId": "fcfa3244",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:43:44.925582900Z",
+      "nanoTime": 27410939552800,
+      "traceId": "fcfa3244",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-03",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "performDatabaseQuery",
+      "action": "performDatabaseQuery",
+      "status": "END",
+      "duration_ns": 8596900,
+      "duration_ms": 8,
+      "resultData": {
+        "inputCctvMissGrids": [
+          "wydjr8n",
+          "wydjr8q",
+          "wydjr8r",
+          "wydjr8p",
+          "wydjpxz",
+          "wydjpxy",
+          "wydjpxv",
+          "wydjr8j",
+          "wydjr8m"
+        ],
+        "cctvQueryResult": {
+          "queryGeohashIds": [
+            "wydjr8n",
+            "wydjr8q",
+            "wydjr8r",
+            "wydjr8p",
+            "wydjpxz",
+            "wydjpxy",
+            "wydjpxv",
+            "wydjr8j",
+            "wydjr8m"
+          ],
+          "totalRowsReturned": 59,
+          "rowsPerGrid": {
+            "wydjr8p": 7,
+            "wydjr8q": 12,
+            "wydjr8n": 2,
+            "wydjpxv": 2,
+            "wydjr8r": 11,
+            "wydjpxz": 2,
+            "wydjpxy": 5,
+            "wydjr8m": 8,
+            "wydjr8j": 10
+          },
+          "queryExecutionTimeNs": 5264600,
+          "errorMessage": null,
+          "success": true
+        },
+        "cctvCacheWrites": [
+          {
+            "geohashId": "wydjr8p",
+            "cacheKey": "data:wydjr8p:cctv",
+            "dataCount": 7,
+            "dataSize": 987,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjr8q",
+            "cacheKey": "data:wydjr8q:cctv",
+            "dataCount": 12,
+            "dataSize": 1593,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjr8n",
+            "cacheKey": "data:wydjr8n:cctv",
+            "dataCount": 2,
+            "dataSize": 255,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpxv",
+            "cacheKey": "data:wydjpxv:cctv",
+            "dataCount": 2,
+            "dataSize": 271,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjr8r",
+            "cacheKey": "data:wydjr8r:cctv",
+            "dataCount": 11,
+            "dataSize": 1489,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpxz",
+            "cacheKey": "data:wydjpxz:cctv",
+            "dataCount": 2,
+            "dataSize": 272,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjpxy",
+            "cacheKey": "data:wydjpxy:cctv",
+            "dataCount": 5,
+            "dataSize": 685,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjr8m",
+            "cacheKey": "data:wydjr8m:cctv",
+            "dataCount": 8,
+            "dataSize": 1036,
+            "errorMessage": null,
+            "success": true
+          },
+          {
+            "geohashId": "wydjr8j",
+            "cacheKey": "data:wydjr8j:cctv",
+            "dataCount": 10,
+            "dataSize": 1360,
+            "errorMessage": null,
+            "success": true
+          }
+        ],
+        "errorMessage": null,
+        "success": true
+      }
+    }
+  ]
+}

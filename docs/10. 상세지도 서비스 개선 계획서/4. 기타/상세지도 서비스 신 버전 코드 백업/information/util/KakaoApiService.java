@@ -161,7 +161,6 @@ public class KakaoApiService {
                 place.put("categoryName", doc.path("category_group_name").asText());
                 places.add(place);
             }
-
             return places;
 
         } catch (Exception e) {
@@ -207,7 +206,6 @@ public class KakaoApiService {
             List<Map<String, Object>> places = searchPlacesByCategory(latitude, longitude, category, radius);
             results.put(category, places);
         }
-
         return results;
     }
 }

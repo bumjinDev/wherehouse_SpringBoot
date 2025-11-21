@@ -1,0 +1,1008 @@
+{
+  "metadata": {
+    "step": "R-07",
+    "extracted_at": "2025-11-21T19:35:40.575533",
+    "source_file": "E:\\devSpace\\SpringBootProjects\\wherehouse_SpringBoot-master\\wherehouse\\log\\wherehouse.log",
+    "total_logs": 40,
+    "end_logs": 20,
+    "output_file": "r07_parsed_data.json"
+  },
+  "logs": [
+    {
+      "timestamp": "2025-11-21T10:20:35.937903400Z",
+      "nanoTime": 26021951826700,
+      "traceId": "5d95222b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:35.954911400Z",
+      "nanoTime": 26021969035700,
+      "traceId": "5d95222b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 17209000,
+      "duration_ms": 17,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 41m 내에 있습니다."
+        ],
+        "warnings": [
+          "가장 가까운 파출소가 1km 이상 떨어져 있습니다.",
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm6d6",
+          "dataSize": 23775,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 23775,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:20:45.553618400Z",
+      "nanoTime": 26031567497000,
+      "traceId": "41a9f7d4",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:45.554620500Z",
+      "nanoTime": 26031569199800,
+      "traceId": "41a9f7d4",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1702800,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "카페이(가) 43m 내에 있습니다."
+        ],
+        "warnings": [
+          "CCTV 설치 대수가 적은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm9k9",
+          "dataSize": 17677,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 17677,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:20:53.188135400Z",
+      "nanoTime": 26039202064600,
+      "traceId": "bc578820",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:53.189131800Z",
+      "nanoTime": 26039203762900,
+      "traceId": "bc578820",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1698300,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "병원이(가) 20m 내에 있습니다."
+        ],
+        "warnings": [
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm8jp",
+          "dataSize": 20956,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 20956,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:20:59.857408900Z",
+      "nanoTime": 26045871160000,
+      "traceId": "2d99f17e",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:20:59.858487400Z",
+      "nanoTime": 26045872378100,
+      "traceId": "2d99f17e",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1218100,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "음식점이(가) 103m 내에 있습니다."
+        ],
+        "warnings": [
+          "안전 인프라가 부족한 지역입니다. 주의가 필요합니다.",
+          "가장 가까운 파출소가 1km 이상 떨어져 있습니다.",
+          "CCTV 설치 대수가 적은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydjxbx",
+          "dataSize": 7205,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 7205,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:06.110668500Z",
+      "nanoTime": 26052124928200,
+      "traceId": "b3c73500",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:06.111675500Z",
+      "nanoTime": 26052126283000,
+      "traceId": "b3c73500",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1354800,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 20m 내에 있습니다."
+        ],
+        "warnings": [
+          "가장 가까운 파출소가 1km 이상 떨어져 있습니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydmkjp",
+          "dataSize": 21721,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 21721,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:10.668879300Z",
+      "nanoTime": 26056683536600,
+      "traceId": "19522106",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:10.670995300Z",
+      "nanoTime": 26056684931000,
+      "traceId": "19522106",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1394400,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "문화시설이(가) 43m 내에 있습니다."
+        ],
+        "warnings": [
+          "안전 인프라가 부족한 지역입니다. 주의가 필요합니다.",
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm9w6",
+          "dataSize": 19969,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 19969,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:18.519068Z",
+      "nanoTime": 26064532837300,
+      "traceId": "d5730568",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:18.520067900Z",
+      "nanoTime": 26064534079500,
+      "traceId": "d5730568",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1242200,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "관광명소이(가) 23m 내에 있습니다."
+        ],
+        "warnings": [
+          "안전 인프라가 부족한 지역입니다. 주의가 필요합니다.",
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm8sb",
+          "dataSize": 20041,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 20041,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:25.011219900Z",
+      "nanoTime": 26071025690700,
+      "traceId": "eb0bc93d",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:25.013248400Z",
+      "nanoTime": 26071027096000,
+      "traceId": "eb0bc93d",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1405300,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 57m 내에 있습니다."
+        ],
+        "warnings": [
+          "CCTV 설치 대수가 적은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm9rv",
+          "dataSize": 19238,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 19238,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:29.635727900Z",
+      "nanoTime": 26075650161700,
+      "traceId": "dbb24181",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:29.637718800Z",
+      "nanoTime": 26075651846500,
+      "traceId": "dbb24181",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1684800,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "학원이(가) 28m 내에 있습니다."
+        ],
+        "warnings": [],
+        "cacheWrite": {
+          "cacheKey": "dto:wydmed1",
+          "dataSize": 18753,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 18753,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:35.240941800Z",
+      "nanoTime": 26081254781400,
+      "traceId": "e17c84a0",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:35.241949800Z",
+      "nanoTime": 26081256041900,
+      "traceId": "e17c84a0",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1260500,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "약국이(가) 13m 내에 있습니다."
+        ],
+        "warnings": [
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm9bf",
+          "dataSize": 20540,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 20540,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:40.786029600Z",
+      "nanoTime": 26086799886700,
+      "traceId": "4e4be05b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:40.787034800Z",
+      "nanoTime": 26086801460400,
+      "traceId": "4e4be05b",
+      "thread": "http-nio-8185-exec-2",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1573700,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 24m 내에 있습니다."
+        ],
+        "warnings": [],
+        "cacheWrite": {
+          "cacheKey": "dto:wydme4z",
+          "dataSize": 19088,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 19088,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:45.296013Z",
+      "nanoTime": 26091310201600,
+      "traceId": "d88f87e7",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:45.298005900Z",
+      "nanoTime": 26091311959100,
+      "traceId": "d88f87e7",
+      "thread": "http-nio-8185-exec-3",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1757500,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "병원이(가) 27m 내에 있습니다."
+        ],
+        "warnings": [
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm9z8",
+          "dataSize": 20168,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 20168,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:49.720916500Z",
+      "nanoTime": 26095734864100,
+      "traceId": "6f4d9b6e",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:49.721918800Z",
+      "nanoTime": 26095736265300,
+      "traceId": "6f4d9b6e",
+      "thread": "http-nio-8185-exec-5",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1401200,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "은행이(가) 17m 내에 있습니다."
+        ],
+        "warnings": [
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm6ze",
+          "dataSize": 23732,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 23732,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:54.107340100Z",
+      "nanoTime": 26100121234000,
+      "traceId": "da141549",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:54.108340300Z",
+      "nanoTime": 26100122513900,
+      "traceId": "da141549",
+      "thread": "http-nio-8185-exec-6",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1279900,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 28m 내에 있습니다."
+        ],
+        "warnings": [
+          "안전 인프라가 부족한 지역입니다. 주의가 필요합니다.",
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm7kk",
+          "dataSize": 20053,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 20053,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:21:58.270868500Z",
+      "nanoTime": 26104284621500,
+      "traceId": "2d850537",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:21:58.271887100Z",
+      "nanoTime": 26104285949300,
+      "traceId": "2d850537",
+      "thread": "http-nio-8185-exec-8",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1327800,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "공공기관이(가) 27m 내에 있습니다."
+        ],
+        "warnings": [
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydmdvf",
+          "dataSize": 20502,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 20502,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:03.020093900Z",
+      "nanoTime": 26109033962400,
+      "traceId": "a20b9902",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:03.021093200Z",
+      "nanoTime": 26109035406800,
+      "traceId": "a20b9902",
+      "thread": "http-nio-8185-exec-4",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1444400,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 23m 내에 있습니다."
+        ],
+        "warnings": [
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm1w3",
+          "dataSize": 24095,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 24095,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:08.007709500Z",
+      "nanoTime": 26114021806600,
+      "traceId": "4d2b3d71",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:08.008718Z",
+      "nanoTime": 26114022867300,
+      "traceId": "4d2b3d71",
+      "thread": "http-nio-8185-exec-9",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1060700,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 4m 내에 있습니다."
+        ],
+        "warnings": [],
+        "cacheWrite": {
+          "cacheKey": "dto:wydjpr3",
+          "dataSize": 18815,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 18815,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:11.736029600Z",
+      "nanoTime": 26117749899600,
+      "traceId": "9d3e5d65",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:11.737041400Z",
+      "nanoTime": 26117751216300,
+      "traceId": "9d3e5d65",
+      "thread": "http-nio-8185-exec-10",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1316700,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "편의점이(가) 15m 내에 있습니다."
+        ],
+        "warnings": [],
+        "cacheWrite": {
+          "cacheKey": "dto:wydjrx4",
+          "dataSize": 21713,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 21713,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:15.956048600Z",
+      "nanoTime": 26121970472600,
+      "traceId": "7aa00089",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:15.957048400Z",
+      "nanoTime": 26121971644800,
+      "traceId": "7aa00089",
+      "thread": "http-nio-8185-exec-7",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1172200,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "병원이(가) 19m 내에 있습니다."
+        ],
+        "warnings": [
+          "해당 지역의 검거율이 낮은 편입니다."
+        ],
+        "cacheWrite": {
+          "cacheKey": "dto:wydm75d",
+          "dataSize": 19645,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 19645,
+        "errorMessage": null,
+        "success": true
+      }
+    },
+    {
+      "timestamp": "2025-11-21T10:22:20.084887900Z",
+      "nanoTime": 26126099257400,
+      "traceId": "b7201ab3",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "START"
+    },
+    {
+      "timestamp": "2025-11-21T10:22:20.086889700Z",
+      "nanoTime": 26126100804600,
+      "traceId": "b7201ab3",
+      "thread": "http-nio-8185-exec-1",
+      "eventType": "PERFORMANCE",
+      "step": "R-07",
+      "layer": "Service",
+      "class": "LocationAnalysisServiceImpl",
+      "method": "buildFinalResponse",
+      "action": "buildFinalResponse",
+      "status": "END",
+      "duration_ns": 1547200,
+      "duration_ms": 1,
+      "resultData": {
+        "analysisStatus": "SUCCESS",
+        "hasAddress": true,
+        "hasSafetyScore": true,
+        "hasConvenienceScore": true,
+        "recommendations": [
+          "지하철역이(가) 22m 내에 있습니다."
+        ],
+        "warnings": [],
+        "cacheWrite": {
+          "cacheKey": "dto:wydjr8n",
+          "dataSize": 23586,
+          "ttlSeconds": 300,
+          "errorMessage": null,
+          "success": true
+        },
+        "responseSizeBytes": 23586,
+        "errorMessage": null,
+        "success": true
+      }
+    }
+  ]
+}
