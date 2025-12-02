@@ -1,0 +1,52 @@
+package com.wherehouse.review.controller;
+
+import com.wherehouse.review.dto.ReviewListResponseDto;
+import com.wherehouse.review.dto.ReviewQueryRequestDto;
+import com.wherehouse.review.service.ReviewQueryService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+
+/**
+ * 리뷰 조회 API 컨트롤러
+ *
+ * 설계 명세서: 6.3 리뷰 목록 조회 API (통합) 기반
+ * 변경사항: Query Parameter 방식 대신 Request Body DTO 방식 사용
+ */
+@Slf4j
+@RestController
+@RequestMapping("/api/v1/reviews")
+@RequiredArgsConstructor
+@Validated
+public class ReviewQueryController {
+
+    private final ReviewQueryService reviewQueryService;
+
+    /**
+     * 리뷰 목록 조회 (통합)
+     *
+     * @param requestDto 리뷰 조회 요청 DTO
+     * @return 200 OK - 리뷰 목록 응답
+     */
+    @PostMapping("/query")
+    public ResponseEntity<ReviewListResponseDto> getReviews(
+            @Valid @RequestBody ReviewQueryRequestDto requestDto) {
+
+        log.info("리뷰 조회 요청: propertyId={}, page={}, size={}, sort={}",
+                requestDto.getPropertyId(),
+                requestDto.getPage(),
+                requestDto.getSize(),
+                requestDto.getSort());
+
+        ReviewListResponseDto response = reviewQueryService.getReviews(requestDto);
+
+        log.info("리뷰 조회 완료: totalItems={}",
+                response.getPagination().getTotalItems());
+
+        return ResponseEntity.ok(response);
+    }
+}
