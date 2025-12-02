@@ -10,14 +10,22 @@ import jakarta.validation.constraints.*;
 /**
  * 리뷰 수정 요청 DTO
  *
- * 설계 명세서: 6.5 리뷰 수정 API
+ * 설계 명세서: 6.5 리뷰 수정 API (재설계)
  *             6.5.1 요청 (Request)
+ *
+ * POST 방식에 맞춰 reviewId를 Request Body에 포함
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewUpdateRequestDto {
+
+    /**
+     * 수정할 리뷰 ID
+     */
+    @NotNull(message = "리뷰 ID는 필수입니다")
+    private Long reviewId;
 
     /**
      * 별점 (1~5 정수)

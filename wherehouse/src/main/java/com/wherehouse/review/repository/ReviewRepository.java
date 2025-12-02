@@ -1,6 +1,8 @@
 package com.wherehouse.review.repository;
 
 import com.wherehouse.review.domain.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,4 +50,21 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "FROM Review r " +
             "WHERE r.propertyId = :propertyId")
     Object[] aggregateReviewStats(@Param("propertyId") String propertyId);
+
+    /**
+     * 전체 리뷰 목록 조회 (페이징)
+     *
+     * @param pageable 페이징 정보
+     * @return 리뷰 페이지
+     */
+    Page<Review> findAll(Pageable pageable);
+
+    /**
+     * 특정 매물의 리뷰 목록 조회 (페이징)
+     *
+     * @param propertyId 매물 ID
+     * @param pageable 페이징 정보
+     * @return 리뷰 페이지
+     */
+    Page<Review> findByPropertyId(String propertyId, Pageable pageable);
 }

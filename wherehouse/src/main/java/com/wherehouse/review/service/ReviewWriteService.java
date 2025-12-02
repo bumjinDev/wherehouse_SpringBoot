@@ -10,8 +10,6 @@ import com.wherehouse.review.repository.ReviewRepository;
 import com.wherehouse.review.repository.ReviewStatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +17,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * 리뷰 서비스
+ * 리뷰 작성/수정 서비스
+ *
+ * 설계 명세서: 6.2 리뷰 작성 API, 6.5 리뷰 수정 API
  */
 @Slf4j
 @Service
@@ -116,6 +115,146 @@ public class ReviewWriteService {
                 .build();
     }
 
+    /**
+     * 리뷰 수정
+     *
+     * 설계 명세서: 6.5 리뷰 수정 API
+     *
+     * 리뷰 수정 → 기존 키워드 삭제 → 새 키워드 추출 → 통계 재산출 순서로 처리
+     *
+     * @param requestDto 리뷰 수정 요청 (reviewId, rating, content)
+     * @return 리뷰 수정 응답 (reviewId, updatedAt)
+     */
+    @Transactional
+    public ReviewUpdateResponseDto updateReview(ReviewUpdateRequestDto requestDto) {
+
+        // ======================================================================
+        // Step 1: 리뷰 조회 (존재하지 않으면 예외 발생)
+        // ======================================================================
+        Review review = reviewRepository.findById(requestDto.getReviewId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "리뷰를 찾을 수 없습니다: reviewId=" + requestDto.getReviewId()));
+
+        String propertyId = review.getPropertyId();
+
+        log.info("리뷰 수정 시작: reviewId={}, propertyId={}, oldRating={}, newRating={}",
+                review.getReviewId(), propertyId, review.getRating(), requestDto.getRating());
+
+        // ======================================================================
+        // Step 2: 리뷰 엔티티 업데이트 (REVIEWS 테이블)
+        // ======================================================================
+        review.update(requestDto.getRating(), requestDto.getContent());
+
+        // 즉시 DB에 반영 (통계 재산출 전에 변경사항이 DB에 반영되어야 함)
+        Review updatedReview = reviewRepository.save(review);
+
+        log.info("리뷰 엔티티 수정 완료: reviewId={}", updatedReview.getReviewId());
+
+        // ======================================================================
+        // Step 3: 기존 키워드 삭제 (REVIEW_KEYWORDS 테이블)
+        // ======================================================================
+        reviewKeywordRepository.deleteByReviewId(review.getReviewId());
+        log.info("기존 키워드 삭제 완료: reviewId={}", review.getReviewId());
+
+        // ======================================================================
+        // Step 4: 새로운 키워드 자동 추출 및 저장 (REVIEW_KEYWORDS 테이블)
+        // ======================================================================
+        List<ReviewKeyword> newKeywords = keywordExtractor.extractKeywords(
+                review.getReviewId(),
+                requestDto.getContent()
+        );
+
+        if (!newKeywords.isEmpty()) {
+            reviewKeywordRepository.saveAll(newKeywords);
+            log.info("새 키워드 저장 완료: reviewId={}, keywordCount={}",
+                    review.getReviewId(), newKeywords.size());
+        }
+
+        // ======================================================================
+        // Step 5: 리뷰 통계 조회 (REVIEW_STATISTICS 테이블)
+        // ======================================================================
+        ReviewStatistics statistics = reviewStatisticsRepository
+                .findById(propertyId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "리뷰 통계를 찾을 수 없습니다: propertyId=" + propertyId));
+
+        // ======================================================================
+        // Step 6: 리뷰 통계 재산출 (reviewCount, avgRating)
+        // ======================================================================
+        recalculateAndUpdateReviewStatistics(propertyId, statistics);
+
+        // ======================================================================
+        // Step 7: 키워드 통계 재산출 (positiveKeywordCount, negativeKeywordCount)
+        // ======================================================================
+        recalculateAndUpdateKeywordStatistics(propertyId, statistics);
+
+        // ======================================================================
+        // Step 8: 응답 생성
+        // ======================================================================
+        return ReviewUpdateResponseDto.builder()
+                .reviewId(review.getReviewId())
+                .updatedAt(review.getUpdatedAt().format(ISO_FORMATTER))
+                .build();
+    }
+
+    /**
+     * 리뷰 삭제
+     *
+     * 설계 명세서: 6.6 리뷰 삭제 API
+     *
+     * 리뷰 삭제 → 키워드 삭제 (CASCADE) → 통계 재산출 순서로 처리
+     *
+     * @param reviewId 리뷰 ID
+     */
+    @Transactional
+    public void deleteReview(Long reviewId) {
+
+        // ======================================================================
+        // Step 1: 리뷰 조회 (존재하지 않으면 예외 발생)
+        // ======================================================================
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
+
+        String propertyId = review.getPropertyId();
+
+        log.info("리뷰 삭제 시작: reviewId={}, propertyId={}, rating={}",
+                review.getReviewId(), propertyId, review.getRating());
+
+        // ======================================================================
+        // Step 2: 키워드 삭제 (REVIEW_KEYWORDS 테이블)
+        // FK 제약조건 ON DELETE CASCADE가 있다면 자동 삭제되지만, 명시적으로 삭제
+        // ======================================================================
+        reviewKeywordRepository.deleteByReviewId(reviewId);
+        log.info("리뷰 키워드 삭제 완료: reviewId={}", reviewId);
+
+        // ======================================================================
+        // Step 3: 리뷰 삭제 (REVIEWS 테이블)
+        // ======================================================================
+        reviewRepository.delete(review);
+        log.info("리뷰 삭제 완료: reviewId={}", reviewId);
+
+        // ======================================================================
+        // Step 4: 리뷰 통계 조회 (REVIEW_STATISTICS 테이블)
+        // ======================================================================
+        ReviewStatistics statistics = reviewStatisticsRepository
+                .findById(propertyId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "리뷰 통계를 찾을 수 없습니다: propertyId=" + propertyId));
+
+        // ======================================================================
+        // Step 5: 리뷰 통계 재산출 (reviewCount, avgRating)
+        // ======================================================================
+        recalculateAndUpdateReviewStatistics(propertyId, statistics);
+
+        // ======================================================================
+        // Step 6: 키워드 통계 재산출 (positiveKeywordCount, negativeKeywordCount)
+        // ======================================================================
+        recalculateAndUpdateKeywordStatistics(propertyId, statistics);
+
+        log.info("리뷰 삭제 및 통계 갱신 완료: propertyId={}, reviewId={}", propertyId, reviewId);
+    }
+
     // ======================================================================
     // Private Methods
     // ======================================================================
@@ -125,7 +264,7 @@ public class ReviewWriteService {
      *
      * 집계 쿼리로 reviewCount와 avgRating을 실시간 계산하여 통계 테이블 업데이트
      *
-     * 호출 위치: createReview() - Step 5
+     * 호출 위치: createReview() - Step 5, updateReview() - Step 6
      * 사용 목적: 리뷰 작성/수정/삭제 시 해당 매물의 리뷰 개수와 평균 별점을 재집계
      *
      * @param propertyId 매물 ID
@@ -155,8 +294,8 @@ public class ReviewWriteService {
      *
      * 긍정/부정 키워드 개수를 집계하여 통계 테이블 업데이트
      *
-     * 호출 위치: createReview() - Step 6
-     * 사용 목적: 리뷰 작성 시 해당 매물의 모든 리뷰의 키워드를 집계하여
+     * 호출 위치: createReview() - Step 6, updateReview() - Step 7
+     * 사용 목적: 리뷰 작성/수정 시 해당 매물의 모든 리뷰의 키워드를 집계하여
      *           긍정 키워드 수와 부정 키워드 수를 통계에 반영
      *
      * @param propertyId 매물 ID

@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -816,6 +816,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             } else {
                 log.info("[R-04] 주소 변환 캐시 미스 - API 호출");
 
+                Callable Callable =null;
+                Future Future = null;
+
                 // 카카오맵 Reverse Geocoding API 호출 (좌표 → 주소 변환)
                 AddressDto addressDto = kakaoApiService.getAddress(latitude, longitude);
                 result.setAddress(addressDto);
@@ -863,6 +866,8 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                 .build();
 
         long amenityStartNs = System.nanoTime();
+
+        /* 모든 편의시설(Kakao Map API 15개 코드) */
 
         try {
             log.info("[R-04] 편의시설 조회 API 호출 시작 - 반경: {}m", radius);

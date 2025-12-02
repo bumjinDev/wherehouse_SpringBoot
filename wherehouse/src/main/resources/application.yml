@@ -19,7 +19,7 @@ spring:
   # Redis 연결 설정
   data:
     redis:
-      host: 172.30.248.154  # Local(no 127.0.0.1)
+      host: 127.0.0.1  # Local(no 127.0.0.1)
       #host: 43.202.178.156 # (aws - 확인 완료)
       port: 6379
       timeout: 0  # 0초 무제한 타임아웃 설정

@@ -31,6 +31,7 @@ public class KeywordExtractor {
     public List<ReviewKeyword> extractKeywords(Long reviewId, String content) {
 
         List<ReviewKeyword> extractedKeywords = new ArrayList<>();
+
         Set<String> foundKeywords = new HashSet<>();  // 중복 방지
 
         // Step 1: 텍스트 정규화 (특수문자 제거, 소문자 변환 등)
