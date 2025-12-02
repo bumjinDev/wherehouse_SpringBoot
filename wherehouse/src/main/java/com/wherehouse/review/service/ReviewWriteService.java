@@ -291,9 +291,6 @@ public class ReviewWriteService {
         System.out.println("(Long) result[0] : " + reviewCount);
         System.out.println("(Double) result[1] : " +  avgRatingDouble);
 
-//        Long reviewCount = (Long) result[0];          // 리뷰 개수
-//        Double avgRatingDouble = (Double) result[1];  // 평균 별점
-
         // 2. 평균 별점 소수점 2자리로 반올림 (4.567 → 4.57)
         BigDecimal avgRating = BigDecimal.valueOf(avgRatingDouble)
                 .setScale(2, RoundingMode.HALF_UP);
@@ -332,9 +329,20 @@ public class ReviewWriteService {
         // 첫 번째 행(Row)을 가져옴
         Object[] resultList = result.get(0);
 
-        // 2. 데이터 파싱
-        Long positiveCount = (Long) resultList[0];          // COUNT(r)
-        Long negativeCount = (Long) resultList[1];  // AVG(r.rating)
+        // 2. 데이터 파싱 (Null일 경우 0L로 대체)
+        Long positiveCount = (resultList[0] != null) ? (Long) resultList[0] : 0L;
+        Long negativeCount = (resultList[1] != null) ? (Long) resultList[1] : 0L;
+
+        System.out.println("값 검사");
+        System.out.println("positiveCount : " + positiveCount);
+        System.out.println("negativeCount : " + negativeCount);
+
+// 3. 통계 엔티티 업데이트
+        statistics.updateKeywordStatistics(positiveCount.intValue(), negativeCount.intValue());
+
+        System.out.println("값 검사");
+        System.out.println("(Long) resultList[0] : " + positiveCount);
+        System.out.println("(Long) resultList[1] : " + negativeCount);
 
         // 3. 통계 엔티티 업데이트
         statistics.updateKeywordStatistics(positiveCount.intValue(), negativeCount.intValue());
