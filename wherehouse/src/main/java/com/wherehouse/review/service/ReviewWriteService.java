@@ -272,11 +272,27 @@ public class ReviewWriteService {
      */
     private void recalculateAndUpdateReviewStatistics(String propertyId, ReviewStatistics statistics) {
 
-        // 1. 집계 쿼리 실행: COUNT(*), AVG(RATING)
-        Object[] result = reviewRepository.aggregateReviewStats(propertyId);
+        // 1. 집계 쿼리 실행: List<Object[]> 반환
+        List<Object[]> resultList = reviewRepository.aggregateReviewStats(propertyId);
 
-        Long reviewCount = (Long) result[0];          // 리뷰 개수
-        Double avgRatingDouble = (Double) result[1];  // 평균 별점
+        // 데이터가 없는 경우(혹은 null) 방어 로직 (집계 함수라 보통 1줄은 나오지만 안전하게 처리)
+        if (resultList == null || resultList.isEmpty()) {
+            statistics.updateStatistics(0, BigDecimal.ZERO);
+            return;
+        }
+
+        // 첫 번째 행(Row)을 가져옴
+        Object[] result = resultList.get(0);
+
+        // 2. 데이터 파싱
+        Long reviewCount = (Long) result[0];          // COUNT(r)
+        Double avgRatingDouble = (Double) result[1];  // AVG(r.rating)
+
+        System.out.println("(Long) result[0] : " + reviewCount);
+        System.out.println("(Double) result[1] : " +  avgRatingDouble);
+
+//        Long reviewCount = (Long) result[0];          // 리뷰 개수
+//        Double avgRatingDouble = (Double) result[1];  // 평균 별점
 
         // 2. 평균 별점 소수점 2자리로 반올림 (4.567 → 4.57)
         BigDecimal avgRating = BigDecimal.valueOf(avgRatingDouble)
@@ -305,11 +321,20 @@ public class ReviewWriteService {
 
         // 1. 집계 쿼리 실행: 긍정 키워드 수, 부정 키워드 수
         // SUM(CASE WHEN score > 0...), SUM(CASE WHEN score < 0...)
-        Object[] result = reviewKeywordRepository.aggregateKeywordStats(propertyId);
+        List<Object[]> result = reviewKeywordRepository.aggregateKeywordStats(propertyId);
 
-        // 2. null 체크 (키워드가 없으면 null 반환)
-        Long positiveCount = result[0] != null ? (Long) result[0] : 0L;
-        Long negativeCount = result[1] != null ? (Long) result[1] : 0L;
+        // 데이터가 없는 경우(혹은 null) 방어 로직 (집계 함수라 보통 1줄은 나오지만 안전하게 처리)
+        if (result == null || result.isEmpty()) {
+            statistics.updateStatistics(0, BigDecimal.ZERO);
+            return;
+        }
+
+        // 첫 번째 행(Row)을 가져옴
+        Object[] resultList = result.get(0);
+
+        // 2. 데이터 파싱
+        Long positiveCount = (Long) resultList[0];          // COUNT(r)
+        Long negativeCount = (Long) resultList[1];  // AVG(r.rating)
 
         // 3. 통계 엔티티 업데이트
         statistics.updateKeywordStatistics(positiveCount.intValue(), negativeCount.intValue());

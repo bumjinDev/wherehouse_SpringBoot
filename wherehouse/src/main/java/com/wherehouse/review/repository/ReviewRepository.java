@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,7 +50,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT COUNT(r), COALESCE(AVG(r.rating), 0.0) " +
             "FROM Review r " +
             "WHERE r.propertyId = :propertyId")
-    Object[] aggregateReviewStats(@Param("propertyId") String propertyId);
+    List<Object[]> aggregateReviewStats(@Param("propertyId") String propertyId);
 
     /**
      * 전체 리뷰 목록 조회 (페이징)

@@ -30,7 +30,7 @@ public interface ReviewKeywordRepository extends JpaRepository<ReviewKeyword, Lo
             "FROM ReviewKeyword rk " +
             "INNER JOIN Review r ON rk.reviewId = r.reviewId " +
             "WHERE r.propertyId = :propertyId")
-    Object[] aggregateKeywordStats(@Param("propertyId") String propertyId);
+    List<Object[]>  aggregateKeywordStats(@Param("propertyId") String propertyId);
 
     /**
      * 특정 리뷰의 모든 키워드 삭제

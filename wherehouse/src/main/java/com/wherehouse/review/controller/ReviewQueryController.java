@@ -33,8 +33,10 @@ public class ReviewQueryController {
      *
      * @param requestDto 리뷰 조회 요청 DTO
      * @return 200 OK - 리뷰 목록 응답
+     *
+     * // 이 부분 추후 쿼리 파라메터 형식 및 GET 으로 수정 필요.
      */
-    @GetMapping("/query")
+    @PostMapping("/query")
     public ResponseEntity<ReviewListResponseDto> getReviews(
             @Valid @RequestBody ReviewQueryRequestDto requestDto) {
 
