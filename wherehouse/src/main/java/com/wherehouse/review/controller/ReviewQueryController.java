@@ -27,18 +27,21 @@ public class ReviewQueryController {
     private final ReviewQueryService reviewQueryService;
 
     /**
-     * 리뷰 목록 조회 (통합)
+     * 리뷰 목록 조회 (RESTful 준수)
      *
      * 설계 명세서: 6.3 리뷰 목록 조회 API (통합)
      *
-     * @param requestDto 리뷰 조회 요청 DTO
-     * @return 200 OK - 리뷰 목록 응답
+     * 변경사항:
+     * - POST /api/v1/reviews/query -> GET /api/v1/reviews
+     * - @RequestBody -> @ModelAttribute
+     * - Query Parameter 기반 바인딩: ?property_id=xxx&page=1&size=10&sort=latest
      *
-     * // 이 부분 추후 쿼리 파라메터 형식 및 GET 으로 수정 필요.
+     * @param requestDto 리뷰 조회 요청 DTO (Query Parameter로 바인딩)
+     * @return 200 OK - 리뷰 목록 응답
      */
-    @PostMapping("/query")
+    @GetMapping
     public ResponseEntity<ReviewListResponseDto> getReviews(
-            @Valid @RequestBody ReviewQueryRequestDto requestDto) {
+            @Valid @ModelAttribute ReviewQueryRequestDto requestDto) {
 
         log.info("리뷰 조회 요청: propertyId={}, page={}, size={}, sort={}",
                 requestDto.getPropertyId(),
