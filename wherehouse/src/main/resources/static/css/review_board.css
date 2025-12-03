@@ -29,7 +29,6 @@ body {
 }
 
 /* ========== 사이드바 영역 ========== */
-
 #information {
     display: flex;
     position: fixed;
@@ -40,7 +39,6 @@ body {
     height: 100vh;
 }
 
-/* 사이드바 토글 버튼 */
 #btn {
     position: absolute;
     width: 33px;
@@ -62,7 +60,6 @@ body {
     background: #e3f2fd;
 }
 
-/* 사이드바 */
 #side-bar {
     position: relative;
     background: white;
@@ -72,25 +69,6 @@ body {
     box-shadow: 2px 0px 10px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* 사이드바 스크롤바 */
-#side-bar::-webkit-scrollbar {
-    width: 8px;
-}
-
-#side-bar::-webkit-scrollbar-track {
-    background: #f1f3f4;
-}
-
-#side-bar::-webkit-scrollbar-thumb {
-    background: #0B5ED7;
-    border-radius: 4px;
-}
-
-#side-bar::-webkit-scrollbar-thumb:hover {
-    background: #094bb5;
-}
-
-/* 헤더 */
 .review_board_header {
     background: linear-gradient(135deg, #0B5ED7, #4690ff);
     color: #e9f2ff;
@@ -108,8 +86,7 @@ body {
     padding: 15px;
 }
 
-.filter_box,
-.stats_box {
+.filter_box {
     width: 100%;
     border: rgba(11, 94, 215, 0.50) 2px solid;
     border-radius: 8px;
@@ -118,8 +95,7 @@ body {
     background: white;
 }
 
-.filter_box p,
-.stats_box p {
+.filter_box p {
     font-size: 18px;
     margin-bottom: 10px;
     color: #333;
@@ -133,7 +109,7 @@ body {
 }
 
 .filter_item {
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* 간격 조정 */
 }
 
 .filter_label {
@@ -145,11 +121,11 @@ body {
 
 .filter_select {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: white;
-    font-size: 13px;
+    font-size: 14px;
     cursor: pointer;
 }
 
@@ -167,10 +143,10 @@ body {
 
 .search_input_group input {
     width: 100%;
-    padding: 8px 35px 8px 12px;
+    padding: 10px 35px 10px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .search_input_group input:focus {
@@ -194,15 +170,15 @@ body {
 }
 
 .filter_desc {
-    font-size: 10px;
+    font-size: 11px;
     color: #888;
-    margin-top: 3px;
+    margin-top: 5px;
     text-align: left;
 }
 
 /* 필터 적용 버튼 */
 .filter_apply_btn {
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .filter_apply_btn button {
@@ -212,7 +188,7 @@ body {
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -222,10 +198,6 @@ body {
     background: linear-gradient(135deg, #094bb5, #3a7ee0);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
-}
-
-.filter_apply_btn button:active {
-    transform: translateY(0);
 }
 
 /* 리뷰 작성 버튼 */
@@ -251,43 +223,7 @@ body {
     color: white;
 }
 
-.write_review_btn_box button i {
-    margin-right: 8px;
-}
-
-/* 통계 박스 */
-#property_stats_section {
-    padding: 0 15px 15px 15px;
-}
-
-.stat_item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    padding: 8px 0;
-}
-
-.stat_label {
-    font-size: 13px;
-    color: #666;
-}
-
-.stat_value {
-    font-size: 14px;
-    color: #333;
-    font-weight: bold;
-}
-
-.stat_highlight {
-    color: #0B5ED7;
-    background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
-    padding: 4px 10px;
-    border-radius: 12px;
-    border: 2px solid #0B5ED7;
-}
-
 /* ========== 메인 콘텐츠 영역 ========== */
-
 #main_content {
     margin-left: 480px;
     width: calc(100% - 480px);
@@ -295,7 +231,6 @@ body {
     min-height: 100vh;
 }
 
-/* 콘텐츠 헤더 */
 #content_header {
     display: flex;
     justify-content: space-between;
@@ -338,6 +273,8 @@ body {
     padding: 20px;
     transition: all 0.3s ease;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 
 .review_card:hover {
@@ -367,6 +304,8 @@ body {
     font-size: 12px;
     color: #666;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
 }
 
 .review_user i {
@@ -384,8 +323,10 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    flex-grow: 1; /* 카드의 빈 공간을 채우도록 */
 }
 
+/* DTO에 Tags가 없으므로 필요시 제거 가능하나 일단 유지 */
 .review_tags {
     display: flex;
     flex-wrap: wrap;
@@ -403,11 +344,14 @@ body {
 }
 
 .review_property_info {
-    font-size: 11px;
-    color: #999;
+    font-size: 12px;
+    color: #555;
     border-top: 1px solid #eee;
     padding-top: 10px;
-    margin-top: 10px;
+    margin-top: auto; /* 카드 하단 고정 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .review_property_info i {
@@ -420,22 +364,13 @@ body {
     text-align: center;
     padding: 60px 20px;
     color: #999;
+    grid-column: 1 / -1; /* 전체 너비 차지 */
 }
 
 .empty_state i {
     font-size: 48px;
     color: #ddd;
     margin-bottom: 15px;
-}
-
-.empty_state p {
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-.empty_state .empty_desc {
-    font-size: 13px;
-    color: #bbb;
 }
 
 /* 페이지네이션 */
@@ -476,14 +411,7 @@ body {
     border-color: #0B5ED7;
 }
 
-.pagination_info {
-    font-size: 13px;
-    color: #666;
-    margin: 0 10px;
-}
-
-/* ========== 모달 공통 스타일 ========== */
-
+/* ========== 모달 공통 스타일 (폼 관련) ========== */
 .modal_overlay {
     position: fixed;
     top: 0;
@@ -506,28 +434,11 @@ body {
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    animation: modalSlideIn 0.3s ease-out;
     border: 3px solid #0B5ED7;
 }
 
-.modal_content_large {
-    max-width: 700px;
-}
-
-.modal_content_small {
-    max-width: 400px;
-}
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+.modal_content_large { max-width: 700px; }
+.modal_content_small { max-width: 400px; }
 
 .modal_header {
     padding: 20px 25px;
@@ -536,14 +447,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
-}
-
-.modal_header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
 .modal_close {
@@ -552,19 +455,6 @@ body {
     color: white;
     font-size: 28px;
     cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-}
-
-.modal_close:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
 }
 
 .modal_body {
@@ -574,25 +464,7 @@ body {
     background: #f8f9ff;
 }
 
-.modal_body::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal_body::-webkit-scrollbar-track {
-    background: #f1f3f4;
-}
-
-.modal_body::-webkit-scrollbar-thumb {
-    background: #0B5ED7;
-    border-radius: 4px;
-}
-
-.modal_body::-webkit-scrollbar-thumb:hover {
-    background: #094bb5;
-}
-
-/* ========== 폼 스타일 ========== */
-
+/* 폼 스타일 */
 .form_group {
     margin-bottom: 20px;
 }
@@ -604,11 +476,10 @@ body {
     margin-bottom: 6px;
 }
 
-.required {
-    color: #e74c3c;
-}
+.required { color: #e74c3c; }
 
 .form_group input[type="text"],
+.form_group input[type="number"],
 .form_group textarea,
 .form_group select {
     width: 100%;
@@ -632,19 +503,6 @@ body {
     min-height: 120px;
 }
 
-.form_desc {
-    font-size: 11px;
-    color: #888;
-    margin-top: 4px;
-}
-
-.char_count {
-    text-align: right;
-    font-size: 11px;
-    color: #999;
-    margin-top: 4px;
-}
-
 .error_message {
     color: #e74c3c;
     font-size: 12px;
@@ -654,10 +512,7 @@ body {
     margin-bottom: 15px;
     display: none;
 }
-
-.error_message.show {
-    display: block;
-}
+.error_message.show { display: block; }
 
 .form_buttons {
     display: flex;
@@ -665,10 +520,7 @@ body {
     margin-top: 20px;
 }
 
-.btn_cancel,
-.btn_submit,
-.btn_edit,
-.btn_delete {
+.btn_cancel, .btn_submit, .btn_edit, .btn_delete {
     flex: 1;
     padding: 12px;
     border: none;
@@ -676,206 +528,28 @@ body {
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.btn_cancel {
-    background: #f5f5f5;
-    color: #666;
-}
+.btn_cancel { background: #f5f5f5; color: #666; }
+.btn_submit { background: linear-gradient(135deg, #0B5ED7, #4690ff); color: white; }
+.btn_edit { background: #f39c12; color: white; }
+.btn_delete { background: #e74c3c; color: white; }
 
-.btn_cancel:hover {
-    background: #e0e0e0;
-}
+/* 상세 모달 스타일 */
+.detail_section { background: white; border-radius: 8px; padding: 20px; }
+.detail_header { border-bottom: 2px solid #e3f2fd; padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; }
+.detail_content { white-space: pre-wrap; word-break: break-word; background: #f8f9ff; padding: 15px; border-radius: 6px; line-height: 1.6; }
 
-.btn_submit {
-    background: linear-gradient(135deg, #0B5ED7, #4690ff);
-    color: white;
-}
-
-.btn_submit:hover {
-    background: linear-gradient(135deg, #094bb5, #3a7ee0);
-}
-
-.btn_edit {
-    background: #f39c12;
-    color: white;
-}
-
-.btn_edit:hover {
-    background: #e67e22;
-}
-
-.btn_delete {
-    background: #e74c3c;
-    color: white;
-}
-
-.btn_delete:hover {
-    background: #c0392b;
-}
-
-/* ========== 리뷰 상세 모달 ========== */
-
-.detail_section {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.detail_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #e3f2fd;
-}
-
-.detail_rating {
-    font-size: 20px;
-    color: #f39c12;
-}
-
-.detail_date {
-    font-size: 12px;
-    color: #999;
-}
-
-.detail_info {
-    margin-bottom: 15px;
-}
-
-.detail_info_row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.detail_label {
-    font-size: 13px;
-    color: #666;
-    min-width: 80px;
-}
-
-.detail_value {
-    font-size: 13px;
-    color: #333;
-    word-break: break-all;
-}
-
-.detail_tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.detail_content {
-    font-size: 14px;
-    color: #333;
-    line-height: 1.8;
-    padding: 15px;
-    background: #f8f9ff;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-.detail_updated {
-    font-size: 11px;
-    color: #999;
-    text-align: right;
-    margin-top: 10px;
-}
-
-.detail_updated i {
-    margin-right: 5px;
-    color: #f39c12;
-}
-
-.detail_buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-/* ========== 삭제 확인 모달 ========== */
-
-.confirm_message {
-    text-align: center;
-    padding: 20px;
-}
-
-.confirm_message i {
-    font-size: 48px;
-    color: #e74c3c;
-    margin-bottom: 15px;
-}
-
-.confirm_message p {
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.confirm_desc {
-    font-size: 13px;
-    color: #999;
-}
-
-/* ========== 반응형 ========== */
-
-@media (max-width: 1400px) {
-    #review_list_container {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-}
-
+/* 반응형 */
 @media (max-width: 1024px) {
-    #side-bar {
-        width: 400px;
-    }
-
-    #btn {
-        left: 395px;
-    }
-
-    #main_content {
-        margin-left: 400px;
-        width: calc(100% - 400px);
-    }
-
-    #review_list_container {
-        grid-template-columns: 1fr;
-    }
+    #side-bar { width: 400px; }
+    #btn { left: 395px; }
+    #main_content { margin-left: 400px; width: calc(100% - 400px); }
 }
 
 @media (max-width: 768px) {
-    #main_content {
-        margin-left: 0;
-        width: 100%;
-        padding: 15px;
-    }
-
-    #side-bar {
-        transform: translateX(-100%);
-    }
-
-    #information.active #side-bar {
-        transform: translateX(0);
-    }
-
-    #btn {
-        left: 10px;
-        top: 10px;
-    }
-
-    .modal_content {
-        width: 95%;
-        max-height: 90vh;
-    }
+    #main_content { margin-left: 0; width: 100%; padding: 15px; }
+    #side-bar { transform: translateX(-100%); }
+    #information.active #side-bar { transform: translateX(0); }
+    #btn { left: 10px; top: 10px; }
 }

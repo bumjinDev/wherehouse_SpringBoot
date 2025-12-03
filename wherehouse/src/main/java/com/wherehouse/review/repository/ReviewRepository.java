@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * 리뷰 Repository
@@ -20,32 +20,75 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     /**
-     * 중복 리뷰 체크 (애플리케이션 레벨 검증)
+     * 리뷰 목록 조회 (단일 매물 ID 또는 전체 조회용)
      *
-     * 설계 명세서: 8.5.2 방어 메커니즘 - 1. 애플리케이션 레벨 검증
+     * [수정됨] ORA-00932(CLOB DISTINCT 불가) 해결을 위해 EXISTS 서브쿼리 사용
      *
-     * @param propertyId 매물 ID
-     * @param userId 사용자 ID
-     * @return 리뷰 존재 여부
+     * @param propertyId 매물 ID (nullable)
+     * @param keyword 검색 키워드 (nullable)
+     * @param pageable 페이징 및 정렬
+     * @return 리뷰 페이지
+     */
+    @Query("SELECT r FROM Review r " +
+            "WHERE (:propertyId IS NULL OR r.propertyId = :propertyId) " +
+            "AND (:keyword IS NULL OR " +
+            "     r.content LIKE %:keyword% OR " +
+            "     EXISTS (SELECT k FROM ReviewKeyword k WHERE k.reviewId = r.reviewId AND k.keyword = :keyword))")
+    Page<Review> findReviews(
+            @Param("propertyId") String propertyId,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
+    /**
+     * [추가됨] 매물 이름으로 매물 ID 목록 검색
+     *
+     * 전세/월세 테이블을 UNION ALL 하여 이름이 포함된 모든 매물의 ID를 추출
+     *
+     * @param name 검색할 매물 이름 (예: "삼성")
+     * @return 매물 ID 리스트
+     */
+    @Query(value =
+            "SELECT property_id FROM properties_charter WHERE apt_nm LIKE %:name% " +
+                    "UNION ALL " +
+                    "SELECT property_id FROM properties_monthly WHERE apt_nm LIKE %:name%",
+            nativeQuery = true)
+    List<String> findPropertyIdsByName(@Param("name") String name);
+
+    /**
+     * [추가됨] 다중 매물 ID에 해당하는 리뷰 조회
+     *
+     * 이름 검색 결과(ID 목록)에 해당하는 리뷰들을 조회 (IN 절 사용)
+     *
+     * @param propertyIds 매물 ID 리스트
+     * @param pageable 페이징 정보
+     * @return 리뷰 페이지
+     */
+    @Query("SELECT r FROM Review r WHERE r.propertyId IN :propertyIds")
+    Page<Review> findByPropertyIdIn(@Param("propertyIds") List<String> propertyIds, Pageable pageable);
+
+    /**
+     * 매물명 일괄 조회 (DTO 매핑용)
+     *
+     * @param propertyIds 매물 ID Set
+     * @return [property_id, apt_nm] 리스트
+     */
+    @Query(value =
+            "SELECT property_id, apt_nm FROM properties_charter " +
+                    "WHERE property_id IN :propertyIds " +
+                    "UNION ALL " +
+                    "SELECT property_id, apt_nm FROM properties_monthly " +
+                    "WHERE property_id IN :propertyIds",
+            nativeQuery = true)
+    List<Object[]> findPropertyNames(@Param("propertyIds") Set<String> propertyIds);
+
+    /**
+     * 중복 리뷰 체크
      */
     boolean existsByPropertyIdAndUserId(String propertyId, String userId);
 
     /**
-     * 특정 매물에 대한 사용자의 리뷰 조회
-     *
-     * @param propertyId 매물 ID
-     * @param userId 사용자 ID
-     * @return 리뷰
-     */
-    Optional<Review> findByPropertyIdAndUserId(String propertyId, String userId);
-
-    /**
-     * 평균 별점 및 리뷰 개수 집계 (DTO 프로젝션)
-     *
-     * 설계 명세서: 8.4.2 통합 재산출 프로세스 - Step 1: 집계 쿼리 수행
-     *
-     * @param propertyId 매물 ID
-     * @return [reviewCount, avgRating]
+     * 평균 별점 및 리뷰 개수 집계
      */
     @Query("SELECT COUNT(r), COALESCE(AVG(r.rating), 0.0) " +
             "FROM Review r " +
@@ -53,19 +96,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Object[]> aggregateReviewStats(@Param("propertyId") String propertyId);
 
     /**
-     * 전체 리뷰 목록 조회 (페이징)
-     *
-     * @param pageable 페이징 정보
-     * @return 리뷰 페이지
+     * 전체 리뷰 목록 조회
      */
     Page<Review> findAll(Pageable pageable);
-
-    /**
-     * 특정 매물의 리뷰 목록 조회 (페이징)
-     *
-     * @param propertyId 매물 ID
-     * @param pageable 페이징 정보
-     * @return 리뷰 페이지
-     */
-    Page<Review> findByPropertyId(String propertyId, Pageable pageable);
 }

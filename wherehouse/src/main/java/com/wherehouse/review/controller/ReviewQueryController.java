@@ -1,8 +1,8 @@
 package com.wherehouse.review.controller;
 
 import com.wherehouse.review.dto.ReviewDetailDto;
+import com.wherehouse.review.dto.ReviewListRequestDto;
 import com.wherehouse.review.dto.ReviewListResponseDto;
-import com.wherehouse.review.dto.ReviewQueryRequestDto;
 import com.wherehouse.review.service.ReviewQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,34 +25,24 @@ import jakarta.validation.Valid;
 public class ReviewQueryController {
 
     private final ReviewQueryService reviewQueryService;
-
     /**
-     * 리뷰 목록 조회 (RESTful 준수)
-     *
-     * 설계 명세서: 6.3 리뷰 목록 조회 API (통합)
-     *
-     * 변경사항:
-     * - POST /api/v1/reviews/query -> GET /api/v1/reviews
-     * - @RequestBody -> @ModelAttribute
-     * - Query Parameter 기반 바인딩: ?property_id=xxx&page=1&size=10&sort=latest
-     *
-     * @param requestDto 리뷰 조회 요청 DTO (Query Parameter로 바인딩)
-     * @return 200 OK - 리뷰 목록 응답
+     * 리뷰 목록 조회
+     * * 변경 사항:
+     * 1. Method: GET 유지
+     * 2. Path: /list (작성 API와 구분)
+     * 3. Param: @RequestBody -> @ModelAttribute (Query String 수신)
      */
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<ReviewListResponseDto> getReviews(
-            @Valid @ModelAttribute ReviewQueryRequestDto requestDto) {
+            @Valid @ModelAttribute ReviewListRequestDto requestDto) { // @RequestBody 제거
 
-        log.info("리뷰 조회 요청: propertyId={}, page={}, size={}, sort={}",
+        log.info("리뷰 조회 요청: propertyId={}, page={}, sort={}, keyword={}",
                 requestDto.getPropertyId(),
                 requestDto.getPage(),
-                requestDto.getSize(),
-                requestDto.getSort());
+                requestDto.getSort(),
+                requestDto.getKeyword());
 
         ReviewListResponseDto response = reviewQueryService.getReviews(requestDto);
-
-        log.info("리뷰 조회 완료: totalItems={}",
-                response.getPagination().getTotalItems());
 
         return ResponseEntity.ok(response);
     }
@@ -72,6 +62,16 @@ public class ReviewQueryController {
         log.info("리뷰 상세 조회 요청: reviewId={}", reviewId);
 
         ReviewDetailDto response = reviewQueryService.getReviewDetail(reviewId);
+
+        System.out.println(response.getReviewId());
+        System.out.println(response.getPropertyId());
+        System.out.println(response.getUserId());
+        System.out.println(response.getRating());
+        System.out.println(response.getContent());
+        System.out.println(response.getTags());
+        System.out.println(response.getCreatedAt());
+        System.out.println(response.getUpdatedAt());
+
 
         log.info("리뷰 상세 조회 완료: reviewId={}", reviewId);
 
