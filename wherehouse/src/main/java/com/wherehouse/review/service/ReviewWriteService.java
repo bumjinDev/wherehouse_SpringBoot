@@ -10,6 +10,7 @@ import com.wherehouse.review.repository.ReviewRepository;
 import com.wherehouse.review.repository.ReviewStatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,15 +44,27 @@ public class ReviewWriteService {
      * @param requestDto 리뷰 작성 요청 (propertyId, userId, rating, content)
      * @return 리뷰 작성 응답 (생성된 reviewId, createdAt)
      */
+    /**
+     * 리뷰 작성
+     *
+     * 리뷰 저장 → 키워드 추출 → 통계 갱신 순서로 처리
+     * [수정] propertyId(String) 기반 로직으로 전면 수정
+     *
+     * @param requestDto 리뷰 작성 요청 (propertyId, rating, content)
+     * @param userId     작성자 ID
+     * @return 리뷰 작성 응답 (생성된 reviewId, createdAt)
+     */
     @Transactional
-    public ReviewCreateResponseDto createReview(ReviewCreateRequestDto requestDto) {
+    public ReviewCreateResponseDto createReview(ReviewCreateRequestDto requestDto, String userId) {
+
+        // [수정] DTO에서 propertyId 추출 (MD5 String)
+        String propertyId = requestDto.getPropertyId();
 
         // ======================================================================
         // Step 1: 중복 작성 방지 (한 사용자는 한 매물에 한 번만 리뷰 작성 가능)
+        // [수정] propertyName이 아닌 propertyId로 조회해야 함
         // ======================================================================
-        if (reviewRepository.existsByPropertyIdAndUserId(
-                requestDto.getPropertyId(),
-                requestDto.getUserId())) {
+        if (reviewRepository.existsByPropertyIdAndUserId(propertyId, userId)) {
             throw new IllegalStateException("이미 해당 매물에 대한 리뷰를 작성하셨습니다");
         }
 
@@ -59,8 +72,8 @@ public class ReviewWriteService {
         // Step 2: 리뷰 엔티티 생성 및 저장 (REVIEWS 테이블)
         // ======================================================================
         Review review = Review.builder()
-                .propertyId(requestDto.getPropertyId())
-                .userId(requestDto.getUserId())
+                .propertyId(propertyId)      // [수정] 매물 ID 저장
+                .userId(userId)
                 .rating(requestDto.getRating())
                 .content(requestDto.getContent())
                 .build();
@@ -88,10 +101,10 @@ public class ReviewWriteService {
         // 해당 매물의 통계가 없으면 새로 생성, 있으면 기존 것 조회
         // ======================================================================
         ReviewStatistics statistics = reviewStatisticsRepository
-                .findById(requestDto.getPropertyId())
+                .findById(propertyId)
                 .orElseGet(() -> {
                     ReviewStatistics newStats = ReviewStatistics.builder()
-                            .propertyId(requestDto.getPropertyId())
+                            .propertyId(propertyId) // String ID
                             .build();
                     return reviewStatisticsRepository.save(newStats);
                 });
@@ -99,12 +112,12 @@ public class ReviewWriteService {
         // ======================================================================
         // Step 5: 리뷰 통계 재산출 (reviewCount, avgRating)
         // ======================================================================
-        recalculateAndUpdateReviewStatistics(requestDto.getPropertyId(), statistics);
+        recalculateAndUpdateReviewStatistics(propertyId, statistics);
 
         // ======================================================================
         // Step 6: 키워드 통계 재산출 (positiveKeywordCount, negativeKeywordCount)
         // ======================================================================
-        recalculateAndUpdateKeywordStatistics(requestDto.getPropertyId(), statistics);
+        recalculateAndUpdateKeywordStatistics(propertyId, statistics);
 
         // ======================================================================
         // Step 7: 응답 생성

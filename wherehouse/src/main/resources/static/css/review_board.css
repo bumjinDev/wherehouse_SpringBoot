@@ -109,7 +109,7 @@ body {
 }
 
 .filter_item {
-    margin-bottom: 20px; /* 간격 조정 */
+    margin-bottom: 20px;
 }
 
 .filter_label {
@@ -326,7 +326,6 @@ body {
     flex-grow: 1; /* 카드의 빈 공간을 채우도록 */
 }
 
-/* DTO에 Tags가 없으므로 필요시 제거 가능하나 일단 유지 */
 .review_tags {
     display: flex;
     flex-wrap: wrap;
@@ -364,7 +363,7 @@ body {
     text-align: center;
     padding: 60px 20px;
     color: #999;
-    grid-column: 1 / -1; /* 전체 너비 차지 */
+    grid-column: 1 / -1;
 }
 
 .empty_state i {
@@ -535,7 +534,6 @@ body {
 .btn_edit { background: #f39c12; color: white; }
 .btn_delete { background: #e74c3c; color: white; }
 
-/* 상세 모달 스타일 */
 .detail_section { background: white; border-radius: 8px; padding: 20px; }
 .detail_header { border-bottom: 2px solid #e3f2fd; padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; }
 .detail_content { white-space: pre-wrap; word-break: break-word; background: #f8f9ff; padding: 15px; border-radius: 6px; line-height: 1.6; }
@@ -553,3 +551,77 @@ body {
     #information.active #side-bar { transform: translateX(0); }
     #btn { left: 10px; top: 10px; }
 }
+
+.autocomplete_list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+
+    /* [핵심 수정] 모달(10000)보다 높게 설정해야 가려지지 않음 */
+    z-index: 10001;
+
+    display: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* 활성화 클래스 */
+.autocomplete_list.show {
+    display: block;
+}
+
+/* 리스트 아이템 */
+.autocomplete_list li {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333;
+    border-bottom: 1px solid #f1f1f1;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.autocomplete_list li:last-child {
+    border-bottom: none;
+}
+
+/* 마우스 오버 효과 */
+.autocomplete_list li:hover {
+    background-color: #e3f2fd;
+    color: #0B5ED7;
+    font-weight: bold;
+}
+
+/* 매물 타입 뱃지 (전세/월세) */
+.type_badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 4px;
+    margin-right: 6px;
+    font-weight: normal;
+    color: white;
+}
+
+.type_badge.charter {
+    background-color: #2ecc71; /* 전세: 초록 */
+}
+
+.type_badge.monthly {
+    background-color: #f39c12; /* 월세: 주황 */
+}
+
+/* 스크롤바 스타일링 */
+.autocomplete_list::-webkit-scrollbar { width: 6px; }
+.autocomplete_list::-webkit-scrollbar-track { background: #f1f1f1; }
+.autocomplete_list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.autocomplete_list::-webkit-scrollbar-thumb:hover { background: #aaa; }

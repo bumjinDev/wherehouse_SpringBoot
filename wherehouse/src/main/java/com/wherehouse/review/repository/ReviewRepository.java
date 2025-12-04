@@ -99,4 +99,19 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
      * 전체 리뷰 목록 조회
      */
     Page<Review> findAll(Pageable pageable);
+
+    /**
+     * [수정됨] 매물 자동완성 검색 (성능 제한 해제 버전 - 포트폴리오용)
+     * * - FETCH FIRST (Limit) 제거됨
+     * - 검색어("삼성")가 포함된 모든 행을 DB에서 가져옴 (Full Load)
+     * - 추후 데이터가 많아질 경우 DB I/O 및 메모리 병목 지점(Bottleneck Point)이 됨
+     */
+    @Query(value =
+            "SELECT property_id, apt_nm, '전세' as type FROM properties_charter " +
+                    "WHERE apt_nm LIKE %:keyword% " +
+                    "UNION ALL " +
+                    "SELECT property_id, apt_nm, '월세' as type FROM properties_monthly " +
+                    "WHERE apt_nm LIKE %:keyword%",
+            nativeQuery = true)
+    List<Object[]> searchPropertiesByName(@Param("keyword") String keyword);
 }

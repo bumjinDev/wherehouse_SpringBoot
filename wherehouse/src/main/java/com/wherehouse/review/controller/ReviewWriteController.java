@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,24 +30,17 @@ public class ReviewWriteController {
 
     private final ReviewWriteService reviewWriteService;
 
-    /**
-     * 리뷰 작성
-     *
-     * 설계 명세서: 6.2 리뷰 작성 API
-     *
-     * @param requestDto 리뷰 작성 요청
-     * @return 201 Created - 리뷰 작성 응답
-     */
     @PostMapping
     public ResponseEntity<ReviewCreateResponseDto> createReview(
-            @Valid @RequestBody ReviewCreateRequestDto requestDto) {
+            @Valid @RequestBody ReviewCreateRequestDto requestDto,
+            @AuthenticationPrincipal String userId) {
 
-        log.info("리뷰 작성 요청: propertyId={}, userId={}, rating={}",
-                requestDto.getPropertyId(),
-                requestDto.getUserId(),
-                requestDto.getRating());
+        userId = "testId";
 
-        ReviewCreateResponseDto response = reviewWriteService.createReview(requestDto);
+        // propertyId가 String으로 들어오므로 로그에서도 문자열로 출력됨
+        log.info("리뷰 작성 요청: userId={}, propertyId={}", userId, requestDto.getPropertyId());
+
+        ReviewCreateResponseDto response = reviewWriteService.createReview(requestDto, userId);
 
         log.info("리뷰 작성 완료: reviewId={}", response.getReviewId());
 

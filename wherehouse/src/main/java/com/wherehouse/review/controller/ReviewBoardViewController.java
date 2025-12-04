@@ -34,7 +34,7 @@ public class ReviewBoardViewController {
     @GetMapping("/board")
     public String showReviewBoard() {
 
-        log.info("리뷰 게시판 페이지 요청");
+        log.info("리뷰 게시판 메인 페이지 요청");
 
         // ViewResolver가 /WEB-INF/views/review_board.jsp를 찾음
         // 또는 프로젝트 설정에 따라 /webapp/review_board.jsp

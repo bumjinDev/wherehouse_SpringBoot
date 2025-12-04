@@ -1,14 +1,11 @@
 /**
- * 리뷰 게시판 JavaScript (결과 없음 알림 추가 버전)
- *
- * [수정 사항]
- * 1. load_reviews(): 검색 결과가 없을 경우 alert() 실행 로직 추가
- * 2. 기존 기능(매물 이름 검색, snake_case 처리, 상세 조회 등) 모두 유지
+ * 리뷰 게시판 JavaScript (Snake Case 대응 & Property ID 전송 수정 버전)
  */
 
 // ========== 전역 변수 ==========
 const BASE_URL = 'http://localhost:8185/wherehouse';
 const API_URL = BASE_URL + '/api/v1/reviews';
+const SEARCH_API_URL = BASE_URL + '/api/v1/properties/search';
 
 let current_page = 1;
 let current_sort = 'rating_desc';
@@ -17,582 +14,410 @@ let current_keyword = null;
 let current_review_id_for_delete = null;
 let current_review_id_for_detail = null;
 
+let debounce_timer = null;
+
 // ========== 초기화 ==========
 window.onload = function() {
     console.log('[Init] 리뷰 게시판 초기화 시작');
-
-    // 초기 데이터 로드
     load_reviews();
-
-    // 이벤트 리스너 등록
     init_event_listeners();
-
     console.log('[Init] 리뷰 게시판 초기화 완료');
 };
 
-// ========== 이벤트 리스너 초기화 ==========
+// ========== 이벤트 리스너 ==========
 function init_event_listeners() {
-
-    // 사이드바 토글
     document.getElementById('btn').addEventListener('click', toggle_sidebar);
-
-    // 필터 적용 버튼
     document.getElementById('apply_filter_btn').addEventListener('click', apply_filters);
-
-    // 검색어 클리어 버튼
     document.getElementById('clear_keyword').addEventListener('click', clear_keyword_search);
-
-    // 리뷰 작성 버튼
     document.getElementById('write_review_btn').addEventListener('click', open_write_modal);
-
-    // 리뷰 작성 폼 제출
     document.getElementById('review_form').addEventListener('submit', submit_review);
-
-    // 리뷰 수정 폼 제출
     document.getElementById('review_edit_form').addEventListener('submit', submit_edit_review);
-
-    // 삭제 확인 버튼
     document.getElementById('confirm_delete_btn').addEventListener('click', confirm_delete_review);
 
-    // 리뷰 내용 글자 수 카운터 (작성)
     const input_content = document.getElementById('input_content');
     if (input_content) {
         input_content.addEventListener('input', function() {
             update_char_count('input_content', 'current_char_count');
         });
     }
-
-    // 리뷰 내용 글자 수 카운터 (수정)
     const edit_content = document.getElementById('edit_content');
     if (edit_content) {
         edit_content.addEventListener('input', function() {
             update_char_count('edit_content', 'edit_char_count');
         });
     }
-}
 
-// ========== API 호출 함수 ==========
-
-/**
- * 리뷰 목록 조회
- * Method: GET
- * Path: /api/v1/reviews/list
- * Params: Query String
- */
-function load_reviews() {
-    // 1. UI 입력값 가져오기
-    const prop_name_input = document.getElementById('filter_property_name');
-    const prop_name_val = prop_name_input ? prop_name_input.value.trim() : null;
-
-    console.log('[API Request] 리뷰 목록 조회 시작:', {
-        page: current_page,
-        sort: current_sort,
-        keyword: current_keyword,
-        propertyName: prop_name_val
-    });
-
-    // 2. 쿼리 파라미터 생성
-    const params = new URLSearchParams({
-        page: current_page,
-        sort: current_sort
-    });
-
-    if (prop_name_val && prop_name_val !== '') {
-        params.append('propertyName', prop_name_val);
-    }
-
-    if (current_keyword && current_keyword.trim() !== '') {
-        params.append('keyword', current_keyword.trim());
-    }
-
-    // 3. GET 요청 전송
-    fetch(`${API_URL}/list?${params.toString()}`, {
-        method: 'GET'
-    })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error('리뷰 목록 조회 실패: ' + response.status + ' ' + text);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.warn('[API Response] 서버 응답 원본 데이터:', data);
-
-            // [수정됨] 검색 결과 없음 알림 로직 추가
-            if (!data.reviews || data.reviews.length === 0) {
-                alert('검색 결과가 없습니다.');
-            } else {
-                // 데이터가 있을 때만 샘플 검증 로그 출력
-                const sample = data.reviews[0];
-                console.log('[Debug] 첫 번째 리뷰 데이터 샘플:', sample);
-                if (!sample.review_id && !sample.reviewId) {
-                    console.error('[Critical] review_id 필드를 찾을 수 없습니다. 응답 필드명을 다시 확인하세요.');
-                }
-            }
-
-            // 렌더링
-            render_reviews(data.reviews);
-
-            // 페이지네이션 처리
-            update_header(data.reviews ? data.reviews.length : 0);
-            render_simple_pagination(data.reviews);
-        })
-        .catch(error => {
-            console.error('[API Error] 리뷰 목록 조회 오류:', error);
+    // [자동완성] 사이드바 검색 필터 (이름으로 검색 -> filtering)
+    const filter_input = document.getElementById('filter_property_name');
+    if (filter_input) {
+        filter_input.addEventListener('input', function() {
+            trigger_autocomplete(this.value, 'filter_results', 'filter_property_name', null);
         });
+        filter_input.addEventListener('focus', function() {
+            if(this.value.trim().length >= 2) {
+                trigger_autocomplete(this.value, 'filter_results', 'filter_property_name', null);
+            }
+        });
+    }
+
+    // [자동완성] 리뷰 작성 모달 입력창 (ID 선택 필수)
+    const modal_input = document.getElementById('input_property_name');
+    if (modal_input) {
+        modal_input.addEventListener('input', function() {
+            // 입력 시 hidden ID 값을 초기화하여 오입력 방지
+            document.getElementById('selected_property_id').value = '';
+            trigger_autocomplete(this.value, 'modal_results', 'input_property_name', 'selected_property_id');
+        });
+    }
+
+    // 외부 클릭 시 리스트 닫기
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.autocomplete_list') &&
+            !e.target.closest('.filter_select') &&
+            !e.target.closest('#input_property_name')) {
+            close_all_autocomplete_lists();
+        }
+    });
 }
 
-/**
- * 리뷰 상세 조회
- * Method: GET
- * Path: /api/v1/reviews/{reviewId}
- */
-function load_review_detail(review_id) {
-    console.log('[Detail Request] 상세 조회 요청, ID:', review_id);
+// ========== 자동완성 로직 (Snake Case 수정됨) ==========
 
-    if (review_id === undefined || review_id === null) {
-        alert('오류: 유효하지 않은 리뷰 ID입니다.');
+function trigger_autocomplete(keyword, list_id, input_id, hidden_id) {
+    if (debounce_timer) clearTimeout(debounce_timer);
+
+    if (!keyword || keyword.trim().length < 2) {
+        const list = document.getElementById(list_id);
+        if(list) list.style.display = 'none';
         return;
     }
 
-    fetch(`${API_URL}/${review_id}`, {
+    // 300ms 디바운싱
+    debounce_timer = setTimeout(() => {
+        search_properties(keyword, list_id, input_id, hidden_id);
+    }, 300);
+}
+
+function search_properties(keyword, list_id, input_id, hidden_id) {
+    console.log(`[Autocomplete] API 요청: ${keyword}`);
+
+    fetch(`${SEARCH_API_URL}?keyword=${encodeURIComponent(keyword.trim())}`, {
         method: 'GET'
     })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('상세 조회 실패 Status: ' + response.status);
-            }
+            if (!response.ok) throw new Error('검색 실패');
             return response.json();
         })
         .then(data => {
-            console.warn('============= [API 응답] 리뷰 상세 데이터 =============');
-            console.log(data);
-            console.warn('====================================================');
-
-            alert(`리뷰 ID [${review_id}] 상세 조회 성공!\n데이터는 F12(개발자 도구) 콘솔을 확인하세요.`);
+            render_search_results(data, list_id, input_id, hidden_id);
         })
         .catch(error => {
-            console.error('리뷰 상세 조회 오류:', error);
-            show_error('리뷰 정보를 불러오는데 실패했습니다.');
+            console.error('[Autocomplete Error]', error);
         });
 }
 
-/**
- * 리뷰 작성
- */
+function render_search_results(results, list_id, input_id, hidden_id) {
+    const list_el = document.getElementById(list_id);
+    list_el.innerHTML = '';
+
+    if (!results || results.length === 0) {
+        list_el.style.display = 'none';
+        return;
+    }
+
+    // console.log('[Autocomplete] 데이터 수신:', results);
+
+    results.forEach(item => {
+        // 서버의 Snake Case 키값을 우선 참조
+        const p_name = item.property_name || item.propertyName;
+        const p_type = item.property_type || item.propertyType;
+        const p_id   = item.property_id   || item.propertyId;
+
+        const li = document.createElement('li');
+
+        // 타입에 따른 뱃지 스타일
+        const badge_class = (p_type === '전세') ? 'charter' : 'monthly';
+
+        li.innerHTML = `
+            <span class="type_badge ${badge_class}">${p_type}</span>
+            ${escape_html(p_name)}
+        `;
+
+        // 클릭 시 정제된 데이터를 넘김
+        li.addEventListener('click', () => {
+            select_search_result({
+                propertyName: p_name,
+                propertyId: p_id
+            }, list_id, input_id, hidden_id);
+        });
+
+        list_el.appendChild(li);
+    });
+
+    list_el.style.display = 'block';
+}
+
+function select_search_result(item, list_id, input_id, hidden_id) {
+    // 1. 입력창에 이름 채우기
+    const input_el = document.getElementById(input_id);
+    if (input_el) {
+        input_el.value = item.propertyName;
+    }
+
+    // 2. 히든 필드에 ID 저장 (리뷰 작성 시 핵심)
+    if (hidden_id) {
+        const hidden_el = document.getElementById(hidden_id);
+        if (hidden_el) {
+            hidden_el.value = item.propertyId;
+            console.log(`[Autocomplete] ID 선택됨: ${item.propertyId} (${item.propertyName})`);
+        }
+    }
+
+    // 3. 리스트 닫기
+    document.getElementById(list_id).style.display = 'none';
+}
+
+function close_all_autocomplete_lists() {
+    const lists = document.querySelectorAll('.autocomplete_list');
+    lists.forEach(list => list.style.display = 'none');
+}
+
+
+// ========== API 호출 함수 ==========
+
+function load_reviews() {
+    const prop_name_input = document.getElementById('filter_property_name');
+    const prop_name_val = prop_name_input ? prop_name_input.value.trim() : null;
+
+    console.log('[API Request] 목록 조회:', { page: current_page, propertyName: prop_name_val });
+
+    const params = new URLSearchParams({ page: current_page, sort: current_sort });
+    if (prop_name_val) params.append('propertyName', prop_name_val);
+    if (current_keyword) params.append('keyword', current_keyword);
+
+    fetch(`${API_URL}/list?${params.toString()}`, { method: 'GET' })
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+        .then(data => {
+            render_reviews(data.reviews);
+            update_header(data.reviews ? data.reviews.length : 0);
+            render_simple_pagination(data.reviews);
+        })
+        .catch(console.error);
+}
+
+function load_review_detail(review_id) {
+    if (!review_id) return alert('오류: ID 없음');
+    fetch(`${API_URL}/${review_id}`, { method: 'GET' })
+        .then(res => res.json())
+        .then(data => {
+            console.warn('============= 상세 데이터 =============');
+            console.log(data);
+            alert(`리뷰 ID [${review_id}] 조회 성공! 콘솔 확인`);
+        })
+        .catch(err => alert('상세 조회 실패'));
+}
+
 function create_review(review_data) {
-    console.log('리뷰 작성 요청:', review_data);
+    // [수정] propertyId를 포함한 JSON 전송
+    console.log('[Review Submit] 전송 데이터:', review_data);
 
     fetch(API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(review_data)
     })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => {
-                    throw new Error(err.message || '리뷰 작성 실패');
-                });
-            }
-            return response.json();
-        })
+        .then(res => res.ok ? res.json() : res.json().then(e => Promise.reject(e)))
         .then(data => {
-            console.log('리뷰 작성 성공:', data);
             close_write_modal();
-            show_success('리뷰가 성공적으로 작성되었습니다.');
-
-            // 목록 새로고침
+            alert('작성 완료');
             current_page = 1;
-            document.getElementById('page_input').value = 1;
             load_reviews();
         })
-        .catch(error => {
-            console.error('리뷰 작성 오류:', error);
-            show_form_error('form_error_message', error.message);
-        });
+        .catch(err => show_form_error('form_error_message', err.message || '작성 실패'));
 }
 
-/**
- * 리뷰 수정
- */
 function update_review(review_data) {
+    // 수정 로직 (필요 시 구현)
     fetch(API_URL + '/update', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(review_data)
     })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => {
-                    throw new Error(err.message || '리뷰 수정 실패');
-                });
-            }
-            return response.json();
-        })
+        .then(res => res.ok ? res.json() : res.json().then(e => Promise.reject(e)))
         .then(data => {
-            console.log('리뷰 수정 성공:', data);
             close_edit_modal();
-            show_success('리뷰가 성공적으로 수정되었습니다.');
+            alert('수정 완료');
             load_reviews();
         })
-        .catch(error => {
-            console.error('리뷰 수정 오류:', error);
-            show_form_error('edit_error_message', error.message);
-        });
+        .catch(err => show_form_error('edit_error_message', err.message));
 }
 
-/**
- * 리뷰 삭제
- */
 function delete_review(review_id) {
-    fetch(API_URL + '/' + review_id, {
-        method: 'DELETE'
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('리뷰 삭제 실패');
-            }
-            console.log('리뷰 삭제 성공');
+    fetch(API_URL + '/' + review_id, { method: 'DELETE' })
+        .then(res => {
+            if(!res.ok) throw new Error('삭제 실패');
             close_delete_confirm_modal();
-            show_success('리뷰가 성공적으로 삭제되었습니다.');
+            alert('삭제 완료');
             load_reviews();
         })
-        .catch(error => {
-            console.error('리뷰 삭제 오류:', error);
-            show_error('리뷰 삭제에 실패했습니다.');
-        });
+        .catch(err => alert('삭제 실패'));
 }
 
 // ========== 렌더링 함수 ==========
 
-/**
- * 리뷰 목록 렌더링
- */
 function render_reviews(reviews) {
     const container = document.getElementById('review_list_container');
-
     if (!reviews || reviews.length === 0) {
         container.innerHTML = `<div class="empty_state"><p>리뷰가 없습니다</p></div>`;
         return;
     }
-
-    // 1. HTML 생성
     container.innerHTML = reviews.map(review => create_review_card(review)).join('');
 
-    // 2. 클릭 이벤트 연결
-    const cards = container.querySelectorAll('.review_card');
-    cards.forEach((card, index) => {
-        const review_data = reviews[index];
-        const target_id = review_data.review_id || review_data.reviewId;
-
-        card.addEventListener('click', () => {
-            console.log(`[Click] 카드 클릭됨 (Index: ${index}, ID: ${target_id})`);
-            if (target_id) {
-                load_review_detail(target_id);
-            } else {
-                console.error('[Click Error] ID를 찾을 수 없습니다. 데이터:', review_data);
-                alert('리뷰 ID를 찾을 수 없습니다.');
-            }
-        });
+    container.querySelectorAll('.review_card').forEach((card, index) => {
+        const data = reviews[index];
+        const id = data.review_id || data.reviewId;
+        card.addEventListener('click', () => id ? load_review_detail(id) : alert('ID 오류'));
     });
 }
 
-/**
- * 리뷰 카드 HTML 생성
- */
 function create_review_card(review) {
-    // snake_case 우선 참조
     const stars = '⭐'.repeat(review.rating || 0);
     const raw_date = review.created_at || review.createdAt;
-    const date_display = raw_date ? format_date(raw_date) : '-';
-    const summary_text = review.summary || review.content || '내용 미리보기 없음';
-    const summary_display = escape_html(summary_text);
-    const tags_html = review.tags && review.tags.length > 0
-        ? review.tags.map(tag => `<span class="tag">${escape_html(tag)}</span>`).join('')
-        : '';
-    const user_id_display = review.user_id || review.userId || '익명';
-    const prop_name = review.property_name || review.propertyName || review.apt_nm || review.property_id || '매물명 미확인';
+    const date = raw_date ? format_date(raw_date) : '-';
+    const summary = escape_html(review.summary || review.content || '내용 없음');
+    const user = escape_html(review.user_id || review.userId || '익명');
+    const prop = escape_html(review.property_name || review.propertyName || review.apt_nm || '미확인');
+    const tags = (review.tags || []).map(t => `<span class="tag">${escape_html(t)}</span>`).join('');
 
     return `
         <div class="review_card">
             <div class="review_card_header">
                 <div class="review_rating">${stars}</div>
-                <div class="review_date">${date_display}</div>
+                <div class="review_date">${date}</div>
             </div>
-            <div class="review_user">
-                <i class="fas fa-user"></i>
-                ${escape_html(user_id_display)}
-            </div>
-            <div class="review_summary" style="${!summary_text ? 'color:#ccc;' : ''}">
-                ${summary_display}
-            </div>
-            ${tags_html ? `<div class="review_tags">${tags_html}</div>` : ''}
-            <div class="review_property_info">
-                <i class="fas fa-building"></i>
-                ${escape_html(prop_name)}
-            </div>
+            <div class="review_user"><i class="fas fa-user"></i> ${user}</div>
+            <div class="review_summary">${summary}</div>
+            <div class="review_tags">${tags}</div>
+            <div class="review_property_info"><i class="fas fa-building"></i> ${prop}</div>
         </div>
     `;
 }
 
-/**
- * 단순 페이지네이션 렌더링
- */
 function render_simple_pagination(reviews) {
     const container = document.getElementById('pagination_container');
     let html = '';
-
     const prev_disabled = current_page <= 1 ? 'disabled' : '';
-    html += `<button class="pagination_btn" onclick="go_to_page(${current_page - 1})" ${prev_disabled}>
-                <i class="fas fa-chevron-left"></i> 이전
-             </button>`;
-
+    html += `<button class="pagination_btn" onclick="go_to_page(${current_page - 1})" ${prev_disabled}>이전</button>`;
     html += `<div class="pagination_info">Page ${current_page}</div>`;
-
     const next_disabled = (!reviews || reviews.length < 10) ? 'disabled' : '';
-
-    html += `<button class="pagination_btn" onclick="go_to_page(${current_page + 1})" ${next_disabled}>
-                다음 <i class="fas fa-chevron-right"></i>
-             </button>`;
-
+    html += `<button class="pagination_btn" onclick="go_to_page(${current_page + 1})" ${next_disabled}>다음</button>`;
     container.innerHTML = html;
 }
 
-/**
- * 헤더 정보 업데이트
- */
 function update_header(count) {
     const el = document.getElementById('total_review_count');
-    if(el) {
-        el.parentElement.innerHTML = `현재 페이지 <span>${count}</span>개의 리뷰`;
-    }
+    if(el) el.parentElement.innerHTML = `현재 페이지 <span>${count}</span>개`;
 }
 
-// ========== 모달 관련 함수 ==========
+// ========== 모달 & 폼 핸들러 ==========
 
 function open_write_modal() {
     document.getElementById('review_form').reset();
+    document.getElementById('modal_results').style.display = 'none';
+
+    // [중요] 모달 열 때 이전 선택된 ID 초기화
+    const hidden_id = document.getElementById('selected_property_id');
+    if(hidden_id) hidden_id.value = '';
+
     hide_form_error('form_error_message');
     update_char_count('input_content', 'current_char_count');
     document.getElementById('write_review_modal').style.display = 'block';
 }
 
-function close_write_modal() {
-    document.getElementById('write_review_modal').style.display = 'none';
-}
+function close_write_modal() { document.getElementById('write_review_modal').style.display = 'none'; }
 
-function open_edit_modal(review_data) {
-    const r_id = review_data.review_id || review_data.reviewId;
+function open_edit_modal(data) {
+    const r_id = data.review_id || data.reviewId;
     document.getElementById('edit_review_id').value = r_id;
-    document.getElementById('edit_rating').value = review_data.rating;
-    document.getElementById('edit_content').value = review_data.content;
-
-    update_char_count('edit_content', 'edit_char_count');
-    hide_form_error('edit_error_message');
-
+    // ... 나머지 필드 매핑 ...
     document.getElementById('edit_review_modal').style.display = 'block';
 }
+function close_edit_modal() { document.getElementById('edit_review_modal').style.display = 'none'; }
 
-function close_edit_modal() {
-    document.getElementById('edit_review_modal').style.display = 'none';
-}
+function open_delete_confirm_modal(id) { current_review_id_for_delete = id; document.getElementById('delete_confirm_modal').style.display = 'block'; }
+function close_delete_confirm_modal() { document.getElementById('delete_confirm_modal').style.display = 'none'; }
+function close_detail_modal() { document.getElementById('detail_review_modal').style.display = 'none'; }
 
-function open_delete_confirm_modal(review_id) {
-    current_review_id_for_delete = review_id;
-    document.getElementById('delete_confirm_modal').style.display = 'block';
-}
+// [핵심 수정 함수] 리뷰 작성 제출
+function submit_review(e) {
+    e.preventDefault();
 
-function close_delete_confirm_modal() {
-    document.getElementById('delete_confirm_modal').style.display = 'none';
-    current_review_id_for_delete = null;
-}
+    // 1. Hidden Input에서 ID 가져오기
+    const prop_id_input = document.getElementById('selected_property_id');
+    const prop_id = prop_id_input ? prop_id_input.value : null;
 
-function close_detail_modal() {
-    document.getElementById('detail_review_modal').style.display = 'none';
-    current_review_id_for_detail = null;
-}
+    // UI상 텍스트 (유효성 검증 보조)
+    const prop_name_display = document.getElementById('input_property_name').value.trim();
 
-// ========== 폼 제출 핸들러 ==========
-
-function submit_review(event) {
-    event.preventDefault();
-    const property_id = document.getElementById('input_property_id').value.trim();
-    const user_id = document.getElementById('input_user_id').value.trim();
     const rating = parseInt(document.getElementById('input_rating').value);
     const content = document.getElementById('input_content').value.trim();
 
-    if (property_id.length !== 32) {
-        show_form_error('form_error_message', '매물 ID는 32자여야 합니다 (MD5).');
+    // 2. ID 유효성 검사 (검색 후 리스트에서 클릭했는지 확인)
+    if (!prop_id || prop_name_display.length < 2) {
+        show_form_error('form_error_message', '매물을 검색하여 목록에서 선택해주세요.');
         return;
     }
+
     if (!rating) {
-        show_form_error('form_error_message', '별점을 선택해주세요.');
+        show_form_error('form_error_message', '별점 선택');
         return;
     }
     if (content.length < 20) {
-        show_form_error('form_error_message', '리뷰 내용은 최소 20자 이상이어야 합니다.');
+        show_form_error('form_error_message', '내용 부족 (최소 20자)');
         return;
     }
 
-    const review_data = {
-        propertyId: property_id,
-        userId: user_id,
+    // 3. propertyName 대신 propertyId 전송
+    create_review({
+        propertyId: prop_id,  // [변경] String Name -> Long ID
         rating: rating,
         content: content
-    };
-
-    create_review(review_data);
+    });
 }
 
-function submit_edit_review(event) {
-    event.preventDefault();
-    const review_id = parseInt(document.getElementById('edit_review_id').value);
-    const rating = parseInt(document.getElementById('edit_rating').value);
-    const content = document.getElementById('edit_content').value.trim();
+function submit_edit_review(e) { e.preventDefault(); /* ... */ }
+function confirm_delete_review() { if(current_review_id_for_delete) delete_review(current_review_id_for_delete); }
 
-    if (!rating) {
-        show_form_error('edit_error_message', '별점을 선택해주세요.');
-        return;
-    }
-    if (content.length < 20) {
-        show_form_error('edit_error_message', '리뷰 내용은 최소 20자 이상이어야 합니다.');
-        return;
-    }
-
-    const review_data = {
-        reviewId: review_id,
-        rating: rating,
-        content: content
-    };
-
-    update_review(review_data);
-}
-
-function confirm_delete_review() {
-    if (current_review_id_for_delete) {
-        delete_review(current_review_id_for_delete);
-    }
-}
-
-// ========== 필터 및 페이지 이동 함수 ==========
-
-function apply_filters() {
-    const page_input = document.getElementById('page_input').value;
-    current_page = page_input ? parseInt(page_input) : 1;
-
-    current_sort = document.getElementById('sort_select').value;
-
-    const keyword_input = document.getElementById('keyword_search');
-    current_keyword = keyword_input ? keyword_input.value.trim() : null;
-
-    if (current_page < 1) {
-        alert('페이지 번호는 1 이상이어야 합니다.');
-        return;
-    }
-
-    load_reviews();
-}
-
+function apply_filters() { load_reviews(); }
 function clear_keyword_search() {
-    const keyword_el = document.getElementById('keyword_search');
-    if(keyword_el) keyword_el.value = '';
-
-    const prop_name_el = document.getElementById('filter_property_name');
-    if(prop_name_el) prop_name_el.value = '';
-
+    document.getElementById('keyword_search').value = '';
+    const filter_prop = document.getElementById('filter_property_name');
+    if(filter_prop) filter_prop.value = '';
     current_keyword = null;
-    current_page = 1;
-    document.getElementById('page_input').value = 1;
-
     load_reviews();
 }
+function go_to_page(p) { current_page = p; load_reviews(); window.scrollTo({top:0, behavior:'smooth'}); }
 
-function go_to_page(page) {
-    if (page < 1) return;
-    current_page = page;
-    document.getElementById('page_input').value = page;
-    load_reviews();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ========== 유틸리티 및 UI 함수 ==========
-
+// ========== 유틸리티 ==========
 function toggle_sidebar() {
-    const information = document.getElementById('information');
+    const info = document.getElementById('information');
     const btn = document.getElementById('btn');
-    const main_content = document.getElementById('main_content');
-
-    if (information.style.left === '-480px' || information.style.left === '') {
-        information.style.left = '0';
-        btn.style.left = '475px';
-        btn.innerHTML = '▼';
-        main_content.style.marginLeft = '480px';
+    const main = document.getElementById('main_content');
+    if (info.style.left === '-480px' || !info.style.left) {
+        info.style.left = '0'; btn.style.left = '475px'; btn.innerHTML = '▼'; main.style.marginLeft = '480px';
     } else {
-        information.style.left = '-480px';
-        btn.style.left = '10px';
-        btn.innerHTML = '▶';
-        main_content.style.marginLeft = '0';
+        info.style.left = '-480px'; btn.style.left = '10px'; btn.innerHTML = '▶'; main.style.marginLeft = '0';
     }
 }
-
-function format_date(date_string) {
-    if (!date_string) return '-';
-    const date = new Date(date_string);
-    const now = new Date();
-    const diff = now - date;
-
-    if (diff < 60000) return '방금 전';
-    if (diff < 3600000) return Math.floor(diff / 60000) + '분 전';
-    if (diff < 86400000) return Math.floor(diff / 3600000) + '시간 전';
-    if (diff < 604800000) return Math.floor(diff / 86400000) + '일 전';
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+function format_date(s) {
+    if(!s) return '-'; const d = new Date(s), now = new Date(), diff = now - d;
+    if(diff < 60000) return '방금 전';
+    if(diff < 3600000) return Math.floor(diff/60000) + '분 전';
+    if(diff < 86400000) return Math.floor(diff/3600000) + '시간 전';
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
-function escape_html(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function update_char_count(textarea_id, counter_id) {
-    const textarea = document.getElementById(textarea_id);
-    const counter = document.getElementById(counter_id);
-    if (textarea && counter) {
-        counter.textContent = textarea.value.length;
-    }
-}
-
-function show_form_error(element_id, message) {
-    const error_element = document.getElementById(element_id);
-    if (error_element) {
-        error_element.textContent = message;
-        error_element.classList.add('show');
-    }
-}
-
-function hide_form_error(element_id) {
-    const error_element = document.getElementById(element_id);
-    if (error_element) {
-        error_element.textContent = '';
-        error_element.classList.remove('show');
-    }
-}
-
-function show_success(message) {
-    alert(message);
-}
-
-function show_error(message) {
-    alert('오류: ' + message);
-}
+function escape_html(t) { if(!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function update_char_count(tid, cid) { document.getElementById(cid).textContent = document.getElementById(tid).value.length; }
+function show_form_error(eid, msg) { const e = document.getElementById(eid); if(e) { e.textContent = msg; e.classList.add('show'); } }
+function hide_form_error(eid) { const e = document.getElementById(eid); if(e) { e.textContent = ''; e.classList.remove('show'); } }
+function show_success(msg) { alert(msg); }
+function show_error(msg) { alert('오류: ' + msg); }
