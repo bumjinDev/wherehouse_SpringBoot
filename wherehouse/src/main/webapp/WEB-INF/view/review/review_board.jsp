@@ -1,440 +1,265 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>WhereHouse - 리뷰 게시판</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리뷰 게시판</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script src="https://kit.fontawesome.com/09b067fdc5.js" crossorigin="anonymous"></script>
 
-    <style>
-        /* ========== Global Styles ========== */
-        :root {
-            --primary-color: #3b82f6;
-            --sidebar-width: 480px;
-            --header-height: 60px;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
-            overflow-x: hidden;
-        }
-
-        /* ========== Sidebar (Filter) ========== */
-        #information {
-            position: fixed;
-            top: 0;
-            left: -480px; /* 초기 상태: 숨김 */
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: #fff;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            transition: left 0.3s ease;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        .sidebar_header {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .filter_group {
-            margin-bottom: 20px;
-            position: relative; /* 자동완성 리스트 위치 기준 */
-        }
-
-        .filter_label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .filter_input, .filter_select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        #apply_filter_btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        /* ========== Main Content ========== */
-        #main_content {
-            margin-left: 0;
-            transition: margin-left 0.3s ease;
-            padding: 20px;
-            padding-top: 80px; /* 헤더 공간 확보 */
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* 사이드바 토글 버튼 */
-        #btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1100;
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: left 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* ========== Top Bar (Search & Write) ========== */
-        .top_bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .search_wrapper {
-            display: flex;
-            gap: 10px;
-            flex-grow: 1;
-            max-width: 600px;
-        }
-
-        #keyword_search {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        #clear_keyword {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 0 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        #write_review_btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* ========== Review List ========== */
-        #review_list_container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .review_card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: transform 0.2s;
-            border: 1px solid #eee;
-        }
-
-        .review_card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
-        }
-
-        .review_card_header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .review_rating { color: #f59e0b; }
-
-        .review_property_info {
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-top: 10px;
-            font-size: 0.95rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .review_summary {
-            margin: 10px 0;
-            color: #444;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            height: 4.5em; /* 3줄 높이 */
-        }
-
-        .tag {
-            display: inline-block;
-            background: #f1f3f5;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            color: #495057;
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-
-        /* ========== Pagination ========== */
-        #pagination_container {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .pagination_btn {
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .pagination_btn:disabled {
-            background: #eee;
-            cursor: not-allowed;
-            color: #aaa;
-        }
-
-        /* ========== Modals ========== */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            overflow: auto;
-        }
-
-        .modal_content {
-            background-color: #fff;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .close_modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        /* 폼 스타일 */
-        .form_group { margin-bottom: 20px; position: relative; }
-        .form_group label { display: block; margin-bottom: 8px; font-weight: bold; }
-        .form_group input, .form_group textarea, .form_group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form_group textarea { height: 150px; resize: vertical; }
-
-        .submit_btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .char_count { text-align: right; font-size: 0.8rem; color: #888; margin-top: 5px; }
-        .error_msg { color: #dc3545; font-size: 0.9rem; display: none; margin-top: 5px; }
-        .error_msg.show { display: block; }
-
-        /* ========== Autocomplete List ========== */
-        .autocomplete_list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-top: none;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1500;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .autocomplete_list li {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-        }
-
-        .autocomplete_list li:hover { background-color: #f8f9fa; }
-
-        .type_badge {
-            font-size: 0.75rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-right: 8px;
-            color: white;
-        }
-        .type_badge.charter { background-color: #28a745; } /* 전세 */
-        .type_badge.monthly { background-color: #ffc107; color: #333; } /* 월세 */
-
-    </style>
+    <link rel="stylesheet" href="../css/review_board.css">
 </head>
+
 <body>
+<div id="review_board_container">
 
-<button id="btn">▶</button>
+    <div id="information">
+        <div id="btn">▼</div>
+        <aside id="side-bar">
 
-<div id="information">
-    <div class="sidebar_header">검색 필터</div>
+            <div class="review_board_header">
+                리뷰 게시판
+            </div>
 
-    <div class="filter_group">
-        <label class="filter_label">매물 이름</label>
-        <input type="text" id="filter_property_name" class="filter_input" placeholder="아파트/오피스텔 이름" autocomplete="off">
-        <ul id="filter_results" class="autocomplete_list"></ul>
+            <div id="filter_section">
+                <div class="filter_box">
+                    <p>필터 및 정렬</p>
+                    <hr class="section_hr">
+
+                    <div class="filter_item">
+                        <div class="filter_label">정렬 기준:</div>
+                        <select class="filter_select" id="sort_select">
+                            <option value="rating_desc">최신순</option>
+                            <option value="rating_asc">오래된순</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_item">
+                        <div class="filter_label">매물 이름 (선택):</div>
+                        <div style="position: relative;">
+                            <input type="text" class="filter_select" id="filter_property_name"
+                                   placeholder="예: 삼성아파트" maxlength="50" autocomplete="off">
+
+                            <ul id="filter_results" class="autocomplete_list"></ul>
+                        </div>
+                        <div class="filter_desc">매물 이름으로 리뷰를 검색합니다.</div>
+                    </div>
+
+                    <div class="filter_item">
+                        <div class="filter_label">페이지 번호:</div>
+                        <input type="number" class="filter_select" id="page_input" min="1" value="1">
+                    </div>
+
+                    <input type="hidden" id="size_select" value="10">
+                    <input type="hidden" id="search_type_select" value="all">
+
+                    <div class="filter_item">
+                        <div class="filter_label">키워드 검색:</div>
+                        <div class="search_input_group">
+                            <input type="text" id="keyword_search" placeholder="내용 또는 태그 검색" maxlength="100">
+                            <button class="search_clear_btn" id="clear_keyword">✕</button>
+                        </div>
+                        <div class="filter_desc">최대 100자</div>
+                    </div>
+
+                    <div class="filter_apply_btn">
+                        <button id="apply_filter_btn">필터 적용</button>
+                    </div>
+                </div>
+
+                <div class="write_review_btn_box">
+                    <button id="write_review_btn">
+                        <i class="fas fa-pen"></i> 리뷰 작성하기
+                    </button>
+                </div>
+            </div>
+
+        </aside>
     </div>
 
-    <button id="apply_filter_btn">필터 적용</button>
-</div>
+    <div id="main_content">
 
-<div id="main_content">
-    <div class="top_bar">
-        <div class="search_wrapper">
-            <input type="text" id="keyword_search" placeholder="리뷰 내용 키워드 검색">
-            <button id="clear_keyword">초기화</button>
+        <div id="content_header">
+            <h2>전체 리뷰 목록</h2>
+            <div class="total_count">
+                현재 페이지 리뷰
+            </div>
         </div>
-        <button id="write_review_btn"><i class="fas fa-pen"></i> 리뷰 작성</button>
+
+        <div id="review_list_container">
+        </div>
+
+        <div id="pagination_container">
+        </div>
+
     </div>
 
-    <div style="margin-bottom: 15px; color: #666;">
-        <span id="total_review_count">로딩 중...</span>
-    </div>
-
-    <div id="review_list_container">
-    </div>
-
-    <div id="pagination_container"></div>
 </div>
 
-<div id="write_review_modal" class="modal">
-    <div class="modal_content">
-        <span class="close_modal" onclick="close_write_modal()">&times;</span>
-        <h2>새 리뷰 작성</h2>
-        <form id="review_form">
-            <div class="form_group">
-                <label>매물 검색</label>
-                <input type="text" id="input_property_name" placeholder="매물 이름을 2글자 이상 입력하세요" autocomplete="off">
-
-                <input type="hidden" id="selected_property_id" name="propertyId">
-
-                <ul id="modal_results" class="autocomplete_list"></ul>
+<div id="write_review_modal" style="display: none;">
+    <div class="modal_overlay">
+        <div class="modal_content">
+            <div class="modal_header">
+                <h3 id="write_modal_title">리뷰 작성</h3>
+                <button class="modal_close" onclick="close_write_modal()">&times;</button>
             </div>
+            <div class="modal_body">
+                <form id="review_form">
 
-            <div class="form_group">
-                <label>별점</label>
-                <select id="input_rating">
-                    <option value="5">⭐⭐⭐⭐⭐ (5점)</option>
-                    <option value="4">⭐⭐⭐⭐ (4점)</option>
-                    <option value="3">⭐⭐⭐ (3점)</option>
-                    <option value="2">⭐⭐ (2점)</option>
-                    <option value="1">⭐ (1점)</option>
-                </select>
+                    <div class="form_group">
+                        <label for="input_property_name">매물 이름 <span class="required">*</span></label>
+                        <div style="position: relative;">
+                            <input type="text" id="input_property_name"
+                                   placeholder="예: 삼성아파트" maxlength="50" required autocomplete="off">
+
+                            <input type="hidden" id="selected_property_id">
+
+                            <ul id="modal_results" class="autocomplete_list"></ul>
+                        </div>
+                        <div class="form_desc">리뷰를 작성할 매물의 정확한 이름을 입력해주세요.</div>
+                    </div>
+
+                    <div class="form_group">
+                        <label for="input_rating">별점 <span class="required">*</span></label>
+                        <div class="rating_input">
+                            <select id="input_rating" required>
+                                <option value="">선택</option>
+                                <option value="5">⭐⭐⭐⭐⭐ (5점)</option>
+                                <option value="4">⭐⭐⭐⭐ (4점)</option>
+                                <option value="3">⭐⭐⭐ (3점)</option>
+                                <option value="2">⭐⭐ (2점)</option>
+                                <option value="1">⭐ (1점)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form_group">
+                        <label for="input_content">리뷰 내용 <span class="required">*</span></label>
+                        <textarea id="input_content" rows="8" placeholder="최소 20자 이상, 최대 1000자 이하로 작성해주세요" maxlength="1000" required></textarea>
+                        <div class="char_count">
+                            <span id="current_char_count">0</span> / 1000자
+                        </div>
+                    </div>
+
+                    <div class="error_message" id="form_error_message"></div>
+
+                    <div class="form_buttons">
+                        <button type="button" class="btn_cancel" onclick="close_write_modal()">취소</button>
+                        <button type="submit" class="btn_submit">작성 완료</button>
+                    </div>
+
+                </form>
             </div>
-
-            <div class="form_group">
-                <label>내용</label>
-                <textarea id="input_content" placeholder="솔직한 거주 후기를 작성해주세요 (최소 20자)"></textarea>
-                <div class="char_count"><span id="current_char_count">0</span>자</div>
-            </div>
-
-            <div id="form_error_message" class="error_msg"></div>
-            <button type="submit" class="submit_btn">작성 완료</button>
-        </form>
-    </div>
-</div>
-
-<div id="edit_review_modal" class="modal">
-    <div class="modal_content">
-        <span class="close_modal" onclick="close_edit_modal()">&times;</span>
-        <h2>리뷰 수정</h2>
-        <form id="review_edit_form">
-            <input type="hidden" id="edit_review_id">
-
-            <div class="form_group">
-                <label>내용</label>
-                <textarea id="edit_content"></textarea>
-                <div class="char_count"><span id="edit_char_count">0</span>자</div>
-            </div>
-
-            <div id="edit_error_message" class="error_msg"></div>
-            <button type="submit" class="submit_btn">수정 완료</button>
-        </form>
-    </div>
-</div>
-
-<div id="delete_confirm_modal" class="modal">
-    <div class="modal_content" style="text-align: center; max-width: 400px;">
-        <h3>정말 삭제하시겠습니까?</h3>
-        <p>삭제된 리뷰는 복구할 수 없습니다.</p>
-        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-            <button id="confirm_delete_btn" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">삭제</button>
-            <button onclick="close_delete_confirm_modal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">취소</button>
         </div>
     </div>
 </div>
 
-<script src="/js/review_board.js"></script>
+<div id="detail_review_modal" style="display: none;">
+    <div class="modal_overlay">
+        <div class="modal_content modal_content_large">
+            <div class="modal_header">
+                <h3>리뷰 상세</h3>
+                <button class="modal_close" onclick="close_detail_modal()">&times;</button>
+            </div>
+            <div class="modal_body">
+                <div class="detail_section">
+                    <div class="detail_header">
+                        <div class="detail_rating" id="detail_rating"></div>
+                        <div class="detail_date" id="detail_created_at"></div>
+                    </div>
+                    <div class="detail_info">
+                        <div class="detail_info_row">
+                            <span class="detail_label">작성자:</span>
+                            <span class="detail_value" id="detail_user_id"></span>
+                        </div>
+                        <div class="detail_info_row">
+                            <span class="detail_label">매물 ID:</span>
+                            <span class="detail_value" id="detail_property_id"></span>
+                        </div>
+                    </div>
+                    <div class="detail_tags" id="detail_tags"></div>
+                    <div class="detail_content" id="detail_content"></div>
+                    <div class="detail_updated" id="detail_updated_at" style="display: none;">
+                        <i class="fas fa-edit"></i> 수정됨: <span id="detail_updated_time"></span>
+                    </div>
+                </div>
+                <div class="detail_buttons">
+                    <button class="btn_edit" id="btn_edit_review">
+                        <i class="fas fa-edit"></i> 수정
+                    </button>
+                    <button class="btn_delete" id="btn_delete_review">
+                        <i class="fas fa-trash"></i> 삭제
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="edit_review_modal" style="display: none;">
+    <div class="modal_overlay">
+        <div class="modal_content">
+            <div class="modal_header">
+                <h3>리뷰 수정</h3>
+                <button class="modal_close" onclick="close_edit_modal()">&times;</button>
+            </div>
+            <div class="modal_body">
+                <form id="review_edit_form">
+                    <input type="hidden" id="edit_review_id">
+                    <div class="form_group">
+                        <label for="edit_rating">별점 <span class="required">*</span></label>
+                        <div class="rating_input">
+                            <select id="edit_rating" required>
+                                <option value="5">⭐⭐⭐⭐⭐ (5점)</option>
+                                <option value="4">⭐⭐⭐⭐ (4점)</option>
+                                <option value="3">⭐⭐⭐ (3점)</option>
+                                <option value="2">⭐⭐ (2점)</option>
+                                <option value="1">⭐ (1점)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form_group">
+                        <label for="edit_content">리뷰 내용 <span class="required">*</span></label>
+                        <textarea id="edit_content" rows="8" placeholder="최소 20자 이상, 최대 1000자 이하로 작성해주세요" maxlength="1000" required></textarea>
+                        <div class="char_count">
+                            <span id="edit_char_count">0</span> / 1000자
+                        </div>
+                    </div>
+                    <div class="error_message" id="edit_error_message"></div>
+                    <div class="form_buttons">
+                        <button type="button" class="btn_cancel" onclick="close_edit_modal()">취소</button>
+                        <button type="submit" class="btn_submit">수정 완료</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="delete_confirm_modal" style="display: none;">
+    <div class="modal_overlay">
+        <div class="modal_content modal_content_small">
+            <div class="modal_header">
+                <h3>리뷰 삭제</h3>
+                <button class="modal_close" onclick="close_delete_confirm_modal()">&times;</button>
+            </div>
+            <div class="modal_body">
+                <div class="confirm_message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>정말로 이 리뷰를 삭제하시겠습니까?</p>
+                    <p class="confirm_desc">삭제된 리뷰는 복구할 수 없습니다.</p>
+                </div>
+                <div class="form_buttons">
+                    <button type="button" class="btn_cancel" onclick="close_delete_confirm_modal()">취소</button>
+                    <button type="button" class="btn_delete" id="confirm_delete_btn">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/wherehouse/js/review_board.js"></script>
 </body>
 </html>
