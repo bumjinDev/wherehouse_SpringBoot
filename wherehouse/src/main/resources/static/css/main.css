@@ -52,7 +52,7 @@ section {
     top: 10px;
 }
 
-/* 홈 아이콘 스타일 */
+/* í™ˆ ì•„ì´ì½˜ ìŠ¤íƒ€ì¼ */
 #menu_home {
     width: 88px;
     height: 88px;
@@ -83,7 +83,7 @@ section {
     border: 1px solid white;
 }
 
-/* 메뉴 전체 텍스트 스타일 */
+/* ë©"ë‰´ ì „ì²´ í…ìŠ¤íŠ¸ ìŠ¤íƒ€ì¼ */
 .menu_txt {
     color: rgba(255, 255, 255, 1);
     width: 88px;
@@ -97,7 +97,7 @@ section {
     letter-spacing: 0;
 }
 
-/* 주거지 추천 선택 스타일 */
+/* ì£¼ê±°ì§€ ì¶"ì²œ ì„ íƒ ìŠ¤íƒ€ì¼ */
 #menu_suggest {
     width: 88px;
     height: 90px;
@@ -131,7 +131,7 @@ section {
     transform: scale(1.1);
 }
 
-/* 지역구 선택 스타일 */
+/* ì§€ì—­êµ¬ ì„ íƒ ìŠ¤íƒ€ì¼ */
 #menu_gu {
     width: 88px;
     height: 90px;
@@ -164,7 +164,7 @@ section {
     transform: scale(1.1);
 }
 
-/* 상세 지도 선택 스타일 */
+/* ìƒì„¸ ì§€ë„ ì„ íƒ ìŠ¤íƒ€ì¼ */
 #menu_detail {
     width: 88px;
     height: 90px;
@@ -197,7 +197,7 @@ section {
     transform: scale(1.1);
 }
 
-/* 리뷰 게시판 선택 스타일 */
+/* ë¦¬ë·° ê²Œì‹œíŒ ì„ íƒ ìŠ¤íƒ€ì¼ */
 #menu_review {
     width: 88px;
     height: 90px;
@@ -230,37 +230,21 @@ section {
     transform: scale(1.1);
 }
 
-/* 게시판 선택 스타일 */
+/* ê²Œì‹œíŒ ì„ íƒ ìŠ¤íƒ€ì¼ - 숨김 처리 */
 #menu_board {
-    width: 88px;
-    height: 90px;
-    position: absolute;
-    left: 0px;
-    top: 450px;
+    display: none;
 }
 
 #menu_board_icon {
-    width: 88px;
-    height: 88px;
-    position: absolute;
-    left: 0px;
-    top: 5px;
-    border-radius: 10px;
-    cursor: pointer;
+    display: none;
 }
 
 #menu_board_icon img {
-    width: 55px;
-    height: 55px;
-    position: absolute;
-    left: 16.5px;
-    top: 5.5px;
-    border-radius: 45px;
+    display: none;
 }
 
 #menu_board_icon:hover img {
-    transition: 0.2s;
-    transform: scale(1.1);
+    display: none;
 }
 
 #iframe_section {
