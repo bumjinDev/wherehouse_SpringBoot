@@ -1,5 +1,6 @@
 package com.wherehouse.review.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class ReviewUpdateRequestDto {
     /**
      * 수정할 리뷰 ID
      */
+    @JsonProperty("reviewId")
     @NotNull(message = "리뷰 ID는 필수입니다")
     private Long reviewId;
 

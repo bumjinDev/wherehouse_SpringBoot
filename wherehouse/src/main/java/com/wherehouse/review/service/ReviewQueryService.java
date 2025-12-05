@@ -39,17 +39,12 @@ public class ReviewQueryService {
 
     /**
      * 리뷰 목록 조회
-     *
-     * 데이터 소스: RDB (Redis 미사용)
-     *
-     * @param requestDto 리뷰 조회 요청
-     * @return 리뷰 목록 응답
      */
     public ReviewListResponseDto getReviews(ReviewListRequestDto requestDto) {
 
         // [Step 1] 파라미터 추출
         String propertyId = requestDto.getPropertyId();
-        String propertyName = requestDto.getPropertyName(); // 매물 이름 검색어 추가
+        String propertyName = requestDto.getPropertyName();
         String keyword = requestDto.getKeyword();
         Integer page = requestDto.getPage();
         String sort = requestDto.getSort();
@@ -65,36 +60,25 @@ public class ReviewQueryService {
         Page<Review> reviewPage;
 
         if (propertyName != null && !propertyName.isBlank()) {
-            // Case 1: 매물 이름으로 검색 (이름 -> ID 목록 -> 리뷰 조회)
             List<String> targetPropertyIds = reviewRepository.findPropertyIdsByName(propertyName);
 
             if (targetPropertyIds.isEmpty()) {
-                // 검색된 매물이 없으면 빈 페이지 반환
                 reviewPage = Page.empty(pageable);
             } else {
-                // 검색된 ID 목록으로 리뷰 조회 (IN 절)
                 reviewPage = reviewRepository.findByPropertyIdIn(targetPropertyIds, pageable);
             }
         } else {
-            // Case 2: 매물 ID 검색 (propertyId 존재 시)
-            // Case 3: 전체 리뷰 조회 (propertyId null 시)
-            // 기존 findReviews 메서드가 이 두 가지 케이스를 모두 처리함
-            reviewPage = reviewRepository.findReviews(
-                    propertyId,
-                    keyword,
-                    pageable
-            );
+            reviewPage = reviewRepository.findReviews(propertyId, keyword, pageable);
         }
 
         List<Review> reviews = reviewPage.getContent();
 
         log.info("리뷰 조회 완료: 조회 건수={}", reviews.size());
 
-        // [Step 4] 매물 정보들 조회 : 리뷰 조회 결과로부터 매물 ID를 추출하고 실제 매물명을 조회
+        // [Step 4] 매물 정보들 조회
         Map<String, String> propertyNameMap = getPropertyNames(reviews);
 
-        // [Step 5] filterMeta 생성 (propertyId 지정 시만, 지정 안되면 null)
-        // 이름 검색의 경우 특정 단일 매물이 아니므로 filterMeta는 null로 처리됨
+        // [Step 5] filterMeta 생성
         FilterMetaDto filterMeta = createFilterMeta(propertyId);
 
         // [Step 6] DTO 변환 및 응답
@@ -110,50 +94,29 @@ public class ReviewQueryService {
 
     /**
      * 리뷰 단건 상세 조회
-     *
-     * 설계 명세서: 6.4 리뷰 단건 상세 조회 API
-     *
-     * @param reviewId 리뷰 ID
-     * @return 리뷰 상세 정보
      */
     public ReviewDetailDto getReviewDetail(Long reviewId) {
-
         log.info("리뷰 상세 조회 요청: reviewId={}", reviewId);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
 
-        log.info("리뷰 상세 조회 완료: reviewId={}", reviewId);
-
         return convertToReviewDetailDto(review);
     }
 
-    /**
-     * 정렬 조건 생성
-     *
-     * 명세서 495행:
-     * - rating_desc: 최신 작성 날짜 (기본값)
-     * - rating_asc: 가장 먼저 작성한순
-     */
+    // ======================================================================
+    // Private Helper Methods
+    // ======================================================================
+
     private Sort createSortCondition(String sort) {
         if ("rating_asc".equals(sort)) {
             return Sort.by(Sort.Direction.ASC, "createdAt");
         }
-        // 기본값: rating_desc (최신순)
         return Sort.by(Sort.Direction.DESC, "createdAt");
     }
 
-    /**
-     * RDB에서 매물명 일괄 조회
-     *
-     * 데이터 소스: PROPERTIES_CHARTER, PROPERTIES_MONTHLY 테이블 (UNION)
-     *
-     * @param reviews 리뷰 목록
-     * @return Map<PropertyId, PropertyName>
-     */
     private Map<String, String> getPropertyNames(List<Review> reviews) {
-        // 매물 ID 목록 추출
         Set<String> propertyIds = reviews.stream()
                 .map(Review::getPropertyId)
                 .collect(Collectors.toSet());
@@ -162,30 +125,19 @@ public class ReviewQueryService {
             return Collections.emptyMap();
         }
 
-        // RDB에서 매물명 일괄 조회 (UNION 쿼리)
         List<Object[]> results = reviewRepository.findPropertyNames(propertyIds);
 
         return results.stream()
                 .collect(Collectors.toMap(
-                        row -> (String) row[0],  // property_id
-                        row -> (String) row[1]   // apt_nm
+                        row -> (String) row[0],
+                        row -> (String) row[1]
                 ));
     }
 
-    /**
-     * filterMeta 생성
-     *
-     * 데이터 소스: RDB의 REVIEW_STATISTICS 테이블
-     *
-     * @param propertyId 매물 ID
-     * @return filterMeta (propertyId가 null이면 null 반환)
-     */
     private FilterMetaDto createFilterMeta(String propertyId) {
         if (propertyId == null || propertyId.isBlank()) {
             return null;
         }
-
-        // RDB의 REVIEW_STATISTICS 테이블에서 리뷰 통계 데이터 조회.
         return reviewStatisticsRepository.findById(propertyId)
                 .map(stats -> FilterMetaDto.builder()
                         .targetPropertyId(propertyId)
@@ -195,11 +147,8 @@ public class ReviewQueryService {
     }
 
     /**
-     * ReviewSummaryDto 변환
-     *
-     * @param review 리뷰 엔티티
-     * @param propertyNameMap 매물명 Map
-     * @return ReviewSummaryDto
+     * [수정됨] ReviewSummaryDto 변환
+     * * - 변경사항: .content(review.getContent()) 추가
      */
     private ReviewSummaryDto convertToReviewSummaryDto(
             Review review,
@@ -211,15 +160,10 @@ public class ReviewQueryService {
                 .propertyName(propertyNameMap.getOrDefault(review.getPropertyId(), "알 수 없음"))
                 .userId(maskUserId(review.getUserId()))
                 .rating(review.getRating())
+                .content(review.getContent()) // [핵심 수정] 리뷰 본문 매핑
                 .build();
     }
 
-    /**
-     * ReviewDetailDto 변환
-     *
-     * @param review 리뷰 엔티티
-     * @return ReviewDetailDto
-     */
     private ReviewDetailDto convertToReviewDetailDto(Review review) {
         return ReviewDetailDto.builder()
                 .reviewId(review.getReviewId())
@@ -230,14 +174,6 @@ public class ReviewQueryService {
                 .build();
     }
 
-    /**
-     * userId 마스킹 처리
-     *
-     * 명세서 523행: "user****" 형식
-     *
-     * @param userId 원본 사용자 ID
-     * @return 마스킹된 사용자 ID
-     */
     private String maskUserId(String userId) {
         if (userId == null || userId.length() <= 4) {
             return userId;

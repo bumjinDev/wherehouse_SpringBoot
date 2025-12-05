@@ -14,7 +14,7 @@ import java.util.Map;
  * 전역 예외 처리 핸들러
  * 모든 컨트롤러에서 발생하는 예외를 중앙에서 처리
  */
-@RestControllerAdvice  // 모든 @RestController에 적용
+@RestControllerAdvice(basePackages = "com.wherehouse.information")  // 모든 @RestController에 적용
 @Slf4j
 public class GlobalExceptionHandlerInformation {
 

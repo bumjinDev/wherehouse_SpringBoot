@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.wherehouse.recommand")
 @Slf4j
 public class GlobalExceptionHandler {
 

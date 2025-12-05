@@ -35,7 +35,7 @@ public class ReviewWriteController {
             @Valid @RequestBody ReviewCreateRequestDto requestDto,
             @AuthenticationPrincipal String userId) {
 
-        userId = "testId";
+        userId = "tes"; // Spring Secuirty Filter Chain 개발 전 임시 구현.
 
         // propertyId가 String으로 들어오므로 로그에서도 문자열로 출력됨
         log.info("리뷰 작성 요청: userId={}, propertyId={}", userId, requestDto.getPropertyId());
@@ -64,7 +64,8 @@ public class ReviewWriteController {
      */
     @PostMapping("/update")
     public ResponseEntity<ReviewUpdateResponseDto> updateReview(
-            @Valid @RequestBody ReviewUpdateRequestDto requestDto) {
+            @Valid @RequestBody ReviewUpdateRequestDto requestDto ) {
+            // @AuthenticationPrincipal String userId : Spring Seucurity 구현 시 실제 ID 값을 반영하여 준비된 실제 수정 메소드를 주석 해제 해서 추가 반영 필요.
 
         log.info("리뷰 수정 요청: reviewId={}, rating={}",
                 requestDto.getReviewId(),

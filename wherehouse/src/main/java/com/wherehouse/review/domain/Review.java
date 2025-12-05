@@ -30,6 +30,17 @@ import java.time.LocalDateTime;
 public class Review {
 
     @Id
+    /**
+     * [운영/유지보수 주의사항]
+     * 전략: Oracle Sequence 전략 (SEQ_REVIEW_ID)
+     *
+     * ! 경고 (Data Migration Issue) !
+     * JPA를 통하지 않고 DB에 직접 데이터를 INSERT(덤프/마이그레이션)한 경우,
+     * 시퀀스 객체(SEQ_REVIEW_ID)의 Current Value가 실제 테이블의 Max ID를 따라가지 못합니다.
+     *
+     * 증상: 신규 저장 시 ORA-00001 (PK 중복) 에러 발생
+     * 해결: 시퀀스의 NEXTVAL이 테이블의 MAX(ID)보다 커지도록 수동 동기화(INCREMENT 조절) 필요
+     */
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_review_id")
     @SequenceGenerator(name = "seq_review_id", sequenceName = "SEQ_REVIEW_ID", allocationSize = 1)
     @Column(name = "REVIEW_ID", nullable = false)

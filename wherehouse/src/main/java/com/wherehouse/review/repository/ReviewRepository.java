@@ -96,6 +96,18 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Object[]> aggregateReviewStats(@Param("propertyId") String propertyId);
 
     /**
+     * 매물 ID 목록(List)과 키워드를 모두 만족하는 리뷰 검색
+     */
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.propertyId IN :propertyIds " +
+            "AND (:keyword IS NULL OR r.content LIKE %:keyword%)")
+    Page<Review> findReviewsByPropertyIdsAndKeyword(
+            @Param("propertyIds") List<String> propertyIds,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
+    /**
      * 전체 리뷰 목록 조회
      */
     Page<Review> findAll(Pageable pageable);
