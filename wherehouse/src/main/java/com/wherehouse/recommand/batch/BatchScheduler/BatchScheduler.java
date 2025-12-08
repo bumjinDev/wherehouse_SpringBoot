@@ -85,7 +85,7 @@ public class BatchScheduler {
     // 매달 새벽 4시 1분 30초 수행
     @Scheduled(cron = "30 1 4 28 * *")
     // 테스트를 위해 즉시 실행 (필요 시 cron으로 변경)
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 (Data Collection Phase) ===");
 
