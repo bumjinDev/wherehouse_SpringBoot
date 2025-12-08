@@ -1,4 +1,4 @@
-package com.wherehouse.recommand.batch.scheduler;
+package com.wherehouse.recommand.batch.BatchScheduler;
 
 import com.wherehouse.recommand.batch.dto.Property;
 import com.wherehouse.recommand.batch.event.DataCollectionCompletedEvent;
@@ -82,8 +82,10 @@ public class BatchScheduler {
         SEOUL_DISTRICT_CODES = Collections.unmodifiableMap(codes);
     }
 
+    // 매달 새벽 4시 1분 30초 수행
+    @Scheduled(cron = "30 1 4 28 * *")
     // 테스트를 위해 즉시 실행 (필요 시 cron으로 변경)
-    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 (Data Collection Phase) ===");
 
@@ -95,7 +97,6 @@ public class BatchScheduler {
                 return;
             }
 
-            // [보안] 로그에 키 전체 노출 주의 (디버깅용으로만 확인 후 삭제 권장)
             // log.info("serverkey : {} ", serviceKey);
 
             List<Property> allProperties = collectAllDistrictData();
