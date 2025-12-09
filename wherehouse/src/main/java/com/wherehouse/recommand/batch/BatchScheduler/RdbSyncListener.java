@@ -10,9 +10,7 @@ import com.wherehouse.redis.handler.RedisHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +19,25 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
+
+
 /**
  * 배치 데이터 동기화 리스너 (Processor Phase)
  *
  * 역할:
- * 1. DataCollectionCompletedEvent 수신 (비동기 처리)
+ * 1. DataCollectionCompletedEvent 수신
  * 2. Oracle RDB에 매물 데이터 적재 (Source of Truth 확보)
- * 3. Redis에 매물 정보 및 검색 인덱스 적재
- * 4. [추가] 정규화 범위(Bounds) 계산 및 Redis 적재
- * 5. [추가] 안전성 점수(Safety Score) 계산 및 Redis 적재
+ * 3. RDB에서 저장된 데이터 재조회 후 Redis에 동기화 (데이터 일관성 보장)
+ * 4. 정규화 범위(Bounds) 계산 및 Redis 적재
+ * 5. 안전성 점수(Safety Score) 계산 및 Redis 적재
  *
- * [수정 사항]
- * - 정규화 범위 및 안전성 점수 저장 시 상세 정보를 log.info로 출력하도록 로깅 추가
+ * [설계 변경 - 2025-12-09]
+ * - Redis 저장 시 메모리 기반 → RDB 기반으로 변경
+ * - 이유: RDB 저장 중 실패/중복 제거된 건이 Redis에 반영되지 않는 불일치 해소
+ * - RDB가 Single Source of Truth로서 역할 수행
  */
 @Slf4j
 @Component
@@ -48,10 +53,8 @@ public class RdbSyncListener {
     private final AnalysisPopulationDensityRepository populationRepository;
     private final AnalysisCrimeRepository crimeRepository;
 
+    // RedisHandler만 사용 (백업본과 동일)
     private final RedisHandler redisHandler;
-
-    // 대량의 Redis 연산(Pipeline)을 위해 RedisTemplate을 직접 사용합니다.
-    private final RedisTemplate<String, Object> redisTemplate;
 
     // 서울시 25개 자치구 코드 매핑 (안전성 점수 계산용)
     private static final Map<String, String> SEOUL_DISTRICT_CODES;
@@ -71,58 +74,52 @@ public class RdbSyncListener {
 
     /**
      * 데이터 수집 완료 이벤트 핸들러
-     *
-     * @param event 수집된 매물 데이터(전세/월세 리스트)가 담긴 이벤트 객체
      */
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     @EventListener
     @Transactional
-    public void handleDataCollectionCompletedEvent(DataCollectionCompletedEvent event) {
+    public void handleDataCollectionCompletedEvent(DataCollectionCompletedEvent event) {  // DataCollectionCompletedEvent event
         log.info(">>> [Phase 2] RdbSyncListener 이벤트 수신. 데이터 적재 프로세스 시작. (전세: {}건, 월세: {}건)",
                 event.getCharterCount(), event.getMonthlyCount());
 
         long startTime = System.currentTimeMillis();
 
-        // =================================================================================
-        // Step 1. [RDB] 매물 원본 데이터 적재 (Upsert) - 기존 유지
-        // =================================================================================
+        // Step 1. [RDB] 매물 원본 데이터 적재 (1차 배치 프로세스로부터 전달 받은 데이터를 저장)
         saveCharterPropertiesToRdb(event.getCharterProperties());
         saveMonthlyPropertiesToRdb(event.getMonthlyProperties());
 
-        /*
-         * =================================================================================
-         * [TODO: Phase 3 - 리뷰 시스템 데이터 정합성 확보 로직]
-         * // reviewStatisticsService.initAndReconcileStatistics(event);
-         * =================================================================================
-         */
+        log.info(">>> [Phase 2-1] RDB 적재 완료. RDB 기준 데이터 재조회 시작.");
 
-        log.info(">>> [Phase 2-1] RDB 적재 완료. Redis 동기화(Pipeline) 시작.");
+        // Step 2. [RDB] DB 내 전세와 월세 각각에 대한 모든 데이터 재조회
+        List<PropertyCharter> charterEntities = propertyCharterRepository.findAll();
+        List<PropertyMonthly> monthlyEntities = propertyMonthlyRepository.findAll();
 
-        // =================================================================================
-        // Step 2. [Redis] 매물 정보 및 검색 인덱스 동기화 - 기존 유지
-        // =================================================================================
-        syncCharterToRedis(event.getCharterProperties());
-        syncMonthlyToRedis(event.getMonthlyProperties());
+        log.info(">>> [Phase 2-2] RDB 재조회 완료. (전세: {}건, 월세: {}건)",
+                charterEntities.size(), monthlyEntities.size());
 
-        /*
-         * =================================================================================
-         * [TODO: Phase 3 - 리뷰 통계 캐시 동기화]
-         * // reviewStatisticsService.syncStatisticsToRedis();
-         * =================================================================================
-         */
+        // Step 3. [변환] Entity → Property DTO 변환
+        List<Property> charterProperties = charterEntities.stream()
+                .map(this::convertCharterEntityToProperty)
+                .collect(Collectors.toList());
 
-        // =================================================================================
-        // Step 3. [Redis] 정규화 범위(Bounds) 계산 및 적재 - 추가됨
-        // =================================================================================
-        // 정규화 계산을 위해 전세/월세 데이터를 합칩니다.
+        List<Property> monthlyProperties = monthlyEntities.stream()
+                .map(this::convertMonthlyEntityToProperty)
+                .collect(Collectors.toList());
+
+        log.info(">>> [Phase 2-3] Entity → Property 변환 완료. Redis 동기화 시작.");
+
+        // Step 4. [Redis] 매물 정보 및 검색 인덱스 동기화 (RDB 기준)
+        syncCharterToRedis(charterProperties);
+        syncMonthlyToRedis(monthlyProperties);
+
+        // Step 5. [Redis] 정규화 범위(Bounds) 계산 및 적재
         List<Property> allProperties = new ArrayList<>();
-        if (event.getCharterProperties() != null) allProperties.addAll(event.getCharterProperties());
-        if (event.getMonthlyProperties() != null) allProperties.addAll(event.getMonthlyProperties());
+        allProperties.addAll(charterProperties);
+        allProperties.addAll(monthlyProperties);
 
         calculateAndStoreNormalizationBounds(allProperties);
 
-        // =================================================================================
-        // Step 4. [Redis] 안전성 점수(Safety Score) 계산 및 적재 - 추가됨
-        // =================================================================================
+        // Step 6. [Redis] 안전성 점수(Safety Score) 계산 및 적재
         calculateAndStoreSafetyScores();
 
         long endTime = System.currentTimeMillis();
@@ -130,7 +127,59 @@ public class RdbSyncListener {
     }
 
     // =================================================================================
-    // Internal Methods: RDB Operation
+    // Entity → Property 변환 메서드
+    // =================================================================================
+
+    /**
+     * PropertyCharter Entity → Property DTO 변환
+     */
+    private Property convertCharterEntityToProperty(PropertyCharter entity) {
+        return Property.builder()
+                .propertyId(entity.getPropertyId())
+                .aptNm(entity.getAptNm())
+                .excluUseAr(entity.getExcluUseAr())
+                .floor(entity.getFloor())
+                .buildYear(entity.getBuildYear())
+                .dealDate(entity.getDealDate())
+                .deposit(entity.getDeposit())
+                .monthlyRent(null)  // 전세는 월세금 없음
+                .leaseType("전세")
+                .umdNm(entity.getUmdNm())
+                .jibun(entity.getJibun())
+                .sggCd(entity.getSggCd())
+                .address(entity.getAddress())
+                .areaInPyeong(entity.getAreaInPyeong())
+                .rgstDate(entity.getRgstDate())
+                .districtName(entity.getDistrictName())
+                .build();
+    }
+
+    /**
+     * PropertyMonthly Entity → Property DTO 변환
+     */
+    private Property convertMonthlyEntityToProperty(PropertyMonthly entity) {
+        return Property.builder()
+                .propertyId(entity.getPropertyId())
+                .aptNm(entity.getAptNm())
+                .excluUseAr(entity.getExcluUseAr())
+                .floor(entity.getFloor())
+                .buildYear(entity.getBuildYear())
+                .dealDate(entity.getDealDate())
+                .deposit(entity.getDeposit())
+                .monthlyRent(entity.getMonthlyRent())
+                .leaseType("월세")
+                .umdNm(entity.getUmdNm())
+                .jibun(entity.getJibun())
+                .sggCd(entity.getSggCd())
+                .address(entity.getAddress())
+                .areaInPyeong(entity.getAreaInPyeong())
+                .rgstDate(entity.getRgstDate())
+                .districtName(entity.getDistrictName())
+                .build();
+    }
+
+    // =================================================================================
+    // RDB Operation
     // =================================================================================
 
     private void saveCharterPropertiesToRdb(List<Property> properties) {
@@ -156,109 +205,278 @@ public class RdbSyncListener {
     }
 
     // =================================================================================
-    // Internal Methods: Redis Pipeline Operation
+    // Redis Operation (백업본과 동일한 구조)
     // =================================================================================
 
     private void syncCharterToRedis(List<Property> properties) {
         if (properties == null || properties.isEmpty()) return;
 
-        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            RedisSerializer<String> stringSerializer = redisTemplate.getStringSerializer();
-            @SuppressWarnings("unchecked")
-            RedisSerializer<Object> valueSerializer = (RedisSerializer<Object>) redisTemplate.getValueSerializer();
+        final int BATCH_SIZE = 500;
+        int totalSuccess = 0;
 
-            for (Property p : properties) {
-                String id = p.getPropertyId();
-                String district = p.getDistrictName().replace("서울시 ", "").trim();
+        for (int batchStart = 0; batchStart < properties.size(); batchStart += BATCH_SIZE) {
 
-                // 1. 매물 상세 정보 저장 (Hash) -> property:charter:{id}
-                byte[] key = stringSerializer.serialize("property:charter:" + id);
-                Map<byte[], byte[]> hash = new HashMap<>();
+            final int start = batchStart;
+            final int end = Math.min(batchStart + BATCH_SIZE, properties.size());
+            List<Property> batch = properties.subList(start, end);
 
-                hash.put(stringSerializer.serialize("propertyId"), valueSerializer.serialize(p.getPropertyId()));
-                hash.put(stringSerializer.serialize("aptNm"), valueSerializer.serialize(p.getAptNm()));
-                hash.put(stringSerializer.serialize("deposit"), valueSerializer.serialize(String.valueOf(p.getDeposit())));
-                hash.put(stringSerializer.serialize("areaInPyeong"), valueSerializer.serialize(String.valueOf(p.getAreaInPyeong())));
-                hash.put(stringSerializer.serialize("floor"), valueSerializer.serialize(String.valueOf(p.getFloor())));
-                hash.put(stringSerializer.serialize("buildYear"), valueSerializer.serialize(String.valueOf(p.getBuildYear())));
-                hash.put(stringSerializer.serialize("address"), valueSerializer.serialize(p.getAddress()));
-                hash.put(stringSerializer.serialize("leaseType"), valueSerializer.serialize("전세"));
-                hash.put(stringSerializer.serialize("districtName"), valueSerializer.serialize(p.getDistrictName()));
+            // 익명 클래스 내부에서 batchStart를 참조하기 위해 final 변수 사용
+            final int currentBatchStart = batchStart;
 
-                if (p.getSggCd() != null) hash.put(stringSerializer.serialize("sggCd"), valueSerializer.serialize(p.getSggCd()));
-                if (p.getUmdNm() != null) hash.put(stringSerializer.serialize("umdNm"), valueSerializer.serialize(p.getUmdNm()));
-                if (p.getJibun() != null) hash.put(stringSerializer.serialize("jibun"), valueSerializer.serialize(p.getJibun()));
+            try {
+                redisHandler.redisTemplate.executePipelined(new SessionCallback<Object>() {
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public Object execute(RedisOperations operations) throws DataAccessException {
 
-                connection.hMSet(key, hash);
+                        for (int i = 0; i < batch.size(); i++) {
+                            Property property = batch.get(i);
+                            String propertyId = property.getPropertyId();
+                            String districtName = property.getDistrictName();
 
-                // 2. 검색 인덱스 업데이트 (Sorted Set)
-                byte[] priceIdxKey = stringSerializer.serialize("idx:charterPrice:" + district);
-                connection.zAdd(priceIdxKey, p.getDeposit(), stringSerializer.serialize(id));
+                            if (propertyId == null || districtName == null) continue;
 
-                byte[] areaIdxKey = stringSerializer.serialize("idx:area:" + district + ":전세");
-                connection.zAdd(areaIdxKey, p.getAreaInPyeong(), stringSerializer.serialize(id));
+                            // -------------------------------------------------------
+                            // [비즈니스 로직 유지] 데이터 준비
+                            // -------------------------------------------------------
+                            Map<String, Object> propertyHash = new HashMap<>();
+                            propertyHash.put("propertyId", propertyId != null ? propertyId : "");
+                            propertyHash.put("aptNm", property.getAptNm() != null ? property.getAptNm() : "");
+                            propertyHash.put("excluUseAr", property.getExcluUseAr() != null ? property.getExcluUseAr().toString() : "0.0");
+                            propertyHash.put("floor", property.getFloor() != null ? property.getFloor().toString() : "0");
+                            propertyHash.put("buildYear", property.getBuildYear() != null ? property.getBuildYear().toString() : "0");
+                            propertyHash.put("dealDate", property.getDealDate() != null ? property.getDealDate() : "");
+                            propertyHash.put("leaseType", "전세");
+                            propertyHash.put("umdNm", property.getUmdNm() != null ? property.getUmdNm() : "");
+                            propertyHash.put("jibun", property.getJibun() != null ? property.getJibun() : "");
+                            propertyHash.put("sggCd", property.getSggCd() != null ? property.getSggCd() : "");
+                            propertyHash.put("address", property.getAddress() != null ? property.getAddress() : "");
+                            propertyHash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
+                            propertyHash.put("rgstDate", property.getRgstDate() != null ? property.getRgstDate() : "");
+                            propertyHash.put("districtName", districtName != null ? districtName : "");
+                            propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
+
+                            // -------------------------------------------------------
+                            // [비즈니스 로직 유지] 키 생성
+                            // -------------------------------------------------------
+                            String charterPropertyKey = "property:charter:" + propertyId;
+                            String charterPriceIndexKey = "idx:charterPrice:" + districtName;
+                            String charterAreaIndexKey = "idx:area:" + districtName + ":전세";
+
+                            // -------------------------------------------------------
+                            // [로그 복구] 최초 배치의 앞선 10개 데이터에 대해서만 상세 로깅
+                            // -------------------------------------------------------
+                            if (currentBatchStart == 0 && i < 10) {
+                                log.info(">>> [Redis Insert - 전세 Sample #{}] ID: {}", i + 1, propertyId);
+                                log.info("    [Data] : {}", property); // 객체 내부 데이터 전체 출력
+                                log.info("    [Keys] : Hash=[{}], PriceIdx=[{}], AreaIdx=[{}]",
+                                        charterPropertyKey, charterPriceIndexKey, charterAreaIndexKey);
+                            }
+
+                            // -------------------------------------------------------
+                            // [비즈니스 로직 유지] Redis 명령어 수행
+                            // -------------------------------------------------------
+
+                            // [저장소 1] 매물 원본 데이터 (Hash)
+                            // 로그 추가: Hash 키와 적재되는 필드 개수 확인
+                            log.info("   [Hash] Key=[{}] -> putAll({} fields)", charterPropertyKey, propertyHash.size());
+                            operations.opsForHash().putAll(charterPropertyKey, propertyHash);
+
+                            // [저장소 2] 전세금 인덱스 (Sorted Set)
+                            double charterPrice = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
+
+                            // 로그 추가: 인덱스 키, 멤버(ID), 점수(가격) 확인 -> 여기서 propertyId가 UUID인지 MD5인지 확실히 보입니다.
+                            log.info("   [ZSet:Price] Key=[{}], Member=[{}], Score=[{}]",
+                                    charterPriceIndexKey, propertyId, charterPrice);
+
+                            operations.opsForZSet().add(charterPriceIndexKey, propertyId, charterPrice);
+
+                            // [저장소 3] 평수 인덱스 (Sorted Set)
+                            double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
+
+                            // 로그 추가: 인덱스 키, 멤버(ID), 점수(평수) 확인
+                            log.info("   [ZSet:Area]  Key=[{}], Member=[{}], Score=[{}]",
+                                    charterAreaIndexKey, propertyId, areaScore);
+
+                            operations.opsForZSet().add(charterAreaIndexKey, propertyId, areaScore);
+                        }
+
+                        return null;
+                    }
+                });
+
+                totalSuccess += batch.size();
+
+            } catch (Exception e) {
+                log.error("전세 배치 저장 실패 (범위: {}-{}): {}", start, end, e.getMessage());
             }
-            return null;
-        });
-        log.info("Redis: 전세 데이터 및 인덱스 파이프라인 전송 완료");
+        }
+
+        log.info("Redis [Pipeline]: 전세 매물 저장 완료 - 성공: {}건", totalSuccess);
+        verifyRedisStorage(properties, "charter", Math.min(10, properties.size()));
     }
 
     private void syncMonthlyToRedis(List<Property> properties) {
         if (properties == null || properties.isEmpty()) return;
 
-        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            RedisSerializer<String> stringSerializer = redisTemplate.getStringSerializer();
-            @SuppressWarnings("unchecked")
-            RedisSerializer<Object> valueSerializer = (RedisSerializer<Object>) redisTemplate.getValueSerializer();
+        final int BATCH_SIZE = 500;
+        int totalSuccess = 0;
 
-            for (Property p : properties) {
-                String id = p.getPropertyId();
-                String district = p.getDistrictName().replace("서울시 ", "").trim();
+        for (int batchStart = 0; batchStart < properties.size(); batchStart += BATCH_SIZE) {
 
-                // 1. 매물 상세 정보 저장 (Hash) -> property:monthly:{id}
-                byte[] key = stringSerializer.serialize("property:monthly:" + id);
-                Map<byte[], byte[]> hash = new HashMap<>();
+            final int start = batchStart;
+            final int end = Math.min(batchStart + BATCH_SIZE, properties.size());
+            List<Property> batch = properties.subList(start, end);
 
-                hash.put(stringSerializer.serialize("propertyId"), valueSerializer.serialize(p.getPropertyId()));
-                hash.put(stringSerializer.serialize("aptNm"), valueSerializer.serialize(p.getAptNm()));
-                hash.put(stringSerializer.serialize("deposit"), valueSerializer.serialize(String.valueOf(p.getDeposit())));
-                hash.put(stringSerializer.serialize("monthlyRent"), valueSerializer.serialize(String.valueOf(p.getMonthlyRent())));
-                hash.put(stringSerializer.serialize("areaInPyeong"), valueSerializer.serialize(String.valueOf(p.getAreaInPyeong())));
-                hash.put(stringSerializer.serialize("floor"), valueSerializer.serialize(String.valueOf(p.getFloor())));
-                hash.put(stringSerializer.serialize("buildYear"), valueSerializer.serialize(String.valueOf(p.getBuildYear())));
-                hash.put(stringSerializer.serialize("address"), valueSerializer.serialize(p.getAddress()));
-                hash.put(stringSerializer.serialize("leaseType"), valueSerializer.serialize("월세"));
-                hash.put(stringSerializer.serialize("districtName"), valueSerializer.serialize(p.getDistrictName()));
+            // 익명 클래스 내부에서 batchStart를 참조하기 위해 final 변수 사용
+            final int currentBatchStart = batchStart;
 
-                if (p.getSggCd() != null) hash.put(stringSerializer.serialize("sggCd"), valueSerializer.serialize(p.getSggCd()));
-                if (p.getUmdNm() != null) hash.put(stringSerializer.serialize("umdNm"), valueSerializer.serialize(p.getUmdNm()));
-                if (p.getJibun() != null) hash.put(stringSerializer.serialize("jibun"), valueSerializer.serialize(p.getJibun()));
+            try {
+                redisHandler.redisTemplate.executePipelined(new SessionCallback<Object>() {
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public Object execute(RedisOperations operations) throws DataAccessException {
 
-                connection.hMSet(key, hash);
+                        for (int i = 0; i < batch.size(); i++) {
+                            Property property = batch.get(i);
+                            String propertyId = property.getPropertyId();
+                            String districtName = property.getDistrictName();
 
-                // 2. 검색 인덱스 업데이트 (Sorted Set)
-                byte[] depositIdxKey = stringSerializer.serialize("idx:deposit:" + district);
-                connection.zAdd(depositIdxKey, p.getDeposit(), stringSerializer.serialize(id));
+                            if (propertyId == null || districtName == null) continue;
 
-                byte[] rentIdxKey = stringSerializer.serialize("idx:monthlyRent:" + district + ":월세");
-                connection.zAdd(rentIdxKey, p.getMonthlyRent(), stringSerializer.serialize(id));
+                            // -------------------------------------------------------
+                            // [비즈니스 로직 유지] 데이터 준비
+                            // -------------------------------------------------------
+                            Map<String, Object> propertyHash = new HashMap<>();
+                            propertyHash.put("propertyId", propertyId != null ? propertyId : "");
+                            propertyHash.put("aptNm", property.getAptNm() != null ? property.getAptNm() : "");
+                            propertyHash.put("excluUseAr", property.getExcluUseAr() != null ? property.getExcluUseAr().toString() : "0.0");
+                            propertyHash.put("floor", property.getFloor() != null ? property.getFloor().toString() : "0");
+                            propertyHash.put("buildYear", property.getBuildYear() != null ? property.getBuildYear().toString() : "0");
+                            propertyHash.put("dealDate", property.getDealDate() != null ? property.getDealDate() : "");
+                            propertyHash.put("leaseType", "월세");
+                            propertyHash.put("umdNm", property.getUmdNm() != null ? property.getUmdNm() : "");
+                            propertyHash.put("jibun", property.getJibun() != null ? property.getJibun() : "");
+                            propertyHash.put("sggCd", property.getSggCd() != null ? property.getSggCd() : "");
+                            propertyHash.put("address", property.getAddress() != null ? property.getAddress() : "");
+                            propertyHash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
+                            propertyHash.put("rgstDate", property.getRgstDate() != null ? property.getRgstDate() : "");
+                            propertyHash.put("districtName", districtName != null ? districtName : "");
+                            propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
+                            propertyHash.put("monthlyRent", property.getMonthlyRent() != null ? property.getMonthlyRent().toString() : "0");
 
-                byte[] areaIdxKey = stringSerializer.serialize("idx:area:" + district + ":월세");
-                connection.zAdd(areaIdxKey, p.getAreaInPyeong(), stringSerializer.serialize(id));
+                            // -------------------------------------------------------
+                            // [비즈니스 로직 유지] 키 생성
+                            // -------------------------------------------------------
+                            String monthlyPropertyKey = "property:monthly:" + propertyId;
+                            String depositIndexKey = "idx:deposit:" + districtName;
+                            String monthlyRentIndexKey = "idx:monthlyRent:" + districtName + ":월세";
+                            String monthlyAreaIndexKey = "idx:area:" + districtName + ":월세";
+
+                            // -------------------------------------------------------
+                            // [로그 복구] 최초 배치의 앞선 10개 데이터에 대해서만 상세 로깅
+                            // -------------------------------------------------------
+                            if (currentBatchStart == 0 && i < 10) {
+                                log.info(">>> [Redis Insert - 월세 Sample #{}] ID: {}", i + 1, propertyId);
+                                log.info("    [Data] : {}", property); // 객체 내부 데이터 전체 출력
+                                log.info("    [Keys] : Hash=[{}], DepIdx=[{}], RentIdx=[{}], AreaIdx=[{}]",
+                                        monthlyPropertyKey, depositIndexKey, monthlyRentIndexKey, monthlyAreaIndexKey);
+                            }
+
+                            // -------------------------------------------------------
+                            // [비즈니스 로직 유지] Redis 명령어 수행
+                            // -------------------------------------------------------
+
+                            // [저장소 1] 매물 원본 데이터 (Hash)
+                            operations.opsForHash().putAll(monthlyPropertyKey, propertyHash);
+
+                            // [저장소 2] 보증금 인덱스 (Sorted Set)
+                            double depositPrice = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
+                            operations.opsForZSet().add(depositIndexKey, propertyId, depositPrice);
+
+                            // [저장소 3] 월세금 인덱스 (Sorted Set)
+                            double monthlyRentPrice = property.getMonthlyRent() != null ? property.getMonthlyRent().doubleValue() : 0.0;
+                            operations.opsForZSet().add(monthlyRentIndexKey, propertyId, monthlyRentPrice);
+
+                            // [저장소 4] 평수 인덱스 (Sorted Set)
+                            double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
+                            operations.opsForZSet().add(monthlyAreaIndexKey, propertyId, areaScore);
+                        }
+
+                        return null;
+                    }
+                });
+
+                totalSuccess += batch.size();
+
+            } catch (Exception e) {
+                log.error("월세 배치 저장 실패 (범위: {}-{}): {}", start, end, e.getMessage());
             }
-            return null;
-        });
-        log.info("Redis: 월세 데이터 및 인덱스 파이프라인 전송 완료");
+        }
+
+        log.info("Redis [Pipeline]: 월세 매물 저장 완료 - 성공: {}건", totalSuccess);
+        verifyRedisStorage(properties, "monthly", Math.min(10, properties.size()));
+    }
+
+    /**
+     * Redis 저장 검증 - Hash 뿐만 아니라 Index Key까지 패턴 확인
+     */
+    private void verifyRedisStorage(List<Property> properties, String leaseType, int sampleSize) {
+        log.info("=== Redis 저장 상세 검증 시작 ({}) - 샘플 {}건 ===", leaseType, sampleSize);
+
+        for (int i = 0; i < sampleSize; i++) {
+            Property p = properties.get(i);
+            String propertyId = p.getPropertyId();
+            String districtName = p.getDistrictName(); // DTO에 districtName 필드가 public이거나 getter 사용
+
+            // 1. Hash Key 검증
+            String redisKey = "property:" + leaseType + ":" + propertyId;
+            Map<Object, Object> storedData = redisHandler.redisTemplate.opsForHash().entries(redisKey);
+
+            if (storedData != null && !storedData.isEmpty()) {
+                log.info("[Hash OK] Key: {}", redisKey);
+            } else {
+                log.warn("[Hash FAIL] Key: {} - 데이터 없음", redisKey);
+            }
+
+            // 2. Index Key 검증 (실제 데이터 존재 여부 확인은 생략하더라도 키 패턴 로그 출력)
+            if ("charter".equals(leaseType)) {
+                String priceIdx = "idx:charterPrice:" + districtName;
+                String areaIdx = "idx:area:" + districtName + ":전세";
+
+                // 실제 스코어 조회로 검증
+                Double priceScore = redisHandler.redisTemplate.opsForZSet().score(priceIdx, propertyId);
+                log.info("    -> [Index Check] {} : Score={}", priceIdx, priceScore);
+
+                Double areaScore = redisHandler.redisTemplate.opsForZSet().score(areaIdx, propertyId);
+                log.info("    -> [Index Check] {} : Score={}", areaIdx, areaScore);
+
+            } else if ("monthly".equals(leaseType)) {
+                String depositIdx = "idx:deposit:" + districtName;
+                String rentIdx = "idx:monthlyRent:" + districtName + ":월세";
+                String areaIdx = "idx:area:" + districtName + ":월세";
+
+                Double depositScore = redisHandler.redisTemplate.opsForZSet().score(depositIdx, propertyId);
+                log.info("    -> [Index Check] {} : Score={}", depositIdx, depositScore);
+
+                Double rentScore = redisHandler.redisTemplate.opsForZSet().score(rentIdx, propertyId);
+                log.info("    -> [Index Check] {} : Score={}", rentIdx, rentScore);
+
+                Double areaScore = redisHandler.redisTemplate.opsForZSet().score(areaIdx, propertyId);
+                log.info("    -> [Index Check] {} : Score={}", areaIdx, areaScore);
+            }
+        }
+
+        log.info("=== Redis 저장 상세 검증 완료 ===");
     }
 
     // =================================================================================
-    // [추가된 로직] 정규화 범위 계산 및 저장 (Legacy Code 차용)
+    // 정규화 범위 계산 및 저장
     // =================================================================================
 
     private void calculateAndStoreNormalizationBounds(List<Property> properties) {
         log.info("=== 정규화 범위 계산 및 저장 시작 ===");
 
-        // 1. 데이터 그룹핑: 지역구명 + 임대유형
         Map<String, List<Property>> groupedProperties = groupPropertiesByDistrictAndLeaseType(properties);
         String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
@@ -269,48 +487,51 @@ public class RdbSyncListener {
             try {
                 if (groupProperties.size() < 1) continue;
 
-                // 2. 정규화 범위 계산
                 NormalizationBounds bounds = calculateBoundsForGroupFixed(groupProperties, groupKey);
-
                 if (bounds == null) continue;
 
-                // 3. Redis 저장 (로그 추가)
                 storeBoundsToRedisFixed(groupKey, bounds, groupProperties, currentTime);
 
             } catch (Exception e) {
-                log.error("그룹 [{}] 정규화 처리 중 오류 발생", groupKey, e);
+                log.error("그룹 [{}] 정규화 범위 저장 실패", groupKey, e);
             }
         }
+
         log.info("=== 정규화 범위 계산 완료 ===");
     }
 
     private Map<String, List<Property>> groupPropertiesByDistrictAndLeaseType(List<Property> properties) {
-        Map<String, List<Property>> groupedProperties = new HashMap<>();
-        for (Property property : properties) {
-            if (property.getDistrictName() == null || property.getLeaseType() == null) continue;
-            if (property.getDeposit() == null || property.getAreaInPyeong() == null) continue;
-            if (property.getAreaInPyeong() <= 0) continue;
+        Map<String, List<Property>> grouped = new HashMap<>();
 
-            String groupKey = property.getDistrictName() + ":" + property.getLeaseType();
-            groupedProperties.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(property);
+        for (Property property : properties) {
+            String districtName = property.getDistrictName();
+            String leaseType = property.getLeaseType();
+
+            if (districtName == null || leaseType == null) continue;
+
+            String groupKey = districtName + ":" + leaseType;
+            grouped.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(property);
         }
-        return groupedProperties;
+
+        return grouped;
     }
 
     private NormalizationBounds calculateBoundsForGroupFixed(List<Property> groupProperties, String groupKey) {
         String[] keyParts = groupKey.split(":");
+        if (keyParts.length != 2) return null;
+
         String leaseType = keyParts[1];
         List<Double> prices = new ArrayList<>();
         List<Double> areas = new ArrayList<>();
 
         for (Property property : groupProperties) {
-            if ("전세".equals(leaseType) && property.getDeposit() > 0) {
-                prices.add(property.getDeposit().doubleValue());
-            } else if ("월세".equals(leaseType) && property.getDeposit() > 0) {
-                prices.add(property.getDeposit().doubleValue());
+            if ("전세".equals(leaseType) || "월세".equals(leaseType)) {
+                if (property.getDeposit() != null && property.getDeposit() > 0) {
+                    prices.add(property.getDeposit().doubleValue());
+                }
             }
 
-            if (property.getAreaInPyeong() > 0) {
+            if (property.getAreaInPyeong() != null && property.getAreaInPyeong() > 0) {
                 areas.add(property.getAreaInPyeong());
             }
         }
@@ -323,7 +544,7 @@ public class RdbSyncListener {
         double maxArea = Collections.max(areas);
 
         if (minPrice == maxPrice) maxPrice = minPrice + 1000.0;
-        if (minArea == maxArea) maxArea = minArea + 1.0;
+        if (minArea == maxArea) maxArea = minArea + 5.0;
 
         return new NormalizationBounds(minPrice, maxPrice, minArea, maxArea);
     }
@@ -346,7 +567,6 @@ public class RdbSyncListener {
             boundsHash.put("lastUpdated", currentTime);
             redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
 
-            // [추가된 로그] 전세 정규화 범위 저장 확인
             log.info("Redis [Bounds] 저장 완료 - Key: {}, Count: {}, Price[{}-{}], Area[{}-{}]",
                     redisKey, propertyCount, bounds.minPrice, bounds.maxPrice, bounds.minArea, bounds.maxArea);
 
@@ -373,7 +593,6 @@ public class RdbSyncListener {
             boundsHash.put("lastUpdated", currentTime);
             redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
 
-            // [추가된 로그] 월세 정규화 범위 저장 확인
             log.info("Redis [Bounds] 저장 완료 - Key: {}, Count: {}, Deposit[{}-{}], Rent[{}-{}], Area[{}-{}]",
                     redisKey, propertyCount, bounds.minPrice, bounds.maxPrice, minMonthlyRent, maxMonthlyRent, bounds.minArea, bounds.maxArea);
         }
@@ -394,7 +613,7 @@ public class RdbSyncListener {
     }
 
     // =================================================================================
-    // [추가된 로직] 안전성 점수 계산 및 저장 (Legacy Code 차용)
+    // 안전성 점수 계산 및 저장
     // =================================================================================
 
     private void calculateAndStoreSafetyScores() {
@@ -497,7 +716,6 @@ public class RdbSyncListener {
                 safetyHash.put("version", "1.0");
                 redisHandler.redisTemplate.opsForHash().putAll(redisKey, safetyHash);
 
-                // [수정] {:.2f} 제거 -> {} 로 변경하여 실제 값 출력
                 log.info("Redis [Safety] 저장 완료 - Key: {}, Score: {}", redisKey, entry.getValue());
 
             } catch (Exception e) {

@@ -15,8 +15,13 @@ public interface AnalysisCrimeRepository extends JpaRepository<AnalysisCrimeStat
      * 서울시 자치구별 총 범죄 발생 건수를 합산하여 DTO 리스트로 반환합니다.
      * @return DistrictCrimeCountDto 리스트
      */
-    @Query("SELECT new com.wherehouse.recommand.batch.dto.DistrictCrimeCountDto" +
-            "(a.districtName, a.totalOccurrence, a.totalArrest, a.totalArrest, a.murderOccurrence, a.murderArrest, a.robberyArrest, a.sexualCrimeOccurrence, a.sexualCrimeArrest, a.theftOccurrence, a.theftArrest, a.violenceOccurrence, a.violenceArrest) " +
+    @Query("SELECT new com.wherehouse.recommand.batch.dto.DistrictCrimeCountDto(" +
+            "a.districtName, a.totalOccurrence, a.totalArrest, " +
+            "a.murderOccurrence, a.murderArrest, " +
+            "a.robberyOccurrence, a.robberyArrest, " + // 순서 및 필드명 수정됨
+            "a.sexualCrimeOccurrence, a.sexualCrimeArrest, " +
+            "a.theftOccurrence, a.theftArrest, " +
+            "a.violenceOccurrence, a.violenceArrest) " +
             "FROM AnalysisCrimeStatistics a ")
     List<DistrictCrimeCountDto> findCrimeCount();
 }

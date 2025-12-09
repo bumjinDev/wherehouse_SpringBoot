@@ -85,7 +85,7 @@ public class BatchScheduler {
     // 매달 새벽 4시 1분 30초 수행
     @Scheduled(cron = "30 1 4 28 * *")
     // 테스트를 위해 즉시 실행 (필요 시 cron으로 변경)
-    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 (Data Collection Phase) ===");
 
@@ -205,6 +205,7 @@ public class BatchScheduler {
         try {
             StringBuilder urlBuilder = new StringBuilder(baseUrl);
             urlBuilder.append(API_ENDPOINT);
+            log.info("urlBuilder={}", urlBuilder);
 
             // [중요] 이미 인코딩된 키라고 가정
             urlBuilder.append("?serviceKey=").append(serviceKey);
@@ -219,6 +220,9 @@ public class BatchScheduler {
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
 
+            log.info("HTTP Request: {} {}", conn.getRequestMethod(), conn.getURL());
+
+            // TODO: I/O Stream 내부 동작 원리 심층 분석 필요 : 기술 부채 여지 있다.
             BufferedReader rd;
             if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
                 rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));

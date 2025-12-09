@@ -79,7 +79,7 @@ public class CharterRecommendationService {
                                                                  List<String> targetDistricts) {
         log.info("S-01: 전세 매물 검색 시작 - 대상: {}", targetDistricts.size());
 
-        // 안전성 조건이 있을 경우 지역구 레벨에서 사전 필터링
+        // 안전성 점수 요구가 있을 경우 안전성 점수를 기준으로 우선 지역구 레벨에서 사전 필터링
         List<String> filteredDistricts = targetDistricts;
         if (request.getMinSafetyScore() != null && request.getMinSafetyScore() > 0) {
             filteredDistricts = targetDistricts.stream()
@@ -98,6 +98,10 @@ public class CharterRecommendationService {
                     targetDistricts.size(), filteredDistricts.size(), request.getMinSafetyScore());
         }
 
+        /* 각 자치구마다 2개 인덱스 교집합을 수행한다: idx:charterPrice:{지역구} + idx:area:{지역구}:전세
+        *   - idx:charterPrice:{지역구} : 전세금 기준 인덱스 테이블
+        *   - idx:area:{지역구}:전세 : 전세금 기준 평수 테이블
+        * */
         Map<String, List<String>> result = new HashMap<>();
         int totalFound = 0;
 
@@ -233,8 +237,19 @@ public class CharterRecommendationService {
         try {
             // 1. 전세금 조건 매물 ID 조회
             String charterPriceIndexKey = "idx:charterPrice:" + district;
+
+            // [DEBUG LOG] 검색 조건 확인
+            log.info(">>> [1차 필터링] 전세금 검색 시작 | Key=[{}] | 범위=[{} ~ {}]",
+                    charterPriceIndexKey, request.getBudgetMin(), request.getBudgetMax());
+
             Set<Object> priceValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(charterPriceIndexKey, request.getBudgetMin(), request.getBudgetMax());
+
+            // [DEBUG LOG] 검색 결과 확인
+            int resultCount = (priceValidObjects != null) ? priceValidObjects.size() : 0;
+            System.out.println("resultCount = " + resultCount);
+            log.info(">>> [1차 필터링] 전세금 검색 결과 | Key=[{}] | 발견된 매물 수=[{}]건",
+                    charterPriceIndexKey, resultCount);
 
             if (priceValidObjects == null || priceValidObjects.isEmpty()) {
                 return Collections.emptyList();
@@ -246,8 +261,18 @@ public class CharterRecommendationService {
 
             // 2. 평수 조건 매물 ID 조회
             String areaIndexKey = "idx:area:" + district + ":전세";
+
+            // [DEBUG LOG] 검색 조건 확인
+            log.info(">>> [2차 필터링] 평수 검색 시작 | Key=[{}] | 범위=[{} ~ {}]",
+                    areaIndexKey, request.getAreaMin(), request.getAreaMax());
+
             Set<Object> areaValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(areaIndexKey, request.getAreaMin(), request.getAreaMax());
+
+            // [DEBUG LOG] 검색 결과 확인
+            int areaResultCount = (areaValidObjects != null) ? areaValidObjects.size() : 0;
+            log.info(">>> [2차 필터링] 평수 검색 결과 | Key=[{}] | 발견된 매물 수=[{}]건",
+                    areaIndexKey, areaResultCount);
 
             if (areaValidObjects == null || areaValidObjects.isEmpty()) {
                 return Collections.emptyList();
@@ -262,7 +287,7 @@ public class CharterRecommendationService {
             return new ArrayList<>(priceValidIds);
 
         } catch (Exception e) {
-            log.debug("전세 매물 검색 중 오류 - 지역구: {}", district, e);
+            log.info("전세 매물 검색 중 오류 - 지역구: {}", district, e);
             return Collections.emptyList();
         }
     }
