@@ -75,18 +75,18 @@ public class RdbSyncListener {
     /**
      * 데이터 수집 완료 이벤트 핸들러
      */
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
-    @EventListener
-    @Transactional
-    public void handleDataCollectionCompletedEvent(DataCollectionCompletedEvent event) {  // DataCollectionCompletedEvent event
-        log.info(">>> [Phase 2] RdbSyncListener 이벤트 수신. 데이터 적재 프로세스 시작. (전세: {}건, 월세: {}건)",
-                event.getCharterCount(), event.getMonthlyCount());
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+//    @EventListener
+//    @Transactional
+    public void handleDataCollectionCompletedEvent() {  // DataCollectionCompletedEvent event
+//        log.info(">>> [Phase 2] RdbSyncListener 이벤트 수신. 데이터 적재 프로세스 시작. (전세: {}건, 월세: {}건)",
+//                event.getCharterCount(), event.getMonthlyCount());
 
         long startTime = System.currentTimeMillis();
 
         // Step 1. [RDB] 매물 원본 데이터 적재 (1차 배치 프로세스로부터 전달 받은 데이터를 저장)
-        saveCharterPropertiesToRdb(event.getCharterProperties());
-        saveMonthlyPropertiesToRdb(event.getMonthlyProperties());
+//        saveCharterPropertiesToRdb(event.getCharterProperties());
+//        saveMonthlyPropertiesToRdb(event.getMonthlyProperties());
 
         log.info(">>> [Phase 2-1] RDB 적재 완료. RDB 기준 데이터 재조회 시작.");
 

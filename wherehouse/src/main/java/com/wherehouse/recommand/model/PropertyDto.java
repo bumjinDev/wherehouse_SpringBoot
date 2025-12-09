@@ -12,8 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PropertyDto {
 
+    // [수정] Phase 2: 기존 Long ID -> String MD5 Hash ID로 변경
     @JsonProperty("propertyId")
-    private Long propertyId;
+    private String propertyId;
 
     @JsonProperty("propertyName")
     private String propertyName;     // 아파트명
@@ -65,6 +66,13 @@ public class PropertyDto {
 
     @JsonProperty("finalScore")
     private Double finalScore;       // 최종 추천 점수
+
+    // [신규 추가] Phase 2: 리뷰 통계 정보 반영 (상세 조회 시 노출)
+    @JsonProperty("reviewCount")
+    private Integer reviewCount;     // 리뷰 개수
+
+    @JsonProperty("avgRating")
+    private Double avgRating;        // 평균 별점
 
     // 가격 관련 편의 메서드
     public Integer getPrice() {

@@ -2,6 +2,8 @@ package com.wherehouse.recommand.service;
 
 import com.wherehouse.recommand.model.*;
 import com.wherehouse.redis.handler.RedisHandler;
+import com.wherehouse.review.domain.ReviewStatistics;
+import com.wherehouse.review.repository.ReviewStatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,8 +12,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 월세 전용 추천 서비스 - 명세서 4.3절
- * 월세 매물 기반 지역구 추천 전용 서비스 클래스
+ * 월세 전용 추천 서비스 - 명세서 4.3절 및 10.2절(Phase 2)
+ *
+ * 역할:
+ * 1. Redis 인덱스를 활용한 매물 1차 검색 (보증금, 월세, 평수 조건)
+ * 2. RDB(ReviewStatistics) 조회 및 하이브리드 점수 계산 (정량+정성)
+ * 3. 최종 추천 리스트 생성 및 반환
  */
 @Service
 @RequiredArgsConstructor
@@ -19,6 +25,8 @@ import java.util.stream.Collectors;
 public class MonthlyRecommendationService {
 
     private final RedisHandler redisHandler;
+    // [Phase 2 추가] 리뷰 통계 조회를 위한 Repository 주입 (RDB 접근 - 병목 시뮬레이션용)
+    private final ReviewStatisticsRepository reviewStatisticsRepository;
 
     // 서울시 25개 자치구 목록
     private static final List<String> SEOUL_DISTRICTS = Arrays.asList(
@@ -28,9 +36,10 @@ public class MonthlyRecommendationService {
     );
 
     private static final int MIN_PROPERTIES_THRESHOLD = 3; // 폴백 기준 매물 수
+    private static final int COLD_START_REVIEW_COUNT = 5;  // 리뷰 점수 반영 최소 기준
 
     /**
-     * 월세 지역구 추천 메인 메소드 - 명세서 4.3절
+     * 월세 지역구 추천 메인 메소드
      * S-01 ~ S-06 단계를 순차적으로 수행하여 월세 매물 기반 지역구 추천
      */
     public MonthlyRecommendationResponseDto getMonthlyDistrictRecommendations(MonthlyRecommendationRequestDto request) {
@@ -48,7 +57,7 @@ public class MonthlyRecommendationService {
             // S-02: 폴백 조건 판단 및 확장 검색
             SearchResult searchResult = checkAndPerformMonthlyFallback(districtProperties, request);
 
-            // S-04: 매물 단위 점수 계산 (월세 매물 대상)
+            // S-04: 매물 단위 점수 계산 (하이브리드 로직 적용)
             Map<String, List<PropertyWithScore>> districtPropertiesWithScores =
                     calculateMonthlyPropertyScores(searchResult.getDistrictProperties(), request);
 
@@ -73,30 +82,19 @@ public class MonthlyRecommendationService {
 
     /**
      * S-01: 월세 매물 1차 검색 (Strict Search)
-     * 3개 인덱스 교집합: idx:deposit + idx:monthlyRent + idx:area:*:월세
-     * 안전성 조건이 있을 경우 지역구 레벨에서 사전 필터링 적용
      */
     private Map<String, List<String>> performMonthlyStrictSearch(MonthlyRecommendationRequestDto request,
                                                                  List<String> targetDistricts) {
         log.info("S-01: 월세 매물 검색 시작 - 대상: {}", targetDistricts.size());
 
-        // 안전성 조건이 있을 경우 지역구 레벨에서 사전 필터링
         List<String> filteredDistricts = targetDistricts;
         if (request.getMinSafetyScore() != null && request.getMinSafetyScore() > 0) {
             filteredDistricts = targetDistricts.stream()
                     .filter(district -> {
                         double districtSafetyScore = getDistrictSafetyScoreFromRedis(district);
-                        boolean meetsSafetyRequirement = districtSafetyScore >= request.getMinSafetyScore();
-                        if (!meetsSafetyRequirement) {
-                            log.debug("안전성 조건 미충족으로 지역구 제외: {} (점수: {}, 기준: {})",
-                                    district, districtSafetyScore, request.getMinSafetyScore());
-                        }
-                        return meetsSafetyRequirement;
+                        return districtSafetyScore >= request.getMinSafetyScore();
                     })
                     .collect(Collectors.toList());
-
-            log.info("안전성 필터링 적용 - 원본: {}개 지역구 → 필터링 후: {}개 지역구 (기준: {}점 이상)",
-                    targetDistricts.size(), filteredDistricts.size(), request.getMinSafetyScore());
         }
 
         Map<String, List<String>> result = new HashMap<>();
@@ -108,7 +106,6 @@ public class MonthlyRecommendationService {
             if (!validProperties.isEmpty()) {
                 result.put(district, validProperties);
                 totalFound += validProperties.size();
-                log.debug("지역구 [{}]: {}개 월세 매물 ID 발견", district, validProperties.size());
             }
         }
 
@@ -125,14 +122,6 @@ public class MonthlyRecommendationService {
         boolean hasInsufficientDistricts = districtProperties.values().stream()
                 .anyMatch(propertyList -> propertyList.size() < MIN_PROPERTIES_THRESHOLD);
 
-        int totalPropertiesFound = districtProperties.values().stream()
-                .mapToInt(List::size).sum();
-
-        int districtsWithProperties = districtProperties.size();
-
-        log.info("S-02: 폴백 조건 판단 - 전체 매물: {}개, 매물 보유 지역구: {}개",
-                totalPropertiesFound, districtsWithProperties);
-
         if (!hasInsufficientDistricts) {
             return SearchResult.builder()
                     .searchStatus("SUCCESS_NORMAL")
@@ -144,10 +133,8 @@ public class MonthlyRecommendationService {
         log.info("일부 월세 지역구의 매물 부족 - S-03 확장 검색 수행");
         SearchResult expandedResult = performMonthlyExpandedSearch(request, districtProperties);
 
-        // 기존 정상 지역구 결과 보존 + 폴백 결과 병합
         Map<String, List<String>> finalResult = new HashMap<>(districtProperties);
 
-        // 부족한 지역구들을 제거하고 확장 검색 결과로 교체
         List<String> insufficientDistricts = districtProperties.entrySet().stream()
                 .filter(entry -> entry.getValue().size() < MIN_PROPERTIES_THRESHOLD)
                 .map(Map.Entry::getKey)
@@ -169,29 +156,21 @@ public class MonthlyRecommendationService {
     private SearchResult performMonthlyExpandedSearch(MonthlyRecommendationRequestDto request,
                                                       Map<String, List<String>> originalResult) {
 
-        // === 4단계: 매물 부족 지역구 목록 추출 ===
-        // 매물 ID 개수가 3개 미만인 지역구들의 이름만 추출하여 리스트로 생성
         List<String> insufficientDistricts = originalResult.entrySet().stream()
                 .filter(entry -> entry.getValue().size() < MIN_PROPERTIES_THRESHOLD)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        log.info("월세 매물 부족 지역구: {} - S-03 확장 검색 수행", insufficientDistricts);
-
-        // === 1단계: 3순위 조건 완화 ===
-        // 사용자의 3순위 항목에 해당하는 조건을 완화 임계값에 따라 조정
+        // 1단계: 3순위 조건 완화
         MonthlyRecommendationRequestDto expandedRequest = relaxMonthlyThirdPriority(request);
         String relaxedCondition = getMonthlyRelaxedConditionMessage(request.getPriority3(), request, expandedRequest);
 
-        // 완화된 조건으로 부족한 지역구들만 재검색
         Map<String, List<String>> expandedResult = performMonthlyStrictSearch(expandedRequest, insufficientDistricts);
 
-        // 3순위 완화만으로 충분한지 검사 (모든 지역구가 3개 이상 매물 보유)
         boolean stillInsufficient = expandedResult.values().stream()
                 .anyMatch(propertyList -> propertyList.size() < MIN_PROPERTIES_THRESHOLD);
 
         if (!stillInsufficient && !expandedResult.isEmpty()) {
-            log.info("3순위 조건 완화로 충분한 매물 확보: {} 지역구", expandedResult.size());
             return SearchResult.builder()
                     .searchStatus("SUCCESS_EXPANDED")
                     .message("원하시는 조건의 월세 매물이 부족하여, " + relaxedCondition + " 완화하여 찾았어요.")
@@ -199,27 +178,20 @@ public class MonthlyRecommendationService {
                     .build();
         }
 
-        // === 2단계: 2순위 조건 추가 완화 ===
-        log.info("3순위 완화 불충분 - 2순위 조건 추가 완화 시도");
-        // 이미 3순위가 완화된 요청에 2순위 조건도 완화 적용
+        // 2단계: 2순위 조건 추가 완화
         MonthlyRecommendationRequestDto doubleExpandedRequest = relaxMonthlySecondPriority(expandedRequest, request);
         String doubleRelaxedCondition = relaxedCondition + ", " + getMonthlyRelaxedConditionMessage(request.getPriority2(), request, doubleExpandedRequest);
 
-        // 2순위까지 완화된 조건으로 부족한 지역구들만 최종 검색
         Map<String, List<String>> doubleExpandedResult = performMonthlyStrictSearch(doubleExpandedRequest, insufficientDistricts);
 
-        // 최종 결과 확인 - 매물이 아예 없으면 검색 실패
         if (doubleExpandedResult.isEmpty() ||
                 doubleExpandedResult.values().stream().mapToInt(List::size).sum() == 0) {
-            log.warn("2순위까지 완화했으나 매물 없음");
             return SearchResult.builder()
                     .searchStatus("NO_RESULTS")
                     .message("아쉽지만 조건에 맞는 월세 매물을 찾을 수 없었어요. 조건을 변경하여 다시 시도해 보세요.")
                     .districtProperties(Collections.emptyMap())
                     .build();
         }
-
-        log.info("2순위까지 완화하여 매물 확보: {} 지역구", doubleExpandedResult.size());
 
         return SearchResult.builder()
                 .searchStatus("SUCCESS_EXPANDED")
@@ -233,46 +205,31 @@ public class MonthlyRecommendationService {
      */
     private List<String> findValidMonthlyPropertiesInDistrict(String district, MonthlyRecommendationRequestDto request) {
         try {
-            // 1. 보증금 조건 매물 ID 조회
+            // 1. 보증금
             String depositIndexKey = "idx:deposit:" + district;
             Set<Object> depositValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(depositIndexKey, request.getBudgetMin(), request.getBudgetMax());
 
-            if (depositValidObjects == null || depositValidObjects.isEmpty()) {
-                return Collections.emptyList();
-            }
+            if (depositValidObjects == null || depositValidObjects.isEmpty()) return Collections.emptyList();
+            Set<String> depositValidIds = depositValidObjects.stream().map(Object::toString).collect(Collectors.toSet());
 
-            Set<String> depositValidIds = depositValidObjects.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
-
-            // 2. 월세금 조건 매물 ID 조회
+            // 2. 월세금
             String monthlyRentIndexKey = "idx:monthlyRent:" + district + ":월세";
             Set<Object> monthlyRentValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(monthlyRentIndexKey, request.getMonthlyRentMin(), request.getMonthlyRentMax());
 
-            if (monthlyRentValidObjects == null || monthlyRentValidObjects.isEmpty()) {
-                return Collections.emptyList();
-            }
+            if (monthlyRentValidObjects == null || monthlyRentValidObjects.isEmpty()) return Collections.emptyList();
+            Set<String> monthlyRentValidIds = monthlyRentValidObjects.stream().map(Object::toString).collect(Collectors.toSet());
 
-            Set<String> monthlyRentValidIds = monthlyRentValidObjects.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
-
-            // 3. 평수 조건 매물 ID 조회
+            // 3. 평수
             String areaIndexKey = "idx:area:" + district + ":월세";
             Set<Object> areaValidObjects = redisHandler.redisTemplate.opsForZSet()
                     .rangeByScore(areaIndexKey, request.getAreaMin(), request.getAreaMax());
 
-            if (areaValidObjects == null || areaValidObjects.isEmpty()) {
-                return Collections.emptyList();
-            }
+            if (areaValidObjects == null || areaValidObjects.isEmpty()) return Collections.emptyList();
+            Set<String> areaValidIds = areaValidObjects.stream().map(Object::toString).collect(Collectors.toSet());
 
-            Set<String> areaValidIds = areaValidObjects.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
-
-            // 4. 3개 조건 교집합 연산
+            // 교집합
             depositValidIds.retainAll(monthlyRentValidIds);
             depositValidIds.retainAll(areaValidIds);
             return new ArrayList<>(depositValidIds);
@@ -284,16 +241,16 @@ public class MonthlyRecommendationService {
     }
 
     // ========================================
-    // 월세 점수 계산 관련 메소드들
+    // 월세 점수 계산 관련 메소드들 (Phase 2 핵심 로직)
     // ========================================
 
     /**
-     * S-04: 월세 매물 점수 계산
+     * S-04: 월세 매물 점수 계산 (하이브리드 알고리즘 적용)
      */
     private Map<String, List<PropertyWithScore>> calculateMonthlyPropertyScores(
             Map<String, List<String>> districtProperties, MonthlyRecommendationRequestDto request) {
 
-        log.info("S-04: 월세 매물 점수 계산 시작");
+        log.info("S-04: 월세 매물 점수 계산 시작 (Hybrid Logic)");
         Map<String, List<PropertyWithScore>> result = new HashMap<>();
 
         for (Map.Entry<String, List<String>> entry : districtProperties.entrySet()) {
@@ -306,39 +263,51 @@ public class MonthlyRecommendationService {
                 continue;
             }
 
-            log.debug("지역구 [{}]: {}개 월세 매물 점수 계산", districtName, propertyIds.size());
-
-            // 월세 매물 상세 정보 조회 (property:monthly:{id} 패턴)
+            // 1. 매물 상세 정보 조회 (Redis)
             List<PropertyDetail> propertyDetails = getMultipleMonthlyPropertiesFromRedis(propertyIds);
 
-            // 월세 전용 정규화 범위 조회
-            MonthlyScoreNormalizationBounds districtBounds = getMonthlyBoundsFromRedis(districtName);
+            // 2. [Phase 2 신규] 리뷰 통계 정보 조회 (RDB 직접 조회 - 의도적 병목 지점)
+            Map<String, ReviewStatistics> reviewStatsMap = getReviewStatisticsFromRDB(propertyIds);
 
-            // 안전성 점수 조회
+            // 3. 기준 데이터 조회
+            MonthlyScoreNormalizationBounds districtBounds = getMonthlyBoundsFromRedis(districtName);
             double districtSafetyScore = getDistrictSafetyScoreFromRedis(districtName);
 
             List<PropertyWithScore> propertiesWithScores = new ArrayList<>();
 
             for (PropertyDetail propertyDetail : propertyDetails) {
                 try {
-                    // 보증금과 월세금 각각 점수 계산
+                    // === 4-1. 정량적 점수(Legacy Score) 산출 ===
                     double depositScore = calculateDepositScore(propertyDetail.getDeposit(), districtBounds);
                     double monthlyRentScore = calculateMonthlyRentScore(propertyDetail.getMonthlyRent(), districtBounds);
                     double spaceScore = calculateSpaceScore(propertyDetail.getAreaInPyeong(), districtBounds);
                     double safetyScore = propertyDetail.getSafetyScore() != null ?
                             propertyDetail.getSafetyScore() : districtSafetyScore;
 
-                    // 우선순위 가중치 적용 (월세 전용)
-                    double finalScore = calculateMonthlyWeightedFinalScore(
+                    // 월세는 보증금점수와 월세금점수의 평균을 가격 점수로 사용 (표시용)
+                    double displayPriceScore = (depositScore + monthlyRentScore) / 2.0;
+
+                    double legacyScore = calculateMonthlyWeightedFinalScore(
                             depositScore, monthlyRentScore, spaceScore, safetyScore,
                             request.getPriority1(), request.getPriority2(), request.getPriority3());
 
+                    // === 4-2. 정성적 점수(Review Score) 산출 및 통합 ===
+                    String propertyId = propertyDetail.getPropertyId();
+                    ReviewStatistics stats = reviewStatsMap.getOrDefault(propertyId,
+                            ReviewStatistics.builder().propertyId(propertyId).build());
+
+                    double finalScore = calculateHybridScore(legacyScore, stats);
+
                     PropertyWithScore propertyWithScore = PropertyWithScore.builder()
                             .propertyDetail(propertyDetail)
-                            .priceScore((depositScore + monthlyRentScore) / 2.0) // 표시용 가격점수
+                            .priceScore(displayPriceScore)
                             .spaceScore(spaceScore)
                             .safetyScore(safetyScore)
+                            .legacyScore(legacyScore)
+                            .reviewScore(calculateReviewScoreOnly(stats))
                             .finalScore(finalScore)
+                            .reviewCount(stats.getReviewCount())
+                            .avgRating(stats.getAvgRating().doubleValue())
                             .build();
 
                     propertiesWithScores.add(propertyWithScore);
@@ -348,12 +317,54 @@ public class MonthlyRecommendationService {
                 }
             }
 
+            // 점수 내림차순 정렬
             propertiesWithScores.sort((p1, p2) -> Double.compare(p2.getFinalScore(), p1.getFinalScore()));
             result.put(districtName, propertiesWithScores);
         }
 
-        log.info("S-04: 월세 매물 점수 계산 완료 - {}개 지역구", result.size());
         return result;
+    }
+
+    /**
+     * [Phase 2] 하이브리드 점수 산출 로직
+     * FinalScore = (LegacyScore * 0.5) + (ReviewScore * 0.5)
+     */
+    private double calculateHybridScore(double legacyScore, ReviewStatistics stats) {
+        // Cold Start 방어 로직 (리뷰 5개 미만)
+        if (stats.getReviewCount() < COLD_START_REVIEW_COUNT) {
+            return legacyScore;
+        }
+
+        double reviewScore = calculateReviewScoreOnly(stats);
+        return (legacyScore * 0.5) + (reviewScore * 0.5);
+    }
+
+    /**
+     * 리뷰 점수 자체 계산 로직
+     */
+    private double calculateReviewScoreOnly(ReviewStatistics stats) {
+        double ratingScore = (stats.getAvgRating().doubleValue() / 5.0) * 100.0;
+        int positive = stats.getPositiveKeywordCount();
+        int negative = stats.getNegativeKeywordCount();
+        double keywordScore;
+
+        if (positive + negative == 0) {
+            keywordScore = 50.0;
+        } else {
+            keywordScore = ((double) positive / (positive + negative)) * 100.0;
+        }
+
+        return (ratingScore * 0.5) + (keywordScore * 0.5);
+    }
+
+    /**
+     * [Phase 2] RDB에서 리뷰 통계 조회
+     */
+    private Map<String, ReviewStatistics> getReviewStatisticsFromRDB(List<String> propertyIds) {
+        if (propertyIds.isEmpty()) return Collections.emptyMap();
+        List<ReviewStatistics> statsList = reviewStatisticsRepository.findAllById(propertyIds);
+        return statsList.stream()
+                .collect(Collectors.toMap(ReviewStatistics::getPropertyId, stats -> stats));
     }
 
     /**
@@ -370,15 +381,13 @@ public class MonthlyRecommendationService {
             List<PropertyWithScore> propertiesWithScores = entry.getValue();
 
             if (propertiesWithScores.isEmpty()) {
-                DistrictWithScore districtWithScore = DistrictWithScore.builder()
+                districtScores.add(DistrictWithScore.builder()
                         .districtName(districtName)
                         .propertiesWithScores(propertiesWithScores)
                         .averageFinalScore(0.0)
                         .propertyCount(0)
                         .representativeScore(0.0)
-                        .build();
-
-                districtScores.add(districtWithScore);
+                        .build());
                 continue;
             }
 
@@ -400,24 +409,18 @@ public class MonthlyRecommendationService {
             districtScores.add(districtWithScore);
         }
 
-        // 정렬
         districtScores.sort((d1, d2) -> {
             int scoreComparison = Double.compare(d2.getRepresentativeScore(), d1.getRepresentativeScore());
             if (scoreComparison != 0) return scoreComparison;
-
-            int countComparison = Integer.compare(d2.getPropertyCount(), d1.getPropertyCount());
-            if (countComparison != 0) return countComparison;
-
-            return d1.getDistrictName().compareTo(d2.getDistrictName());
+            return Integer.compare(d2.getPropertyCount(), d1.getPropertyCount());
         });
 
-        log.info("S-05: 지역구 점수 계산 및 정렬 완료 - {}개 지역구", districtScores.size());
         return districtScores;
     }
 
     // ========================================
-// 월세 응답 생성 메소드들
-// ========================================
+    // 월세 응답 생성 메소드들
+    // ========================================
 
     /**
      * S-06: 월세 전용 최종 응답 생성
@@ -440,14 +443,6 @@ public class MonthlyRecommendationService {
                 .limit(3)
                 .collect(Collectors.toList());
 
-        if (validDistricts.isEmpty()) {
-            return MonthlyRecommendationResponseDto.builder()
-                    .searchStatus("NO_RESULTS")
-                    .message("조건에 맞는 월세 매물을 찾을 수 없었어요. 조건을 변경하여 다시 시도해 보세요.")
-                    .recommendedDistricts(Collections.emptyList())
-                    .build();
-        }
-
         List<RecommendedMonthlyDistrictDto> recommendedDistricts = new ArrayList<>();
 
         for (int i = 0; i < validDistricts.size(); i++) {
@@ -457,7 +452,6 @@ public class MonthlyRecommendationService {
             List<TopMonthlyPropertyDto> topProperties = selectTopMonthlyProperties(district.getPropertiesWithScores(), 3);
             String summary = generateDistrictSummary(district, rank, request.getPriority1());
 
-            // === 2차 명세: 월세 전용 상세 순위 정보 패널용 점수 계산 ===
             Double averagePriceScore = calculateMonthlyAverageScore(district.getPropertiesWithScores(), "price");
             Double averageSpaceScore = calculateMonthlyAverageScore(district.getPropertiesWithScores(), "space");
             Double districtSafetyScore = calculateAverageFinalScore(district.getPropertiesWithScores());
@@ -477,8 +471,6 @@ public class MonthlyRecommendationService {
             recommendedDistricts.add(districtDto);
         }
 
-        log.info("S-06: 월세 최종 응답 생성 완료 - {}개 지역구 추천", recommendedDistricts.size());
-
         return MonthlyRecommendationResponseDto.builder()
                 .searchStatus(searchResult.getSearchStatus())
                 .message(searchResult.getMessage())
@@ -486,52 +478,27 @@ public class MonthlyRecommendationService {
                 .build();
     }
 
-// === 2차 명세: 월세 전용 점수 계산 헬퍼 메서드 추가 ===
-    /**
-     * 월세 지역구 내 매물들의 특정 점수 평균 계산 (보증금+월세금 분리 처리)
-     */
     private Double calculateMonthlyAverageScore(List<PropertyWithScore> propertiesWithScores, String scoreType) {
-        if (propertiesWithScores == null || propertiesWithScores.isEmpty()) {
-            return 0.0;
-        }
-
+        if (propertiesWithScores == null || propertiesWithScores.isEmpty()) return 0.0;
         double totalScore = 0.0;
         for (PropertyWithScore property : propertiesWithScores) {
             switch (scoreType) {
-                case "price":
-                    // 월세는 priceScore가 이미 (보증금점수 + 월세금점수) / 2.0로 계산됨
-                    totalScore += property.getPriceScore();
-                    break;
-                case "space":
-                    totalScore += property.getSpaceScore();
-                    break;
-                default:
-                    return 0.0;
+                case "price": totalScore += property.getPriceScore(); break;
+                case "space": totalScore += property.getSpaceScore(); break;
             }
         }
-
         return totalScore / propertiesWithScores.size();
     }
 
-    /**
-     * 매물별 최종 추천 점수(finalScore)의 평균 계산
-     */
     private Double calculateAverageFinalScore(List<PropertyWithScore> propertiesWithScores) {
-        if (propertiesWithScores == null || propertiesWithScores.isEmpty()) {
-            return 0.0;
-        }
-
-        double totalFinalScore = 0.0;
+        if (propertiesWithScores == null || propertiesWithScores.isEmpty()) return 0.0;
+        double totalScore = 0.0;
         for (PropertyWithScore property : propertiesWithScores) {
-            totalFinalScore += property.getFinalScore();
+            totalScore += property.getFinalScore();
         }
-
-        return totalFinalScore / propertiesWithScores.size();
+        return totalScore / propertiesWithScores.size();
     }
 
-    /**
-     * 월세 매물 DTO 변환
-     */
     private List<TopMonthlyPropertyDto> selectTopMonthlyProperties(List<PropertyWithScore> propertiesWithScores, int maxCount) {
         return propertiesWithScores.stream()
                 .limit(maxCount)
@@ -539,9 +506,6 @@ public class MonthlyRecommendationService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 월세 매물 DTO 변환
-     */
     private TopMonthlyPropertyDto convertToTopMonthlyPropertyDto(PropertyWithScore propertyWithScore) {
         PropertyDetail detail = propertyWithScore.getPropertyDetail();
 
@@ -549,26 +513,25 @@ public class MonthlyRecommendationService {
                 .propertyId(detail.getPropertyId())
                 .propertyName(detail.getAptNm())
                 .address(detail.getAddress())
-                .price(detail.getDeposit()) // 보증금
-                .monthlyRent(detail.getMonthlyRent()) // 월세금
+                .price(detail.getDeposit())
+                .monthlyRent(detail.getMonthlyRent())
                 .leaseType("월세")
                 .area(detail.getAreaInPyeong())
                 .floor(detail.getFloor())
                 .buildYear(detail.getBuildYear())
                 .finalScore(propertyWithScore.getFinalScore())
+                // [Phase 2] 리뷰 정보 매핑
+                .reviewCount(propertyWithScore.getReviewCount())
+                .avgRating(propertyWithScore.getAvgRating())
                 .build();
     }
 
     // ========================================
-    // 월세 Redis 조회 메소드들
+    // 월세 Redis 조회 메소드들 (기존 로직 유지)
     // ========================================
 
-    /**
-     * 월세 매물 상세 정보 조회 (property:monthly:{id} 패턴)
-     */
     private List<PropertyDetail> getMultipleMonthlyPropertiesFromRedis(List<String> propertyIds) {
         List<PropertyDetail> propertyDetails = new ArrayList<>();
-
         try {
             List<Object> pipelineResults = redisHandler.redisTemplate.executePipelined(
                     (org.springframework.data.redis.core.RedisCallback<Object>) connection -> {
@@ -585,39 +548,25 @@ public class MonthlyRecommendationService {
                     Map<Object, Object> propertyHash = (Map<Object, Object>) result;
                     if (!propertyHash.isEmpty()) {
                         PropertyDetail detail = convertHashToPropertyDetail(propertyIds.get(i), propertyHash);
-                        if (detail != null) {
-                            propertyDetails.add(detail);
-                        }
+                        if (detail != null) propertyDetails.add(detail);
                     }
                 }
             }
-
         } catch (Exception e) {
             log.error("월세 매물 Pipeline 조회 실패", e);
         }
-
         return propertyDetails;
     }
 
-    /**
-     * 월세 전용 정규화 범위 조회 - 보증금, 월세금, 평수 필요
-     */
     private MonthlyScoreNormalizationBounds getMonthlyBoundsFromRedis(String districtName) {
         try {
             String boundsKey = "bounds:" + districtName + ":월세";
             Map<Object, Object> boundsHash = redisHandler.redisTemplate.opsForHash().entries(boundsKey);
 
             if (boundsHash.isEmpty()) {
-                return MonthlyScoreNormalizationBounds.builder()
-                        .minDeposit(0.0)
-                        .maxDeposit(50000.0)
-                        .minMonthlyRent(0.0)
-                        .maxMonthlyRent(500.0)
-                        .minArea(10.0)
-                        .maxArea(100.0)
-                        .build();
+                return MonthlyScoreNormalizationBounds.builder().minDeposit(0.0).maxDeposit(50000.0)
+                        .minMonthlyRent(0.0).maxMonthlyRent(500.0).minArea(10.0).maxArea(100.0).build();
             }
-
             return MonthlyScoreNormalizationBounds.builder()
                     .minDeposit(Double.parseDouble(boundsHash.get("minDeposit").toString()))
                     .maxDeposit(Double.parseDouble(boundsHash.get("maxDeposit").toString()))
@@ -626,49 +575,19 @@ public class MonthlyRecommendationService {
                     .minArea(Double.parseDouble(boundsHash.get("minArea").toString()))
                     .maxArea(Double.parseDouble(boundsHash.get("maxArea").toString()))
                     .build();
-
         } catch (Exception e) {
-            log.error("월세 정규화 범위 조회 실패 - 지역구: {}", districtName, e);
-            return MonthlyScoreNormalizationBounds.builder()
-                    .minDeposit(0.0)
-                    .maxDeposit(50000.0)
-                    .minMonthlyRent(0.0)
-                    .maxMonthlyRent(500.0)
-                    .minArea(10.0)
-                    .maxArea(100.0)
-                    .build();
+            return MonthlyScoreNormalizationBounds.builder().minDeposit(0.0).maxDeposit(50000.0)
+                    .minMonthlyRent(0.0).maxMonthlyRent(500.0).minArea(10.0).maxArea(100.0).build();
         }
     }
 
-    /**
-     * 안전성 점수 조회 - 배치에서 생성한 safety:{지역구명} 패턴 사용
-     */
     private double getDistrictSafetyScoreFromRedis(String districtName) {
         try {
             String safetyKey = "safety:" + districtName;
             Map<Object, Object> safetyHash = redisHandler.redisTemplate.opsForHash().entries(safetyKey);
-
-            if (safetyHash.isEmpty()) {
-                log.debug("안전성 점수 없음 - 지역구: {}, 기본값 50.0 사용", districtName);
-                return 50.0;
-            }
-
-            Object safetyScoreObj = safetyHash.get("safetyScore");
-            if (safetyScoreObj == null) {
-                log.debug("safetyScore 필드 없음 - 지역구: {}, 기본값 50.0 사용", districtName);
-                return 50.0;
-            }
-
-            double safetyScore = Double.parseDouble(safetyScoreObj.toString());
-            log.debug("안전성 점수 조회 성공 - 지역구: {}, 점수: {}", districtName, safetyScore);
-            return safetyScore;
-
-        } catch (NumberFormatException e) {
-            log.error("안전성 점수 숫자 변환 실패 - 지역구: {}, 값: {}", districtName,
-                    redisHandler.redisTemplate.opsForHash().get("safety:" + districtName, "safetyScore"), e);
-            return 50.0;
+            if (safetyHash.isEmpty() || safetyHash.get("safetyScore") == null) return 50.0;
+            return Double.parseDouble(safetyHash.get("safetyScore").toString());
         } catch (Exception e) {
-            log.error("안전성 점수 조회 실패 - 지역구: {}", districtName, e);
             return 50.0;
         }
     }
@@ -677,39 +596,24 @@ public class MonthlyRecommendationService {
     // 월세 점수 계산 헬퍼 메소드들
     // ========================================
 
-    /**
-     * 보증금 점수 계산 (낮은 보증금일수록 높은 점수) - 월세용
-     */
     private double calculateDepositScore(Integer deposit, MonthlyScoreNormalizationBounds bounds) {
         if (deposit == null) return 0.0;
-
-        double normalizedDeposit = (deposit - bounds.getMinDeposit()) / (bounds.getMaxDeposit() - bounds.getMinDeposit());
-        return Math.max(0.0, Math.min(100.0, 100.0 - (normalizedDeposit * 100.0)));
+        double normalized = (deposit - bounds.getMinDeposit()) / (bounds.getMaxDeposit() - bounds.getMinDeposit());
+        return Math.max(0.0, Math.min(100.0, 100.0 - (normalized * 100.0)));
     }
 
-    /**
-     * 월세금 점수 계산 (낮은 월세금일수록 높은 점수) - 월세용
-     */
     private double calculateMonthlyRentScore(Integer monthlyRent, MonthlyScoreNormalizationBounds bounds) {
         if (monthlyRent == null) return 0.0;
-
-        double normalizedMonthlyRent = (monthlyRent - bounds.getMinMonthlyRent()) / (bounds.getMaxMonthlyRent() - bounds.getMinMonthlyRent());
-        return Math.max(0.0, Math.min(100.0, 100.0 - (normalizedMonthlyRent * 100.0)));
+        double normalized = (monthlyRent - bounds.getMinMonthlyRent()) / (bounds.getMaxMonthlyRent() - bounds.getMinMonthlyRent());
+        return Math.max(0.0, Math.min(100.0, 100.0 - (normalized * 100.0)));
     }
 
-    /**
-     * 공간 점수 계산 (넓은 평수일수록 높은 점수) - 월세용
-     */
     private double calculateSpaceScore(Double areaInPyeong, MonthlyScoreNormalizationBounds bounds) {
         if (areaInPyeong == null) return 0.0;
-
-        double normalizedArea = (areaInPyeong - bounds.getMinArea()) / (bounds.getMaxArea() - bounds.getMinArea());
-        return Math.max(0.0, Math.min(100.0, normalizedArea * 100.0));
+        double normalized = (areaInPyeong - bounds.getMinArea()) / (bounds.getMaxArea() - bounds.getMinArea());
+        return Math.max(0.0, Math.min(100.0, normalized * 100.0));
     }
 
-    /**
-     * 우선순위 가중치 적용 최종 점수 계산 - 월세용 (보증금 + 월세금 분리)
-     */
     private double calculateMonthlyWeightedFinalScore(double depositScore, double monthlyRentScore, double spaceScore, double safetyScore,
                                                       String priority1, String priority2, String priority3) {
         Map<String, Double> priorityWeights = new HashMap<>();
@@ -717,35 +621,20 @@ public class MonthlyRecommendationService {
         priorityWeights.put(priority2, 0.3);
         priorityWeights.put(priority3, 0.1);
 
-        // PRICE 가중치를 보증금과 월세금에 반반씩 분배
         double priceWeight = priorityWeights.getOrDefault("PRICE", 0.0);
-        double weightedDepositScore = depositScore * (priceWeight * 0.5);  // 가격의 50%
-        double weightedMonthlyRentScore = monthlyRentScore * (priceWeight * 0.5);  // 가격의 50%
-
+        double weightedDepositScore = depositScore * (priceWeight * 0.5);
+        double weightedMonthlyRentScore = monthlyRentScore * (priceWeight * 0.5);
         double weightedSpaceScore = spaceScore * priorityWeights.getOrDefault("SPACE", 0.0);
         double weightedSafetyScore = safetyScore * priorityWeights.getOrDefault("SAFETY", 0.0);
 
         return weightedDepositScore + weightedMonthlyRentScore + weightedSpaceScore + weightedSafetyScore;
     }
 
-    /**
-     * 지역구 요약 메시지 생성
-     */
     private String generateDistrictSummary(DistrictWithScore district, int rank, String primaryPriority) {
-        String priorityName;
-        switch (primaryPriority) {
-            case "PRICE":
-                priorityName = "가격";
-                break;
-            case "SAFETY":
-                priorityName = "안전";
-                break;
-            case "SPACE":
-                priorityName = "공간";
-                break;
-            default:
-                priorityName = "종합";
-        }
+        String priorityName = "종합";
+        if ("PRICE".equals(primaryPriority)) priorityName = "가격";
+        else if ("SAFETY".equals(primaryPriority)) priorityName = "안전";
+        else if ("SPACE".equals(primaryPriority)) priorityName = "공간";
 
         if (rank == 1) {
             return String.format("%s 1순위 조건에 가장 부합하며, 조건 내 추천 매물이 %d건 있습니다.",
@@ -760,121 +649,59 @@ public class MonthlyRecommendationService {
     // 월세 폴백 조건 완화 메소드들
     // ========================================
 
-    /**
-     * 월세 3순위 조건 완화
-     */
     private MonthlyRecommendationRequestDto relaxMonthlyThirdPriority(MonthlyRecommendationRequestDto original) {
         MonthlyRecommendationRequestDto relaxed = copyMonthlyRequest(original);
-
-        switch (original.getPriority3()) {
-            case "PRICE":
-                if (original.getBudgetFlexibility() != null && original.getBudgetFlexibility() > 0) {
-                    // 보증금 상한 완화
-                    int depositFlexAmount = (int) (original.getBudgetMax() * (original.getBudgetFlexibility() / 100.0));
-                    relaxed.setBudgetMax(original.getBudgetMax() + depositFlexAmount);
-
-                    // 월세금 상한 완화
-                    int monthlyRentFlexAmount = (int) (original.getMonthlyRentMax() * (original.getBudgetFlexibility() / 100.0));
-                    relaxed.setMonthlyRentMax(original.getMonthlyRentMax() + monthlyRentFlexAmount);
-                }
-                break;
-            case "SPACE":
-                if (original.getAbsoluteMinArea() != null && original.getAbsoluteMinArea() > 0) {
-                    relaxed.setAreaMin(original.getAbsoluteMinArea());
-                }
-                break;
-            case "SAFETY":
-                if (original.getMinSafetyScore() != null && original.getMinSafetyScore() > 0) {
-                    relaxed.setMinSafetyScore(original.getMinSafetyScore());
-                }
-                break;
+        if ("PRICE".equals(original.getPriority3()) && original.getBudgetFlexibility() > 0) {
+            int depositFlex = (int) (original.getBudgetMax() * (original.getBudgetFlexibility() / 100.0));
+            relaxed.setBudgetMax(original.getBudgetMax() + depositFlex);
+            int rentFlex = (int) (original.getMonthlyRentMax() * (original.getBudgetFlexibility() / 100.0));
+            relaxed.setMonthlyRentMax(original.getMonthlyRentMax() + rentFlex);
+        } else if ("SPACE".equals(original.getPriority3()) && original.getAbsoluteMinArea() > 0) {
+            relaxed.setAreaMin(original.getAbsoluteMinArea());
+        } else if ("SAFETY".equals(original.getPriority3()) && original.getMinSafetyScore() > 0) {
+            relaxed.setMinSafetyScore(original.getMinSafetyScore());
         }
-
         return relaxed;
     }
 
-    /**
-     * 월세 2순위 조건 완화
-     */
     private MonthlyRecommendationRequestDto relaxMonthlySecondPriority(MonthlyRecommendationRequestDto expandedRequest,
                                                                        MonthlyRecommendationRequestDto original) {
         MonthlyRecommendationRequestDto doubleRelaxed = copyMonthlyRequest(expandedRequest);
-
-        switch (original.getPriority2()) {
-            case "PRICE":
-                if (original.getBudgetFlexibility() != null && original.getBudgetFlexibility() > 0) {
-                    // 보증금 상한 완화
-                    int depositFlexAmount = (int) (original.getBudgetMax() * (original.getBudgetFlexibility() / 100.0));
-                    int newBudgetMax = original.getBudgetMax() + depositFlexAmount;
-                    doubleRelaxed.setBudgetMax(Math.max(doubleRelaxed.getBudgetMax(), newBudgetMax));
-
-                    // 월세금 상한 완화
-                    int monthlyRentFlexAmount = (int) (original.getMonthlyRentMax() * (original.getBudgetFlexibility() / 100.0));
-                    int newMonthlyRentMax = original.getMonthlyRentMax() + monthlyRentFlexAmount;
-                    doubleRelaxed.setMonthlyRentMax(Math.max(doubleRelaxed.getMonthlyRentMax(), newMonthlyRentMax));
-                }
-                break;
-            case "SPACE":
-                if (original.getAbsoluteMinArea() != null && original.getAbsoluteMinArea() > 0) {
-                    doubleRelaxed.setAreaMin(Math.min(doubleRelaxed.getAreaMin(), original.getAbsoluteMinArea()));
-                }
-                break;
-            case "SAFETY":
-                if (original.getMinSafetyScore() != null && original.getMinSafetyScore() > 0) {
-                    // 2순위까지 완화 시에는 더 낮은 안전 점수까지 허용
-                    doubleRelaxed.setMinSafetyScore(Math.min(doubleRelaxed.getMinSafetyScore(), original.getMinSafetyScore()));
-                }
-                break;
+        if ("PRICE".equals(original.getPriority2()) && original.getBudgetFlexibility() > 0) {
+            int depositFlex = (int) (original.getBudgetMax() * (original.getBudgetFlexibility() / 100.0));
+            doubleRelaxed.setBudgetMax(Math.max(doubleRelaxed.getBudgetMax(), original.getBudgetMax() + depositFlex));
+            int rentFlex = (int) (original.getMonthlyRentMax() * (original.getBudgetFlexibility() / 100.0));
+            doubleRelaxed.setMonthlyRentMax(Math.max(doubleRelaxed.getMonthlyRentMax(), original.getMonthlyRentMax() + rentFlex));
+        } else if ("SPACE".equals(original.getPriority2()) && original.getAbsoluteMinArea() > 0) {
+            doubleRelaxed.setAreaMin(Math.min(doubleRelaxed.getAreaMin(), original.getAbsoluteMinArea()));
+        } else if ("SAFETY".equals(original.getPriority2()) && original.getMinSafetyScore() > 0) {
+            doubleRelaxed.setMinSafetyScore(Math.min(doubleRelaxed.getMinSafetyScore(), original.getMinSafetyScore()));
         }
-
         return doubleRelaxed;
     }
 
-    /**
-     * 월세 요청 객체 깊은 복사
-     */
     private MonthlyRecommendationRequestDto copyMonthlyRequest(MonthlyRecommendationRequestDto original) {
         return MonthlyRecommendationRequestDto.builder()
-                .budgetMin(original.getBudgetMin())
-                .budgetMax(original.getBudgetMax())
-                .monthlyRentMin(original.getMonthlyRentMin())
-                .monthlyRentMax(original.getMonthlyRentMax())
-                .areaMin(original.getAreaMin())
-                .areaMax(original.getAreaMax())
-                .priority1(original.getPriority1())
-                .priority2(original.getPriority2())
-                .priority3(original.getPriority3())
-                .budgetFlexibility(original.getBudgetFlexibility())
-                .minSafetyScore(original.getMinSafetyScore())
-                .absoluteMinArea(original.getAbsoluteMinArea())
-                .build();
+                .budgetMin(original.getBudgetMin()).budgetMax(original.getBudgetMax())
+                .monthlyRentMin(original.getMonthlyRentMin()).monthlyRentMax(original.getMonthlyRentMax())
+                .areaMin(original.getAreaMin()).areaMax(original.getAreaMax())
+                .priority1(original.getPriority1()).priority2(original.getPriority2()).priority3(original.getPriority3())
+                .budgetFlexibility(original.getBudgetFlexibility()).minSafetyScore(original.getMinSafetyScore())
+                .absoluteMinArea(original.getAbsoluteMinArea()).build();
     }
 
-    /**
-     * 월세 완화 조건 메시지 생성
-     */
     private String getMonthlyRelaxedConditionMessage(String priority, MonthlyRecommendationRequestDto original,
                                                      MonthlyRecommendationRequestDto relaxed) {
-        switch (priority) {
-            case "PRICE":
-                return String.format("보증금 조건을 %d만원, 월세 조건을 %d만원으로",
-                        relaxed.getBudgetMax(), relaxed.getMonthlyRentMax());
-            case "SPACE":
-                return "평수 조건을 " + relaxed.getAreaMin() + "평으로";
-            case "SAFETY":
-                return "안전성 점수 조건을 " + relaxed.getMinSafetyScore() + "점으로";
-            default:
-                return "검색 조건을";
-        }
+        if ("PRICE".equals(priority)) return String.format("보증금 조건을 %d만원, 월세 조건을 %d만원으로", relaxed.getBudgetMax(), relaxed.getMonthlyRentMax());
+        if ("SPACE".equals(priority)) return "평수 조건을 " + relaxed.getAreaMin() + "평으로";
+        if ("SAFETY".equals(priority)) return "안전성 점수 조건을 " + relaxed.getMinSafetyScore() + "점으로";
+        return "검색 조건을";
     }
 
     // ========================================
     // 공통 유틸리티 메소드들
     // ========================================
 
-    /**
-     * Redis Hash를 PropertyDetail 객체로 변환
-     */
     private PropertyDetail convertHashToPropertyDetail(String propertyId, Map<Object, Object> propertyHash) {
         try {
             return PropertyDetail.builder()
@@ -894,84 +721,43 @@ public class MonthlyRecommendationService {
                     .areaInPyeong(getDoubleValue(propertyHash, "areaInPyeong"))
                     .rgstDate(getStringValue(propertyHash, "rgstDate"))
                     .districtName(getStringValue(propertyHash, "districtName"))
-                    .safetyScore(null)
-                    .build();
-        } catch (Exception e) {
-            log.debug("PropertyDetail 변환 실패: {}", propertyId, e);
-            return null;
-        }
+                    .safetyScore(null).build();
+        } catch (Exception e) { return null; }
     }
 
-    /**
-     * String 값 안전 추출
-     */
     private String getStringValue(Map<Object, Object> hash, String key) {
         Object value = hash.get(key);
         return value != null ? value.toString() : null;
     }
 
-    /**
-     * Integer 값 안전 추출
-     */
     private Integer getIntegerValue(Map<Object, Object> hash, String key) {
         Object value = hash.get(key);
         if (value == null) return null;
-        try {
-            return Integer.valueOf(value.toString());
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        try { return Integer.valueOf(value.toString()); } catch (NumberFormatException e) { return null; }
     }
 
-    /**
-     * Double 값 안전 추출
-     */
     private Double getDoubleValue(Map<Object, Object> hash, String key) {
         Object value = hash.get(key);
         if (value == null) return null;
-        try {
-            return Double.valueOf(value.toString());
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        try { return Double.valueOf(value.toString()); } catch (NumberFormatException e) { return null; }
     }
 
     // ========================================
     // 내부 클래스들
     // ========================================
 
-    /**
-     * 검색 결과 클래스
-     */
     private static class SearchResult {
         private String searchStatus;
         private String message;
         private Map<String, List<String>> districtProperties;
-
-        public static SearchResultBuilder builder() {
-            return new SearchResultBuilder();
-        }
-
+        public static SearchResultBuilder builder() { return new SearchResultBuilder(); }
         public static class SearchResultBuilder {
             private String searchStatus;
             private String message;
             private Map<String, List<String>> districtProperties;
-
-            public SearchResultBuilder searchStatus(String searchStatus) {
-                this.searchStatus = searchStatus;
-                return this;
-            }
-
-            public SearchResultBuilder message(String message) {
-                this.message = message;
-                return this;
-            }
-
-            public SearchResultBuilder districtProperties(Map<String, List<String>> districtProperties) {
-                this.districtProperties = districtProperties;
-                return this;
-            }
-
+            public SearchResultBuilder searchStatus(String searchStatus) { this.searchStatus = searchStatus; return this; }
+            public SearchResultBuilder message(String message) { this.message = message; return this; }
+            public SearchResultBuilder districtProperties(Map<String, List<String>> districtProperties) { this.districtProperties = districtProperties; return this; }
             public SearchResult build() {
                 SearchResult result = new SearchResult();
                 result.searchStatus = this.searchStatus;
@@ -980,15 +766,11 @@ public class MonthlyRecommendationService {
                 return result;
             }
         }
-
         public String getSearchStatus() { return searchStatus; }
         public String getMessage() { return message; }
         public Map<String, List<String>> getDistrictProperties() { return districtProperties; }
     }
 
-    /**
-     * 점수 포함 매물 클래스
-     */
     @lombok.Builder
     @lombok.Getter
     private static class PropertyWithScore {
@@ -996,12 +778,13 @@ public class MonthlyRecommendationService {
         private double priceScore;
         private double spaceScore;
         private double safetyScore;
+        private double legacyScore; // [Phase 2] 디버깅용
+        private double reviewScore; // [Phase 2] 디버깅용
         private double finalScore;
+        private int reviewCount;    // [Phase 2]
+        private double avgRating;   // [Phase 2]
     }
 
-    /**
-     * 점수 포함 지역구 클래스
-     */
     @lombok.Builder
     @lombok.Getter
     private static class DistrictWithScore {
@@ -1012,9 +795,6 @@ public class MonthlyRecommendationService {
         private double representativeScore;
     }
 
-    /**
-     * 매물 상세 정보 클래스
-     */
     @lombok.Builder
     @lombok.Getter
     private static class PropertyDetail {
@@ -1037,17 +817,14 @@ public class MonthlyRecommendationService {
         private Double safetyScore;
     }
 
-    /**
-     * 월세 전용 정규화 범위 클래스
-     */
     @lombok.Builder
     @lombok.Getter
     private static class MonthlyScoreNormalizationBounds {
-        private double minDeposit;      // 보증금 최소값
-        private double maxDeposit;      // 보증금 최대값
-        private double minMonthlyRent;  // 월세금 최소값
-        private double maxMonthlyRent;  // 월세금 최대값
-        private double minArea;         // 평수 최소값
-        private double maxArea;         // 평수 최대값
+        private double minDeposit;
+        private double maxDeposit;
+        private double minMonthlyRent;
+        private double maxMonthlyRent;
+        private double minArea;
+        private double maxArea;
     }
 }
