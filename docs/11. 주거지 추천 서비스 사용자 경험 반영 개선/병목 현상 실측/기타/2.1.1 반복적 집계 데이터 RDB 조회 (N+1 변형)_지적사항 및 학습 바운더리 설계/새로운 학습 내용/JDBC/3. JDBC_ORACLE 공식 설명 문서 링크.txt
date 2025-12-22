@@ -1,0 +1,1 @@
+[ JDBC 초기 연결 설정 ] https://docs.oracle.com/en/database/oracle/oracle-database/18/jjdbc/JDBC-getting-started.html#GUID-44E1770A-967E-4713-9AFF-86D9D4EDE188

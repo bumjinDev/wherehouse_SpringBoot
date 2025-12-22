@@ -1,0 +1,154 @@
+JDBC 아키텍처 검증 API - Postman 테스트 명세서
+============================================================
+
+Base URL: http://localhost:8080
+Content-Type: 별도 설정 불필요 (GET 요청만 존재)
+Authorization: 없음
+
+============================================================
+1. DriverManager 메커니즘
+============================================================
+
+[1-1] 드라이버 등록 확인
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/driver/registration
+Headers: 없음
+Body: 없음
+
+[1-2] connect() 직접 호출 검증
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/driver/connect
+Headers: 없음
+Body: 없음
+
+[1-3] getConnection() 내부 동작 시뮬레이션
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/driver/simulate
+Headers: 없음
+Body: 없음
+
+[1-4] 커넥션 수립 비용 측정
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/driver/cost?iterations=5
+Headers: 없음
+Body: 없음
+Query Parameter:
+  - iterations (선택, 기본값 5): 측정 반복 횟수
+
+============================================================
+2. HikariCP 풀링 메커니즘
+============================================================
+
+[2-1] 풀 구성 정보
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/pool/config
+Headers: 없음
+Body: 없음
+
+[2-2] 현재 풀 상태
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/pool/status
+Headers: 없음
+Body: 없음
+
+[2-3] 커넥션 대여/반납 시연
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/pool/borrow-return
+Headers: 없음
+Body: 없음
+
+[2-4] 풀 재사용 vs 신규 생성 비용 비교
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/pool/compare-cost
+Headers: 없음
+Body: 없음
+
+[2-5] 풀 고갈 시뮬레이션
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/pool/exhaustion
+Headers: 없음
+Body: 없음
+
+============================================================
+3. Connection 물리적 실체
+============================================================
+
+[3-1] Connection 메타데이터
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/connection/metadata
+Headers: 없음
+Body: 없음
+
+[3-2] Oracle V$SESSION 조회
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/connection/session
+Headers: 없음
+Body: 없음
+
+[3-3] PGA 메모리 정보 (DBA 권한 필요)
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/connection/pga
+Headers: 없음
+Body: 없음
+
+[3-4] 다중 커넥션 독립 세션 증명
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/connection/independent
+Headers: 없음
+Body: 없음
+
+[3-5] Connection Holding Time 시연
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/connection/holding-time
+Headers: 없음
+Body: 없음
+
+============================================================
+4. 트랜잭션 바인딩 메커니즘
+============================================================
+
+[4-1] 트랜잭션 없이 실행
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/transaction/without
+Headers: 없음
+Body: 없음
+
+[4-2] @Transactional 내에서 실행
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/transaction/with
+Headers: 없음
+Body: 없음
+
+[4-3] Holding Time & 회전율 분석
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/transaction/holding-analysis
+Headers: 없음
+Body: 없음
+
+============================================================
+5. 전체 검증
+============================================================
+
+[5-1] 전체 검증 한번에 실행
+------------------------------------------------------------
+Method: GET
+URL: http://localhost:8080/api/jdbc/verify-all
+Headers: 없음
+Body: 없음

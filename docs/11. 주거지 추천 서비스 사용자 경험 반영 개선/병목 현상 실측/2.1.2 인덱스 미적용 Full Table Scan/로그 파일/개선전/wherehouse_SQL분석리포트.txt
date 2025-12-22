@@ -1,0 +1,123 @@
+====================================================================================================
+P6Spy SQL 실행 분석 리포트
+생성 시각: 2025-12-17 19:31:34
+====================================================================================================
+
+[1] 전체 요약
+--------------------------------------------------
+  총 SQL 실행 수: 412건
+  총 COMMIT: 104건
+  총 ROLLBACK: 7건
+
+[2] 실행 시간 통계
+--------------------------------------------------
+  최소: 0ms
+  최대: 48ms
+  평균: 6.3ms
+  중앙값: 1.0ms
+  표준편차: 10.4ms
+  총 소요시간: 2589ms (2.59초)
+
+[3] SQL 타입별 통계
+--------------------------------------------------
+  타입         |       건수 |      총시간(ms) |     평균(ms) |     최대(ms)
+  ------------------------------------------------------------
+  SELECT     |      412 |         2589 |        6.3 |         48
+
+[4] 테이블별 통계 (상위 20개)
+--------------------------------------------------
+  테이블명                                |     건수 |    총시간(ms) |   평균(ms)
+  ----------------------------------------------------------------------
+  PROPERTIES_CHARTER                  |    202 |       2322 |     11.5
+  PROPERTIES_MONTHLY                  |    202 |       2316 |     11.5
+  REVIEWS                             |    200 |        218 |      1.1
+  DUAL                                |      2 |         28 |     14.0
+  ANALYSIS_ENTERTAINMENT_STATISTICS   |      2 |         21 |     10.5
+  ANALYSIS_CRIME_STATISTICS           |      2 |          0 |      0.0
+  ANALYSIS_POPULATION_DENSITY         |      2 |          0 |      0.0
+
+[5] 슬로우 쿼리 TOP 10
+--------------------------------------------------
+  [1] 48ms @ 2025-12-17 19:20:20.189
+      Thread: http-nio-8185-exec-5
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [2] 48ms @ 2025-12-17 19:20:20.189
+      Thread: http-nio-8185-exec-5
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [3] 44ms @ 2025-12-17 19:20:20.215
+      Thread: http-nio-8185-exec-25
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [4] 43ms @ 2025-12-17 19:20:20.215
+      Thread: http-nio-8185-exec-25
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [5] 39ms @ 2025-12-17 19:20:20.239
+      Thread: http-nio-8185-exec-1
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [6] 39ms @ 2025-12-17 19:20:20.239
+      Thread: http-nio-8185-exec-1
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [7] 37ms @ 2025-12-17 19:20:20.215
+      Thread: http-nio-8185-exec-18
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [8] 36ms @ 2025-12-17 19:20:20.215
+      Thread: http-nio-8185-exec-18
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [9] 35ms @ 2025-12-17 19:20:20.228
+      Thread: http-nio-8185-exec-35
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+  [10] 35ms @ 2025-12-17 19:20:20.228
+      Thread: http-nio-8185-exec-35
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm LIKE...
+
+[6] 쿼리 패턴별 통계 (상위 10개)
+--------------------------------------------------
+  [1] 실행횟수: 100회, 총시간: 2294ms, 평균: 22.9ms
+      Sample: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '%관악산 삼성산 주공 3단지%' UNION ALL SELECT property_id FROM proper...
+
+  [2] 실행횟수: 100회, 총시간: 190ms, 평균: 1.9ms
+      Sample: select r1_0.REVIEW_ID,r1_0.CONTENT,r1_0.CREATED_AT,r1_0.PROPERTY_ID,r1_0.RATING,r1_0.UPDATED_AT,r1_0.USER_ID from REVIEW...
+
+  [3] 실행횟수: 100회, 총시간: 28ms, 평균: 0.3ms
+      Sample: select count(r1_0.REVIEW_ID) from REVIEWS r1_0 where r1_0.PROPERTY_ID in ('44444444444444444444444444444444')...
+
+  [4] 실행횟수: 1회, 총시간: 26ms, 평균: 26.0ms
+      Sample: select 1 from dual where sys_context('USERENV','CLOUD_SERVICE') in ('OLTP','DWCS','JDCS')...
+
+  [5] 실행횟수: 100회, 총시간: 22ms, 평균: 0.2ms
+      Sample: SELECT property_id, apt_nm FROM properties_charter WHERE property_id IN ('44444444444444444444444444444444') UNION ALL S...
+
+  [6] 실행횟수: 2회, 총시간: 21ms, 평균: 10.5ms
+      Sample: SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\...
+
+  [7] 실행횟수: 2회, 총시간: 6ms, 평균: 3.0ms
+      Sample: select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,...
+
+  [8] 실행횟수: 1회, 총시간: 2ms, 평균: 2.0ms
+      Sample: select cast('string' as varchar2(32000)), sys_context('USERENV','CLOUD_SERVICE') from dual...
+
+  [9] 실행횟수: 2회, 총시간: 0ms, 평균: 0.0ms
+      Sample: select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,...
+
+  [10] 실행횟수: 2회, 총시간: 0ms, 평균: 0.0ms
+      Sample: select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,ac...
+
+====================================================================================================

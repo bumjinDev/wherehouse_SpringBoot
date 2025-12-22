@@ -1,0 +1,123 @@
+====================================================================================================
+P6Spy SQL 실행 분석 리포트
+생성 시각: 2025-12-17 21:09:57
+====================================================================================================
+
+[1] 전체 요약
+--------------------------------------------------
+  총 SQL 실행 수: 412건
+  총 COMMIT: 104건
+  총 ROLLBACK: 7건
+
+[2] 실행 시간 통계
+--------------------------------------------------
+  최소: 0ms
+  최대: 25ms
+  평균: 1.6ms
+  중앙값: 0.0ms
+  표준편차: 3.8ms
+  총 소요시간: 645ms (0.65초)
+
+[3] SQL 타입별 통계
+--------------------------------------------------
+  타입         |       건수 |      총시간(ms) |     평균(ms) |     최대(ms)
+  ------------------------------------------------------------
+  SELECT     |      412 |          645 |        1.6 |         25
+
+[4] 테이블별 통계 (상위 20개)
+--------------------------------------------------
+  테이블명                                |     건수 |    총시간(ms) |   평균(ms)
+  ----------------------------------------------------------------------
+  PROPERTIES_CHARTER                  |    202 |        444 |      2.2
+  PROPERTIES_MONTHLY                  |    202 |        437 |      2.2
+  REVIEWS                             |    200 |        157 |      0.8
+  DUAL                                |      2 |         27 |     13.5
+  ANALYSIS_ENTERTAINMENT_STATISTICS   |      2 |         15 |      7.5
+  ANALYSIS_CRIME_STATISTICS           |      2 |          0 |      0.0
+  ANALYSIS_POPULATION_DENSITY         |      2 |          0 |      0.0
+
+[5] 슬로우 쿼리 TOP 10
+--------------------------------------------------
+  [1] 25ms @ 2025-12-17 21:08:49.566
+      Thread: main
+      Tables: DUAL
+      SQL: select 1 from dual where sys_context('USERENV','CLOUD_SERVICE') in ('OLTP','DWCS','JDCS')...
+
+  [2] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-6
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [3] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-27
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [4] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-37
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [5] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-30
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [6] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-50
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [7] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-45
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [8] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-32
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [9] 15ms @ 2025-12-17 21:09:16.078
+      Thread: http-nio-8185-exec-42
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+  [10] 15ms @ 2025-12-17 21:09:16.079
+      Thread: http-nio-8185-exec-20
+      Tables: PROPERTIES_CHARTER, PROPERTIES_MONTHLY
+      SQL: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM properties_monthly WHERE apt_nm...
+
+[6] 쿼리 패턴별 통계 (상위 10개)
+--------------------------------------------------
+  [1] 실행횟수: 100회, 총시간: 293ms, 평균: 2.9ms
+      Sample: SELECT property_id FROM properties_charter WHERE apt_nm LIKE '관악산 삼성산 주공 3단지' || '%' UNION ALL SELECT property_id FROM p...
+
+  [2] 실행횟수: 100회, 총시간: 156ms, 평균: 1.6ms
+      Sample: select r1_0.REVIEW_ID,r1_0.CONTENT,r1_0.CREATED_AT,r1_0.PROPERTY_ID,r1_0.RATING,r1_0.UPDATED_AT,r1_0.USER_ID from REVIEW...
+
+  [3] 실행횟수: 100회, 총시간: 142ms, 평균: 1.4ms
+      Sample: SELECT property_id, apt_nm FROM properties_charter WHERE property_id IN ('44444444444444444444444444444444') UNION ALL S...
+
+  [4] 실행횟수: 1회, 총시간: 25ms, 평균: 25.0ms
+      Sample: select 1 from dual where sys_context('USERENV','CLOUD_SERVICE') in ('OLTP','DWCS','JDCS')...
+
+  [5] 실행횟수: 2회, 총시간: 15ms, 평균: 7.5ms
+      Sample: SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\...
+
+  [6] 실행횟수: 2회, 총시간: 9ms, 평균: 4.5ms
+      Sample: select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,...
+
+  [7] 실행횟수: 1회, 총시간: 2ms, 평균: 2.0ms
+      Sample: select cast('string' as varchar2(32000)), sys_context('USERENV','CLOUD_SERVICE') from dual...
+
+  [8] 실행횟수: 2회, 총시간: 2ms, 평균: 1.0ms
+      Sample: select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,...
+
+  [9] 실행횟수: 100회, 총시간: 1ms, 평균: 0.0ms
+      Sample: select count(r1_0.REVIEW_ID) from REVIEWS r1_0 where r1_0.PROPERTY_ID in ('44444444444444444444444444444444')...
+
+  [10] 실행횟수: 2회, 총시간: 0ms, 평균: 0.0ms
+      Sample: select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,ac...
+
+====================================================================================================

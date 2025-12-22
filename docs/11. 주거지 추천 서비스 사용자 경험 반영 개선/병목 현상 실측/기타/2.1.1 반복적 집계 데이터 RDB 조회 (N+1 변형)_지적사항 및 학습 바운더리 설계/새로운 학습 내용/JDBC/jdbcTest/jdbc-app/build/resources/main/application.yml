@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
+    username: SCOTT
+    password: tiger
+
+    hikari:
+      pool-name: MainHikariPool
+      auto-commit: false
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 2000
+      connection-test-query: SELECT 1 FROM DUAL
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.OracleDialect
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.zaxxer.hikari: DEBUG
+    com.example.jdbcapp: DEBUG
