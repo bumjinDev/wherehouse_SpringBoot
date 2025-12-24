@@ -1,0 +1,3 @@
+2.2.1 전체 데이터 메모리 로딩 (OOM 위험)
+2.2.2 JPA Bulk Insert 미지원 (대량 트랜잭션)
+2.1.7 정규식 연산 (CPU Intensive)
