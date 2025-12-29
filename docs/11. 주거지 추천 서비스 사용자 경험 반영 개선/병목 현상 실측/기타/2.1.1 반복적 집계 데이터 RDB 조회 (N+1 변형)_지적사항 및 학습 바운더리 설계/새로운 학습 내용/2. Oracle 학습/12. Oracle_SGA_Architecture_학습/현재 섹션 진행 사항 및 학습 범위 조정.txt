@@ -1,0 +1,21 @@
+Database Buffer Cache
+├── Purpose of the Database Buffer Cache -> 완료
+│
+├── Buffer States -> 완료
+│
+├── Buffer Modes -> 진행 계획 범위에서 우선 제외
+│
+├── Buffer I/O [ 필수 ]
+│   ├── Buffer Replacement Algorithms -> 완료
+│   ├── Buffer Writes -> 진행 중
+│   ├── Buffer Reads -> 완료
+│   └── Buffer Touch Counts -> 넘김
+│
+├── Buffer Pools [ 선택적 후 순위 - 개념만 파악 ]
+│
+└── Buffers and Full Table Scans [ DBA 영역 ]
+    ├── Default Mode for Full Table Scans
+    ├── Parallel Query Execution
+    ├── CACHE Attribute
+    ├── KEEP Attribute
+    └── Force Full Database Caching Mode
