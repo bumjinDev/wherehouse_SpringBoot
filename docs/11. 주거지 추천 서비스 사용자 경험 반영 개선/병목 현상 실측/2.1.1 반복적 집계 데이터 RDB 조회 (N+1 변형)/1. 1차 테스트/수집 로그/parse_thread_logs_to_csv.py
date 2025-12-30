@@ -9,8 +9,8 @@ CharterRecommendationService 스레드별 로그 파싱 스크립트
     python parse_thread_logs_to_csv.py <입력_로그_파일> [출력_CSV_파일]
     
 예시:
-    python parse_thread_logs_to_csv.py test_log.txt
-    python parse_thread_logs_to_csv.py test_log.txt result.csv
+    py -3 parse_thread_logs_to_csv.py 1차_테스트_50개_스레드_테스트_결과_로그.txt
+    py -3 parse_thread_logs_to_csv.py 1차_테스트_50개_스레드_테스트_결과_로그.txt 1차_테스트_50개_스레드_테스트_결과_로그.csv
 """
 
 import re
