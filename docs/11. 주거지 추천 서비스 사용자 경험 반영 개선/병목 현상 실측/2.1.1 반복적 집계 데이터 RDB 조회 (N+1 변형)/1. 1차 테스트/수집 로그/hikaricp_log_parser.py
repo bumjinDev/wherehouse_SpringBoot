@@ -24,14 +24,14 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
         통계 정보 딕셔너리
     """
     
-    # HikariCP 로그 매칭 패턴
-    # 예시: 15:01:10.965 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=10, active=10, idle=0, waiting=1)
+    # HikariCP 로그 매칭 패턴 (날짜+시간 형식 지원)
+    # 예시: 2026-01-06 15:35:33.215 [main] DEBUG com.zaxxer.hikari.HikariConfig - Driver class...
     hikari_pattern = re.compile(
-        r'^(\d{2}:\d{2}:\d{2}\.\d{3})\s+'  # 타임스탬프 (그룹 1)
-        r'\[([^\]]+)\]\s+'                  # 스레드명 (그룹 2)
-        r'(DEBUG|INFO|WARN|ERROR)\s+'       # 로그 레벨 (그룹 3)
-        r'(com\.zaxxer\.hikari[^\s]+)\s+-\s+'  # 클래스명 (그룹 4)
-        r'(.+)$'                            # 메시지 (그룹 5)
+        r'^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+'  # 타임스탬프 (그룹 1)
+        r'\[([^\]]+)\]\s+'                                      # 스레드명 (그룹 2)
+        r'(DEBUG|INFO|WARN|ERROR)\s+'                           # 로그 레벨 (그룹 3)
+        r'(com\.zaxxer\.hikari[^\s]+)\s+-\s+'                   # 클래스명 (그룹 4)
+        r'(.*)$'                                                # 메시지 (그룹 5)
     )
     
     # Pool stats 파싱 패턴
@@ -44,6 +44,11 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
         r'Closing connection\s+([^:]+):\s*\(([^)]+)\)'
     )
     
+    # HikariConfig 설정값 파싱 패턴 (key.....value 형식)
+    config_pattern = re.compile(
+        r'^([a-zA-Z]+)\.{2,}(.+)$'
+    )
+    
     hikari_logs = []
     stats = {
         'total_lines': 0,
@@ -51,6 +56,7 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
         'stats_logs': 0,
         'closing_logs': 0,
         'shutdown_logs': 0,
+        'config_logs': 0,
         'other_hikari_logs': 0
     }
     
@@ -74,13 +80,14 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
                     'class_name': '',
                     'pool_name': '',
                     'log_type': 'UNPARSED',
-                    'message': line,
                     'total': '',
                     'active': '',
                     'idle': '',
                     'waiting': '',
                     'connection_wrapper': '',
                     'close_reason': '',
+                    'config_key': '',
+                    'config_value': '',
                     'raw_log': line
                 })
                 stats['hikari_lines'] += 1
@@ -108,13 +115,14 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
                 'class_name': class_name,
                 'pool_name': pool_name,
                 'log_type': '',
-                'message': message,
                 'total': '',
                 'active': '',
                 'idle': '',
                 'waiting': '',
                 'connection_wrapper': '',
                 'close_reason': '',
+                'config_key': '',
+                'config_value': '',
                 'raw_log': line
             }
             
@@ -168,6 +176,27 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
                 log_entry['log_type'] = 'CONNECTION_ADDED'
                 stats['other_hikari_logs'] += 1
             
+            # HikariConfig 설정값 로그 (key.....value 형식)
+            elif 'HikariConfig' in class_name:
+                config_match = config_pattern.match(message)
+                if config_match:
+                    log_entry['log_type'] = 'CONFIG_SETTING'
+                    log_entry['config_key'] = config_match.group(1)
+                    log_entry['config_value'] = config_match.group(2)
+                    stats['config_logs'] += 1
+                elif 'configuration' in message.lower():
+                    log_entry['log_type'] = 'CONFIG_HEADER'
+                    stats['config_logs'] += 1
+                elif 'keepaliveTime' in message or 'idleTimeout' in message:
+                    log_entry['log_type'] = 'CONFIG_WARNING'
+                    stats['config_logs'] += 1
+                elif 'Driver class' in message:
+                    log_entry['log_type'] = 'DRIVER_LOADED'
+                    stats['other_hikari_logs'] += 1
+                else:
+                    log_entry['log_type'] = 'CONFIG_OTHER'
+                    stats['config_logs'] += 1
+            
             # 기타 HikariCP 로그
             else:
                 log_entry['log_type'] = 'OTHER'
@@ -175,7 +204,7 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
             
             hikari_logs.append(log_entry)
     
-    # CSV 파일로 저장
+    # CSV 파일로 저장 (message 컬럼 제거됨)
     fieldnames = [
         'line_number',
         'timestamp',
@@ -190,7 +219,8 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
         'waiting',
         'connection_wrapper',
         'close_reason',
-        'message',
+        'config_key',
+        'config_value',
         'raw_log'
     ]
     
@@ -202,19 +232,48 @@ def parse_hikaricp_logs(input_file: str, output_csv: str) -> dict:
     return stats
 
 
+def generate_output_filename(input_file: str, output_dir: str = None) -> str:
+    """
+    입력 파일명을 기반으로 출력 CSV 파일명 생성
+    형식: hikaricp_[원본파일명]_YYYYMMDD_HHMMSS.csv
+    출력 디렉토리: 스크립트 실행 위치 기준 ./hikaricp_output/
+    """
+    input_path = Path(input_file)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    # 출력 디렉토리 설정: 현재 작업 디렉토리 기준 hikaricp_output 폴더
+    if output_dir is None:
+        output_dir = Path.cwd() / 'hikaricp_output'
+    else:
+        output_dir = Path(output_dir)
+    
+    # 출력 디렉토리가 없으면 생성
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 입력 파일명에서 의미 있는 부분 추출 (숫자 prefix 제거)
+    stem = input_path.stem
+    # 숫자와 언더스코어로 시작하는 prefix 제거 (예: 1767681917816_)
+    cleaned_stem = re.sub(r'^\d+_', '', stem)
+    
+    if cleaned_stem:
+        output_name = f'hikaricp_{cleaned_stem}_{timestamp}.csv'
+    else:
+        output_name = f'hikaricp_analysis_{timestamp}.csv'
+    
+    return str(output_dir / output_name)
+
+
 def main():
     # 입력/출력 파일 경로 설정
     if len(sys.argv) >= 2:
         input_file = sys.argv[1]
     else:
-        input_file = '/mnt/user-data/uploads/1765868816061_2차테스트50개스레드테스트결과로그.txt'
+        input_file = '/mnt/user-data/uploads/1767681917816_wherehouse.log'
     
     if len(sys.argv) >= 3:
         output_csv = sys.argv[2]
     else:
-        # 입력 파일명에서 출력 파일명 생성 (입력 파일과 동일한 디렉토리에 저장)
-        input_path = Path(input_file)
-        output_csv = str(input_path.parent / f'{input_path.stem}_hikaricp_logs.csv')
+        output_csv = generate_output_filename(input_file)
     
     print(f'입력 파일: {input_file}')
     print(f'출력 파일: {output_csv}')
@@ -231,6 +290,7 @@ def main():
     print(f'  - Stats 로그: {stats["stats_logs"]:,}')
     print(f'  - Connection Closing 로그: {stats["closing_logs"]:,}')
     print(f'  - Shutdown 로그: {stats["shutdown_logs"]:,}')
+    print(f'  - Config 로그: {stats["config_logs"]:,}')
     print(f'  - 기타 HikariCP 로그: {stats["other_hikari_logs"]:,}')
     print(f'-' * 60)
     print(f'CSV 파일 저장 완료: {output_csv}')
