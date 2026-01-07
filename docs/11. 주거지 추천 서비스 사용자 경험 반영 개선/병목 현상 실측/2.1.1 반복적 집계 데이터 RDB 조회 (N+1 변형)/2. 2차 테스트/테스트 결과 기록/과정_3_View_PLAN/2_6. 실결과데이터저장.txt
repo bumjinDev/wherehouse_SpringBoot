@@ -1,0 +1,110 @@
+SQL_ID  2x2avzdhd2ktv, child number 0
+-------------------------------------
+select PROPERTY_ID, AVG_RATING, LAST_CALCED, NEGATIVE_KEYWORD_COUNT, 
+POSITIVE_KEYWORD_COUNT, REVIEW_COUNT from REVIEW_STATISTICS  where 
+(PROPERTY_ID in ('150552bca7861fdc0089ecd046b58122','034e08c70dff641a8a8
+26f830e139179','af5543aa192e900b2861a70ff2537ac8','61cad195fb349dfdd08df
+29bb1e58959','470f63b416dc52b032b30f543a9a4ac1','6e32ecb4177e62a100c5153
+c6ec3d980','faf52db90bb8444abebcf60624590cce','2e41270e74dfc67ff38a6d896
+661a659','f5290c07529413aa4a0cb4d64a105068','be582e482323df65a3e1d6010b6
+df46d','4d5f28ea84cd3121580c62b152bcb353','TEST_CHARTER_047735          
+   ','TEST_CHARTER_045425             ','TEST_CHARTER_006289            
+ ','TEST_CHARTER_035722             ','TEST_CHARTER_048448             
+','TEST_CHARTER_006623             ','TEST_CHARTER_014900             
+','TEST_CHARTER_038006             ','TEST_CHARTER_000243             
+','TEST_CHARTER_019280             ','TEST_CHARTER_039828             
+','TEST_CHARTER_015814             ','TEST_CHARTER_036278             
+','TEST_C
+ 
+Plan hash value: 437070704
+ 
+-----------------------------------------------------------------------------------------------------
+| Id  | Operation                    | Name                 | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT             |                      |       |       |   649 (100)|          |
+|   1 |  INLIST ITERATOR             |                      |       |       |            |          |
+|   2 |   TABLE ACCESS BY INDEX ROWID| REVIEW_STATISTICS    |  1276 | 72732 |   649   (1)| 00:00:01 |
+|*  3 |    INDEX UNIQUE SCAN         | PK_REVIEW_STATISTICS |  1276 |       |   460   (1)| 00:00:01 |
+-----------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - access(("PROPERTY_ID"='00223785e05e9d5c17a7bc1e09d8d36c' OR 
+              "PROPERTY_ID"='02ddd4c8113ee8ec1dab47bf4d2b7e31' OR 
+              "PROPERTY_ID"='034e08c70dff641a8a826f830e139179' OR 
+              "PROPERTY_ID"='04a0fa73542278aab4698051b796683f' OR 
+              "PROPERTY_ID"='04a80981b5acae50d80f7dc6f2a40bde' OR 
+              "PROPERTY_ID"='04e8da5f7867ebc0a66730ae5d05b0b5' OR 
+              "PROPERTY_ID"='05bb0bd55ba21808f9eab8a8a5108136' OR 
+              "PROPERTY_ID"='067c5c86f152d18039792d6dec1d7346' OR 
+              "PROPERTY_ID"='0844d7e8ebf391a24658c05dec9bac32' OR 
+              "PROPERTY_ID"='08ba0828fd3dec1c13d2a645ae7da640' OR 
+              "PROPERTY_ID"='090b706edf642b0e4b9826ba5167afc5' OR 
+              "PROPERTY_ID"='0b00fedfd66876e8e7d10512a27c0504' OR 
+              "PROPERTY_ID"='0beae40d3278d12eb07ba96397582cbc' OR 
+              "PROPERTY_ID"='0d07824d2e9f04f738eee01d34d8d808' OR 
+              "PROPERTY_ID"='0ea814d2cfe8ca5f675b27d8a02beb6b' OR 
+              "PROPERTY_ID"='1079212f68b796d64637ca53e92784b1' OR 
+              "PROPERTY_ID"='10b7cde1449a9b472bf9b46588e1564c' OR 
+              "PROPERTY_ID"='14e1e5d804b7291cf36bbce119d10532' OR 
+              "PROPERTY_ID"='150552bca7861fdc0089ecd046b58122' OR 
+              "PROPERTY_ID"='168394cd1084ded9b1c10ab20372d2dd' OR 
+              "PROPERTY_ID"='17b4c8ad2b23edfb45ae65d032c88ff6' OR 
+              "PROPERTY_ID"='1c1b6c608a4f506977a428fb48882aad' OR 
+              "PROPERTY_ID"='1d5cc0b93bbbfb98d32823298305705f' OR 
+              "PROPERTY_ID"='1ed77b4fdf981aa1830cacf46f8172f4' OR 
+              "PROPERTY_ID"='1eedf3c3fb6431681d6fb73f9f925fd6' OR 
+              "PROPERTY_ID"='1ffeb778de499e95bab772131afc9781' OR 
+              "PROPERTY_ID"='2188cf002604a663bfd3c33677de99c2' OR 
+              "PROPERTY_ID"='22ddc6f0ac531dfeb15ff6a5e25185a5' OR 
+              "PROPERTY_ID"='2305585bb2f7f4f3e31a94242af9bd4d' OR 
+              "PROPERTY_ID"='230a4e6bab9fb2e2ce22973e951753a8' OR 
+              "PROPERTY_ID"='264837cede24b68719137804aeefbd46' OR 
+              "PROPERTY_ID"='26bd2021809ad77c4a954129c556cc1b' OR 
+              "PROPERTY_ID"='27cf4617d72101ea693a593f129b32ef' OR 
+              "PROPERTY_ID"='283c638441fe43b0bacde8bead13c4b4' OR 
+              "PROPERTY_ID"='29a23e427cff65021d2e6cb59a95983b' OR 
+              "PROPERTY_ID"='2a0693c86bd11749be1756e8be3dad3c' OR 
+              "PROPERTY_ID"='2aa817f62674195a7358b6dd39cbd29a' OR 
+              "PROPERTY_ID"='2c08346b9324bc31adbab2afa8c7e167' OR 
+              "PROPERTY_ID"='2e41270e74dfc67ff38a6d896661a659' OR 
+              "PROPERTY_ID"='2e9b3cb6469cd8ac2f826adf94863a64' OR 
+              "PROPERTY_ID"='3047be1b0ae0f1f7d67ace3c08dd60f9' OR 
+              "PROPERTY_ID"='31e7aea5499d42752beef2d9972ecd48' OR 
+              "PROPERTY_ID"='3262ca245a227ed83e41301ed83413ab' OR 
+              "PROPERTY_ID"='3310ae9eca27a39d1543b3df8a104c50' OR 
+              "PROPERTY_ID"='346567513970583ba042e221dd14342a' OR 
+              "PROPERTY_ID"='34a7e5fbf23bab8f46b8dbc2f328695a' OR 
+              "PROPERTY_ID"='36c2d3dde7e8b0c5a30a8c6c0178f5e0' OR 
+              "PROPERTY_ID"='3791e9da316dff9a154be7dc46de2d2f' OR 
+              "PROPERTY_ID"='393b1a6fc5e224d3c40528bf7f11ff46' OR 
+              "PROPERTY_ID"='3d72d21ac1772c1cbedc53e2b2f842f2' OR 
+              "PROPERTY_ID"='3e006b507947ca748a87b41e4996299c' OR 
+              "PROPERTY_ID"='3e3c3c824949132f835ed62fc9abccf2' OR 
+              "PROPERTY_ID"='411f6693032faf558ce583f46b294dd6' OR 
+              "PROPERTY_ID"='41a250e7907bcd51d94e329dfcf3e0c5' OR 
+              "PROPERTY_ID"='42921894f8dfe3b0b266738b4bc69429' OR 
+              "PROPERTY_ID"='42a2da122f473df787ae002027328060' OR 
+              "PROPERTY_ID"='42b32710ba45a19fcb5acb22b5bcddd9' OR 
+              "PROPERTY_ID"='44a8d73a300cb034f60a9d024da37f41' OR 
+              "PROPERTY_ID"='44ace3f05a700ded9bd6e06c1d52e826' OR 
+              "PROPERTY_ID"='4557b841caed8b2fa98793bafa06e740' OR 
+              "PROPERTY_ID"='466470b7a8d2e16ea9ddc32d53200532' OR 
+              "PROPERTY_ID"='46b26c12ea9f6914e5afec61567abe3e' OR 
+              "PROPERTY_ID"='46f48b796c2448ece5e3f77158a5ffa8' OR 
+              "PROPERTY_ID"='470f63b416dc52b032b30f543a9a4ac1' OR 
+              "PROPERTY_ID"='473441a74d25021ae29965b27d3f7f74' OR 
+              "PROPERTY_ID"='48d2c6371aab9308ef882c611869609a' OR 
+              "PROPERTY_ID"='4a312db3ff1dfd26213dbb131219bd85' OR 
+              "PROPERTY_ID"='4afc13f7f47b2988b5af99283aba897b' OR 
+              "PROPERTY_ID"='4b669710b1d6ccba8fa3a724296447a1' OR 
+              "PROPERTY_ID"='4d4bf5d0c142cf931a23d884854070d5' OR 
+              "PROPERTY_ID"='4d5f28ea84cd3121580c62b152bcb353' OR 
+              "PROPERTY_ID"='4eba987b795a112b68fce4a14280ef13' OR 
+              "PROPERTY_ID"='4eee66ae71745fc51d0fc74cbbe5cd02' OR 
+              "PROPERTY_ID"='536fd6e30d8cb0ed676127f01efb807b' OR 
+              "PROPERTY_ID"='53abffb3563ef9cdb8a490c8b2f30e0d' OR 
+              "PROPERTY_ID"='53e308e31f77ac2605713a9e9fa869e5' OR 
+              "PROPERTY_ID"='554b7d8fe54e70eff61bac6a7aae0a1)
+ 
