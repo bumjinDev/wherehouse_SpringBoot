@@ -1,0 +1,100 @@
+SQL_ID  cguxm683n0h3d, child number 0
+-------------------------------------
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATI
+VE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from 
+REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (:1 ,:2 ,:3 ,:4 ,:5 
+,:6 ,:7 ,:8 ,:9 ,:10 ,:11 ,:12 ,:13 ,:14 ,:15 ,:16 ,:17 ,:18 ,:19 ,:20 
+,:21 ,:22 ,:23 ,:24 ,:25 ,:26 ,:27 ,:28 ,:29 ,:30 ,:31 ,:32 ,:33 ,:34 
+,:35 ,:36 ,:37 ,:38 ,:39 ,:40 ,:41 ,:42 ,:43 ,:44 ,:45 ,:46 ,:47 ,:48 
+,:49 ,:50 ,:51 ,:52 ,:53 ,:54 ,:55 ,:56 ,:57 ,:58 ,:59 ,:60 ,:61 ,:62 
+,:63 ,:64 ,:65 ,:66 ,:67 ,:68 ,:69 ,:70 ,:71 ,:72 ,:73 ,:74 ,:75 ,:76 
+,:77 ,:78 ,:79 ,:80 ,:81 ,:82 ,:83 ,:84 ,:85 ,:86 ,:87 ,:88 ,:89 ,:90 
+,:91 ,:92 ,:93 ,:94 ,:95 ,:96 ,:97 ,:98 ,:99 ,:100 ,:101 ,:102 ,:103 
+,:104 ,:105 ,:106 ,:107 ,:108 ,:109 ,:110 ,:111 ,:112 ,:113 ,:114 ,:115 
+,:116 ,:117 ,:118 ,:119 ,:120 ,:121 ,:122 ,:123 ,:124 ,:125 ,:126 ,:127 
+,:128 ,:129 ,:130 ,:131 ,:132 ,:133 ,:134 ,:135 ,:136 ,:137 ,:138 ,:139 
+,:140 ,:141 ,:142 ,:143 ,:144 ,:145 ,:146 ,:147 ,:148 ,:149 ,:150 ,:151 
+,:152 ,:1
+ 
+Plan hash value: 2173579929
+ 
+---------------------------------------------------------------------------------------
+| Id  | Operation         | Name              | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |                   |       |       |   333 (100)|          |
+|*  1 |  TABLE ACCESS FULL| REVIEW_STATISTICS |  1000 | 57000 |   333  (60)| 00:00:01 |
+---------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter(("RS1_0"."PROPERTY_ID"=:1 OR "RS1_0"."PROPERTY_ID"=:2 OR 
+              "RS1_0"."PROPERTY_ID"=:3 OR "RS1_0"."PROPERTY_ID"=:4 OR 
+              "RS1_0"."PROPERTY_ID"=:5 OR "RS1_0"."PROPERTY_ID"=:6 OR 
+              "RS1_0"."PROPERTY_ID"=:7 OR "RS1_0"."PROPERTY_ID"=:8 OR 
+              "RS1_0"."PROPERTY_ID"=:9 OR "RS1_0"."PROPERTY_ID"=:10 OR 
+              "RS1_0"."PROPERTY_ID"=:11 OR "RS1_0"."PROPERTY_ID"=:12 OR 
+              "RS1_0"."PROPERTY_ID"=:13 OR "RS1_0"."PROPERTY_ID"=:14 OR 
+              "RS1_0"."PROPERTY_ID"=:15 OR "RS1_0"."PROPERTY_ID"=:16 OR 
+              "RS1_0"."PROPERTY_ID"=:17 OR "RS1_0"."PROPERTY_ID"=:18 OR 
+              "RS1_0"."PROPERTY_ID"=:19 OR "RS1_0"."PROPERTY_ID"=:20 OR 
+              "RS1_0"."PROPERTY_ID"=:21 OR "RS1_0"."PROPERTY_ID"=:22 OR 
+              "RS1_0"."PROPERTY_ID"=:23 OR "RS1_0"."PROPERTY_ID"=:24 OR 
+              "RS1_0"."PROPERTY_ID"=:25 OR "RS1_0"."PROPERTY_ID"=:26 OR 
+              "RS1_0"."PROPERTY_ID"=:27 OR "RS1_0"."PROPERTY_ID"=:28 OR 
+              "RS1_0"."PROPERTY_ID"=:29 OR "RS1_0"."PROPERTY_ID"=:30 OR 
+              "RS1_0"."PROPERTY_ID"=:31 OR "RS1_0"."PROPERTY_ID"=:32 OR 
+              "RS1_0"."PROPERTY_ID"=:33 OR "RS1_0"."PROPERTY_ID"=:34 OR 
+              "RS1_0"."PROPERTY_ID"=:35 OR "RS1_0"."PROPERTY_ID"=:36 OR 
+              "RS1_0"."PROPERTY_ID"=:37 OR "RS1_0"."PROPERTY_ID"=:38 OR 
+              "RS1_0"."PROPERTY_ID"=:39 OR "RS1_0"."PROPERTY_ID"=:40 OR 
+              "RS1_0"."PROPERTY_ID"=:41 OR "RS1_0"."PROPERTY_ID"=:42 OR 
+              "RS1_0"."PROPERTY_ID"=:43 OR "RS1_0"."PROPERTY_ID"=:44 OR 
+              "RS1_0"."PROPERTY_ID"=:45 OR "RS1_0"."PROPERTY_ID"=:46 OR 
+              "RS1_0"."PROPERTY_ID"=:47 OR "RS1_0"."PROPERTY_ID"=:48 OR 
+              "RS1_0"."PROPERTY_ID"=:49 OR "RS1_0"."PROPERTY_ID"=:50 OR 
+              "RS1_0"."PROPERTY_ID"=:51 OR "RS1_0"."PROPERTY_ID"=:52 OR 
+              "RS1_0"."PROPERTY_ID"=:53 OR "RS1_0"."PROPERTY_ID"=:54 OR 
+              "RS1_0"."PROPERTY_ID"=:55 OR "RS1_0"."PROPERTY_ID"=:56 OR 
+              "RS1_0"."PROPERTY_ID"=:57 OR "RS1_0"."PROPERTY_ID"=:58 OR 
+              "RS1_0"."PROPERTY_ID"=:59 OR "RS1_0"."PROPERTY_ID"=:60 OR 
+              "RS1_0"."PROPERTY_ID"=:61 OR "RS1_0"."PROPERTY_ID"=:62 OR 
+              "RS1_0"."PROPERTY_ID"=:63 OR "RS1_0"."PROPERTY_ID"=:64 OR 
+              "RS1_0"."PROPERTY_ID"=:65 OR "RS1_0"."PROPERTY_ID"=:66 OR 
+              "RS1_0"."PROPERTY_ID"=:67 OR "RS1_0"."PROPERTY_ID"=:68 OR 
+              "RS1_0"."PROPERTY_ID"=:69 OR "RS1_0"."PROPERTY_ID"=:70 OR 
+              "RS1_0"."PROPERTY_ID"=:71 OR "RS1_0"."PROPERTY_ID"=:72 OR 
+              "RS1_0"."PROPERTY_ID"=:73 OR "RS1_0"."PROPERTY_ID"=:74 OR 
+              "RS1_0"."PROPERTY_ID"=:75 OR "RS1_0"."PROPERTY_ID"=:76 OR 
+              "RS1_0"."PROPERTY_ID"=:77 OR "RS1_0"."PROPERTY_ID"=:78 OR 
+              "RS1_0"."PROPERTY_ID"=:79 OR "RS1_0"."PROPERTY_ID"=:80 OR 
+              "RS1_0"."PROPERTY_ID"=:81 OR "RS1_0"."PROPERTY_ID"=:82 OR 
+              "RS1_0"."PROPERTY_ID"=:83 OR "RS1_0"."PROPERTY_ID"=:84 OR 
+              "RS1_0"."PROPERTY_ID"=:85 OR "RS1_0"."PROPERTY_ID"=:86 OR 
+              "RS1_0"."PROPERTY_ID"=:87 OR "RS1_0"."PROPERTY_ID"=:88 OR 
+              "RS1_0"."PROPERTY_ID"=:89 OR "RS1_0"."PROPERTY_ID"=:90 OR 
+              "RS1_0"."PROPERTY_ID"=:91 OR "RS1_0"."PROPERTY_ID"=:92 OR 
+              "RS1_0"."PROPERTY_ID"=:93 OR "RS1_0"."PROPERTY_ID"=:94 OR 
+              "RS1_0"."PROPERTY_ID"=:95 OR "RS1_0"."PROPERTY_ID"=:96 OR 
+              "RS1_0"."PROPERTY_ID"=:97 OR "RS1_0"."PROPERTY_ID"=:98 OR 
+              "RS1_0"."PROPERTY_ID"=:99 OR "RS1_0"."PROPERTY_ID"=:100 OR 
+              "RS1_0"."PROPERTY_ID"=:101 OR "RS1_0"."PROPERTY_ID"=:102 OR 
+              "RS1_0"."PROPERTY_ID"=:103 OR "RS1_0"."PROPERTY_ID"=:104 OR 
+              "RS1_0"."PROPERTY_ID"=:105 OR "RS1_0"."PROPERTY_ID"=:106 OR 
+              "RS1_0"."PROPERTY_ID"=:107 OR "RS1_0"."PROPERTY_ID"=:108 OR 
+              "RS1_0"."PROPERTY_ID"=:109 OR "RS1_0"."PROPERTY_ID"=:110 OR 
+              "RS1_0"."PROPERTY_ID"=:111 OR "RS1_0"."PROPERTY_ID"=:112 OR 
+              "RS1_0"."PROPERTY_ID"=:113 OR "RS1_0"."PROPERTY_ID"=:114 OR 
+              "RS1_0"."PROPERTY_ID"=:115 OR "RS1_0"."PROPERTY_ID"=:116 OR 
+              "RS1_0"."PROPERTY_ID"=:117 OR "RS1_0"."PROPERTY_ID"=:118 OR 
+              "RS1_0"."PROPERTY_ID"=:119 OR "RS1_0"."PROPERTY_ID"=:120 OR 
+              "RS1_0"."PROPERTY_ID"=:121 OR "RS1_0"."PROPERTY_ID"=:122 OR 
+              "RS1_0"."PROPERTY_ID"=:123 OR "RS1_0"."PROPERTY_ID"=:124 OR 
+              "RS1_0"."PROPERTY_ID"=:125 OR "RS1_0"."PROPERTY_ID"=:126 OR 
+              "RS1_0"."PROPERTY_ID"=:127 OR "RS1_0"."PROPERTY_ID"=:128 OR 
+              "RS1_0"."PROPERTY_ID"=:129 OR "RS1_0"."PROPERTY_ID"=:130 OR 
+              "RS1_0"."PROPERTY_ID"=:131 OR "RS1_0"."PROPERTY_ID"=:132 OR 
+              "RS1_0"."PROPERTY_ID"=:133 OR "RS1_0"."PROPERTY_ID"=:134 OR 
+              "RS1_0"."PROPERTY_ID"=:135 OR "RS1_0"."PROPERTY_ID"=:136 OR 
+              "RS1_0"."PROPERTY_ID"=:137)
+ 

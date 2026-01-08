@@ -6,12 +6,12 @@ FROM V$SQL
 WHERE UPPER(SQL_TEXT) LIKE '%REVIEW_STATISTICS%'
   AND SQL_TEXT NOT LIKE '%V$SQL%'
   AND SQL_TEXT NOT LIKE '%explain plan%'
-ORDER BY EXECUTIONS DESC
-FETCH FIRST 5 ROWS ONLY;
+ORDER BY EXECUTIONS DESC;
+--FETCH FIRST 5 ROWS ONLY;
 
--- SQL_ID(방금 위에서 지정한 상위 5개 SQL 확인한 것 중에서 최고로 많이 실행한 sql_id 선택)를 직접 지정하여 실행계획 조회
+-- SQL_ID(방금 위에서 지정한 상위 5개 SQL 확인한 것 중에서 최고로 많이 실행한 sql_id 선택 : 6hhc28tdcnka6)를 직접 지정하여 실행계획 조회
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(
-    sql_id => 'bqz7jajps49dd',
+    sql_id => 'cguxm683n0h3d',
     format => 'TYPICAL'
 ));
 
@@ -41,11 +41,11 @@ SELECT
     SQL_ID,
     SUBSTR(SQL_FULLTEXT, 1, 100000000) AS SQL_TEXT_PREVIEW
 FROM V$SQL
-WHERE SQL_ID IN ('a3a7frc67n6bz');
+WHERE SQL_ID IN ('cguxm683n0h3d');
 
 -- 과정 4 : 이제 실제 확인된 sol_id 값(2x2avzdhd2ktv)을 사용하여 실행계획 조회
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(
-    sql_id => '2x2avzdhd2ktv',
+    sql_id => '6hhc28tdcnka6',
     format => 'TYPICAL'
 ));
 
