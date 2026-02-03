@@ -387,6 +387,8 @@ findPropertyIdsByName 쿼리가 전체 응답 시간의 66.3%~86.5%를 차지했
 
 **주요 설계 지점:** Stateless JWT(세션 서버 제거), HttpOnly Cookie(XSS 차단), FilterChain 분리(도메인별 정책). `/login`, `/members/**`, `/boards/**` 등 주요 엔드포인트별로 독립된 SecurityFilterChain을 등록하여 서비스별 최적화된 보안 정책을 적용했다. 인증 실패(401)는 커스텀 AuthenticationEntryPoint, 인가 실패(403)는 커스텀 AccessDeniedHandler로 분리하여 시나리오별 명확한 피드백을 제공한다.
 
+**HTTPS 1.2 디버깅:** https://velog.io/@yhjj815/%EC%8B%A4%EC%A0%9C-%EC%84%9C%EB%B2%84%EC%97%90%EC%84%9C-%EC%A6%9D%EB%AA%85%ED%95%98%EB%8A%94-HTTPS%EC%9D%98-%EA%B5%AC%EC%A1%B0%EC%99%80-%EC%9B%90%EB%A6%ACTLS-1.2-ECDHE-ECDSA
+
 ---
 
 ## 프로젝트 구조
