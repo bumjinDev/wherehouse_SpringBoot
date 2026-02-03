@@ -96,8 +96,6 @@
 
 사용자의 입력 조건에 대해 '가격, 안전, 공간' 우선순위 기반으로 가중치를 반영하는 개인 맞춤형 추천 엔진을 설계 및 구현하였다. 배치 프로세스와 Redis 기반 아키텍처로 대용량 데이터에서도 빠른 응답 속도를 설계하였다.
 
-### 🎬 서비스 데모
-
 ### 과정 1: 주거지 추천 서비스 요청
 
 단순한 필터링을 넘어, 사용자의 가치관을 정량화하는 3단계 입력 시스템을 설계했다.
@@ -117,7 +115,6 @@
 - **상세 점수 정보:** 매물 비율 점수, 평수 점수, 안전 점수를 시각화하여 추천 근거 확인
 - **매물 목록:** 해당 지역구 내 상위 매물 목록과 점수 제공
 
-![서비스 데모](YOUR_DEMO_GIF_URL)
 ![추천 페이지](https://github.com/user-attachments/assets/40506233-db0d-4585-808e-8d29bd0b1a9c)
 
 ---
@@ -293,8 +290,6 @@ PROPERTIES_* (1) ◀──── (1) REVIEW_STATISTICS
 
 **사용자 경험 개선:** 지도 클릭 후 주변 편의시설 정보 로딩 시간 1.3초 → 0.4초 단축
 
-> 📄 상세 분석: [외부 API 병렬화 트러블슈팅 보고서](<!-- TODO: 링크 추가 -->)
-
 ---
 
 ### TS#2: N+1 쿼리 → Bulk Fetch → IN절 Chunking (2단계 해결)
@@ -341,7 +336,7 @@ CharterRecommendationService에서 25개 자치구 순회 시 자치구당 findA
 
 **최종 결론 — Chunk 61 선택:** Index Scan 유지(확장성) + 심각 경합 47.9% → 0% 완전 해소(안정성). Chk61(318ms)이 Chk1000(178ms)보다 DBMS 단위 응답은 느리나, Connection 경합과 실행 계획 안정성을 고려한 선택이다.
 
-> 📄 상세 분석: [N+1 → Chunking V$SQL 분석 보고서](<!-- TODO: 링크 추가 -->)
+> 📄 상세 분석: [N+1 → Chunking V$SQL 분석 보고서](https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/11.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%B6%94%EC%B2%9C%20%EC%84%9C%EB%B9%84%EC%8A%A4%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B2%BD%ED%97%98%20%EB%B0%98%EC%98%81%20%EA%B0%9C%EC%84%A0/%EB%B3%91%EB%AA%A9%20%ED%98%84%EC%83%81%20%EC%8B%A4%EC%B8%A1/2.1.1%20%EB%B0%98%EB%B3%B5%EC%A0%81%20%EC%A7%91%EA%B3%84%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20RDB%20%EC%A1%B0%ED%9A%8C%20(N%2B1%20%EB%B3%80%ED%98%95)/3.%203%EC%B0%A8%20%ED%85%8C%EC%8A%A4%ED%8A%B8/Chunk61_DBMS_%EB%B3%91%EB%AA%A9_%EC%8B%A4%EC%B8%A1_%EB%B6%84%EC%84%9D_%EB%B3%B4%EA%B3%A0%EC%84%9C_MD.md)
 
 ---
 
@@ -349,7 +344,7 @@ CharterRecommendationService에서 25개 자치구 순회 시 자치구당 findA
 
 findPropertyIdsByName 쿼리가 전체 응답 시간의 66.3%~86.5%를 차지했다. 원인은 `LIKE '%keyword%'` 패턴으로 인한 Full Table Scan(Cost: 137)이었다. 선행 와일드카드를 제거하여 `LIKE 'keyword%'`(전방 일치)로 변경하고 apt_nm 컬럼에 인덱스를 생성하여 Index Range Scan(Cost: 5)으로 전환했다. 쿼리 소요시간 26.3ms → 6.0ms(77.2% 단축). 단, 전방 일치로 변경하면 "중간 포함 검색"이 불가능해지는 트레이드오프가 있다.
 
-> 📄 상세 분석: [LIKE Index 전환 트러블슈팅 보고서](<!-- TODO: 링크 추가 -->)
+> 📄 상세 분석: [LIKE Index 전환 트러블슈팅 보고서](https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/11.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%B6%94%EC%B2%9C%20%EC%84%9C%EB%B9%84%EC%8A%A4%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B2%BD%ED%97%98%20%EB%B0%98%EC%98%81%20%EA%B0%9C%EC%84%A0/%EB%B3%91%EB%AA%A9%20%ED%98%84%EC%83%81%20%EC%8B%A4%EC%B8%A1/2.1.2%20%EC%9D%B8%EB%8D%B1%EC%8A%A4%20%EB%AF%B8%EC%A0%81%EC%9A%A9%20Full%20Table%20Scan/%EB%A1%9C%EA%B7%B8%20%ED%8C%8C%EC%9D%BC/%EA%B0%9C%EC%84%A0%ED%9B%84/Wherehouse_%EC%84%B1%EB%8A%A5%EA%B0%9C%EC%84%A0%EA%B2%B0%EA%B3%BC%EB%A6%AC%ED%8F%AC%ED%8A%B8_indexRangeScan.md)
 
 ---
 
@@ -377,7 +372,7 @@ findPropertyIdsByName 쿼리가 전체 응답 시간의 66.3%~86.5%를 차지했
 
 **결론:** OOM 발생 시 전체 배치 실패 vs 처리 시간 63% 증가는 명확한 트레이드오프다. 배치 작업 특성상 시간 증가보다 메모리 안정성 확보가 우선이며, 배치 7초→12초 증가는 운영 영향이 미미하다.
 
-> 📄 상세 분석: [OOM 방지 Slice 처리 트러블슈팅 보고서](<!-- TODO: 링크 추가 -->)
+> 📄 상세 분석: [OOM 방지 Slice 처리 트러블슈팅 보고서](https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/11.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%B6%94%EC%B2%9C%20%EC%84%9C%EB%B9%84%EC%8A%A4%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B2%BD%ED%97%98%20%EB%B0%98%EC%98%81%20%EA%B0%9C%EC%84%A0/%EB%B3%91%EB%AA%A9%20%ED%98%84%EC%83%81%20%EC%8B%A4%EC%B8%A1/2.2.1%20OOM%20%EB%B0%9C%EC%83%9D/OOM_%EB%B3%91%EB%AA%A9_2%EC%B0%A8%ED%85%8C%EC%8A%A4%ED%8A%B8_%EA%B2%B0%EA%B3%BC%EB%B3%B4%EA%B3%A0%EC%84%9C.md)
 
 ---
 
@@ -427,6 +422,6 @@ com.wherehouse
 
 | 카테고리 | 문서 |
 |---------|------|
-| 주거지 추천 서비스 설계 | [프로젝트 기획서](<!-- TODO: 링크 추가 -->) · [2단계 폴백 시스템 설계 근거](<!-- TODO: 링크 추가 -->) |
-| 리뷰 시스템 | [사용자 경험 반영 개선 기획서](<!-- TODO: 링크 추가 -->) · [고도화 요구사항 명세서](<!-- TODO: 링크 추가 -->) |
-| 사용자 경험 반영 설계 | [비즈니스 로직 설계 명세서](<!-- TODO: 링크 추가 -->) |
+| 주거지 추천 서비스 설계 | [프로젝트 기획서](https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/9.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%B6%94%EC%B2%9C%20%EC%84%9C%EB%B9%84%EC%8A%A4%20%EA%B0%9C%EC%84%A0%20%EA%B3%84%ED%9A%8D%EC%84%9C/5.%20%EC%8B%A4%EC%A0%9C%20%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4%20%EB%A1%9C%EC%A7%81%20%EC%84%A4%EA%B3%84%EC%84%9C/%EB%B6%80%EB%8F%99%EC%82%B0%20%EC%B6%94%EC%B2%9C%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4%20%EB%A1%9C%EC%A7%81%20%EC%84%A4%EA%B3%84%20%EB%AA%85%EC%84%B8%EC%84%9C.md) |
+| 사용자 경험 반영 설계 | [비즈니스 로직 설계 명세서](https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/11.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%B6%94%EC%B2%9C%20%EC%84%9C%EB%B9%84%EC%8A%A4%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B2%BD%ED%97%98%20%EB%B0%98%EC%98%81%20%EA%B0%9C%EC%84%A0/4.%20%EC%A3%BC%EA%B1%B0%EC%A7%80_%EC%B6%94%EC%B2%9C_%EC%84%9C%EB%B9%84%EC%8A%A4_%EC%82%AC%EC%9A%A9%EC%9E%90_%EA%B2%BD%ED%97%98_%EB%B0%98%EC%98%81_%EC%84%A4%EA%B3%84_%EB%AA%85%EC%84%B8%EC%84%9C_v2.md) |
+
