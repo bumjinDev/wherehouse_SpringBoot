@@ -1,0 +1,27 @@
+package com.wherehouse.recommand.batch.repository;
+
+import com.wherehouse.recommand.batch.dto.DistrictCrimeCountDto;
+import com.wherehouse.recommand.batch.entity.AnalysisCrimeStatistics;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface AnalysisCrimeRepository extends JpaRepository<AnalysisCrimeStatistics, Long> {
+
+    /**
+     * 서울시 자치구별 총 범죄 발생 건수를 합산하여 DTO 리스트로 반환합니다.
+     * @return DistrictCrimeCountDto 리스트
+     */
+    @Query("SELECT new com.wherehouse.recommand.batch.dto.DistrictCrimeCountDto(" +
+            "a.districtName, a.totalOccurrence, a.totalArrest, " +
+            "a.murderOccurrence, a.murderArrest, " +
+            "a.robberyOccurrence, a.robberyArrest, " + // 순서 및 필드명 수정됨
+            "a.sexualCrimeOccurrence, a.sexualCrimeArrest, " +
+            "a.theftOccurrence, a.theftArrest, " +
+            "a.violenceOccurrence, a.violenceArrest) " +
+            "FROM AnalysisCrimeStatistics a ")
+    List<DistrictCrimeCountDto> findCrimeCount();
+}

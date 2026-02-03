@@ -4,17 +4,35 @@ spring:
 
   # 데이터베이스 연결 설정
   datasource:
-    driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
-    #url: jdbc:oracle:thin:@43.202.178.156:1521:xe # Oracle SID 기반 URL (AWS 서버 - 확인 완료)
+    # [수정: P6Spy 적용] JDBC 드라이버 교체 (Driver Wrapping)
+    # 기술적 원리: JDBC 인터페이스 구현체를 P6Spy로 교체(Swap)하여 SQL 실행 흐름을 제어합니다.
+    # 기존 'oracle.jdbc.OracleDriver' 대신 'P6SpyDriver'가 애플리케이션의 연결 요청을 1차적으로 수신(Intercept)합니다.
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+
+    # [수정: P6Spy 적용] 프로토콜 식별자 변경
+    # URL 스키마에 'p6spy'를 추가하여 Java DriverManager가 P6Spy 드라이버를 선택하도록 강제합니다.
+    # P6Spy는 내부적으로 'p6spy' 문자열을 제거한 원본 URL을 파싱하여 실제 DB와 연결을 맺습니다.
+    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
     username: SCOTT
     password: tiger
 
     # HikariCP 커넥션 풀 설정
     hikari:
       auto-commit: false
-      idle-timeout: 30000  # 30초 후 미사용 커넥션 종료
-      max-lifetime: 1800000  # 30분 후 커넥션 강제 종료
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      # 추가: 커넥션이 끊기지 않도록 주기적으로 신호 전송 (10초)
+      keepalive-time: 10000
+      # 수정: 실제 로직 수행 시간을 고려하여 임계값 조정 (예: 60초)
+      leak-detection-threshold: 60000
+      maximum-pool-size: 6
+      data-source-properties:
+        oracle.net.SDU: 2097152
+        oracle.net.RECV_BUF_SIZE: 4194304
+        oracle.net.SEND_BUF_SIZE: 4194304
+    dbcp2:
+      validation-query: SELECT 1
+
 
   # Redis 연결 설정
   data:
@@ -110,8 +128,20 @@ spring:
       max-file-size: 10MB      # 단일 파일 최대 크기
       max-request-size: 10MB   # 전체 요청 최대 크기
 
+# [추가] P6Spy 상세 로깅 설정 (p6spy-spring-boot-starter)
+# 가로챈(Intercepted) SQL 정보를 콘솔에 어떻게 출력할지 정의합니다.
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true # 로깅 활성화 (운영 환경에서는 false 권장)
+      multiline: true      # SQL을 보기 좋게 줄바꿈(Pretty Print)하여 출력
+      logging: slf4j       # Spring Boot의 기본 로깅 시스템(Logback)에 출력을 위임
+
 # 서버 설정
 server:
+  tomcat:
+    threads:
+      max: 200
   port: 8185
   servlet:
     context-path: /wherehouse # 이 설정은 내장 톰켓 환경에서만 유효하며 외장 톰켓 환경에서는 server.xml을 따르거나 /opt /tomcat/webapps 내 실제 .war 로 배포된 결과의 디렉토리 이름을 따름.
@@ -135,6 +165,8 @@ logging:
     name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
   level:
     root: INFO  # 기본 로그 레벨 설정
+    com.zaxxer.hikari.pool: DEBUG
+    com.zaxxer.hikari.HikariConfig: DEBUG
 
     # 개발 중 JSON 처리 디버깅을 위한 상세 로그 (필요시 활성화)
     # com.wherehouse: DEBUG

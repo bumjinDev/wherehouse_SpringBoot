@@ -1,0 +1,580 @@
+/**
+ * 리뷰 게시판 JavaScript (Final Fixed Version)
+ * - [Fix] close_detail_modal 함수 누락 수정
+ * - 페이지 번호 필터링 정상 동작
+ * - 디버깅 로그 포함
+ */
+
+// ========== 전역 변수 ==========
+const BASE_URL = 'http://localhost:8185/wherehouse';
+const API_URL = BASE_URL + '/api/v1/reviews';
+const SEARCH_API_URL = BASE_URL + '/api/v1/properties/search';
+
+let current_page = 1;
+let current_sort = 'rating_desc';
+let current_keyword = null;
+
+let current_review_id_for_delete = null;
+let current_review_id_for_detail = null;
+
+let debounce_timer = null;
+
+// ========== 초기화 ==========
+window.onload = function() {
+    console.log('[Init] 리뷰 게시판 초기화 시작');
+    load_reviews();
+    init_event_listeners();
+    console.log('[Init] 리뷰 게시판 초기화 완료');
+};
+
+// ========== 이벤트 리스너 ==========
+function init_event_listeners() {
+    document.getElementById('btn').addEventListener('click', toggle_sidebar);
+
+    // [Debug] 필터 적용 버튼
+    const applyBtn = document.getElementById('apply_filter_btn');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', apply_filters);
+    }
+
+    document.getElementById('clear_keyword').addEventListener('click', clear_keyword_search);
+    document.getElementById('write_review_btn').addEventListener('click', open_write_modal);
+    document.getElementById('review_form').addEventListener('submit', submit_review);
+    document.getElementById('review_edit_form').addEventListener('submit', submit_edit_review);
+    document.getElementById('confirm_delete_btn').addEventListener('click', confirm_delete_review);
+
+    // 글자수 세기 리스너
+    const input_content = document.getElementById('input_content');
+    if (input_content) {
+        input_content.addEventListener('input', function() {
+            update_char_count('input_content', 'current_char_count');
+        });
+    }
+    const edit_content = document.getElementById('edit_content');
+    if (edit_content) {
+        edit_content.addEventListener('input', function() {
+            update_char_count('edit_content', 'edit_char_count');
+        });
+    }
+
+    // [자동완성] 사이드바 검색 필터
+    const filter_input = document.getElementById('filter_property_name');
+    if (filter_input) {
+        filter_input.addEventListener('input', function() {
+            trigger_autocomplete(this.value, 'filter_results', 'filter_property_name', null);
+        });
+        filter_input.addEventListener('focus', function() {
+            if(this.value.trim().length >= 2) {
+                trigger_autocomplete(this.value, 'filter_results', 'filter_property_name', null);
+            }
+        });
+    }
+
+    // [자동완성] 리뷰 작성 모달
+    const modal_input = document.getElementById('input_property_name');
+    if (modal_input) {
+        modal_input.addEventListener('input', function() {
+            document.getElementById('selected_property_id').value = '';
+            trigger_autocomplete(this.value, 'modal_results', 'input_property_name', 'selected_property_id');
+        });
+    }
+
+    // 외부 클릭 시 리스트 닫기
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.autocomplete_list') &&
+            !e.target.closest('.filter_select') &&
+            !e.target.closest('#input_property_name')) {
+            close_all_autocomplete_lists();
+        }
+    });
+}
+
+// ========== 자동완성 로직 ==========
+
+function trigger_autocomplete(keyword, list_id, input_id, hidden_id) {
+    if (debounce_timer) clearTimeout(debounce_timer);
+
+    if (!keyword || keyword.trim().length < 2) {
+        const list = document.getElementById(list_id);
+        if(list) list.style.display = 'none';
+        return;
+    }
+
+    debounce_timer = setTimeout(() => {
+        search_properties(keyword, list_id, input_id, hidden_id);
+    }, 300);
+}
+
+function search_properties(keyword, list_id, input_id, hidden_id) {
+    fetch(`${SEARCH_API_URL}?keyword=${encodeURIComponent(keyword.trim())}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('검색 실패');
+            return response.json();
+        })
+        .then(data => {
+            render_search_results(data, list_id, input_id, hidden_id);
+        })
+        .catch(error => {
+            console.error('[Autocomplete Error]', error);
+        });
+}
+
+function render_search_results(results, list_id, input_id, hidden_id) {
+    const list_el = document.getElementById(list_id);
+    list_el.innerHTML = '';
+
+    if (!results || results.length === 0) {
+        list_el.style.display = 'none';
+        return;
+    }
+
+    results.forEach(item => {
+        const p_name = item.property_name || item.propertyName;
+        const p_type = item.property_type || item.propertyType;
+        const p_id   = item.property_id   || item.propertyId;
+
+        const li = document.createElement('li');
+        const badge_class = (p_type === '전세') ? 'charter' : 'monthly';
+
+        li.innerHTML = `
+            <span class="type_badge ${badge_class}">${p_type}</span>
+            ${escape_html(p_name)}
+        `;
+
+        li.addEventListener('click', () => {
+            select_search_result({
+                propertyName: p_name,
+                propertyId: p_id
+            }, list_id, input_id, hidden_id);
+        });
+
+        list_el.appendChild(li);
+    });
+
+    list_el.style.display = 'block';
+}
+
+function select_search_result(item, list_id, input_id, hidden_id) {
+    const input_el = document.getElementById(input_id);
+    if (input_el) {
+        input_el.value = item.propertyName;
+    }
+    if (hidden_id) {
+        const hidden_el = document.getElementById(hidden_id);
+        if (hidden_el) {
+            hidden_el.value = item.propertyId;
+        }
+    }
+    document.getElementById(list_id).style.display = 'none';
+}
+
+function close_all_autocomplete_lists() {
+    const lists = document.querySelectorAll('.autocomplete_list');
+    lists.forEach(list => list.style.display = 'none');
+}
+
+// ========== API 호출 함수 ==========
+
+function load_reviews() {
+    console.group('🔍 [Debug] load_reviews 실행');
+    console.log('0. 현재 전역 변수 current_page:', current_page);
+
+    const prop_name_el = document.getElementById('filter_property_name');
+    const sort_select_el = document.getElementById('sort_select');
+    const keyword_search_el = document.getElementById('keyword_search');
+
+    const prop_name_val = prop_name_el ? prop_name_el.value.trim() : '';
+    const sort_val = sort_select_el ? sort_select_el.value : 'rating_desc';
+    const keyword_val = keyword_search_el ? keyword_search_el.value.trim() : '';
+
+    console.log('1. 필터 값:', {
+        propertyName: prop_name_val,
+        sort: sort_val,
+        keyword: keyword_val,
+        page: current_page
+    });
+
+    const params = new URLSearchParams({
+        page: current_page,
+        sort: sort_val
+    });
+
+    if (prop_name_val) params.append('propertyName', prop_name_val);
+    if (keyword_val) params.append('keyword', keyword_val);
+
+    const finalUrl = `${API_URL}/list?${params.toString()}`;
+    console.log('2. 요청 URL:', finalUrl);
+
+    fetch(finalUrl, { method: 'GET' })
+        .then(res => {
+            console.log('3. 응답 상태:', res.status);
+            return res.ok ? res.json() : Promise.reject(res);
+        })
+        .then(data => {
+            console.log('4. 수신 데이터:', data);
+            render_reviews(data.reviews);
+            update_header(data.reviews ? data.reviews.length : 0);
+            render_simple_pagination(data.reviews);
+            console.groupEnd();
+        })
+        .catch(err => {
+            console.error('❌ API 호출 실패:', err);
+            console.groupEnd();
+        });
+}
+
+function apply_filters() {
+    console.log('🔘 필터 적용 버튼 클릭');
+
+    const pageInput = document.getElementById('page_input');
+
+    if (pageInput) {
+        const inputVal = parseInt(pageInput.value);
+        console.log(`입력된 페이지 번호: ${inputVal}`);
+
+        if (!isNaN(inputVal) && inputVal > 0) {
+            current_page = inputVal;
+        } else {
+            console.warn('유효하지 않은 페이지 번호 -> 1로 초기화');
+            current_page = 1;
+            pageInput.value = 1;
+        }
+    } else {
+        console.error('page_input 요소를 찾을 수 없습니다.');
+        current_page = 1;
+    }
+
+    console.log(`최종 적용 페이지: ${current_page}`);
+    load_reviews();
+}
+
+// ========== 상세, 작성, 수정, 삭제 로직 ==========
+
+function load_review_detail(review_id) {
+    if (!review_id) return alert('오류: ID 없음');
+
+    fetch(`${API_URL}/${review_id}`, { method: 'GET' })
+        .then(res => res.json())
+        .then(data => {
+            console.log('상세 데이터:', data);
+
+            // 상세 모달에 데이터 바인딩
+            document.getElementById('detail_user_id').textContent = data.userId || data.user_id || '익명';
+            document.getElementById('detail_property_id').textContent = data.propertyId || data.property_id || '-';
+            document.getElementById('detail_rating').textContent = '⭐'.repeat(data.rating || 0) + ` (${data.rating}점)`;
+            document.getElementById('detail_created_at').textContent = (data.createdAt || data.created_at || '').replace('T', ' ');
+            document.getElementById('detail_content').textContent = data.content || '';
+
+            // 태그 바인딩
+            const tagsDiv = document.getElementById('detail_tags');
+            tagsDiv.innerHTML = '';
+            if (data.tags && data.tags.length > 0) {
+                data.tags.forEach(tag => {
+                    tagsDiv.innerHTML += `<span class="tag">#${tag}</span> `;
+                });
+            }
+
+            // 수정/삭제 버튼 이벤트 연결
+            const editBtn = document.getElementById('btn_edit_review');
+            const delBtn = document.getElementById('btn_delete_review');
+
+            editBtn.onclick = function() {
+                close_detail_modal();
+                open_edit_modal(data);
+            };
+            delBtn.onclick = function() {
+                close_detail_modal();
+                open_delete_confirm_modal(data.reviewId || data.review_id);
+            };
+
+            document.getElementById('detail_review_modal').style.display = 'block';
+        })
+        .catch(err => {
+            console.error(err);
+            alert('상세 조회 실패');
+        });
+}
+
+function create_review(review_data) {
+    console.log('[Review Submit] 전송:', review_data);
+
+    fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(review_data)
+    })
+        .then(async res => {
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || '작성 실패');
+            }
+            return res.json();
+        })
+        .then(() => {
+            alert('작성 완료');
+            close_write_modal();
+            load_reviews();
+        })
+        .catch(err => {
+            alert(err.message);
+        });
+}
+
+function update_review(review_data) {
+    console.log('[Review Update] 전송:', review_data);
+
+    fetch(API_URL + '/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(review_data)
+    })
+        .then(async res => {
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || '수정 실패');
+            }
+            return res.json();
+        })
+        .then(() => {
+            alert('수정 완료');
+            close_edit_modal();
+            load_reviews();
+        })
+        .catch(err => {
+            show_form_error('edit_error_message', err.message);
+        });
+}
+
+function delete_review(review_id) {
+    fetch(API_URL + '/' + review_id, { method: 'DELETE' })
+        .then(res => {
+            if(!res.ok) throw new Error('삭제 실패');
+            close_delete_confirm_modal();
+            alert('삭제 완료');
+            load_reviews();
+        })
+        .catch(err => alert('삭제 실패'));
+}
+
+// ========== 렌더링 함수 ==========
+
+function render_reviews(reviews) {
+    const container = document.getElementById('review_list_container');
+    if (!reviews || reviews.length === 0) {
+        container.innerHTML = `<div class="empty_state"><p>리뷰가 없습니다</p></div>`;
+        return;
+    }
+    container.innerHTML = reviews.map(review => create_review_card(review)).join('');
+
+    container.querySelectorAll('.review_card').forEach((card, index) => {
+        const data = reviews[index];
+        const id = data.review_id || data.reviewId;
+        card.addEventListener('click', () => id ? load_review_detail(id) : alert('ID 오류'));
+    });
+}
+
+function create_review_card(review) {
+    const stars = '⭐'.repeat(review.rating || 0);
+    const date = review.created_at ? format_date(review.created_at) : '-';
+    const summary = escape_html(review.summary || review.content || '내용 없음');
+    const user = escape_html(review.user_id || review.userId || '익명');
+    const prop = escape_html(review.property_name || review.propertyName || review.apt_nm || '미확인');
+    const tags = (review.tags || []).map(t => `<span class="tag">${escape_html(t)}</span>`).join('');
+
+    return `
+        <div class="review_card">
+            <div class="review_card_header">
+                <div class="review_rating">${stars}</div>
+                <div class="review_date">${date}</div>
+            </div>
+            <div class="review_user"><i class="fas fa-user"></i> ${user}</div>
+            <div class="review_summary">${summary}</div>
+            <div class="review_tags">${tags}</div>
+            <div class="review_property_info"><i class="fas fa-building"></i> ${prop}</div>
+        </div>
+    `;
+}
+
+function render_simple_pagination(reviews) {
+    const container = document.getElementById('pagination_container');
+    let html = '';
+
+    // 이전 버튼
+    const prev_disabled = current_page <= 1 ? 'disabled' : '';
+    html += `<button class="pagination_btn" onclick="go_to_page(${current_page - 1})" ${prev_disabled}>이전</button>`;
+
+    // 페이지 정보
+    html += `<div class="pagination_info">Page ${current_page}</div>`;
+
+    // 다음 버튼
+    const next_disabled = (!reviews || reviews.length < 10) ? 'disabled' : '';
+    html += `<button class="pagination_btn" onclick="go_to_page(${current_page + 1})" ${next_disabled}>다음</button>`;
+
+    container.innerHTML = html;
+}
+
+function update_header(count) {
+    const el = document.getElementById('total_review_count');
+    const countDiv = document.querySelector('.total_count');
+    if (countDiv) {
+        countDiv.innerHTML = `현재 페이지 <span>${count}</span>개`;
+    }
+}
+
+// ========== 모달 & 폼 핸들러 ==========
+
+function open_write_modal() {
+    document.getElementById('review_form').reset();
+    document.getElementById('modal_results').style.display = 'none';
+
+    const hidden_id = document.getElementById('selected_property_id');
+    if(hidden_id) hidden_id.value = '';
+
+    hide_form_error('form_error_message');
+    update_char_count('input_content', 'current_char_count');
+    document.getElementById('write_review_modal').style.display = 'block';
+}
+
+function close_write_modal() { document.getElementById('write_review_modal').style.display = 'none'; }
+
+function open_edit_modal(data) {
+    const r_id = data.reviewId || data.review_id;
+    document.getElementById('edit_review_id').value = r_id;
+
+    document.getElementById('edit_rating').value = data.rating;
+    document.getElementById('edit_content').value = data.content;
+    update_char_count('edit_content', 'edit_char_count');
+
+    hide_form_error('edit_error_message');
+    document.getElementById('edit_review_modal').style.display = 'block';
+}
+
+function close_edit_modal() { document.getElementById('edit_review_modal').style.display = 'none'; }
+
+function open_delete_confirm_modal(id) {
+    current_review_id_for_delete = id;
+    document.getElementById('delete_confirm_modal').style.display = 'block';
+}
+
+function close_delete_confirm_modal() {
+    document.getElementById('delete_confirm_modal').style.display = 'none';
+}
+
+// [누락되었던 함수 추가됨]
+function close_detail_modal() {
+    document.getElementById('detail_review_modal').style.display = 'none';
+}
+
+// ========== 이벤트 핸들러 (폼 제출 등) ==========
+
+function submit_review(e) {
+    e.preventDefault();
+
+    const propId = document.getElementById('selected_property_id').value;
+    const rating = document.getElementById('input_rating').value;
+    const content = document.getElementById('input_content').value;
+
+    if (!propId) {
+        alert('매물을 검색하여 목록에서 선택해주세요.');
+        return;
+    }
+
+    const payload = {
+        propertyId: propId,
+        rating: parseInt(rating),
+        content: content
+    };
+
+    create_review(payload);
+}
+
+function submit_edit_review(e) {
+    e.preventDefault();
+
+    const reviewId = document.getElementById('edit_review_id').value;
+    const rating = document.getElementById('edit_rating').value;
+    const content = document.getElementById('edit_content').value;
+
+    const payload = {
+        reviewId: parseInt(reviewId),
+        rating: parseInt(rating),
+        content: content
+    };
+
+    update_review(payload);
+}
+
+function confirm_delete_review() {
+    if(current_review_id_for_delete) {
+        delete_review(current_review_id_for_delete);
+    }
+}
+
+function clear_keyword_search() {
+    document.getElementById('keyword_search').value = '';
+    const filter_prop = document.getElementById('filter_property_name');
+    if(filter_prop) filter_prop.value = '';
+    current_keyword = null;
+    load_reviews();
+}
+
+function go_to_page(p) {
+    console.log(`[Pagination] 페이지 이동 요청: ${p}`);
+    current_page = p;
+
+    const pageInput = document.getElementById('page_input');
+    if (pageInput) {
+        pageInput.value = p;
+    }
+
+    load_reviews();
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ========== 유틸리티 ==========
+function toggle_sidebar() {
+    const info = document.getElementById('information');
+    const btn = document.getElementById('btn');
+    const main = document.getElementById('main_content');
+    if (info.style.left === '-480px' || !info.style.left) {
+        info.style.left = '0'; btn.style.left = '475px'; btn.innerHTML = '▼'; main.style.marginLeft = '480px';
+    } else {
+        info.style.left = '-480px'; btn.style.left = '10px'; btn.innerHTML = '▶'; main.style.marginLeft = '0';
+    }
+}
+
+function format_date(s) {
+    if(!s) return '-';
+    const d = new Date(s);
+    const now = new Date();
+    const diff = now - d;
+
+    if(diff < 60000) return '방금 전';
+    if(diff < 3600000) return Math.floor(diff/60000) + '분 전';
+    if(diff < 86400000) return Math.floor(diff/3600000) + '시간 전';
+
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function escape_html(t) {
+    if(!t) return '';
+    const d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
+}
+
+function update_char_count(tid, cid) {
+    document.getElementById(cid).textContent = document.getElementById(tid).value.length;
+}
+
+function show_form_error(eid, msg) {
+    const e = document.getElementById(eid);
+    if(e) { e.textContent = msg; e.classList.add('show'); }
+}
+
+function hide_form_error(eid) {
+    const e = document.getElementById(eid);
+    if(e) { e.textContent = ''; e.classList.remove('show'); }
+}

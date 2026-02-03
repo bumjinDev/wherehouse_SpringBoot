@@ -241,12 +241,78 @@ public class CharterRecommendationService {
     // ========================================
     // 전세 점수 계산 관련 메소드들 (Phase 2 핵심 로직)
     // ========================================
+    /**
+     * [Helper Method] 리스트를 특정 크기(partitionSize)로 분할하는 유틸리티 메서드
+     * 용도: Oracle IN 절 제한(1,000개) 준수 및 파싱 부하 분산을 위한 Chunking
+     */
+    private <T> List<List<T>> partitionList(List<T> list, int partitionSize) {
 
+        List<List<T>> partitions = new ArrayList<>();
+
+        for (int i = 0; i < list.size(); i += partitionSize) {
+            partitions.add(list.subList(i, Math.min(i + partitionSize, list.size())));
+        }
+        return partitions;
+    }
+
+    /**
+     * S-04: 매물 단위 점수 계산 (하이브리드 로직 적용)
+     * * [Refactoring 적용 내용]
+     * - 기존: 자치구별 루프 내에서 RDB 조회 (N+1 문제 및 하드 파싱 발생)
+     * - 변경: 전체 매물 ID 추출 후 1,000개 단위 Chunking 조회 (Bulk Fetch + Soft Parsing 유도)
+     */
     // 실제 호출되는 메서드 (시그니처 일치)
     private Map<String, List<PropertyWithScore>> calculateCharterPropertyScores(
             Map<String, List<String>> districtProperties, CharterRecommendationRequestDto request) {
 
-        log.info("S-04: 전세 매물 점수 계산 시작 (Hybrid Logic)");
+        log.info("S-04: 전세 매물 점수 계산 시작 (Hybrid Logic - Chunking Optimization)");
+
+        // [측정 시작] 전체 로직 수행 시간
+        long totalLoopStart = System.currentTimeMillis();
+        long totalRdbTime = 0; // RDB 조회 누적 시간
+        int rdbCallCount = 0;  // RDB 호출 횟수
+
+        // =================================================================================
+        // 1. [Optimization] 전체 매물 ID 추출 및 RDB 청크 조회 (Loop 외부 실행)
+        // =================================================================================
+
+        // 1-1. 모든 지역구의 매물 ID를 하나로 병합 (Flatten)
+        List<String> allPropertyIds = districtProperties.values().stream()
+                .flatMap(List::stream)
+                .distinct() // 중복 제거
+                .collect(Collectors.toList());
+
+        Map<String, ReviewStatistics> globalReviewStatsMap = new HashMap<>();
+
+        // 1-2. Chunking (1,000개 단위 분할 조회) 적용
+        if (!allPropertyIds.isEmpty()) {
+            // 리스트 분할 (1000개씩)
+            List<List<String>> chunks = partitionList(allPropertyIds, 61);  // Chunk 개수 1000 개 테스트 완료 -> 22개 테스트 완료 -> 61개 테스트 진행 중
+            log.info("[Profiling] 총 {}건 매물, {}개 Chunk로 분할하여 RDB 조회 시작", allPropertyIds.size(), chunks.size());
+
+            for (List<String> chunk : chunks) {
+                long rdbStart = System.currentTimeMillis();
+
+                // Chunk 단위 RDB 조회
+                // 효과: IN 절 파라미터 개수가 1,000개 이하로 고정되어 DB 파싱 부하 감소 및 INLIST ITERATOR 효율화
+                List<ReviewStatistics> chunkStats = reviewStatisticsRepository.findAllById(chunk);
+
+                long rdbDuration = System.currentTimeMillis() - rdbStart;
+                totalRdbTime += rdbDuration;
+                rdbCallCount++;
+
+                // 조회 결과를 메모리 Map에 병합
+                for (ReviewStatistics stat : chunkStats) {
+                    globalReviewStatsMap.put(stat.getPropertyId(), stat);
+                }
+            }
+            log.info("[Profiling] Chunk 조회 완료 - 총 소요시간: {}ms, 총 호출: {}회", totalRdbTime, rdbCallCount);
+        }
+
+        // =================================================================================
+        // 2. 지역구별 점수 계산 및 정렬 (기존 비즈니스 로직 100% 유지)
+        // =================================================================================
+
         Map<String, List<PropertyWithScore>> result = new HashMap<>();
 
         for (Map.Entry<String, List<String>> entry : districtProperties.entrySet()) {
@@ -259,14 +325,13 @@ public class CharterRecommendationService {
                 continue;
             }
 
-            // 1. 매물 상세 정보 조회 (Redis)
+            // 2-1. 매물 상세 정보 조회 (Redis - Pipeline 유지)
             List<PropertyDetail> propertyDetails = getMultipleCharterPropertiesFromRedis(propertyIds);
 
-            // 2. [Phase 2 신규] 리뷰 통계 정보 조회 (RDB 직접 조회 - 의도적 병목 지점)
-            //            // 성능 비교를 위해 findAllById 사용 (SELECT * FROM REVIEW_STATISTICS WHERE PROPERTY_ID IN (...))
-            Map<String, ReviewStatistics> reviewStatsMap = getReviewStatisticsFromRDB(propertyIds);
+            // [변경점] RDB 조회 로직 제거됨 (위에서 미리 조회한 globalReviewStatsMap 사용)
+            // Map<String, ReviewStatistics> reviewStatsMap = getReviewStatisticsFromRDB(propertyIds); <--- 삭제됨
 
-            // 3. 기준 데이터 조회
+            // 2-2. 기준 데이터 조회
             ScoreNormalizationBounds districtBounds = getCharterBoundsFromRedis(districtName);
             double districtSafetyScore = getDistrictSafetyScoreFromRedis(districtName);
 
@@ -274,7 +339,7 @@ public class CharterRecommendationService {
 
             for (PropertyDetail propertyDetail : propertyDetails) {
                 try {
-                    // === 4-1. 정량적 점수(Legacy Score) 산출 ===
+                    // === 4-1. 정량적 점수(Legacy Score) 산출 (기존 로직 유지) ===
                     double priceScore = calculatePriceScore(propertyDetail.getDeposit(), districtBounds);
                     double spaceScore = calculateSpaceScore(propertyDetail.getAreaInPyeong(), districtBounds);
                     double safetyScore = propertyDetail.getSafetyScore() != null ?
@@ -284,9 +349,11 @@ public class CharterRecommendationService {
                             priceScore, spaceScore, safetyScore,
                             request.getPriority1(), request.getPriority2(), request.getPriority3());
 
-                    // === 4-2. 정성적 점수(Review Score) 산출 및 통합 ===
+                    // === 4-2. 정성적 점수(Review Score) 산출 및 통합 (기존 로직 유지) ===
                     String propertyId = propertyDetail.getPropertyId();
-                    ReviewStatistics stats = reviewStatsMap.getOrDefault(propertyId,
+
+                    // [변경점] 메모리 Map에서 조회 (O(1) 속도)
+                    ReviewStatistics stats = globalReviewStatsMap.getOrDefault(propertyId,
                             ReviewStatistics.builder().propertyId(propertyId).build());
 
                     double finalScore = calculateHybridScore(legacyScore, stats);
@@ -311,10 +378,20 @@ public class CharterRecommendationService {
                 }
             }
 
-            // 점수 내림차순 정렬
+            // 점수 내림차순 정렬 (기존 로직 유지)
             propertiesWithScores.sort((p1, p2) -> Double.compare(p2.getFinalScore(), p1.getFinalScore()));
             result.put(districtName, propertiesWithScores);
         }
+
+        // [측정 종료] 결과 리포트
+        long totalLoopEnd = System.currentTimeMillis();
+        long totalDuration = totalLoopEnd - totalLoopStart;
+
+        log.info("=== [Bottleneck Resolved: 2.1.1 (Chunking)] ===");
+        log.info("1. 총 소요 시간: {}ms", totalDuration);
+        log.info("2. RDB 조회 시간 (Chunk Sum): {}ms (전체의 {}%)", totalRdbTime, String.format("%.1f", (double)totalRdbTime/totalDuration * 100));
+        log.info("3. RDB 호출 횟수: {}회 (Chunk 단위 실행)", rdbCallCount);
+        log.info("==============================================");
 
         return result;
     }

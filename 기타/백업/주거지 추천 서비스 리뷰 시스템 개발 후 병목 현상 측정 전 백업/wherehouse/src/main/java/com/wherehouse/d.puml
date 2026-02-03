@@ -1,0 +1,270 @@
+@startuml Wherehouse_Class_Diagram
+
+' 한글 폰트 설정
+skinparam defaultFontName Malgun Gothic
+skinparam defaultFontSize 11
+
+' 스타일 설정
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor LightBlue
+    BorderColor DarkBlue
+    ArrowColor Black
+}
+
+' 패키지 구조
+package "Controller Layer" {
+    class LocationAnalysisController {
+        - locationAnalysisService: ILocationAnalysisService
+        + getLocationAnalysis(request): ResponseEntity<LocationAnalysisResponseDTO>
+        + getAllPoliceOffices(): ResponseEntity<List<PoliceOfficeResponseDTO>>
+        + health(): ResponseEntity<String>
+    }
+}
+
+package "Service Layer" {
+    interface ILocationAnalysisService {
+        + analyzeLocation(request): LocationAnalysisResponseDTO
+        + getAllPoliceOffices(): List<PoliceOfficeResponseDTO>
+    }
+
+    class LocationAnalysisServiceImpl {
+        - geohashService: GeohashService
+        - kakaoApiService: KakaoApiService
+        - cctvGeoRepository: CctvGeoRepository
+        - policeOfficeGeoRepository: PoliceOfficeGeoRepository
+        - arrestRateRepository: ArrestRateRepository
+        - redisSingleDataService: RedisSingleDataService
+        --
+        + analyzeLocation(request): LocationAnalysisResponseDTO
+        + getAllPoliceOffices(): List<PoliceOfficeResponseDTO>
+        - calculate9BlockGrid(): List<String>
+        - performCacheLookup(): CacheResult
+        - performDatabaseQuery(): DatabaseQueryResult
+        - performExternalApiCalls(): ExternalApiResult
+        - integrateAndFilterData(): IntegratedDataResult
+        - calculateScores(): ScoringResult
+        - buildFinalResponse(): LocationAnalysisResponseDTO
+    }
+}
+
+package "Utility Layer" {
+    class GeohashService {
+        - GEOHASH_PRECISION: int = 7
+        + encode(latitude, longitude): String
+        + calculate9BlockGeohashes(lat, lon): List<String>
+        + calculateDistance(lat1, lon1, lat2, lon2): double
+    }
+
+    class KakaoApiService {
+        - webClient: WebClient
+        - kakaoApiKey: String
+        - KAKAO_API_EXECUTOR: ExecutorService
+        + getAddress(latitude, longitude): AddressDto
+        + searchPlacesByCategory(lat, lon, category, radius): List<Map>
+        + searchAllAmenities(lat, lon, radius): Map<String, List<Map>>
+        - shutdown(): void
+    }
+
+    class WebClientConfig {
+        + webClient(): WebClient
+    }
+}
+
+package "Repository Layer" {
+    interface CctvGeoRepository {
+        + findByGeohashIdIn(geohashIds): List<CctvGeo>
+    }
+
+    interface PoliceOfficeGeoRepository {
+        + findByGeohashIdIn(geohashIds): List<PoliceOfficeGeo>
+        + findAllBySeoul(): List<PoliceOfficeGeo>
+    }
+
+    interface ArrestRateRepository {
+        + findByDistrict(district): Optional<ArrestRate>
+    }
+}
+
+package "Entity Layer" {
+    class CctvGeo {
+        - id: Long
+        - geohashId: String
+        - address: String
+        - latitude: Double
+        - longitude: Double
+        - cameraCount: Integer
+    }
+
+    class PoliceOfficeGeo {
+        - id: Long
+        - geohashId: String
+        - address: String
+        - latitude: Double
+        - longitude: Double
+    }
+
+    class ArrestRate {
+        - id: Long
+        - district: String
+        - arrestRate: Double
+    }
+}
+
+package "DTO Layer" <<Rectangle>> {
+
+    package "Request" {
+        class LocationAnalysisRequestDTO {
+            + latitude: Double
+            + longitude: Double
+            + radius: Integer
+        }
+    }
+
+    package "Response" {
+        class LocationAnalysisResponseDTO {
+            + analysisStatus: String
+            + coordinate: CoordinateDto
+            + address: AddressDto
+            + safetyScore: SafetyScoreDto
+            + convenienceScore: ConvenienceScoreDto
+            + overallScore: Integer
+            + recommendations: List<String>
+            + warnings: List<String>
+        }
+
+        class PoliceOfficeResponseDTO {
+            + address: String
+            + latitude: Double
+            + longitude: Double
+        }
+    }
+
+    package "Component DTOs" {
+        class CoordinateDto {
+            + latitude: Double
+            + longitude: Double
+        }
+
+        class AddressDto {
+            + roadAddress: String
+            + jibunAddress: String
+        }
+
+        class SafetyScoreDto {
+            + total: Integer
+            + policeDistance: Integer
+            + cctvCount: Integer
+            + cctvList: List<CctvDetailDto>
+            + arrestRate: Double
+            + nearestPoliceOffice: PoliceOfficeDto
+        }
+
+        class ConvenienceScoreDto {
+            + total: Integer
+            + amenityDetails: List<AmenityDetailDto>
+        }
+
+        class CctvDetailDto {
+            + address: String
+            + latitude: Double
+            + longitude: Double
+            + cameraCount: Integer
+        }
+
+        class PoliceOfficeDto {
+            + address: String
+            + latitude: Double
+            + longitude: Double
+            + distance: Integer
+        }
+
+        class AmenityDetailDto {
+            + categoryCode: String
+            + categoryName: String
+            + count: Integer
+            + closestDistance: Integer
+            + places: List<PlaceDto>
+        }
+
+        class PlaceDto {
+            + name: String
+            + latitude: Double
+            + longitude: Double
+            + distance: Integer
+        }
+    }
+}
+
+package "Cache Layer" {
+    class RedisSingleDataService {
+        + get(key): Optional<String>
+        + set(key, value, ttl): void
+        + delete(key): void
+    }
+}
+
+' ===== 관계 정의 =====
+
+' Controller -> Service
+LocationAnalysisController --> ILocationAnalysisService : uses
+ILocationAnalysisService <|.. LocationAnalysisServiceImpl : implements
+
+' Service -> Utility
+LocationAnalysisServiceImpl --> GeohashService : uses
+LocationAnalysisServiceImpl --> KakaoApiService : uses
+
+' Service -> Repository
+LocationAnalysisServiceImpl --> CctvGeoRepository : uses
+LocationAnalysisServiceImpl --> PoliceOfficeGeoRepository : uses
+LocationAnalysisServiceImpl --> ArrestRateRepository : uses
+
+' Service -> Cache
+LocationAnalysisServiceImpl --> RedisSingleDataService : uses
+
+' Repository -> Entity
+CctvGeoRepository ..> CctvGeo : manages
+PoliceOfficeGeoRepository ..> PoliceOfficeGeo : manages
+ArrestRateRepository ..> ArrestRate : manages
+
+' KakaoApiService -> WebClient
+KakaoApiService --> WebClientConfig : uses
+
+' Controller -> DTOs
+LocationAnalysisController ..> LocationAnalysisRequestDTO : receives
+LocationAnalysisController ..> LocationAnalysisResponseDTO : returns
+LocationAnalysisController ..> PoliceOfficeResponseDTO : returns
+
+' Service -> DTOs
+LocationAnalysisServiceImpl ..> LocationAnalysisRequestDTO : receives
+LocationAnalysisServiceImpl ..> LocationAnalysisResponseDTO : returns
+
+' KakaoApiService -> DTOs
+KakaoApiService ..> AddressDto : returns
+
+' Response DTO Composition (조합 관계)
+LocationAnalysisResponseDTO *-- CoordinateDto
+LocationAnalysisResponseDTO *-- AddressDto
+LocationAnalysisResponseDTO *-- SafetyScoreDto
+LocationAnalysisResponseDTO *-- ConvenienceScoreDto
+
+SafetyScoreDto *-- CctvDetailDto
+SafetyScoreDto *-- PoliceOfficeDto
+
+ConvenienceScoreDto *-- AmenityDetailDto
+
+AmenityDetailDto *-- PlaceDto
+
+' 노트 추가
+note right of LocationAnalysisServiceImpl
+    **7단계 처리 파이프라인**
+    R-01: Geohash 계산 (Precision 7)
+    R-02: 2단계 캐싱 (5분/24시간)
+    R-03: DB 조회 (선택적)
+    R-04: 외부 API (병렬 처리)
+    R-05: 데이터 통합
+    R-06: 점수 계산
+    R-07: 응답 생성
+end note
+
+@enduml

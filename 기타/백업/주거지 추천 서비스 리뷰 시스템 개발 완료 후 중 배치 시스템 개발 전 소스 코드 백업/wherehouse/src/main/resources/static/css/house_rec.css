@@ -1,0 +1,1744 @@
+@font-face {
+    font-family: 'TheJamsil5Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil5Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* 기본 스타일 */
+body {
+    font-family: 'TheJamsil5Bold';
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+/* 사이드바 레이아웃 */
+#information {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    transition: 500ms;
+}
+
+#chart_information {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: 500ms;
+}
+
+/* 사이드바 토글 버튼 */
+#btn {
+    position: absolute;
+    width: 33px;
+    height: 50px;
+    border: 3px solid #0B5ED7;
+    background: white;
+    color: #0B5ED7;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 7px;
+    left: 475px;
+    top: 450px;
+    box-shadow: 3px 3px 7px 3px rgba(0, 0, 0, 0.3);
+    transition: 500ms;
+}
+
+#btn:hover {
+    cursor: pointer;
+}
+
+/* 사이드바 스타일 */
+#side-bar {
+    position: absolute;
+    background: white;
+    width: 480px;
+    height: 945px;
+    overflow: auto;
+    box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.3);
+}
+
+#side-bar-second {
+    position: absolute;
+    background: white;
+    width: 480px;
+    height: 945px;
+    overflow: auto;
+    box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.3);
+    z-index: -1;
+    transition: 500ms;
+}
+
+/* 헤더 타이틀 */
+.house_recommend {
+    background: #4690ff;
+    color: #e9f2ff;
+    margin: 0 auto;
+    width: 100%;
+    height: 62px;
+    line-height: 62px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: -2px 2px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 1단계: 기본 조건 설정 */
+#char_month_hr {
+    margin-bottom: 8px;
+}
+
+.select_need {
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: auto;
+    line-height: normal;
+    padding: 15px;
+}
+
+.select_need p {
+    font-size: 20px;
+    margin-bottom: 12px;
+    line-height: normal;
+}
+
+/* 입력 라벨 스타일 */
+.input_label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 4px;
+    margin-top: 8px;
+    text-align: left;
+}
+
+/* 범위 입력 스타일 */
+.range_input {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.range_input input {
+    width: 120px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.range_separator {
+    font-size: 12px;
+    color: #666;
+}
+
+.unit_text {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 월세 추가 필드 */
+.monthly_extra_fields {
+    display: none;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.monthly_extra_fields.show {
+    display: block;
+}
+
+/* 에러 메시지 */
+.error_message {
+    color: #e74c3c;
+    font-size: 11px;
+    margin-top: 3px;
+    display: none;
+    text-align: left;
+}
+
+.error_message.show {
+    display: block;
+}
+
+/* 2단계: 우선순위 설정 */
+.priority_selection {
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 5px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: auto;
+    line-height: 50px;
+    padding: 15px;
+}
+
+.priority_selection p {
+    margin-bottom: 0px !important;
+}
+
+/*.priority_selection p {*/
+/*    font-size: 20px;*/
+/*    margin-bottom: 8px;*/
+/*}*/
+
+.priority_row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 10px;
+    line-height: normal;
+}
+
+.priority_label {
+    min-width: 50px;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+.priority_select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    font-size: 13px;
+}
+
+.priority_weight {
+    font-size: 11px;
+    color: #666;
+    min-width: 35px;
+}
+
+.priority_desc {
+    font-size: 11px;
+    color: #888;
+    margin-top: 5px;
+    text-align: center;
+    line-height: normal;
+}
+
+/* 3단계: 유연성 설정 */
+.flexibility_settings {
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 5px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: auto;
+    line-height: 50px;
+    padding: 15px;
+}
+
+.flexibility_settings p {
+    margin-bottom: 0px !important;
+}
+/*.flexibility_settings p {*/
+/*    font-size: 20px;*/
+/*    margin-bottom: 8px;*/
+/*}*/
+
+.flex_item {
+    margin-bottom: 12px;
+    line-height: normal;
+}
+
+.flex_label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    text-align: left;
+}
+
+.flex_value {
+    font-weight: bold;
+    color: #0B5ED7;
+}
+
+.flex_slider {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: #ddd;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.flex_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0B5ED7;
+    cursor: pointer;
+}
+
+.flex_slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0B5ED7;
+    cursor: pointer;
+    border: none;
+}
+
+.flex_desc {
+    font-size: 10px;
+    color: #888;
+    margin-top: 3px;
+    text-align: left;
+}
+
+.min_area_input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.min_area_input input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* 기본 스타일들 */
+#check_need {
+    display: flex;
+    font-size: 17px;
+    justify-content: space-around;
+}
+
+#rentInput input[type=text] {
+    width: 100px;
+    border: 2px solid #dfdfdf;
+}
+
+#charter input[type=radio] {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+#monthly input[type=radio] {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+#charterInput {
+    display: none;
+}
+
+#charterInput input[type=text] {
+    border: 1.5px solid black;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+#monthlyInput {
+    display: block;
+}
+
+#monthlyInput input[type=text] {
+    border: 1.5px solid black;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.inputPrice {
+    text-align: right;
+}
+
+/* 추천결과 확인 버튼 */
+#recommend_result,
+#recommend_comparison {
+    width: 190px;
+    margin: 15px auto 10px auto;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    background-color: rgba(11, 94, 215, 0.50);
+    border-radius: 40px;
+    cursor: pointer;
+}
+
+#recommend_result:hover,
+#recommend_comparison:hover {
+    background-color: #dfdfdf;
+}
+
+#recommend_result_btn input[type=button],
+#recommend_comparison input[type=button] {
+    border: none;
+}
+
+/* 버튼 활성화/비활성화 */
+#recommend_result_btn input[type="button"]:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#recommend_result_btn input[type="button"]:not(:disabled) {
+    background-color: #0B5ED7;
+    cursor: pointer;
+    color: white;
+}
+
+/* ========== 전세 추천 결과 페이지 ========== */
+
+#charter_result_page {
+    display: none;
+}
+
+#charter_result_title {
+    display: flex;
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: 50px;
+    line-height: 47px;
+    font-size: 20px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
+}
+
+#charter_result_title p {
+    margin-left: 20px;
+    margin-right: 38px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+/* 전세 안내 메시지 */
+#charter_recommendation_message {
+    width: 450px;
+    margin: 10px 12px 15px 12px;
+    padding: 15px;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+    border: 2px solid #0B5ED7;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#charter_recommendation_message p {
+    margin: 0;
+    font-size: 14px;
+    color: #0B5ED7;
+    line-height: 1.4;
+    font-weight: bold;
+}
+
+/* 전세 지역구 컨테이너 */
+#charter_districts_container {
+    margin: 0 12px;
+}
+
+/* 전세 지역구 카드 스타일 */
+.charter_district_card {
+    width: 450px;
+    margin: 10px 0;
+    border: 2px solid #0B5ED7;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff, #f8f9ff);
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.15);
+}
+
+.charter_district_card:hover {
+    border-color: #0B5ED7;
+    box-shadow: 0 6px 16px rgba(11, 94, 215, 0.25);
+    transform: translateY(-2px);
+}
+
+/* 전세 카드 헤더 */
+.charter_district_header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px 10px 20px;
+    border-bottom: 2px solid #e3f2fd;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 10px 10px 0 0;
+}
+
+.charter_district_rank {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-right: 12px;
+    min-width: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.charter_district_name {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    flex: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* 전세 카드 정보 영역 */
+.charter_district_info {
+    padding: 15px 20px;
+    background: white;
+}
+
+.charter_info_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.charter_info_label {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.charter_info_value {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.charter_price_value {
+    color: #0B5ED7;
+    font-size: 16px;
+}
+
+.charter_score_value {
+    color: #28a745;
+    font-size: 16px;
+}
+
+/* 전세 카드 버튼 영역 */
+.charter_district_buttons {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+    background: #f8f9ff;
+    border-radius: 0 0 10px 10px;
+}
+
+.charter_btn_detail_rank,
+.charter_btn_property_list {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #0B5ED7;
+    background: white;
+    color: #0B5ED7;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.charter_btn_detail_rank:hover,
+.charter_btn_property_list:hover {
+    background: #0B5ED7;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
+}
+
+/* 전세 상세 비교 버튼 */
+#charter_comparison {
+    width: 190px;
+    margin: 15px auto 10px auto;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    border: 2px solid #0B5ED7;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
+}
+
+#charter_comparison:hover {
+    background: linear-gradient(135deg, #4690ff, #0B5ED7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(11, 94, 215, 0.4);
+}
+
+#charter_comparison_btn input[type=button] {
+    border: none;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ========== 월세 추천 결과 페이지 ========== */
+
+#monthly_result_page {
+    display: none;
+}
+
+#monthly_result_title {
+    display: flex;
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: 50px;
+    line-height: 47px;
+    font-size: 20px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
+}
+
+#monthly_result_title p {
+    margin-left: 20px;
+    margin-right: 38px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+/* 월세 안내 메시지 */
+#monthly_recommendation_message {
+    width: 450px;
+    margin: 10px 12px 15px 12px;
+    padding: 15px;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+    border: 2px solid #0B5ED7;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#monthly_recommendation_message p {
+    margin: 0;
+    font-size: 14px;
+    color: #0B5ED7;
+    line-height: 1.4;
+    font-weight: bold;
+}
+
+/* 월세 지역구 컨테이너 */
+#monthly_districts_container {
+    margin: 0 12px;
+}
+
+/* 월세 지역구 카드 스타일 */
+.monthly_district_card {
+    width: 450px;
+    margin: 10px 0;
+    border: 2px solid #0B5ED7;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff, #f8f9ff);
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.15);
+}
+
+.monthly_district_card:hover {
+    border-color: #0B5ED7;
+    box-shadow: 0 6px 16px rgba(11, 94, 215, 0.25);
+    transform: translateY(-2px);
+}
+
+/* 월세 카드 헤더 */
+.monthly_district_header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px 10px 20px;
+    border-bottom: 2px solid #e3f2fd;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 10px 10px 0 0;
+}
+
+.monthly_district_rank {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-right: 12px;
+    min-width: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.monthly_district_name {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    flex: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* 월세 카드 정보 영역 */
+.monthly_district_info {
+    padding: 15px 20px;
+    background: white;
+}
+
+.monthly_info_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.monthly_info_label {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.monthly_info_value {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.monthly_price_value {
+    color: #0B5ED7;
+    font-size: 16px;
+}
+
+.monthly_score_value {
+    color: #28a745;
+    font-size: 16px;
+}
+
+/* 월세 카드 버튼 영역 */
+.monthly_district_buttons {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+    background: #f8f9ff;
+    border-radius: 0 0 10px 10px;
+}
+
+.monthly_btn_detail_rank,
+.monthly_btn_property_list {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #0B5ED7;
+    background: white;
+    color: #0B5ED7;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.monthly_btn_detail_rank:hover,
+.monthly_btn_property_list:hover {
+    background: #0B5ED7;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
+}
+
+/* 월세 상세 비교 버튼 */
+#monthly_comparison {
+    width: 190px;
+    margin: 15px auto 10px auto;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    border: 2px solid #0B5ED7;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.3);
+}
+
+#monthly_comparison:hover {
+    background: linear-gradient(135deg, #4690ff, #0B5ED7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(11, 94, 215, 0.4);
+}
+
+#monthly_comparison_btn input[type=button] {
+    border: none;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ========== 매물 상세 모달창 (공통) ========== */
+
+/* 모달 오버레이 */
+.property_modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(3px);
+}
+
+/* 모달 컨테이너 */
+.property_modal_content {
+    background: white;
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+    border: 3px solid #0B5ED7;
+}
+
+.property_modal_content.monthly {
+    border-color: #0B5ED7;
+    box-shadow: 0 20px 40px rgba(11, 94, 215, 0.3);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 모달 헤더 */
+.property_modal_header {
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+}
+
+.property_modal_header.monthly {
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+}
+
+.property_modal_header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.property_modal_close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.property_modal_close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* 모달 바디 */
+.property_modal_body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0;
+    background: #f8f9ff;
+}
+
+.property_modal_body.monthly {
+    background: #f8f9ff;
+}
+
+/* 매물 리스트 컨테이너 */
+#property_list_container {
+    padding: 20px;
+}
+
+/* ========== 전세 매물 카드 스타일 ========== */
+
+/* 전세 매물 아이템 카드 */
+.charter_property_card {
+    border: 2px solid #e3f2fd;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    background: white;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(11, 94, 215, 0.15);
+}
+
+.charter_property_card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(11, 94, 215, 0.25);
+    border-color: #0B5ED7;
+}
+
+.charter_property_card:last-child {
+    margin-bottom: 0;
+}
+
+/* 전세 매물 카드 헤더 */
+.charter_property_header {
+    padding: 18px 22px 12px 22px;
+    border-bottom: 2px solid #f1f3f4;
+    background: linear-gradient(135deg, #f8f9ff, #ffffff);
+}
+
+.charter_property_title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.charter_property_name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.charter_property_score {
+    font-size: 16px;
+    font-weight: bold;
+    color: #28a745;
+    background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 2px solid #d4edda;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.charter_property_address {
+    font-size: 13px;
+    color: #666;
+    margin-top: 6px;
+    font-weight: normal;
+}
+
+/* 전세 매물 상세 정보 바디 */
+.charter_property_body {
+    padding: 18px 22px 22px 22px;
+}
+
+.charter_property_details_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.charter_property_detail_item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e3f2fd;
+}
+
+.charter_property_detail_label {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.charter_property_detail_value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.charter_property_price_highlight {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+    border: 2px solid #0B5ED7;
+}
+
+.charter_property_price_highlight .charter_property_detail_value {
+    color: #0B5ED7;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* ========== 월세 매물 카드 스타일 ========== */
+
+/* 월세 매물 아이템 카드 */
+.monthly_property_card {
+    border: 2px solid #e3f2fd;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    background: white;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(11, 94, 215, 0.15);
+}
+
+.monthly_property_card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(11, 94, 215, 0.25);
+    border-color: #0B5ED7;
+}
+
+.monthly_property_card:last-child {
+    margin-bottom: 0;
+}
+
+/* 월세 매물 카드 헤더 */
+.monthly_property_header {
+    padding: 18px 22px 12px 22px;
+    border-bottom: 2px solid #f1f3f4;
+    background: linear-gradient(135deg, #f8f9ff, #ffffff);
+}
+
+.monthly_property_title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.monthly_property_name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.monthly_property_score {
+    font-size: 16px;
+    font-weight: bold;
+    color: #28a745;
+    background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 2px solid #d4edda;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.monthly_property_address {
+    font-size: 13px;
+    color: #666;
+    margin-top: 6px;
+    font-weight: normal;
+}
+
+/* 월세 매물 상세 정보 바디 */
+.monthly_property_body {
+    padding: 18px 22px 22px 22px;
+}
+
+.monthly_property_details_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.monthly_property_detail_item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e3f2fd;
+}
+
+.monthly_property_detail_label {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.monthly_property_detail_value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.monthly_property_price_highlight {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+    border: 2px solid #0B5ED7;
+}
+
+.monthly_property_price_highlight .monthly_property_detail_value {
+    color: #0B5ED7;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 매물 빈 상태 메시지 */
+.property_empty_message {
+    text-align: center;
+    padding: 50px 20px;
+    color: #666;
+}
+
+.property_empty_icon {
+    font-size: 56px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+}
+
+.property_empty_text {
+    font-size: 16px;
+    color: #888;
+    line-height: 1.5;
+}
+
+/* 모달 스크롤바 스타일 */
+.property_modal_body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.property_modal_body::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+.property_modal_body::-webkit-scrollbar-thumb {
+    background: #0B5ED7;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.property_modal_body::-webkit-scrollbar-thumb:hover {
+    background: #094bb5;
+}
+
+/* 반응형 대응 (모달) */
+@media (max-width: 768px) {
+    .property_modal_content {
+        width: 95%;
+        max-height: 90vh;
+        margin: 20px;
+        border: 2px solid #0B5ED7;
+    }
+
+    .property_modal_header {
+        padding: 15px 20px;
+    }
+
+    .property_modal_header h3 {
+        font-size: 16px;
+    }
+
+    .charter_property_details_grid,
+    .monthly_property_details_grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .charter_property_header,
+    .charter_property_body,
+    .monthly_property_header,
+    .monthly_property_body {
+        padding: 15px 18px;
+    }
+
+    #property_list_container {
+        padding: 15px;
+    }
+
+    .charter_property_card,
+    .monthly_property_card {
+        margin-bottom: 15px;
+    }
+}
+
+/* 모달이 열릴 때 body 스크롤 방지 */
+body.modal_open {
+    overflow: hidden;
+}
+
+/* 추천 결과 페이지 공통 스타일 (기본) */
+#recommendation_message {
+    width: 450px;
+    margin: 10px 12px 15px 12px;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#recommendation_message p {
+    margin: 0;
+    font-size: 14px;
+    color: #495057;
+    line-height: 1.4;
+}
+
+/* 추천 지역구 컨테이너 (기본) */
+#recommended_districts_container {
+    margin: 0 12px;
+}
+
+/* 지역구 카드 (기본) */
+.district_card {
+    width: 450px;
+    margin: 10px 0;
+    border: 2px solid rgba(11, 94, 215, 0.3);
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.district_card:hover {
+    border-color: rgba(11, 94, 215, 0.6);
+    box-shadow: 0 4px 8px rgba(11, 94, 215, 0.1);
+}
+
+/* 지역구 카드 헤더 (기본) */
+.district_header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px 10px 20px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.district_rank {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0B5ED7;
+    margin-right: 10px;
+    min-width: 25px;
+}
+
+.district_name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+/* 지역구 정보 영역 (기본) */
+.district_info {
+    padding: 15px 20px;
+}
+
+.info_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.info_label {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.info_value {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.price_value {
+    color: #0B5ED7;
+}
+
+.score_value {
+    color: #28a745;
+}
+
+/* 지역구 버튼 영역 (기본) */
+.district_buttons {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+}
+
+.btn_detail_rank,
+.btn_property_list {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #0B5ED7;
+    background: white;
+    color: #0B5ED7;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn_detail_rank:hover,
+.btn_property_list:hover {
+    background: #0B5ED7;
+    color: white;
+}
+
+.btn_detail_rank:active,
+.btn_property_list:active {
+    transform: translateY(1px);
+}
+
+/* Bootstrap 버튼 스타일 */
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.btn:hover,
+.btn:focus {
+    color: #333;
+    text-decoration: none;
+}
+
+.btn-group,
+.btn-group-vertical {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.btn-group>.btn,
+.btn-group-vertical>.btn {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.btn-check {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.btn-check:focus+.btn,
+.btn:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-check:checked+.btn-outline-primary,
+.btn-check:active+.btn-outline-primary,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* 구분선 스타일 */
+#chart-start-hr {
+    background: rgba(11, 94, 215, 0.50);
+    height: 2px;
+    border: 0;
+}
+
+.gu_name_hr {
+    background: rgba(11, 94, 215, 0.50);
+    height: 2px;
+    border: 0;
+    margin-top: 5px;     /* 위쪽 간격 줄이기 */
+    margin-bottom: 15px; /* 아래쪽 간격 늘리기 */
+}
+
+#rank-hr {
+    margin-top: 7px;
+    margin-bottom: 7px;
+    background: rgba(11, 93, 215, 0.178);
+    height: 2px;
+    border: 0;
+}
+
+.chart-hr {
+    margin-top: 15px;
+    margin-bottom: 7px;
+    background: rgba(11, 93, 215, 0.178);
+    height: 2px;
+    border: 0;
+}
+
+/* 차트 정보 영역 */
+.select-gu-info {
+    width: 450px;
+    border: rgba(11, 94, 215, 0.50) 2px solid;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-left: 12px;
+    margin-right: 10px;
+    text-align: center;
+    height: 850px;
+    line-height: 50px;
+    padding: 20px;
+}
+
+.select-gu-info p {
+    font-size: 20px;
+    line-height: normal;
+}
+
+.chart_name,
+.chart_rank {
+    font-size: 1.2rem;
+    color: #0B5ED7;
+}
+
+.chart-info {
+    border: 0px solid rgba(171, 58, 58, 0.669);
+    width: 430px;
+    height: 150px;
+    margin-left: 4px;
+}
+
+/* ========== 2차 명세: 상세 순위 정보 패널 모달 스타일 ========== */
+
+/* 상세 순위 모달 오버레이 */
+.detail_rank_modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    backdrop-filter: blur(3px);
+}
+
+/* 상세 순위 모달 컨테이너 */
+.detail_rank_modal_content {
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+    border: 3px solid #0B5ED7;
+}
+
+/* 상세 순위 모달 헤더 */
+.detail_rank_modal_header {
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #0B5ED7, #4690ff);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+}
+
+.detail_rank_modal_header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.detail_rank_modal_close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.detail_rank_modal_close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* 상세 순위 모달 바디 */
+.detail_rank_modal_body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0;
+    background: #f8f9ff;
+}
+
+/* 상세 순위 컨테이너 */
+#detail_rank_container {
+    padding: 20px;
+}
+
+/* 섹션 공통 스타일 */
+.rank_info_section,
+.rank_scores_section,
+.rank_summary_section {
+    margin-bottom: 25px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.1);
+    border: 1px solid #e3f2fd;
+}
+
+.rank_section_title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0B5ED7;
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e3f2fd;
+}
+
+/* 기본 정보 섹션 */
+.rank_basic_info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rank_info_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rank_info_label {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.rank_info_value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+.rank_highlight {
+    color: #0B5ED7;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 2px solid #0B5ED7;
+}
+
+/* 점수 아이템 */
+.score_item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e3f2fd;
+}
+
+.score_item:last-child {
+    margin-bottom: 0;
+}
+
+.score_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.score_label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.score_value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0B5ED7;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid #0B5ED7;
+}
+
+/* 점수 프로그레스 바 */
+.score_bar_container {
+    margin-bottom: 8px;
+}
+
+.score_bar {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.score_fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.8s ease-in-out;
+    position: relative;
+}
+
+/* 점수별 색상 */
+.price_fill {
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.space_fill {
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+}
+
+.safety_fill {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.score_desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.3;
+}
+
+/* 종합 평가 섹션 */
+.rank_summary_content {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #0B5ED7;
+}
+
+#rank_summary_text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* 모달 스크롤바 스타일 */
+.detail_rank_modal_body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.detail_rank_modal_body::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+.detail_rank_modal_body::-webkit-scrollbar-thumb {
+    background: #0B5ED7;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.detail_rank_modal_body::-webkit-scrollbar-thumb:hover {
+    background: #094bb5;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+    .detail_rank_modal_content {
+        width: 95%;
+        max-height: 90vh;
+        margin: 20px;
+    }
+
+    .detail_rank_modal_header {
+        padding: 15px 20px;
+    }
+
+    .detail_rank_modal_header h3 {
+        font-size: 16px;
+    }
+
+    #detail_rank_container {
+        padding: 15px;
+    }
+
+    .rank_info_section,
+    .rank_scores_section,
+    .rank_summary_section {
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+
+    .score_item {
+        padding: 12px;
+    }
+}

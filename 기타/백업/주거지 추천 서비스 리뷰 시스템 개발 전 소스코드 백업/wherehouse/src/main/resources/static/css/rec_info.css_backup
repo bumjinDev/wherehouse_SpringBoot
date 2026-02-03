@@ -1,0 +1,75 @@
+@font-face {
+    font-family: 'MBC1961GulimM';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/MBC1961GulimM.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'TheJamsil5Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil5Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+.info {
+    width: 170px;
+    height: 190px;
+    font-weight: bold;
+    border: 2px solid #6096B4;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+#info_close_wrap {
+    width: 100%;
+    height: 5%;
+    text-align: right;
+}
+
+#info_close_btn {
+    width: 18px;
+    height: 18px;
+    margin-top: 13px;
+    margin-right: 10px;
+    border-radius: 200%;
+}
+
+#info_close_btn:hover {
+    cursor: pointer;
+    background-color: #ccc;
+}
+
+.info_title {
+    font-family: 'MBC1961GulimM';
+    text-align: center;
+    width: 50%;
+    height: 13%;
+    line-height: 1.42857143;
+    margin: 0 auto;
+    border-radius: 10px;
+    font-size: 23px;
+    margin-bottom: 15px;
+}
+
+.info hr {
+    background-color: #6096B4;
+    height: 2px;
+    border: 0;
+    margin: 0;
+}
+
+.info_rank {
+    text-align: center;
+    margin: 5px 5px;
+    margin-bottom: -10px;
+}
+
+.info_content {
+    width: 100%;
+    line-height: 20px;
+    height: 20px;
+    font-size: 14px;
+    color: #4d4d4d;
+    font-family: 'TheJamsil5Bold';
+}

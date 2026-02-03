@@ -41,17 +41,31 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     );
 
     /**
-     * [추가됨] 매물 이름으로 매물 ID 목록 검색
+     * [수정됨] 매물 이름으로 매물 ID 목록 검색 (인덱스 최적화 버전)
      *
-     * 전세/월세 테이블을 UNION ALL 하여 이름이 포함된 모든 매물의 ID를 추출
+     * ====================================================================
+     * [성능 개선 내역]
+     * ====================================================================
+     * 변경 전: LIKE '%' || :name || '%'  (양방향 와일드카드)
+     *         → Full Table Scan 발생, 인덱스 사용 불가
+     *         → 병목 비중: 전체 응답 시간의 66.3%~86.5%
      *
-     * @param name 검색할 매물 이름 (예: "삼성")
+     * 변경 후: LIKE :name || '%'  (후방 와일드카드만 사용)
+     *         → Index Range Scan 가능
+     *         → apt_nm 컬럼 인덱스 활용
+     *
+     * [필수 인덱스]
+     * CREATE INDEX IDX_CHARTER_APT_NM ON PROPERTIES_CHARTER(APT_NM);
+     * CREATE INDEX IDX_MONTHLY_APT_NM ON PROPERTIES_MONTHLY(APT_NM);
+     * ====================================================================
+     *
+     * @param name 검색할 매물 이름 (예: "관악산 삼성산 주공 3단지")
      * @return 매물 ID 리스트
      */
     @Query(value =
-            "SELECT property_id FROM properties_charter WHERE apt_nm LIKE %:name% " +
+            "SELECT property_id FROM properties_charter WHERE apt_nm LIKE :name || '%' " +
                     "UNION ALL " +
-                    "SELECT property_id FROM properties_monthly WHERE apt_nm LIKE %:name%",
+                    "SELECT property_id FROM properties_monthly WHERE apt_nm LIKE :name || '%'",
             nativeQuery = true)
     List<String> findPropertyIdsByName(@Param("name") String name);
 

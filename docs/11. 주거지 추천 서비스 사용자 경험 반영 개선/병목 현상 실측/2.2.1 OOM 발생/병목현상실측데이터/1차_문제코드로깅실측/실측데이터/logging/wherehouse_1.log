@@ -1,0 +1,283 @@
+2026-01-30 19:37:33.179 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-01-30 19:37:33.209 [main] INFO  c.wherehouse.WherehouseApplication - Starting WherehouseApplication using Java 17.0.11 with PID 2376 (E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\wherehouse\build\classes\java\main started by wjdqj in E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\wherehouse)
+2026-01-30 19:37:33.210 [main] INFO  c.wherehouse.WherehouseApplication - No active profile set, falling back to 1 default profile: "default"
+2026-01-30 19:37:34.012 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-01-30 19:37:34.021 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2026-01-30 19:37:34.059 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.BoardEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.060 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.CommentEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.060 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.ArrestRateRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.062 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.CctvGeoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.063 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.PoliceOfficeGeoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.063 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.JWT.Repository.UserEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.064 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.members.dao.MemberEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.065 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisCrimeRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.066 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisEntertainmentRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.067 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisPopulationDensityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.068 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyCharterRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.069 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyMonthlyRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.069 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.restapi.mapdata.dao.MapDataEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.070 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.072 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.073 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-01-30 19:37:34.074 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 47 ms. Found 0 JDBC repository interfaces.
+2026-01-30 19:37:34.081 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-01-30 19:37:34.082 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-01-30 19:37:34.194 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 108 ms. Found 16 JPA repository interfaces.
+2026-01-30 19:37:34.204 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-01-30 19:37:34.205 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-01-30 19:37:34.222 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.BoardEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.223 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.CommentEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.223 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.ArrestRateRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.223 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.CctvGeoRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.223 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.PoliceOfficeGeoRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.223 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.JWT.Repository.UserEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.223 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.members.dao.MemberEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisCrimeRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisEntertainmentRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisPopulationDensityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyCharterRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyMonthlyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.restapi.mapdata.dao.MapDataEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.224 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.225 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-01-30 19:37:34.225 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 14 ms. Found 0 Redis repository interfaces.
+2026-01-30 19:37:34.799 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8185 (http)
+2026-01-30 19:37:34.806 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8185"]
+2026-01-30 19:37:34.808 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-01-30 19:37:34.808 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-01-30 19:37:34.948 [main] INFO  o.apache.jasper.servlet.TldScanner - At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2026-01-30 19:37:34.952 [main] INFO  o.a.c.c.C.[.[.[/wherehouse] - Initializing Spring embedded WebApplicationContext
+2026-01-30 19:37:34.952 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1714 ms
+2026-01-30 19:37:35.123 [main] DEBUG com.zaxxer.hikari.HikariConfig - Driver class com.p6spy.engine.spy.P6SpyDriver found in Thread context class loader jdk.internal.loader.ClassLoaders$AppClassLoader@63947c6b
+2026-01-30 19:37:35.238 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-01-30 19:37:35.271 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-01-30 19:37:35.293 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-01-30 19:37:35.496 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-01-30 19:37:35.528 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - keepaliveTime is less than 30000ms, disabling it.
+2026-01-30 19:37:35.528 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2026-01-30 19:37:35.528 [main] DEBUG com.zaxxer.hikari.HikariConfig - HikariPool-1 - configuration:
+2026-01-30 19:37:35.530 [main] DEBUG com.zaxxer.hikari.HikariConfig - allowPoolSuspension.............false
+2026-01-30 19:37:35.530 [main] DEBUG com.zaxxer.hikari.HikariConfig - autoCommit......................false
+2026-01-30 19:37:35.530 [main] DEBUG com.zaxxer.hikari.HikariConfig - catalog.........................none
+2026-01-30 19:37:35.530 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionInitSql...............none
+2026-01-30 19:37:35.530 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionTestQuery.............none
+2026-01-30 19:37:35.531 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionTimeout...............30000
+2026-01-30 19:37:35.531 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSource......................none
+2026-01-30 19:37:35.531 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceClassName.............none
+2026-01-30 19:37:35.531 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceJNDI..................none
+2026-01-30 19:37:35.531 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceProperties............{oracle.net.RECV_BUF_SIZE=4194304, oracle.net.SEND_BUF_SIZE=4194304, password=<masked>, oracle.net.SDU=2097152}
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - driverClassName................."com.p6spy.engine.spy.P6SpyDriver"
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - exceptionOverrideClassName......none
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckProperties...........{}
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckRegistry.............none
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - idleTimeout.....................30000
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - initializationFailTimeout.......1
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - isolateInternalQueries..........false
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - jdbcUrl.........................jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - keepaliveTime...................0
+2026-01-30 19:37:35.532 [main] DEBUG com.zaxxer.hikari.HikariConfig - leakDetectionThreshold..........60000
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - maxLifetime.....................1800000
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - maximumPoolSize.................6
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - metricRegistry..................none
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - metricsTrackerFactory...........none
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - minimumIdle.....................6
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - password........................<masked>
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - poolName........................"HikariPool-1"
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - readOnly........................false
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - registerMbeans..................false
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - scheduledExecutor...............none
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - schema..........................none
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - threadFactory...................internal
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - transactionIsolation............default
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - username........................"SCOTT"
+2026-01-30 19:37:35.533 [main] DEBUG com.zaxxer.hikari.HikariConfig - validationTimeout...............5000
+2026-01-30 19:37:35.534 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-01-30 19:37:35.800 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb
+2026-01-30 19:37:35.803 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-01-30 19:37:35.864 [main] INFO  p6spy - #1769769455864 | took 2ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select cast('string' as varchar2(32000)), sys_context('USERENV','CLOUD_SERVICE') from dual
+select cast('string' as varchar2(32000)), sys_context('USERENV','CLOUD_SERVICE') from dual;
+2026-01-30 19:37:35.891 [main] INFO  p6spy - #1769769455891 | took 23ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select 1 from dual where sys_context('USERENV','CLOUD_SERVICE') in ('OLTP','DWCS','JDCS')
+select 1 from dual where sys_context('USERENV','CLOUD_SERVICE') in ('OLTP','DWCS','JDCS');
+2026-01-30 19:37:35.901 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: OracleDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-01-30 19:37:35.911 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=1, active=1, idle=0, waiting=0)
+2026-01-30 19:37:35.916 [main] INFO  p6spy - #1769769455916 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:35.917 [main] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb due to dirty commit state on close().
+2026-01-30 19:37:35.957 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@2b801048
+2026-01-30 19:37:35.991 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=2, active=0, idle=2, waiting=0)
+2026-01-30 19:37:36.033 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@70b4fece
+2026-01-30 19:37:36.070 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=3, active=0, idle=3, waiting=0)
+2026-01-30 19:37:36.111 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@87e08c2
+2026-01-30 19:37:36.150 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=4, active=0, idle=4, waiting=0)
+2026-01-30 19:37:36.196 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@137aa741
+2026-01-30 19:37:36.229 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=5, active=0, idle=5, waiting=0)
+2026-01-30 19:37:36.286 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@6a7e14aa
+2026-01-30 19:37:36.324 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=6, active=0, idle=6, waiting=0)
+2026-01-30 19:37:36.324 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=6, active=0, idle=6, waiting=0)
+2026-01-30 19:37:36.881 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-01-30 19:37:36.883 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-01-30 19:37:37.070 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-01-30 19:37:38.608 [main] INFO  p6spy - #1769769458608 | took 2ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0;
+2026-01-30 19:37:38.608 [main] INFO  p6spy - #1769769458608 | took 2ms | statement | connection 7| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0;
+2026-01-30 19:37:39.144 [main] INFO  p6spy - #1769769459144 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:39.144 [main] INFO  p6spy - #1769769459144 | took 0ms | commit | connection 7| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:46.509 [main] INFO  c.w.r.service.ReviewWriteService - [TASK_1][V2_INCREMENTAL][CACHE_INIT] 완료: 총=52020건, 성공=49700건, 실패=0건, 소요시간=7989ms
+2026-01-30 19:37:46.556 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name userAuthenticationProvider
+2026-01-30 19:37:46.557 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-01-30 19:37:46.821 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-01-30 19:37:47.194 [main] INFO  p6spy - #1769769467194 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:47.195 [main] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb due to dirty commit state on close().
+2026-01-30 19:37:47.327 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8185"]
+2026-01-30 19:37:47.342 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8185 (http) with context path '/wherehouse'
+2026-01-30 19:37:47.358 [main] INFO  c.wherehouse.WherehouseApplication - Started WherehouseApplication in 14.524 seconds (process running for 14.968)
+2026-01-30 19:37:47.912 [RMI TCP Connection(3)-172.20.10.2] INFO  o.a.c.c.C.[.[.[/wherehouse] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-01-30 19:37:47.912 [RMI TCP Connection(3)-172.20.10.2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-01-30 19:37:47.914 [RMI TCP Connection(3)-172.20.10.2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-01-30 19:37:47.939 [RMI TCP Connection(4)-172.20.10.2] INFO  p6spy - #1769769467939 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:47.939 [RMI TCP Connection(4)-172.20.10.2] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb due to dirty commit state on close().
+2026-01-30 19:37:47.940 [RMI TCP Connection(4)-172.20.10.2] INFO  p6spy - #1769769467940 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:47.940 [RMI TCP Connection(4)-172.20.10.2] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb due to dirty commit state on close().
+2026-01-30 19:37:51.375 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:BATCH:TOTAL] thread=scheduling-1 | phase=START | ts=1769769471375
+2026-01-30 19:37:51.375 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-1] RDB 적재 완료. RDB 기준 데이터 재조회 시작.
+2026-01-30 19:37:51.375 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:CHARTER] thread=scheduling-1 | phase=START | ts=1769769471375
+2026-01-30 19:37:51.379 [scheduling-1] INFO  p6spy - #1769769471378 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0;
+2026-01-30 19:37:51.379 [scheduling-1] INFO  p6spy - #1769769471379 | took 1ms | statement | connection 11| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0;
+2026-01-30 19:37:52.213 [scheduling-1] INFO  p6spy - #1769769472213 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:52.213 [scheduling-1] INFO  p6spy - #1769769472213 | took 0ms | commit | connection 11| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:52.226 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:CHARTER] thread=scheduling-1 | phase=END | ts=1769769472226 | count=58660 | elapsed_ms=851
+2026-01-30 19:37:52.226 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:MONTHLY] thread=scheduling-1 | phase=START | ts=1769769472226
+2026-01-30 19:37:52.232 [scheduling-1] INFO  p6spy - #1769769472232 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0;
+2026-01-30 19:37:52.233 [scheduling-1] INFO  p6spy - #1769769472233 | took 0ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0;
+2026-01-30 19:37:53.089 [scheduling-1] INFO  p6spy - #1769769473089 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:53.089 [scheduling-1] INFO  p6spy - #1769769473089 | took 0ms | commit | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:53.102 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:MONTHLY] thread=scheduling-1 | phase=END | ts=1769769473102 | count=56272 | elapsed_ms=876
+2026-01-30 19:37:53.102 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-2] RDB 재조회 완료. (전세: 58660건, 월세: 56272건)
+2026-01-30 19:37:53.102 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:TRANSFORM:CHARTER] thread=scheduling-1 | phase=START | ts=1769769473102
+2026-01-30 19:37:53.119 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:TRANSFORM:CHARTER] thread=scheduling-1 | phase=END | ts=1769769473119 | count=58660 | elapsed_ms=17
+2026-01-30 19:37:53.119 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:TRANSFORM:MONTHLY] thread=scheduling-1 | phase=START | ts=1769769473119
+2026-01-30 19:37:53.131 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:TRANSFORM:MONTHLY] thread=scheduling-1 | phase=END | ts=1769769473131 | count=56272 | elapsed_ms=12
+2026-01-30 19:37:53.131 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-3] Entity → Property 변환 완료. Redis 동기화 시작.
+2026-01-30 19:37:55.634 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Pipeline]: 전세 매물 저장 완료 - 성공: 58660건
+2026-01-30 19:37:58.425 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Pipeline]: 월세 매물 저장 완료 - 성공: 56272건
+2026-01-30 19:37:58.425 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 정규화 범위 계산 및 저장 시작 ===
+2026-01-30 19:37:58.500 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:서대문구:월세, Count: 197, Deposit[500.0-100000.0], Rent[2.0-290.0], Area[3.9416-36.5813]
+2026-01-30 19:37:58.501 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:노원구:월세, Count: 438, Deposit[300.0-80000.0], Rent[2.0-250.0], Area[3.63-40.7589]
+2026-01-30 19:37:58.501 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:중구:월세, Count: 107, Deposit[570.0-65000.0], Rent[8.0-570.0], Area[3.7087-36.6449]
+2026-01-30 19:37:58.502 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:광진구:월세, Count: 169, Deposit[100.0-80000.0], Rent[5.0-500.0], Area[3.8944-59.29]
+2026-01-30 19:37:58.502 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:영등포구:월세, Count: 253, Deposit[500.0-100000.0], Rent[4.0-1495.0], Area[3.261-48.7267]
+2026-01-30 19:37:58.502 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:중랑구:월세, Count: 228, Deposit[100.0-55000.0], Rent[2.0-305.0], Area[3.8841-40.7468]
+2026-01-30 19:37:58.503 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강동구:월세, Count: 391, Deposit[100.0-84000.0], Rent[1.0-350.0], Area[3.6724-44.3283]
+2026-01-30 19:37:58.505 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:구로구:월세, Count: 230, Deposit[500.0-70000.0], Rent[1.0-230.0], Area[3.7782-37.3467]
+2026-01-30 19:37:58.506 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:양천구:월세, Count: 245, Deposit[100.0-170000.0], Rent[2.0-500.0], Area[4.241-54.577]
+2026-01-30 19:37:58.506 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:종로구:월세, Count: 81, Deposit[500.0-90000.0], Rent[2.0-500.0], Area[3.6542-41.0765]
+2026-01-30 19:37:58.507 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:동대문구:월세, Count: 196, Deposit[500.0-80000.0], Rent[1.0-300.0], Area[3.2867-36.7961]
+2026-01-30 19:37:58.507 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:송파구:월세, Count: 507, Deposit[1000.0-130000.0], Rent[1.0-630.0], Area[4.4498-58.1511]
+2026-01-30 19:37:58.508 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:도봉구:월세, Count: 143, Deposit[150.0-42000.0], Rent[5.0-750.0], Area[3.9385-35.8103]
+2026-01-30 19:37:58.508 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:관악구:월세, Count: 136, Deposit[500.0-60000.0], Rent[3.0-270.0], Area[3.636-41.1733]
+2026-01-30 19:37:58.509 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:은평구:월세, Count: 184, Deposit[500.0-60000.0], Rent[1.0-400.0], Area[3.627-50.5599]
+2026-01-30 19:37:58.509 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:성동구:월세, Count: 259, Deposit[50.0-100000.0], Rent[1.0-1580.0], Area[4.1503-46.0271]
+2026-01-30 19:37:58.510 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강서구:월세, Count: 329, Deposit[130.0-60000.0], Rent[1.0-310.0], Area[3.6572-49.6856]
+2026-01-30 19:37:58.533 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강남구:월세, Count: 50726, Deposit[100.0-400000.0], Rent[1.0-4000.0], Area[3.9143-70.0458]
+2026-01-30 19:37:58.534 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:서초구:월세, Count: 444, Deposit[1000.0-500000.0], Rent[1.0-1500.0], Area[4.9156-71.6441]
+2026-01-30 19:37:58.535 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:금천구:월세, Count: 77, Deposit[500.0-40000.0], Rent[2.0-160.0], Area[3.6421-39.2222]
+2026-01-30 19:37:58.536 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:성북구:월세, Count: 213, Deposit[500.0-75000.0], Rent[7.0-300.0], Area[3.751-51.5611]
+2026-01-30 19:37:58.536 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:용산구:월세, Count: 144, Deposit[500.0-350000.0], Rent[3.0-1700.0], Area[4.1412-68.1018]
+2026-01-30 19:37:58.536 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:마포구:월세, Count: 320, Deposit[318.0-120000.0], Rent[1.0-660.0], Area[3.8871-41.8569]
+2026-01-30 19:37:58.537 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:동작구:월세, Count: 173, Deposit[300.0-100000.0], Rent[6.0-400.0], Area[3.7631-49.8762]
+2026-01-30 19:37:58.537 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강북구:월세, Count: 82, Deposit[200.0-57000.0], Rent[1.0-316.0], Area[3.4479-35.4764]
+2026-01-30 19:37:58.537 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 정규화 범위 계산 완료 ===
+2026-01-30 19:37:58.537 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 안전성 점수 계산 및 저장 시작 ===
+2026-01-30 19:37:58.566 [scheduling-1] INFO  p6spy - #1769769478566 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0;
+2026-01-30 19:37:58.566 [scheduling-1] INFO  p6spy - #1769769478566 | took 0ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0;
+2026-01-30 19:37:58.567 [scheduling-1] INFO  p6spy - #1769769478567 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:58.567 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb due to dirty commit state on close().
+2026-01-30 19:37:58.601 [scheduling-1] INFO  p6spy - #1769769478601 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC;
+2026-01-30 19:37:58.601 [scheduling-1] INFO  p6spy - #1769769478601 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC;
+2026-01-30 19:37:58.609 [scheduling-1] INFO  p6spy - #1769769478609 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:58.609 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb due to dirty commit state on close().
+2026-01-30 19:37:58.618 [scheduling-1] INFO  p6spy - #1769769478618 | took 7ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC;
+2026-01-30 19:37:58.619 [scheduling-1] INFO  p6spy - #1769769478619 | took 7ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC;
+2026-01-30 19:37:58.619 [scheduling-1] INFO  p6spy - #1769769478619 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-01-30 19:37:58.619 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb due to dirty commit state on close().
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 안전성 점수 계산 완료: 25개 지역구 ===
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2] 배치 동기화 프로세스 정상 종료. 총 소요시간: 7248ms
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:BATCH:TOTAL] thread=scheduling-1 | phase=END | ts=1769769478623 | elapsed_ms=7248
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - ====================================================================
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [1차 테스트] 측정 결과 요약 <<<
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   DBLOAD:CHARTER    = 851 ms (58660건)
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   DBLOAD:MONTHLY    = 876 ms (56272건)
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   TRANSFORM:CHARTER = 17 ms
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   TRANSFORM:MONTHLY = 12 ms
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   BATCH:TOTAL       = 7248 ms
+2026-01-30 19:37:58.623 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - ====================================================================
+2026-01-30 19:38:05.912 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-01-30 19:38:05.912 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-01-30 19:38:35.923 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-01-30 19:38:35.923 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-01-30 19:39:05.924 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-01-30 19:39:05.924 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-01-30 19:39:32.882 [SpringApplicationShutdownHook] INFO  c.w.information.util.KakaoApiService - [KakaoApiService] 스레드 풀 종료 시작
+2026-01-30 19:39:32.882 [SpringApplicationShutdownHook] INFO  c.w.information.util.KakaoApiService - [KakaoApiService] 스레드 풀 종료 완료
+2026-01-30 19:39:32.884 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-01-30 19:39:32.886 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-01-30 19:39:32.886 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before shutdown stats (total=6, active=0, idle=6, waiting=0)
+2026-01-30 19:39:32.887 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@5b86f4cb: (connection evicted)
+2026-01-30 19:39:32.888 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@2b801048: (connection evicted)
+2026-01-30 19:39:32.889 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@70b4fece: (connection evicted)
+2026-01-30 19:39:32.889 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@87e08c2: (connection evicted)
+2026-01-30 19:39:32.890 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@137aa741: (connection evicted)
+2026-01-30 19:39:32.890 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@6a7e14aa: (connection evicted)
+2026-01-30 19:39:32.891 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After shutdown stats (total=0, active=0, idle=0, waiting=0)
+2026-01-30 19:39:32.893 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

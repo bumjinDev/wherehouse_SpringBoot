@@ -9,9 +9,9 @@ WHERE UPPER(SQL_TEXT) LIKE '%REVIEW_STATISTICS%'
 ORDER BY EXECUTIONS DESC;
 --FETCH FIRST 5 ROWS ONLY;
 
--- SQL_ID(방금 위에서 지정한 상위 5개 SQL 확인한 것 중에서 최고로 많이 실행한 sql_id 선택 : 6hhc28tdcnka6)를 직접 지정하여 실행계획 조회
+-- SQL_ID(방금 위에서 지정한 상위 5개 SQL 확인한 것 중에서 최고로 많이 실행되면서 동시에 bin 개수가 제일많 sql_id 선택 : d9fyvr3kc48ba)를 직접 지정하여 실행계획 조회
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(
-    sql_id => 'cguxm683n0h3d',
+    sql_id => 'd9fyvr3kc48ba',
     format => 'TYPICAL'
 ));
 

@@ -1,4 +1,4 @@
-/* [핵심] V$SQL 통계 조회를 실행하여 실제로 "REVIEW_STATISTICS" 테이블에 핞나여 몇 종류의 SQL(실행계획으로써 hardParse)이 생성되었는지 확인. */
+/* [핵심] V$SQL 통계 조회를 실행하여 실제로 "REVIEW_STATISTICS" 테이블에 확인하여 몇 종류의 SQL(실행계획으로써 hardParse)이 생성되었는지 확인. */
 SELECT
     SQL_ID,
     SUBSTR(SQL_TEXT, 1, 100) AS SQL_PREVIEW,
@@ -58,4 +58,5 @@ WHERE t.SQL_ID IN (
       AND SQL_TEXT NOT LIKE '%V$SQL%'
 )
 GROUP BY t.SQL_ID, s.EXECUTIONS
-ORDER BY BIND_VAR_COUNT DESC;
+ORDER BY BIND_VAR_COUNT DESC
+FETCH FIRST 10 ROWS ONLY;

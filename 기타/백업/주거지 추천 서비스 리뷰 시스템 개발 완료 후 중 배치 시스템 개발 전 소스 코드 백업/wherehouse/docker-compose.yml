@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # Elasticsearch 서비스 정의
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.1
+    dns:
+      - 8.8.8.8
+      - 8.8.8.4
+      - 1.1.1.1
+    container_name: wherehouse-es
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.enrollment.enabled=true
+      - xpack.license.self_generated.type=basic
+      - ELASTIC_PASSWORD=changeme123
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  # Setup 컨테이너: Kibana 전용 사용자 생성
+  setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.1
+    container_name: setup
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTIC_PASSWORD=changeme123
+    command: >
+      bash -c '
+        echo "Waiting for Elasticsearch availability";
+        until curl -s -X GET "elasticsearch:9200/_cluster/health?wait_for_status=yellow&timeout=60s" -u "elastic:changeme123"; do sleep 30; done;
+        echo "Setting kibana_system password";
+        until curl -s -X POST "elasticsearch:9200/_security/user/kibana_system/_password" -u "elastic:changeme123" -H "Content-Type: application/json" -d "{\"password\":\"changeme123\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "All done!";
+      '
+
+  # Kibana 서비스 정의
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.14.1
+    container_name: wherehouse-kibana
+    dns:
+      - 8.8.8.8
+      - 8.8.8.4
+      - 1.1.1.1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+      - setup
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=changeme123
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=a7a6311933d3503b89bc2dbc36572c33a6c10925682e591bffcab6911c06786d
+      - XPACK_SECURITY_ENCRYPTIONKEY=b7b7311933d3503b89bc2dbc36572c33a6c10925682e591bffcab6911c06786d
+      - XPACK_REPORTING_ENCRYPTIONKEY=c8c8311933d3503b89bc2dbc36572c33a6c10925682e591bffcab6911c06786d
+      - SERVER_PUBLICBASEURL=http://localhost:5601
+
+volumes:
+  esdata:

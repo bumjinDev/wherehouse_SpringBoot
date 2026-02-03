@@ -1,0 +1,654 @@
+2026-02-02 20:55:51.179 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-02-02 20:55:51.209 [main] INFO  c.wherehouse.WherehouseApplication - Starting WherehouseApplication using Java 17.0.11 with PID 7636 (E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\wherehouse\build\classes\java\main started by wjdqj in E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\wherehouse)
+2026-02-02 20:55:51.210 [main] INFO  c.wherehouse.WherehouseApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-02 20:55:51.980 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-02-02 20:55:51.982 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2026-02-02 20:55:52.022 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.BoardEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.023 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.CommentEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.024 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.ArrestRateRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.025 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.CctvGeoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.025 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.PoliceOfficeGeoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.026 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.JWT.Repository.UserEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.027 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.members.dao.MemberEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.028 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisCrimeRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.029 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisEntertainmentRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.030 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisPopulationDensityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.030 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyCharterRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.031 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyMonthlyRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.032 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.restapi.mapdata.dao.MapDataEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.033 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.035 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.036 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-02-02 20:55:52.036 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 49 ms. Found 0 JDBC repository interfaces.
+2026-02-02 20:55:52.043 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-02-02 20:55:52.044 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-02 20:55:52.161 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 113 ms. Found 16 JPA repository interfaces.
+2026-02-02 20:55:52.170 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-02-02 20:55:52.171 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-02-02 20:55:52.191 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.BoardEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.191 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.CommentEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.191 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.ArrestRateRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.CctvGeoRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.PoliceOfficeGeoRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.JWT.Repository.UserEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.members.dao.MemberEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisCrimeRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisEntertainmentRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisPopulationDensityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyCharterRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.192 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyMonthlyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.193 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.restapi.mapdata.dao.MapDataEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.193 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.193 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.193 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-02-02 20:55:52.193 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 16 ms. Found 0 Redis repository interfaces.
+2026-02-02 20:55:52.758 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8185 (http)
+2026-02-02 20:55:52.765 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8185"]
+2026-02-02 20:55:52.767 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-02 20:55:52.767 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-02 20:55:52.900 [main] INFO  o.apache.jasper.servlet.TldScanner - At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2026-02-02 20:55:52.904 [main] INFO  o.a.c.c.C.[.[.[/wherehouse] - Initializing Spring embedded WebApplicationContext
+2026-02-02 20:55:52.904 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1663 ms
+2026-02-02 20:55:53.048 [main] DEBUG com.zaxxer.hikari.HikariConfig - Driver class com.p6spy.engine.spy.P6SpyDriver found in Thread context class loader jdk.internal.loader.ClassLoaders$AppClassLoader@63947c6b
+2026-02-02 20:55:53.151 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-02 20:55:53.183 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-02-02 20:55:53.205 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-02 20:55:53.393 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-02 20:55:53.415 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - keepaliveTime is less than 30000ms, disabling it.
+2026-02-02 20:55:53.415 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2026-02-02 20:55:53.415 [main] DEBUG com.zaxxer.hikari.HikariConfig - HikariPool-1 - configuration:
+2026-02-02 20:55:53.416 [main] DEBUG com.zaxxer.hikari.HikariConfig - allowPoolSuspension.............false
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - autoCommit......................false
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - catalog.........................none
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionInitSql...............none
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionTestQuery.............none
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionTimeout...............30000
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSource......................none
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceClassName.............none
+2026-02-02 20:55:53.417 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceJNDI..................none
+2026-02-02 20:55:53.418 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceProperties............{oracle.net.RECV_BUF_SIZE=4194304, oracle.net.SEND_BUF_SIZE=4194304, password=<masked>, oracle.net.SDU=2097152}
+2026-02-02 20:55:53.418 [main] DEBUG com.zaxxer.hikari.HikariConfig - driverClassName................."com.p6spy.engine.spy.P6SpyDriver"
+2026-02-02 20:55:53.418 [main] DEBUG com.zaxxer.hikari.HikariConfig - exceptionOverrideClassName......none
+2026-02-02 20:55:53.418 [main] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckProperties...........{}
+2026-02-02 20:55:53.418 [main] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckRegistry.............none
+2026-02-02 20:55:53.418 [main] DEBUG com.zaxxer.hikari.HikariConfig - idleTimeout.....................30000
+2026-02-02 20:55:53.418 [main] DEBUG com.zaxxer.hikari.HikariConfig - initializationFailTimeout.......1
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - isolateInternalQueries..........false
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - jdbcUrl.........................jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - keepaliveTime...................0
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - leakDetectionThreshold..........60000
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - maxLifetime.....................1800000
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - maximumPoolSize.................6
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - metricRegistry..................none
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - metricsTrackerFactory...........none
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - minimumIdle.....................6
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - password........................<masked>
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - poolName........................"HikariPool-1"
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - readOnly........................false
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - registerMbeans..................false
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - scheduledExecutor...............none
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - schema..........................none
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - threadFactory...................internal
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - transactionIsolation............default
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - username........................"SCOTT"
+2026-02-02 20:55:53.419 [main] DEBUG com.zaxxer.hikari.HikariConfig - validationTimeout...............5000
+2026-02-02 20:55:53.420 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-02-02 20:55:53.609 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05
+2026-02-02 20:55:53.611 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-02-02 20:55:53.663 [main] INFO  p6spy - #1770033353663 | took 2ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select cast('string' as varchar2(32000)), sys_context('USERENV','CLOUD_SERVICE') from dual
+select cast('string' as varchar2(32000)), sys_context('USERENV','CLOUD_SERVICE') from dual;
+2026-02-02 20:55:53.691 [main] INFO  p6spy - #1770033353691 | took 25ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select 1 from dual where sys_context('USERENV','CLOUD_SERVICE') in ('OLTP','DWCS','JDCS')
+select 1 from dual where sys_context('USERENV','CLOUD_SERVICE') in ('OLTP','DWCS','JDCS');
+2026-02-02 20:55:53.700 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: OracleDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-02 20:55:53.713 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=1, active=1, idle=0, waiting=0)
+2026-02-02 20:55:53.714 [main] INFO  p6spy - #1770033353714 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:55:53.714 [main] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:55:53.746 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@303e5580
+2026-02-02 20:55:53.780 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=2, active=0, idle=2, waiting=0)
+2026-02-02 20:55:53.816 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@2680d60
+2026-02-02 20:55:53.849 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=3, active=0, idle=3, waiting=0)
+2026-02-02 20:55:53.894 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@7a39c68f
+2026-02-02 20:55:53.924 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=4, active=0, idle=4, waiting=0)
+2026-02-02 20:55:53.975 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@613deab2
+2026-02-02 20:55:54.007 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=5, active=0, idle=5, waiting=0)
+2026-02-02 20:55:54.046 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.p6spy.engine.wrapper.ConnectionWrapper@2b548b3d
+2026-02-02 20:55:54.078 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:55:54.078 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:55:54.632 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-02 20:55:54.634 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-02 20:55:54.831 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-02 20:55:56.230 [main] INFO  p6spy - #1770033356230 | took 2ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0;
+2026-02-02 20:55:56.230 [main] INFO  p6spy - #1770033356230 | took 2ms | statement | connection 7| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0;
+2026-02-02 20:55:56.776 [main] INFO  p6spy - #1770033356776 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:55:56.776 [main] INFO  p6spy - #1770033356776 | took 0ms | commit | connection 7| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:03.758 [main] INFO  c.w.r.service.ReviewWriteService - [TASK_1][V2_INCREMENTAL][CACHE_INIT] 완료: 총=52020건, 성공=49700건, 실패=0건, 소요시간=7609ms
+2026-02-02 20:56:03.814 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name userAuthenticationProvider
+2026-02-02 20:56:03.815 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-02-02 20:56:04.070 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-02-02 20:56:04.435 [main] INFO  p6spy - #1770033364435 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:04.435 [main] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:04.567 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8185"]
+2026-02-02 20:56:04.587 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8185 (http) with context path '/wherehouse'
+2026-02-02 20:56:04.614 [main] INFO  c.wherehouse.WherehouseApplication - Started WherehouseApplication in 13.801 seconds (process running for 14.204)
+2026-02-02 20:56:04.898 [RMI TCP Connection(3)-172.20.10.2] INFO  o.a.c.c.C.[.[.[/wherehouse] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-02 20:56:04.898 [RMI TCP Connection(3)-172.20.10.2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-02-02 20:56:04.900 [RMI TCP Connection(3)-172.20.10.2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-02-02 20:56:04.920 [RMI TCP Connection(2)-172.20.10.2] INFO  p6spy - #1770033364920 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:04.920 [RMI TCP Connection(2)-172.20.10.2] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:04.920 [RMI TCP Connection(2)-172.20.10.2] INFO  p6spy - #1770033364920 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:04.921 [RMI TCP Connection(2)-172.20.10.2] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:08.632 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:BATCH:TOTAL] thread=scheduling-1 | phase=START | ts=1770033368632
+2026-02-02 20:56:08.632 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-1] RDB 적재 완료. RDB 기준 데이터 재조회 시작.
+2026-02-02 20:56:08.632 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:CHARTER] thread=scheduling-1 | phase=START | ts=1770033368632 | chunkSize=10000
+2026-02-02 20:56:08.676 [scheduling-1] INFO  p6spy - #1770033368676 | took 3ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID fetch first 10001 rows only;
+2026-02-02 20:56:08.676 [scheduling-1] INFO  p6spy - #1770033368676 | took 4ms | statement | connection 11| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID fetch first 10001 rows only;
+2026-02-02 20:56:08.833 [scheduling-1] INFO  p6spy - #1770033368833 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:08.833 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:08.843 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:CHARTER] thread=scheduling-1 | phase=COMPLETE | chunkIndex=0 | chunkSize=10000 | cumulative=10000 | load_ms=205 | transform_ms=5 | total_ms=210 | hasNext=true
+2026-02-02 20:56:08.878 [scheduling-1] INFO  p6spy - #1770033368878 | took 32ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 10000 rows fetch first 10001 rows only;
+2026-02-02 20:56:08.878 [scheduling-1] INFO  p6spy - #1770033368878 | took 32ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 10000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.033 [scheduling-1] INFO  p6spy - #1770033369033 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:09.033 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:09.038 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:CHARTER] thread=scheduling-1 | phase=COMPLETE | chunkIndex=1 | chunkSize=10000 | cumulative=20000 | load_ms=191 | transform_ms=3 | total_ms=194 | hasNext=true
+2026-02-02 20:56:09.081 [scheduling-1] INFO  p6spy - #1770033369080 | took 40ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 20000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.081 [scheduling-1] INFO  p6spy - #1770033369081 | took 40ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 20000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.229 [scheduling-1] INFO  p6spy - #1770033369229 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:09.229 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:09.236 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:CHARTER] thread=scheduling-1 | phase=COMPLETE | chunkIndex=2 | chunkSize=10000 | cumulative=30000 | load_ms=193 | transform_ms=4 | total_ms=197 | hasNext=true
+2026-02-02 20:56:09.308 [scheduling-1] INFO  p6spy - #1770033369308 | took 70ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 30000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.309 [scheduling-1] INFO  p6spy - #1770033369309 | took 71ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 30000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.464 [scheduling-1] INFO  p6spy - #1770033369464 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:09.465 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:09.469 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:CHARTER] thread=scheduling-1 | phase=COMPLETE | chunkIndex=3 | chunkSize=10000 | cumulative=40000 | load_ms=231 | transform_ms=2 | total_ms=233 | hasNext=true
+2026-02-02 20:56:09.525 [scheduling-1] INFO  p6spy - #1770033369525 | took 54ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 40000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.525 [scheduling-1] INFO  p6spy - #1770033369525 | took 54ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 40000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.689 [scheduling-1] INFO  p6spy - #1770033369689 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:09.689 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:09.693 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:CHARTER] thread=scheduling-1 | phase=COMPLETE | chunkIndex=4 | chunkSize=10000 | cumulative=50000 | load_ms=222 | transform_ms=2 | total_ms=224 | hasNext=true
+2026-02-02 20:56:09.750 [scheduling-1] INFO  p6spy - #1770033369750 | took 55ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 50000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.750 [scheduling-1] INFO  p6spy - #1770033369750 | took 55ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.UMD_NM from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID offset 50000 rows fetch first 10001 rows only;
+2026-02-02 20:56:09.883 [scheduling-1] INFO  p6spy - #1770033369883 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:09.883 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:09.887 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:CHARTER] thread=scheduling-1 | phase=COMPLETE | chunkIndex=5 | chunkSize=8660 | cumulative=58660 | load_ms=192 | transform_ms=2 | total_ms=194 | hasNext=false
+2026-02-02 20:56:09.887 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:CHARTER] thread=scheduling-1 | phase=END | ts=1770033369887 | totalCount=58660 | totalChunks=6 | elapsed_ms=1255
+2026-02-02 20:56:09.887 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:MONTHLY] thread=scheduling-1 | phase=START | ts=1770033369887 | chunkSize=10000
+2026-02-02 20:56:09.890 [scheduling-1] INFO  p6spy - #1770033369890 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID fetch first 10001 rows only;
+2026-02-02 20:56:09.890 [scheduling-1] INFO  p6spy - #1770033369890 | took 0ms | statement | connection 17| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID fetch first 10001 rows only;
+2026-02-02 20:56:10.051 [scheduling-1] INFO  p6spy - #1770033370051 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:10.051 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:10.060 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:MONTHLY] thread=scheduling-1 | phase=COMPLETE | chunkIndex=0 | chunkSize=10000 | cumulative=10000 | load_ms=168 | transform_ms=5 | total_ms=173 | hasNext=true
+2026-02-02 20:56:10.093 [scheduling-1] INFO  p6spy - #1770033370093 | took 31ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 10000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.093 [scheduling-1] INFO  p6spy - #1770033370093 | took 31ms | statement | connection 18| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 10000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.235 [scheduling-1] INFO  p6spy - #1770033370235 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:10.235 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:10.240 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:MONTHLY] thread=scheduling-1 | phase=COMPLETE | chunkIndex=1 | chunkSize=10000 | cumulative=20000 | load_ms=177 | transform_ms=3 | total_ms=180 | hasNext=true
+2026-02-02 20:56:10.281 [scheduling-1] INFO  p6spy - #1770033370281 | took 38ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 20000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.281 [scheduling-1] INFO  p6spy - #1770033370281 | took 38ms | statement | connection 19| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 20000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.433 [scheduling-1] INFO  p6spy - #1770033370433 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:10.433 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:10.437 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:MONTHLY] thread=scheduling-1 | phase=COMPLETE | chunkIndex=2 | chunkSize=10000 | cumulative=30000 | load_ms=194 | transform_ms=2 | total_ms=196 | hasNext=true
+2026-02-02 20:56:10.482 [scheduling-1] INFO  p6spy - #1770033370482 | took 43ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 30000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.482 [scheduling-1] INFO  p6spy - #1770033370482 | took 43ms | statement | connection 20| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 30000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.646 [scheduling-1] INFO  p6spy - #1770033370646 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:10.646 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:10.650 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:MONTHLY] thread=scheduling-1 | phase=COMPLETE | chunkIndex=3 | chunkSize=10000 | cumulative=40000 | load_ms=212 | transform_ms=1 | total_ms=213 | hasNext=true
+2026-02-02 20:56:10.704 [scheduling-1] INFO  p6spy - #1770033370704 | took 51ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 40000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.704 [scheduling-1] INFO  p6spy - #1770033370704 | took 51ms | statement | connection 21| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 40000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.874 [scheduling-1] INFO  p6spy - #1770033370873 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:10.874 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:10.877 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:MONTHLY] thread=scheduling-1 | phase=COMPLETE | chunkIndex=4 | chunkSize=10000 | cumulative=50000 | load_ms=225 | transform_ms=1 | total_ms=226 | hasNext=true
+2026-02-02 20:56:10.935 [scheduling-1] INFO  p6spy - #1770033370935 | took 56ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 50000 rows fetch first 10001 rows only;
+2026-02-02 20:56:10.936 [scheduling-1] INFO  p6spy - #1770033370935 | took 57ms | statement | connection 22| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset ? rows fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MONTHLY_RENT,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.UMD_NM from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID offset 50000 rows fetch first 10001 rows only;
+2026-02-02 20:56:11.032 [scheduling-1] INFO  p6spy - #1770033371032 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:11.033 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:11.035 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:MONTHLY] thread=scheduling-1 | phase=COMPLETE | chunkIndex=5 | chunkSize=6272 | cumulative=56272 | load_ms=156 | transform_ms=1 | total_ms=157 | hasNext=false
+2026-02-02 20:56:11.035 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:MONTHLY] thread=scheduling-1 | phase=END | ts=1770033371035 | totalCount=56272 | totalChunks=6 | elapsed_ms=1148
+2026-02-02 20:56:11.035 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-2] RDB 재조회 완료. (전세: 58660건, 월세: 56272건)
+2026-02-02 20:56:11.035 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-3] Entity → Property 변환 완료. Redis 동기화 시작.
+2026-02-02 20:56:14.068 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Pipeline]: 전세 매물 저장 완료 - 성공: 58660건
+2026-02-02 20:56:17.628 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Pipeline]: 월세 매물 저장 완료 - 성공: 56272건
+2026-02-02 20:56:17.628 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 정규화 범위 계산 및 저장 시작 ===
+2026-02-02 20:56:17.686 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:서대문구:월세, Count: 197, Deposit[500.0-100000.0], Rent[2.0-290.0], Area[3.9416-36.5813]
+2026-02-02 20:56:17.688 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:중구:월세, Count: 107, Deposit[570.0-65000.0], Rent[8.0-570.0], Area[3.7087-36.6449]
+2026-02-02 20:56:17.688 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:노원구:월세, Count: 438, Deposit[300.0-80000.0], Rent[2.0-250.0], Area[3.63-40.7589]
+2026-02-02 20:56:17.689 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:광진구:월세, Count: 169, Deposit[100.0-80000.0], Rent[5.0-500.0], Area[3.8944-59.29]
+2026-02-02 20:56:17.689 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:영등포구:월세, Count: 253, Deposit[500.0-100000.0], Rent[4.0-1495.0], Area[3.261-48.7267]
+2026-02-02 20:56:17.690 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:중랑구:월세, Count: 228, Deposit[100.0-55000.0], Rent[2.0-305.0], Area[3.8841-40.7468]
+2026-02-02 20:56:17.691 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강동구:월세, Count: 391, Deposit[100.0-84000.0], Rent[1.0-350.0], Area[3.6724-44.3283]
+2026-02-02 20:56:17.692 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:구로구:월세, Count: 230, Deposit[500.0-70000.0], Rent[1.0-230.0], Area[3.7782-37.3467]
+2026-02-02 20:56:17.693 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:양천구:월세, Count: 245, Deposit[100.0-170000.0], Rent[2.0-500.0], Area[4.241-54.577]
+2026-02-02 20:56:17.693 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:종로구:월세, Count: 81, Deposit[500.0-90000.0], Rent[2.0-500.0], Area[3.6542-41.0765]
+2026-02-02 20:56:17.693 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:동대문구:월세, Count: 196, Deposit[500.0-80000.0], Rent[1.0-300.0], Area[3.2867-36.7961]
+2026-02-02 20:56:17.694 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:송파구:월세, Count: 507, Deposit[1000.0-130000.0], Rent[1.0-630.0], Area[4.4498-58.1511]
+2026-02-02 20:56:17.695 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:관악구:월세, Count: 136, Deposit[500.0-60000.0], Rent[3.0-270.0], Area[3.636-41.1733]
+2026-02-02 20:56:17.695 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:도봉구:월세, Count: 143, Deposit[150.0-42000.0], Rent[5.0-750.0], Area[3.9385-35.8103]
+2026-02-02 20:56:17.696 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:은평구:월세, Count: 184, Deposit[500.0-60000.0], Rent[1.0-400.0], Area[3.627-50.5599]
+2026-02-02 20:56:17.696 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:성동구:월세, Count: 259, Deposit[50.0-100000.0], Rent[1.0-1580.0], Area[4.1503-46.0271]
+2026-02-02 20:56:17.697 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강서구:월세, Count: 329, Deposit[130.0-60000.0], Rent[1.0-310.0], Area[3.6572-49.6856]
+2026-02-02 20:56:17.719 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강남구:월세, Count: 50726, Deposit[100.0-400000.0], Rent[1.0-4000.0], Area[3.9143-70.0458]
+2026-02-02 20:56:17.720 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:서초구:월세, Count: 444, Deposit[1000.0-500000.0], Rent[1.0-1500.0], Area[4.9156-71.6441]
+2026-02-02 20:56:17.721 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:금천구:월세, Count: 77, Deposit[500.0-40000.0], Rent[2.0-160.0], Area[3.6421-39.2222]
+2026-02-02 20:56:17.722 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:성북구:월세, Count: 213, Deposit[500.0-75000.0], Rent[7.0-300.0], Area[3.751-51.5611]
+2026-02-02 20:56:17.723 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:용산구:월세, Count: 144, Deposit[500.0-350000.0], Rent[3.0-1700.0], Area[4.1412-68.1018]
+2026-02-02 20:56:17.723 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:마포구:월세, Count: 320, Deposit[318.0-120000.0], Rent[1.0-660.0], Area[3.8871-41.8569]
+2026-02-02 20:56:17.724 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:동작구:월세, Count: 173, Deposit[300.0-100000.0], Rent[6.0-400.0], Area[3.7631-49.8762]
+2026-02-02 20:56:17.724 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 저장 완료 - Key: bounds:강북구:월세, Count: 82, Deposit[200.0-57000.0], Rent[1.0-316.0], Area[3.4479-35.4764]
+2026-02-02 20:56:17.724 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 정규화 범위 계산 완료 ===
+2026-02-02 20:56:17.724 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 안전성 점수 계산 및 저장 시작 ===
+2026-02-02 20:56:17.731 [scheduling-1] INFO  p6spy - #1770033377731 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0;
+2026-02-02 20:56:17.731 [scheduling-1] INFO  p6spy - #1770033377731 | took 0ms | statement | connection 23| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0;
+2026-02-02 20:56:17.732 [scheduling-1] INFO  p6spy - #1770033377732 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:17.732 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:17.764 [scheduling-1] INFO  p6spy - #1770033377764 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC;
+2026-02-02 20:56:17.764 [scheduling-1] INFO  p6spy - #1770033377764 | took 0ms | statement | connection 24| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC;
+2026-02-02 20:56:17.769 [scheduling-1] INFO  p6spy - #1770033377769 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:17.769 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:17.777 [scheduling-1] INFO  p6spy - #1770033377777 | took 6ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC;
+2026-02-02 20:56:17.777 [scheduling-1] INFO  p6spy - #1770033377777 | took 7ms | statement | connection 25| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC;
+2026-02-02 20:56:17.779 [scheduling-1] INFO  p6spy - #1770033377779 | took 0ms | rollback | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:17.779 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05 due to dirty commit state on close().
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 안전성 점수 계산 완료: 25개 지역구 ===
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2] 배치 동기화 프로세스 정상 종료. 총 소요시간: 9151ms
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:BATCH:TOTAL] thread=scheduling-1 | phase=END | ts=1770033377783 | elapsed_ms=9151
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - ====================================================================
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [2차 테스트] 측정 결과 요약 (Slice 청크 처리) <<<
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   CHUNK_SIZE          = 10000 건/청크
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   DBLOAD:CHARTER      = 1255 ms (58660건, 6청크)
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   DBLOAD:MONTHLY      = 1148 ms (56272건, 6청크)
+2026-02-02 20:56:17.783 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   TRANSFORM:CHARTER   = 18 ms (누적)
+2026-02-02 20:56:17.784 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   TRANSFORM:MONTHLY   = 13 ms (누적)
+2026-02-02 20:56:17.784 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   BATCH:TOTAL         = 9151 ms
+2026-02-02 20:56:17.784 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - ====================================================================
+2026-02-02 20:56:23.727 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:56:23.727 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 20:56:36.047 [http-nio-8185-exec-1] INFO  c.w.r.c.RecommendationController - === 월세 지역구 추천 요청 시작 (POST) ===
+2026-02-02 20:56:36.048 [http-nio-8185-exec-1] INFO  c.w.r.c.RecommendationController - 요청 파라미터: MonthlyRecommendationRequestDto(budgetMin=5000, budgetMax=15000, monthlyRentMin=30, monthlyRentMax=80, areaMin=15.0, areaMax=25.0, priority1=PRICE, priority2=SPACE, priority3=SAFETY, budgetFlexibility=20, minSafetyScore=60, absoluteMinArea=12.0)
+2026-02-02 20:56:36.052 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - === 월세 지역구 추천 서비스 시작 ===
+2026-02-02 20:56:36.052 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - 요청 조건: 보증금=5000-15000, 월세=30-80, 평수=15.0-25.0, 우선순위=PRICE,SPACE,SAFETY
+2026-02-02 20:56:36.053 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - S-01: 월세 매물 검색 시작 - 대상: 25
+2026-02-02 20:56:36.070 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=용산구, commands=3, methodTime=8.7583 ms, totalCmdLatency=8.0464 ms, ioRatio=91.87 %, nonIoTime=0.7119 ms, cmd1=6.7397 ms (50건), cmd2=0.7556 ms (38건), cmd3=0.5511 ms (34건), status=SUCCESS|intersection=0
+2026-02-02 20:56:36.073 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=성동구, commands=3, methodTime=2.8902 ms, totalCmdLatency=2.7618 ms, ioRatio=95.56 %, nonIoTime=0.1284 ms, cmd1=1.1969 ms (91건), cmd2=0.6494 ms (40건), cmd3=0.9155 ms (108건), status=SUCCESS|intersection=1
+2026-02-02 20:56:36.075 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=광진구, commands=3, methodTime=1.6992 ms, totalCmdLatency=1.6094 ms, ioRatio=94.72 %, nonIoTime=0.0898 ms, cmd1=0.6974 ms (70건), cmd2=0.5973 ms (67건), cmd3=0.3147 ms (43건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.077 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=동대문구, commands=3, methodTime=0.9582 ms, totalCmdLatency=0.8741 ms, ioRatio=91.22 %, nonIoTime=0.0841 ms, cmd1=0.3779 ms (64건), cmd2=0.2728 ms (54건), cmd3=0.2234 ms (46건), status=SUCCESS|intersection=1
+2026-02-02 20:56:36.078 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=중랑구, commands=3, methodTime=1.1663 ms, totalCmdLatency=1.0209 ms, ioRatio=87.53 %, nonIoTime=0.1454 ms, cmd1=0.3831 ms (68건), cmd2=0.3682 ms (123건), cmd3=0.2696 ms (62건), status=SUCCESS|intersection=6
+2026-02-02 20:56:36.080 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=성북구, commands=3, methodTime=0.8880 ms, totalCmdLatency=0.8058 ms, ioRatio=90.74 %, nonIoTime=0.0822 ms, cmd1=0.3706 ms (94건), cmd2=0.2174 ms (58건), cmd3=0.2178 ms (71건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.081 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=강북구, commands=3, methodTime=0.6374 ms, totalCmdLatency=0.5973 ms, ioRatio=93.71 %, nonIoTime=0.0401 ms, cmd1=0.2545 ms (32건), cmd2=0.2005 ms (34건), cmd3=0.1423 ms (18건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.081 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=도봉구, commands=3, methodTime=0.5998 ms, totalCmdLatency=0.5522 ms, ioRatio=92.06 %, nonIoTime=0.0476 ms, cmd1=0.2139 ms (58건), cmd2=0.1892 ms (69건), cmd3=0.1491 ms (35건), status=SUCCESS|intersection=7
+2026-02-02 20:56:36.083 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=노원구, commands=3, methodTime=1.3157 ms, totalCmdLatency=1.2240 ms, ioRatio=93.03 %, nonIoTime=0.0917 ms, cmd1=0.4477 ms (149건), cmd2=0.4506 ms (199건), cmd3=0.3257 ms (161건), status=SUCCESS|intersection=19
+2026-02-02 20:56:36.084 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=은평구, commands=3, methodTime=0.7527 ms, totalCmdLatency=0.6749 ms, ioRatio=89.66 %, nonIoTime=0.0778 ms, cmd1=0.2657 ms (87건), cmd2=0.2127 ms (64건), cmd3=0.1965 ms (55건), status=SUCCESS|intersection=8
+2026-02-02 20:56:36.085 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=서대문구, commands=3, methodTime=0.9763 ms, totalCmdLatency=0.8972 ms, ioRatio=91.90 %, nonIoTime=0.0791 ms, cmd1=0.2963 ms (70건), cmd2=0.3496 ms (80건), cmd3=0.2513 ms (67건), status=SUCCESS|intersection=0
+2026-02-02 20:56:36.086 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=마포구, commands=3, methodTime=0.9727 ms, totalCmdLatency=0.8976 ms, ioRatio=92.28 %, nonIoTime=0.0751 ms, cmd1=0.3486 ms (117건), cmd2=0.2372 ms (72건), cmd3=0.3118 ms (101건), status=SUCCESS|intersection=3
+2026-02-02 20:56:36.087 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=양천구, commands=3, methodTime=0.6813 ms, totalCmdLatency=0.6319 ms, ioRatio=92.75 %, nonIoTime=0.0494 ms, cmd1=0.2250 ms (64건), cmd2=0.1861 ms (68건), cmd3=0.2208 ms (100건), status=SUCCESS|intersection=5
+2026-02-02 20:56:36.088 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=구로구, commands=3, methodTime=0.7524 ms, totalCmdLatency=0.6924 ms, ioRatio=92.03 %, nonIoTime=0.0600 ms, cmd1=0.2509 ms (94건), cmd2=0.2374 ms (113건), cmd3=0.2041 ms (90건), status=SUCCESS|intersection=6
+2026-02-02 20:56:36.089 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=금천구, commands=3, methodTime=0.5086 ms, totalCmdLatency=0.4796 ms, ioRatio=94.30 %, nonIoTime=0.0290 ms, cmd1=0.1546 ms (22건), cmd2=0.1712 ms (44건), cmd3=0.1538 ms (29건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.090 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=동작구, commands=3, methodTime=0.5452 ms, totalCmdLatency=0.5078 ms, ioRatio=93.14 %, nonIoTime=0.0374 ms, cmd1=0.1793 ms (43건), cmd2=0.1599 ms (48건), cmd3=0.1686 ms (57건), status=SUCCESS|intersection=0
+2026-02-02 20:56:36.091 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=서초구, commands=3, methodTime=0.8387 ms, totalCmdLatency=0.7735 ms, ioRatio=92.23 %, nonIoTime=0.0652 ms, cmd1=0.2348 ms (64건), cmd2=0.2214 ms (82건), cmd3=0.3173 ms (128건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.091 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-LoopSummary] mode=SEQUENTIAL, totalDistricts=17, successDistricts=14, emptyDistricts=3, totalProperties=66, loopTime=38.2265 ms, avgPerDistrict=2.2486 ms
+2026-02-02 20:56:36.091 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - 월세 매물 검색 완료: 총 66개 매물 ID 발견 (14개 지역구)
+2026-02-02 20:56:36.091 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - 일부 월세 지역구의 매물 부족 - S-03 확장 검색 수행
+2026-02-02 20:56:36.092 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - S-01: 월세 매물 검색 시작 - 대상: 7
+2026-02-02 20:56:36.094 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=동대문구, commands=3, methodTime=0.7323 ms, totalCmdLatency=0.6336 ms, ioRatio=86.52 %, nonIoTime=0.0987 ms, cmd1=0.2762 ms (64건), cmd2=0.1944 ms (54건), cmd3=0.1630 ms (46건), status=SUCCESS|intersection=1
+2026-02-02 20:56:36.095 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=서초구, commands=3, methodTime=1.1504 ms, totalCmdLatency=1.0682 ms, ioRatio=92.85 %, nonIoTime=0.0822 ms, cmd1=0.3517 ms (64건), cmd2=0.3452 ms (82건), cmd3=0.3713 ms (128건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.097 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=성동구, commands=3, methodTime=0.8391 ms, totalCmdLatency=0.7736 ms, ioRatio=92.19 %, nonIoTime=0.0655 ms, cmd1=0.3123 ms (91건), cmd2=0.2056 ms (40건), cmd3=0.2557 ms (108건), status=SUCCESS|intersection=1
+2026-02-02 20:56:36.097 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=성북구, commands=3, methodTime=0.6748 ms, totalCmdLatency=0.6182 ms, ioRatio=91.61 %, nonIoTime=0.0566 ms, cmd1=0.2461 ms (94건), cmd2=0.1779 ms (58건), cmd3=0.1942 ms (71건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.098 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=광진구, commands=3, methodTime=0.9306 ms, totalCmdLatency=0.8650 ms, ioRatio=92.95 %, nonIoTime=0.0656 ms, cmd1=0.3534 ms (70건), cmd2=0.2453 ms (67건), cmd3=0.2663 ms (43건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.099 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=강북구, commands=3, methodTime=0.6254 ms, totalCmdLatency=0.5854 ms, ioRatio=93.60 %, nonIoTime=0.0400 ms, cmd1=0.2199 ms (32건), cmd2=0.1953 ms (34건), cmd3=0.1702 ms (18건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.100 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=금천구, commands=3, methodTime=0.5754 ms, totalCmdLatency=0.5427 ms, ioRatio=94.32 %, nonIoTime=0.0327 ms, cmd1=0.1836 ms (22건), cmd2=0.1760 ms (44건), cmd3=0.1831 ms (29건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.100 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-LoopSummary] mode=SEQUENTIAL, totalDistricts=7, successDistricts=7, emptyDistricts=0, totalProperties=12, loopTime=8.3010 ms, avgPerDistrict=1.1859 ms
+2026-02-02 20:56:36.100 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - 월세 매물 검색 완료: 총 12개 매물 ID 발견 (7개 지역구)
+2026-02-02 20:56:36.101 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - S-01: 월세 매물 검색 시작 - 대상: 7
+2026-02-02 20:56:36.102 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=동대문구, commands=3, methodTime=0.6151 ms, totalCmdLatency=0.5710 ms, ioRatio=92.83 %, nonIoTime=0.0441 ms, cmd1=0.2225 ms (64건), cmd2=0.1739 ms (54건), cmd3=0.1746 ms (52건), status=SUCCESS|intersection=1
+2026-02-02 20:56:36.103 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=서초구, commands=3, methodTime=0.9534 ms, totalCmdLatency=0.9011 ms, ioRatio=94.51 %, nonIoTime=0.0523 ms, cmd1=0.2314 ms (64건), cmd2=0.3111 ms (82건), cmd3=0.3586 ms (152건), status=SUCCESS|intersection=4
+2026-02-02 20:56:36.104 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=성동구, commands=3, methodTime=0.8142 ms, totalCmdLatency=0.7563 ms, ioRatio=92.89 %, nonIoTime=0.0579 ms, cmd1=0.3204 ms (91건), cmd2=0.1679 ms (40건), cmd3=0.2680 ms (112건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.105 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=성북구, commands=3, methodTime=0.8925 ms, totalCmdLatency=0.8250 ms, ioRatio=92.44 %, nonIoTime=0.0675 ms, cmd1=0.3154 ms (94건), cmd2=0.2374 ms (58건), cmd3=0.2722 ms (86건), status=SUCCESS|intersection=3
+2026-02-02 20:56:36.106 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=광진구, commands=3, methodTime=0.8622 ms, totalCmdLatency=0.7979 ms, ioRatio=92.54 %, nonIoTime=0.0643 ms, cmd1=0.3035 ms (70건), cmd2=0.2805 ms (67건), cmd3=0.2139 ms (50건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.107 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=강북구, commands=3, methodTime=0.5598 ms, totalCmdLatency=0.5246 ms, ioRatio=93.71 %, nonIoTime=0.0352 ms, cmd1=0.2120 ms (32건), cmd2=0.1604 ms (34건), cmd3=0.1522 ms (28건), status=SUCCESS|intersection=5
+2026-02-02 20:56:36.108 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-Sequential] district=금천구, commands=3, methodTime=0.5217 ms, totalCmdLatency=0.4905 ms, ioRatio=94.02 %, nonIoTime=0.0312 ms, cmd1=0.1477 ms (22건), cmd2=0.1783 ms (44건), cmd3=0.1645 ms (30건), status=SUCCESS|intersection=2
+2026-02-02 20:56:36.108 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - [Metrics-LoopSummary] mode=SEQUENTIAL, totalDistricts=7, successDistricts=7, emptyDistricts=0, totalProperties=19, loopTime=7.2696 ms, avgPerDistrict=1.0385 ms
+2026-02-02 20:56:36.108 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - 월세 매물 검색 완료: 총 19개 매물 ID 발견 (7개 지역구)
+2026-02-02 20:56:36.109 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - S-04: 월세 매물 점수 계산 시작 (Hybrid Logic)
+2026-02-02 20:56:36.121 [http-nio-8185-exec-1] INFO  p6spy - #1770033396121 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('bb9e392be725ec5387d1a7680534916d');
+2026-02-02 20:56:36.122 [http-nio-8185-exec-1] INFO  p6spy - #1770033396122 | took 0ms | statement | connection 26| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('bb9e392be725ec5387d1a7680534916d');
+2026-02-02 20:56:36.122 [http-nio-8185-exec-1] INFO  p6spy - #1770033396122 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.122 [http-nio-8185-exec-1] INFO  p6spy - #1770033396122 | took 0ms | commit | connection 26| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.129 [http-nio-8185-exec-1] INFO  p6spy - #1770033396129 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('bf46ee7d03a46dc6254e6ceaba23113c','be47ea1410bcb6fb3537f55570453af7','483a83785a8518e7b28cc45e48aef73a','4f9fc479c52ae8aad1fde02406abbcc0','c4e65746fb13f7c0751b993483c52b28','7ac57dcea32fb33a3ef8a74e4feccece');
+2026-02-02 20:56:36.130 [http-nio-8185-exec-1] INFO  p6spy - #1770033396130 | took 0ms | statement | connection 27| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('bf46ee7d03a46dc6254e6ceaba23113c','be47ea1410bcb6fb3537f55570453af7','483a83785a8518e7b28cc45e48aef73a','4f9fc479c52ae8aad1fde02406abbcc0','c4e65746fb13f7c0751b993483c52b28','7ac57dcea32fb33a3ef8a74e4feccece');
+2026-02-02 20:56:36.130 [http-nio-8185-exec-1] INFO  p6spy - #1770033396130 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.130 [http-nio-8185-exec-1] INFO  p6spy - #1770033396130 | took 0ms | commit | connection 27| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.135 [http-nio-8185-exec-1] INFO  p6spy - #1770033396135 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('452bf536f55c9d0f69ee4d4f2b94cce3','d48fc2a519123b92969014dd650140d0','70fd93b5bcd35c7680d0b5fc1a20129c','a0722684d1aaf80cfd7da9d66f084332','803dbb2e03f9a1cc459e98099afb2b1f','6063adcf293c01b8399daec67691db43','a8a34af78dc65ed366067f53e9c16bf5','2313a8651e849b3e0a08a87f9becfe18');
+2026-02-02 20:56:36.135 [http-nio-8185-exec-1] INFO  p6spy - #1770033396135 | took 0ms | statement | connection 28| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('452bf536f55c9d0f69ee4d4f2b94cce3','d48fc2a519123b92969014dd650140d0','70fd93b5bcd35c7680d0b5fc1a20129c','a0722684d1aaf80cfd7da9d66f084332','803dbb2e03f9a1cc459e98099afb2b1f','6063adcf293c01b8399daec67691db43','a8a34af78dc65ed366067f53e9c16bf5','2313a8651e849b3e0a08a87f9becfe18');
+2026-02-02 20:56:36.136 [http-nio-8185-exec-1] INFO  p6spy - #1770033396136 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.136 [http-nio-8185-exec-1] INFO  p6spy - #1770033396136 | took 0ms | commit | connection 28| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.141 [http-nio-8185-exec-1] INFO  p6spy - #1770033396141 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('4cd514f952ec72e096068ba30c7af9e6','48d993827cbc91c4ffee6196b2805c2b','5e98fb7fa65a109b4782b6e32f7f0f73','88dd90af395e1bd0940ea60ede864930','d598d13821c1bb10248dcf90acfbaa7a','b8d589bb3ec90acbcff5884b685e5548','0812f86c46c016d096fd69e88f84a282','973343ca60084b706c920ba7ea1fe629','4b028f34610d0a658b6de1f562a0597f','787ff254269014da4ed704aeb81dd83b','0077c463b9830945b64c8417f7509f9e','c90579482ee11d20a27418f6c3aedb94','d7d6c139473627ea0f91b5b04c6f9915','8470e1587489024e3588ebf373481697','6d93c421905aaca6f29a66ea5817e8d7','4a567c57c177249ad71b2a2f301d87c0','0ad87f6575d5c768867fde52fbf98d02','76ec931c52880b17d3415a2be2282f94','01b99bfbc154f478d30469e4aa3dc06e');
+2026-02-02 20:56:36.142 [http-nio-8185-exec-1] INFO  p6spy - #1770033396142 | took 0ms | statement | connection 29| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('4cd514f952ec72e096068ba30c7af9e6','48d993827cbc91c4ffee6196b2805c2b','5e98fb7fa65a109b4782b6e32f7f0f73','88dd90af395e1bd0940ea60ede864930','d598d13821c1bb10248dcf90acfbaa7a','b8d589bb3ec90acbcff5884b685e5548','0812f86c46c016d096fd69e88f84a282','973343ca60084b706c920ba7ea1fe629','4b028f34610d0a658b6de1f562a0597f','787ff254269014da4ed704aeb81dd83b','0077c463b9830945b64c8417f7509f9e','c90579482ee11d20a27418f6c3aedb94','d7d6c139473627ea0f91b5b04c6f9915','8470e1587489024e3588ebf373481697','6d93c421905aaca6f29a66ea5817e8d7','4a567c57c177249ad71b2a2f301d87c0','0ad87f6575d5c768867fde52fbf98d02','76ec931c52880b17d3415a2be2282f94','01b99bfbc154f478d30469e4aa3dc06e');
+2026-02-02 20:56:36.142 [http-nio-8185-exec-1] INFO  p6spy - #1770033396142 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.142 [http-nio-8185-exec-1] INFO  p6spy - #1770033396142 | took 0ms | commit | connection 29| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.147 [http-nio-8185-exec-1] INFO  p6spy - #1770033396147 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('f407f599253bd6b390db7fbe0e4ff3a2','a364da732e72a8a73a278877a8d75bac','62d274a6e4a8914b9f37b068b0f116da','878b26520f8bab15a295b78fa92eec37');
+2026-02-02 20:56:36.147 [http-nio-8185-exec-1] INFO  p6spy - #1770033396147 | took 0ms | statement | connection 30| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('f407f599253bd6b390db7fbe0e4ff3a2','a364da732e72a8a73a278877a8d75bac','62d274a6e4a8914b9f37b068b0f116da','878b26520f8bab15a295b78fa92eec37');
+2026-02-02 20:56:36.147 [http-nio-8185-exec-1] INFO  p6spy - #1770033396147 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.147 [http-nio-8185-exec-1] INFO  p6spy - #1770033396147 | took 0ms | commit | connection 30| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.152 [http-nio-8185-exec-1] INFO  p6spy - #1770033396152 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('5a23dc6fb1bd6870570b9947eb118c1f','a501e616fdd96ef7dd7a41f52d6ec78c');
+2026-02-02 20:56:36.152 [http-nio-8185-exec-1] INFO  p6spy - #1770033396152 | took 0ms | statement | connection 31| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('5a23dc6fb1bd6870570b9947eb118c1f','a501e616fdd96ef7dd7a41f52d6ec78c');
+2026-02-02 20:56:36.152 [http-nio-8185-exec-1] INFO  p6spy - #1770033396152 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.152 [http-nio-8185-exec-1] INFO  p6spy - #1770033396152 | took 0ms | commit | connection 31| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.157 [http-nio-8185-exec-1] INFO  p6spy - #1770033396157 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('ac71a9b03fb03aa564f3d7f87df953a9','3cb4e4488c9ad37d5de54fc4a958dd61','724eb2ff0c632381d47d2c4e8dc3acf5');
+2026-02-02 20:56:36.158 [http-nio-8185-exec-1] INFO  p6spy - #1770033396158 | took 0ms | statement | connection 32| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('ac71a9b03fb03aa564f3d7f87df953a9','3cb4e4488c9ad37d5de54fc4a958dd61','724eb2ff0c632381d47d2c4e8dc3acf5');
+2026-02-02 20:56:36.158 [http-nio-8185-exec-1] INFO  p6spy - #1770033396158 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.158 [http-nio-8185-exec-1] INFO  p6spy - #1770033396158 | took 0ms | commit | connection 32| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.163 [http-nio-8185-exec-1] INFO  p6spy - #1770033396163 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('1d06733eeb426c9bd8bdc703c317fd01','f9471c5b2778a575828722ac3d8382ae','ecb397f6bd128bb4abe87ffe6a405062');
+2026-02-02 20:56:36.163 [http-nio-8185-exec-1] INFO  p6spy - #1770033396163 | took 0ms | statement | connection 33| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('1d06733eeb426c9bd8bdc703c317fd01','f9471c5b2778a575828722ac3d8382ae','ecb397f6bd128bb4abe87ffe6a405062');
+2026-02-02 20:56:36.164 [http-nio-8185-exec-1] INFO  p6spy - #1770033396164 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.164 [http-nio-8185-exec-1] INFO  p6spy - #1770033396164 | took 0ms | commit | connection 33| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.168 [http-nio-8185-exec-1] INFO  p6spy - #1770033396168 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('4e5a37498fecdc73f7af21baa84c488a','93b79c690b25e92ac679822bc4000818');
+2026-02-02 20:56:36.168 [http-nio-8185-exec-1] INFO  p6spy - #1770033396168 | took 0ms | statement | connection 34| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('4e5a37498fecdc73f7af21baa84c488a','93b79c690b25e92ac679822bc4000818');
+2026-02-02 20:56:36.169 [http-nio-8185-exec-1] INFO  p6spy - #1770033396169 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.169 [http-nio-8185-exec-1] INFO  p6spy - #1770033396169 | took 0ms | commit | connection 34| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.173 [http-nio-8185-exec-1] INFO  p6spy - #1770033396173 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('d1b5551c3ed745a5575051d7443adba2','01d1f240c461572c2421ebceca363f2a','0548538b3f3e8745c2ce4ba7630b28d5','25b972203bce6cc5442d4376f21b141a','624b3687d6001a7b459557eb1d536d48','fab2991046828f0c26fb1e86dcf3504b','e096b8b628d2ccdd559b801b07d5b358');
+2026-02-02 20:56:36.174 [http-nio-8185-exec-1] INFO  p6spy - #1770033396174 | took 0ms | statement | connection 35| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('d1b5551c3ed745a5575051d7443adba2','01d1f240c461572c2421ebceca363f2a','0548538b3f3e8745c2ce4ba7630b28d5','25b972203bce6cc5442d4376f21b141a','624b3687d6001a7b459557eb1d536d48','fab2991046828f0c26fb1e86dcf3504b','e096b8b628d2ccdd559b801b07d5b358');
+2026-02-02 20:56:36.174 [http-nio-8185-exec-1] INFO  p6spy - #1770033396174 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.174 [http-nio-8185-exec-1] INFO  p6spy - #1770033396174 | took 0ms | commit | connection 35| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.179 [http-nio-8185-exec-1] INFO  p6spy - #1770033396179 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('af8c67dc9d39db7107fe0704cda251a4','ce0bc93d561b82ca8bd7e0b8057bc8b6','37b745c4764e423e0e41b081ec54780e','0c11f0b4f2e129ebba07f7500cf488e5','246408e19bc07ff566ab1bca35281ff7');
+2026-02-02 20:56:36.179 [http-nio-8185-exec-1] INFO  p6spy - #1770033396179 | took 0ms | statement | connection 36| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('af8c67dc9d39db7107fe0704cda251a4','ce0bc93d561b82ca8bd7e0b8057bc8b6','37b745c4764e423e0e41b081ec54780e','0c11f0b4f2e129ebba07f7500cf488e5','246408e19bc07ff566ab1bca35281ff7');
+2026-02-02 20:56:36.180 [http-nio-8185-exec-1] INFO  p6spy - #1770033396180 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.180 [http-nio-8185-exec-1] INFO  p6spy - #1770033396180 | took 0ms | commit | connection 36| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.185 [http-nio-8185-exec-1] INFO  p6spy - #1770033396185 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('5d33e6cdccab27fbf8ebc1ed311d2cf4','96059007d8b90e7ab2bbf9b2d02439e9','dac864d7915a491521484bdd9abb0074','a753838ef1f14f0d4b8151cdd6997d26','1487db085a60d03bf2a4d5524abc2b06');
+2026-02-02 20:56:36.185 [http-nio-8185-exec-1] INFO  p6spy - #1770033396185 | took 0ms | statement | connection 37| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('5d33e6cdccab27fbf8ebc1ed311d2cf4','96059007d8b90e7ab2bbf9b2d02439e9','dac864d7915a491521484bdd9abb0074','a753838ef1f14f0d4b8151cdd6997d26','1487db085a60d03bf2a4d5524abc2b06');
+2026-02-02 20:56:36.185 [http-nio-8185-exec-1] INFO  p6spy - #1770033396185 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.185 [http-nio-8185-exec-1] INFO  p6spy - #1770033396185 | took 0ms | commit | connection 37| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.190 [http-nio-8185-exec-1] INFO  p6spy - #1770033396190 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('2ac5709d3879f5b98d1120fab07762c7','37c8abe902d4d152004137e85e8c6e08','4c0f390ff5d8ec0efcf13d7618b88e07','89dc7ac6656bf872aeac01c8bd001723','011c035a8d97c38ca5cf37025f582e4a','6a96c99822236dc9a43fc953efa0452e');
+2026-02-02 20:56:36.190 [http-nio-8185-exec-1] INFO  p6spy - #1770033396190 | took 0ms | statement | connection 38| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?,?,?,?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('2ac5709d3879f5b98d1120fab07762c7','37c8abe902d4d152004137e85e8c6e08','4c0f390ff5d8ec0efcf13d7618b88e07','89dc7ac6656bf872aeac01c8bd001723','011c035a8d97c38ca5cf37025f582e4a','6a96c99822236dc9a43fc953efa0452e');
+2026-02-02 20:56:36.191 [http-nio-8185-exec-1] INFO  p6spy - #1770033396191 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.191 [http-nio-8185-exec-1] INFO  p6spy - #1770033396191 | took 0ms | commit | connection 38| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.195 [http-nio-8185-exec-1] INFO  p6spy - #1770033396195 | took 0ms | statement | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('e6df6a92e0b79380ba23bb3dcbd94881','2a3812347bf99e0c6dbd2577510e28aa');
+2026-02-02 20:56:36.195 [http-nio-8185-exec-1] INFO  p6spy - #1770033396195 | took 0ms | statement | connection 39| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (?,?)
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATIVE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in ('e6df6a92e0b79380ba23bb3dcbd94881','2a3812347bf99e0c6dbd2577510e28aa');
+2026-02-02 20:56:36.195 [http-nio-8185-exec-1] INFO  p6spy - #1770033396195 | took 0ms | commit | connection 1| url jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.195 [http-nio-8185-exec-1] INFO  p6spy - #1770033396195 | took 0ms | commit | connection 39| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-02-02 20:56:36.196 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - S-05: 지역구 점수 계산 및 정렬 시작
+2026-02-02 20:56:36.197 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - S-06: 월세 최종 응답 생성 시작
+2026-02-02 20:56:36.200 [http-nio-8185-exec-1] INFO  c.w.r.s.MonthlyRecommendationService - === 월세 지역구 추천 서비스 완료 ===
+2026-02-02 20:56:36.200 [http-nio-8185-exec-1] INFO  c.w.r.c.RecommendationController - === 월세 지역구 추천 요청 완료 - 상태: SUCCESS_EXPANDED ===
+2026-02-02 20:56:53.729 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:56:53.729 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 20:57:23.730 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:57:23.730 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 20:57:53.731 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:57:53.731 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 20:58:23.737 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:58:23.737 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 20:58:53.738 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:58:53.738 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 20:59:23.743 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:59:23.743 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 20:59:53.757 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 20:59:53.757 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:00:23.765 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:00:23.765 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:00:53.767 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:00:53.767 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:01:23.779 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:01:23.779 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:01:53.787 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:01:53.787 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:02:23.796 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:02:23.796 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:02:53.799 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:02:53.799 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:03:23.805 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:03:23.805 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:03:53.819 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:03:53.819 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:04:23.828 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:04:23.828 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:04:53.837 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:04:53.837 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:05:23.842 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:05:23.842 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:05:53.849 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:05:53.849 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:06:23.860 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:06:23.860 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:06:53.871 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:06:53.871 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:07:23.879 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:07:23.879 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:07:53.885 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:07:53.885 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:08:23.894 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:08:23.894 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:08:53.907 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:08:53.907 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:09:23.910 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:09:23.910 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2026-02-02 21:09:30.946 [SpringApplicationShutdownHook] INFO  c.w.information.util.KakaoApiService - [KakaoApiService] 스레드 풀 종료 시작
+2026-02-02 21:09:30.947 [SpringApplicationShutdownHook] INFO  c.w.information.util.KakaoApiService - [KakaoApiService] 스레드 풀 종료 완료
+2026-02-02 21:09:30.949 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-02 21:09:30.950 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-02-02 21:09:30.950 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before shutdown stats (total=6, active=0, idle=6, waiting=0)
+2026-02-02 21:09:30.951 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@67baa05: (connection evicted)
+2026-02-02 21:09:30.952 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@303e5580: (connection evicted)
+2026-02-02 21:09:30.953 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@2680d60: (connection evicted)
+2026-02-02 21:09:30.953 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@7a39c68f: (connection evicted)
+2026-02-02 21:09:30.953 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@613deab2: (connection evicted)
+2026-02-02 21:09:30.954 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.p6spy.engine.wrapper.ConnectionWrapper@2b548b3d: (connection evicted)
+2026-02-02 21:09:30.955 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After shutdown stats (total=0, active=0, idle=0, waiting=0)
+2026-02-02 21:09:30.956 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

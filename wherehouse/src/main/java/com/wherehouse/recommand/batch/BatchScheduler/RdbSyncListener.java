@@ -23,6 +23,15 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
 
+// [2차 테스트] Slice 페이징을 위한 import 추가
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+
+// [2차 테스트] 영속성 컨텍스트 초기화를 위한 import 추가
+import jakarta.persistence.EntityManager;
+
 
 /**
  * 배치 데이터 동기화 리스너 (Processor Phase)
@@ -38,6 +47,10 @@ import org.springframework.data.redis.core.SessionCallback;
  * - Redis 저장 시 메모리 기반 → RDB 기반으로 변경
  * - 이유: RDB 저장 중 실패/중복 제거된 건이 Redis에 반영되지 않는 불일치 해소
  * - RDB가 Single Source of Truth로서 역할 수행
+ *
+ * [2차 테스트 변경사항 - 2026-01-30]
+ * - findAll() → Slice 기반 청크 처리로 변경
+ * - 목적: OOM 병목 해소 (힙 피크 사용량 제한)
  */
 @Slf4j
 @Component
@@ -56,6 +69,9 @@ public class RdbSyncListener {
     // RedisHandler만 사용 (백업본과 동일)
     private final RedisHandler redisHandler;
 
+    // [2차 테스트] 영속성 컨텍스트 초기화용 EntityManager
+    private final EntityManager entityManager;
+
     // 서울시 25개 자치구 코드 매핑 (안전성 점수 계산용)
     private static final Map<String, String> SEOUL_DISTRICT_CODES;
     static {
@@ -72,40 +88,168 @@ public class RdbSyncListener {
         SEOUL_DISTRICT_CODES = Collections.unmodifiableMap(codes);
     }
 
+    // =================================================================================
+    // [2차 테스트] 청크 크기 설정
+    // =================================================================================
+    /**
+     * Slice 페이징 청크 크기
+     *
+     * 설계 근거:
+     * - 1차 테스트 결과: 건당 Retained Size 약 863 Bytes
+     * - 10,000건 기준 예상 메모리: 약 8.6MB
+     * - 256MB 힙 기준 안전 마진 확보 (피크 시 ~3.4% 점유)
+     *
+     * 조정 가이드:
+     * - 힙 여유 시: 20,000건으로 증가 (쿼리 횟수 감소)
+     * - 힙 부족 시: 5,000건으로 감소 (메모리 피크 완화)
+     */
+    private static final int CHUNK_SIZE = 10000;
+
     /**
      * 데이터 수집 완료 이벤트 핸들러
      */
-    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 4000)
+    /* 이 부분 실제로 사용하는 코드이나 현재 테스트 환경이므로 임시로 주석 */
 //    @EventListener
 //    @Transactional
     public void handleDataCollectionCompletedEvent() {  // DataCollectionCompletedEvent event
 //        log.info(">>> [Phase 2] RdbSyncListener 이벤트 수신. 데이터 적재 프로세스 시작. (전세: {}건, 월세: {}건)",
 //                event.getCharterCount(), event.getMonthlyCount());
 
+        // =================================================================================
+        // [2차 테스트] 성능 측정 로깅 - Slice 청크 처리 버전
+        // =================================================================================
+        String threadName = Thread.currentThread().getName();
+        long batchStartTs = System.currentTimeMillis();
+        log.info("[PERF:BATCH:TOTAL] thread={} | phase=START | ts={}", threadName, batchStartTs);
+
         long startTime = System.currentTimeMillis();
 
+        /* ** 이 위치 실제 사용하는 코드이나 임시 주석, 이유는 현재 테스트 환경에서 매번 저장하는 로직 발생 시 매우 시간 오래 걸림. */
         // Step 1. [RDB] 매물 원본 데이터 적재 (1차 배치 프로세스로부터 전달 받은 데이터를 저장)
 //        saveCharterPropertiesToRdb(event.getCharterProperties());
 //        saveMonthlyPropertiesToRdb(event.getMonthlyProperties());
 
         log.info(">>> [Phase 2-1] RDB 적재 완료. RDB 기준 데이터 재조회 시작.");
 
-        // Step 2. [RDB] DB 내 전세와 월세 각각에 대한 모든 데이터 재조회
-        List<PropertyCharter> charterEntities = propertyCharterRepository.findAll();
-        List<PropertyMonthly> monthlyEntities = propertyMonthlyRepository.findAll();
+        // =================================================================================
+        // [2차 테스트] Step 2 + Step 3 통합: Slice 기반 청크 로드 + 즉시 DTO 변환
+        // =================================================================================
+        // 설계 원리:
+        // - Entity 청크를 로드하자마자 DTO로 변환하여 charterProperties/monthlyProperties에 누적
+        // - Entity 청크 참조는 다음 반복에서 덮어쓰여 GC 대상이 됨
+        // - 힙 피크: 청크 크기(10,000건) 수준으로 제한
+        // =================================================================================
+
+        // === [2차 테스트] 전세 데이터: Slice 청크 로드 + DTO 변환 ===
+        long charterStartTs = System.currentTimeMillis();
+        log.info("[PERF:DBLOAD:CHARTER] thread={} | phase=START | ts={} | chunkSize={}",
+                threadName, charterStartTs, CHUNK_SIZE);
+
+        List<Property> charterProperties = new ArrayList<>();
+        Pageable charterPageable = PageRequest.of(0, CHUNK_SIZE, Sort.by("propertyId"));
+        Slice<PropertyCharter> charterSlice;
+        int charterChunkIndex = 0;
+        int charterTotalCount = 0;
+        long charterTransformTotalMs = 0;  // [2차 테스트] 변환 시간 누적
+
+        do {
+            long chunkStartTs = System.currentTimeMillis();
+
+            charterSlice = propertyCharterRepository.findAllBy(charterPageable);
+            List<PropertyCharter> chunkEntities = charterSlice.getContent();
+
+            long chunkLoadEndTs = System.currentTimeMillis();
+            long chunkLoadMs = chunkLoadEndTs - chunkStartTs;
+
+            // ▶▶▶ 브레이크포인트 #1: 첫 번째 청크 로드 직후 (charterChunkIndex == 0일 때)
+            //     이 시점에서 VisualVM 힙 덤프 → 청크 크기(10,000건)만 적재 상태 확인
+
+            // 즉시 DTO 변환 → charterProperties에 누적
+            long transformStartTs = System.currentTimeMillis();
+            for (PropertyCharter entity : chunkEntities) {
+                charterProperties.add(convertCharterEntityToProperty(entity));
+            }
+            long transformEndTs = System.currentTimeMillis();
+            long chunkTransformMs = transformEndTs - transformStartTs;
+            charterTransformTotalMs += chunkTransformMs;
+
+            charterTotalCount += chunkEntities.size();
+            long chunkEndTs = System.currentTimeMillis();
+
+            log.info("[PERF:CHUNK:CHARTER] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={}",
+                    threadName, charterChunkIndex, chunkEntities.size(), charterTotalCount,
+                    chunkLoadMs, chunkTransformMs, (chunkEndTs - chunkStartTs), charterSlice.hasNext());
+
+            // [2차 테스트] 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
+            // 이 호출이 없으면 1차 캐시에 모든 청크의 Entity가 누적되어 findAll()과 동일한 메모리 사용
+            entityManager.clear();
+
+            charterPageable = charterSlice.nextPageable();
+            charterChunkIndex++;
+
+        } while (charterSlice.hasNext());
+
+        long charterEndTs = System.currentTimeMillis();
+        log.info("[PERF:DBLOAD:CHARTER] thread={} | phase=END | ts={} | totalCount={} | totalChunks={} | elapsed_ms={}",
+                threadName, charterEndTs, charterTotalCount, charterChunkIndex, (charterEndTs - charterStartTs));
+
+        // === [2차 테스트] 월세 데이터: Slice 청크 로드 + DTO 변환 ===
+        long monthlyStartTs = System.currentTimeMillis();
+        log.info("[PERF:DBLOAD:MONTHLY] thread={} | phase=START | ts={} | chunkSize={}",
+                threadName, monthlyStartTs, CHUNK_SIZE);
+
+        List<Property> monthlyProperties = new ArrayList<>();
+        Pageable monthlyPageable = PageRequest.of(0, CHUNK_SIZE, Sort.by("propertyId"));
+        Slice<PropertyMonthly> monthlySlice;
+        int monthlyChunkIndex = 0;
+        int monthlyTotalCount = 0;
+        long monthlyTransformTotalMs = 0;  // [2차 테스트] 변환 시간 누적
+
+        do {
+            long chunkStartTs = System.currentTimeMillis();
+
+            monthlySlice = propertyMonthlyRepository.findAllBy(monthlyPageable);
+            List<PropertyMonthly> chunkEntities = monthlySlice.getContent();
+
+            long chunkLoadEndTs = System.currentTimeMillis();
+            long chunkLoadMs = chunkLoadEndTs - chunkStartTs;
+
+            // ▶▶▶ 브레이크포인트 #2: 첫 번째 청크 로드 직후 (monthlyChunkIndex == 0일 때)
+            //     이 시점에서 VisualVM 힙 덤프 → 전세 DTO 전체 + 월세 청크(10,000건) 적재 상태 확인
+
+            // 즉시 DTO 변환 → monthlyProperties에 누적
+            long transformStartTs = System.currentTimeMillis();
+            for (PropertyMonthly entity : chunkEntities) {
+                monthlyProperties.add(convertMonthlyEntityToProperty(entity));
+            }
+            long transformEndTs = System.currentTimeMillis();
+            long chunkTransformMs = transformEndTs - transformStartTs;
+            monthlyTransformTotalMs += chunkTransformMs;
+
+            monthlyTotalCount += chunkEntities.size();
+            long chunkEndTs = System.currentTimeMillis();
+
+            log.info("[PERF:CHUNK:MONTHLY] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={}",
+                    threadName, monthlyChunkIndex, chunkEntities.size(), monthlyTotalCount,
+                    chunkLoadMs, chunkTransformMs, (chunkEndTs - chunkStartTs), monthlySlice.hasNext());
+
+            // [2차 테스트] 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
+            entityManager.clear();
+
+            monthlyPageable = monthlySlice.nextPageable();
+            monthlyChunkIndex++;
+
+        } while (monthlySlice.hasNext());
+
+        long monthlyEndTs = System.currentTimeMillis();
+        log.info("[PERF:DBLOAD:MONTHLY] thread={} | phase=END | ts={} | totalCount={} | totalChunks={} | elapsed_ms={}",
+                threadName, monthlyEndTs, monthlyTotalCount, monthlyChunkIndex, (monthlyEndTs - monthlyStartTs));
 
         log.info(">>> [Phase 2-2] RDB 재조회 완료. (전세: {}건, 월세: {}건)",
-                charterEntities.size(), monthlyEntities.size());
+                charterProperties.size(), monthlyProperties.size());
 
-        // Step 3. [변환] Entity → Property DTO 변환
-        List<Property> charterProperties = charterEntities.stream()
-                .map(this::convertCharterEntityToProperty)
-                .collect(Collectors.toList());
-
-        List<Property> monthlyProperties = monthlyEntities.stream()
-                .map(this::convertMonthlyEntityToProperty)
-                .collect(Collectors.toList());
-
+        // [2차 테스트] Step 3 Entity→DTO 변환은 위 루프에서 통합 처리됨
         log.info(">>> [Phase 2-3] Entity → Property 변환 완료. Redis 동기화 시작.");
 
         // Step 4. [Redis] 매물 정보 및 검색 인덱스 동기화 (RDB 기준)
@@ -124,6 +268,23 @@ public class RdbSyncListener {
 
         long endTime = System.currentTimeMillis();
         log.info(">>> [Phase 2] 배치 동기화 프로세스 정상 종료. 총 소요시간: {}ms", (endTime - startTime));
+
+        // =================================================================================
+        // [2차 테스트] 배치 종료 로깅 및 측정 결과 요약
+        // =================================================================================
+        long batchEndTs = System.currentTimeMillis();
+        log.info("[PERF:BATCH:TOTAL] thread={} | phase=END | ts={} | elapsed_ms={}",
+                threadName, batchEndTs, (batchEndTs - batchStartTs));
+
+        log.info("====================================================================");
+        log.info(">>> [2차 테스트] 측정 결과 요약 (Slice 청크 처리) <<<");
+        log.info("  CHUNK_SIZE          = {} 건/청크", CHUNK_SIZE);
+        log.info("  DBLOAD:CHARTER      = {} ms ({}건, {}청크)", (charterEndTs - charterStartTs), charterTotalCount, charterChunkIndex);
+        log.info("  DBLOAD:MONTHLY      = {} ms ({}건, {}청크)", (monthlyEndTs - monthlyStartTs), monthlyTotalCount, monthlyChunkIndex);
+        log.info("  TRANSFORM:CHARTER   = {} ms (누적)", charterTransformTotalMs);
+        log.info("  TRANSFORM:MONTHLY   = {} ms (누적)", monthlyTransformTotalMs);
+        log.info("  BATCH:TOTAL         = {} ms", (batchEndTs - batchStartTs));
+        log.info("====================================================================");
     }
 
     // =================================================================================
@@ -264,39 +425,25 @@ public class RdbSyncListener {
                             String charterAreaIndexKey = "idx:area:" + districtName + ":전세";
 
                             // -------------------------------------------------------
-                            // [로그 복구] 최초 배치의 앞선 10개 데이터에 대해서만 상세 로깅
-                            // -------------------------------------------------------
-                            if (currentBatchStart == 0 && i < 10) {
-                                log.info(">>> [Redis Insert - 전세 Sample #{}] ID: {}", i + 1, propertyId);
-                                log.info("    [Data] : {}", property); // 객체 내부 데이터 전체 출력
-                                log.info("    [Keys] : Hash=[{}], PriceIdx=[{}], AreaIdx=[{}]",
-                                        charterPropertyKey, charterPriceIndexKey, charterAreaIndexKey);
-                            }
-
-                            // -------------------------------------------------------
                             // [비즈니스 로직 유지] Redis 명령어 수행
                             // -------------------------------------------------------
 
                             // [저장소 1] 매물 원본 데이터 (Hash)
                             // 로그 추가: Hash 키와 적재되는 필드 개수 확인
-                            log.info("   [Hash] Key=[{}] -> putAll({} fields)", charterPropertyKey, propertyHash.size());
+//                            log.info("   [Hash] Key=[{}] -> putAll({} fields)", charterPropertyKey, propertyHash.size());
                             operations.opsForHash().putAll(charterPropertyKey, propertyHash);
 
                             // [저장소 2] 전세금 인덱스 (Sorted Set)
                             double charterPrice = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
 
                             // 로그 추가: 인덱스 키, 멤버(ID), 점수(가격) 확인 -> 여기서 propertyId가 UUID인지 MD5인지 확실히 보입니다.
-                            log.info("   [ZSet:Price] Key=[{}], Member=[{}], Score=[{}]",
-                                    charterPriceIndexKey, propertyId, charterPrice);
+//                            log.info("   [ZSet:Price] Key=[{}], Member=[{}], Score=[{}]",
+//                                    charterPriceIndexKey, propertyId, charterPrice);
 
                             operations.opsForZSet().add(charterPriceIndexKey, propertyId, charterPrice);
 
                             // [저장소 3] 평수 인덱스 (Sorted Set)
                             double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
-
-                            // 로그 추가: 인덱스 키, 멤버(ID), 점수(평수) 확인
-                            log.info("   [ZSet:Area]  Key=[{}], Member=[{}], Score=[{}]",
-                                    charterAreaIndexKey, propertyId, areaScore);
 
                             operations.opsForZSet().add(charterAreaIndexKey, propertyId, areaScore);
                         }
@@ -313,7 +460,7 @@ public class RdbSyncListener {
         }
 
         log.info("Redis [Pipeline]: 전세 매물 저장 완료 - 성공: {}건", totalSuccess);
-        verifyRedisStorage(properties, "charter", Math.min(10, properties.size()));
+//        verifyRedisStorage(properties, "charter", Math.min(10, properties.size()));
     }
 
     private void syncMonthlyToRedis(List<Property> properties) {
@@ -374,16 +521,6 @@ public class RdbSyncListener {
                             String monthlyAreaIndexKey = "idx:area:" + districtName + ":월세";
 
                             // -------------------------------------------------------
-                            // [로그 복구] 최초 배치의 앞선 10개 데이터에 대해서만 상세 로깅
-                            // -------------------------------------------------------
-                            if (currentBatchStart == 0 && i < 10) {
-                                log.info(">>> [Redis Insert - 월세 Sample #{}] ID: {}", i + 1, propertyId);
-                                log.info("    [Data] : {}", property); // 객체 내부 데이터 전체 출력
-                                log.info("    [Keys] : Hash=[{}], DepIdx=[{}], RentIdx=[{}], AreaIdx=[{}]",
-                                        monthlyPropertyKey, depositIndexKey, monthlyRentIndexKey, monthlyAreaIndexKey);
-                            }
-
-                            // -------------------------------------------------------
                             // [비즈니스 로직 유지] Redis 명령어 수행
                             // -------------------------------------------------------
 
@@ -415,7 +552,7 @@ public class RdbSyncListener {
         }
 
         log.info("Redis [Pipeline]: 월세 매물 저장 완료 - 성공: {}건", totalSuccess);
-        verifyRedisStorage(properties, "monthly", Math.min(10, properties.size()));
+//        verifyRedisStorage(properties, "monthly", Math.min(10, properties.size()));
     }
 
     /**
@@ -433,11 +570,6 @@ public class RdbSyncListener {
             String redisKey = "property:" + leaseType + ":" + propertyId;
             Map<Object, Object> storedData = redisHandler.redisTemplate.opsForHash().entries(redisKey);
 
-            if (storedData != null && !storedData.isEmpty()) {
-                log.info("[Hash OK] Key: {}", redisKey);
-            } else {
-                log.warn("[Hash FAIL] Key: {} - 데이터 없음", redisKey);
-            }
 
             // 2. Index Key 검증 (실제 데이터 존재 여부 확인은 생략하더라도 키 패턴 로그 출력)
             if ("charter".equals(leaseType)) {
@@ -567,8 +699,8 @@ public class RdbSyncListener {
             boundsHash.put("lastUpdated", currentTime);
             redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
 
-            log.info("Redis [Bounds] 저장 완료 - Key: {}, Count: {}, Price[{}-{}], Area[{}-{}]",
-                    redisKey, propertyCount, bounds.minPrice, bounds.maxPrice, bounds.minArea, bounds.maxArea);
+//            log.info("Redis [Bounds] 저장 완료 - Key: {}, Count: {}, Price[{}-{}], Area[{}-{}]",
+//                    redisKey, propertyCount, bounds.minPrice, bounds.maxPrice, bounds.minArea, bounds.maxArea);
 
         } else if ("월세".equals(leaseType)) {
             List<Double> monthlyRents = new ArrayList<>();
@@ -716,7 +848,7 @@ public class RdbSyncListener {
                 safetyHash.put("version", "1.0");
                 redisHandler.redisTemplate.opsForHash().putAll(redisKey, safetyHash);
 
-                log.info("Redis [Safety] 저장 완료 - Key: {}, Score: {}", redisKey, entry.getValue());
+//                log.info("Redis [Safety] 저장 완료 - Key: {}, Score: {}", redisKey, entry.getValue());
 
             } catch (Exception e) {
                 log.error("Redis 저장 실패: {}", entry.getKey(), e);

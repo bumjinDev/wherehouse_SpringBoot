@@ -1,0 +1,46 @@
+SQL_ID  d9fyvr3kc48ba, child number 0
+-------------------------------------
+select rs1_0.PROPERTY_ID,rs1_0.AVG_RATING,rs1_0.LAST_CALCED,rs1_0.NEGATI
+VE_KEYWORD_COUNT,rs1_0.POSITIVE_KEYWORD_COUNT,rs1_0.REVIEW_COUNT from 
+REVIEW_STATISTICS rs1_0 where rs1_0.PROPERTY_ID in (:1 ,:2 ,:3 ,:4 ,:5 
+,:6 ,:7 ,:8 ,:9 ,:10 ,:11 ,:12 ,:13 ,:14 ,:15 ,:16 ,:17 ,:18 ,:19 ,:20 
+,:21 ,:22 ,:23 ,:24 ,:25 ,:26 ,:27 ,:28 ,:29 ,:30 ,:31 ,:32 ,:33 ,:34 
+,:35 ,:36 ,:37 ,:38 ,:39 ,:40 ,:41 ,:42 ,:43 ,:44 ,:45 ,:46 ,:47 ,:48 
+,:49 ,:50 ,:51 ,:52 ,:53 ,:54 ,:55 ,:56 ,:57 ,:58 ,:59 ,:60 ,:61 )
+ 
+Plan hash value: 437070704
+ 
+-----------------------------------------------------------------------------------------------------
+| Id  | Operation                    | Name                 | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT             |                      |       |       |    68 (100)|          |
+|   1 |  INLIST ITERATOR             |                      |       |       |            |          |
+|   2 |   TABLE ACCESS BY INDEX ROWID| REVIEW_STATISTICS    |    61 |  3477 |    68   (2)| 00:00:01 |
+|*  3 |    INDEX UNIQUE SCAN         | PK_REVIEW_STATISTICS |    61 |       |    59   (2)| 00:00:01 |
+-----------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - access(("RS1_0"."PROPERTY_ID"=:1 OR "RS1_0"."PROPERTY_ID"=:2 OR 
+              "RS1_0"."PROPERTY_ID"=:3 OR "RS1_0"."PROPERTY_ID"=:4 OR "RS1_0"."PROPERTY_ID"=:5 OR 
+              "RS1_0"."PROPERTY_ID"=:6 OR "RS1_0"."PROPERTY_ID"=:7 OR "RS1_0"."PROPERTY_ID"=:8 OR 
+              "RS1_0"."PROPERTY_ID"=:9 OR "RS1_0"."PROPERTY_ID"=:10 OR "RS1_0"."PROPERTY_ID"=:11 OR 
+              "RS1_0"."PROPERTY_ID"=:12 OR "RS1_0"."PROPERTY_ID"=:13 OR "RS1_0"."PROPERTY_ID"=:14 OR 
+              "RS1_0"."PROPERTY_ID"=:15 OR "RS1_0"."PROPERTY_ID"=:16 OR "RS1_0"."PROPERTY_ID"=:17 OR 
+              "RS1_0"."PROPERTY_ID"=:18 OR "RS1_0"."PROPERTY_ID"=:19 OR "RS1_0"."PROPERTY_ID"=:20 OR 
+              "RS1_0"."PROPERTY_ID"=:21 OR "RS1_0"."PROPERTY_ID"=:22 OR "RS1_0"."PROPERTY_ID"=:23 OR 
+              "RS1_0"."PROPERTY_ID"=:24 OR "RS1_0"."PROPERTY_ID"=:25 OR "RS1_0"."PROPERTY_ID"=:26 OR 
+              "RS1_0"."PROPERTY_ID"=:27 OR "RS1_0"."PROPERTY_ID"=:28 OR "RS1_0"."PROPERTY_ID"=:29 OR 
+              "RS1_0"."PROPERTY_ID"=:30 OR "RS1_0"."PROPERTY_ID"=:31 OR "RS1_0"."PROPERTY_ID"=:32 OR 
+              "RS1_0"."PROPERTY_ID"=:33 OR "RS1_0"."PROPERTY_ID"=:34 OR "RS1_0"."PROPERTY_ID"=:35 OR 
+              "RS1_0"."PROPERTY_ID"=:36 OR "RS1_0"."PROPERTY_ID"=:37 OR "RS1_0"."PROPERTY_ID"=:38 OR 
+              "RS1_0"."PROPERTY_ID"=:39 OR "RS1_0"."PROPERTY_ID"=:40 OR "RS1_0"."PROPERTY_ID"=:41 OR 
+              "RS1_0"."PROPERTY_ID"=:42 OR "RS1_0"."PROPERTY_ID"=:43 OR "RS1_0"."PROPERTY_ID"=:44 OR 
+              "RS1_0"."PROPERTY_ID"=:45 OR "RS1_0"."PROPERTY_ID"=:46 OR "RS1_0"."PROPERTY_ID"=:47 OR 
+              "RS1_0"."PROPERTY_ID"=:48 OR "RS1_0"."PROPERTY_ID"=:49 OR "RS1_0"."PROPERTY_ID"=:50 OR 
+              "RS1_0"."PROPERTY_ID"=:51 OR "RS1_0"."PROPERTY_ID"=:52 OR "RS1_0"."PROPERTY_ID"=:53 OR 
+              "RS1_0"."PROPERTY_ID"=:54 OR "RS1_0"."PROPERTY_ID"=:55 OR "RS1_0"."PROPERTY_ID"=:56 OR 
+              "RS1_0"."PROPERTY_ID"=:57 OR "RS1_0"."PROPERTY_ID"=:58 OR "RS1_0"."PROPERTY_ID"=:59 OR 
+              "RS1_0"."PROPERTY_ID"=:60 OR "RS1_0"."PROPERTY_ID"=:61))
+ 

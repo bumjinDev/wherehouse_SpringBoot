@@ -47,7 +47,7 @@ public class ReviewListRequestDto {
      * * - 선택 필드 (Default: 1)
      * - 검증: 1 이상 (Null 허용)
      */
-    @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다")
+    @Min(value = 1,  message = "페이지 번호는 1 이상이어야 합니다")
     @Builder.Default
     private Integer page = 1;
 
