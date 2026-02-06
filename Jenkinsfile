@@ -21,12 +21,11 @@ pipeline {
     stages {
         stage('Git Clone') {
             steps {
-                echo "=== Git Clone 시작 ==="
+                echo "=== Git Clone ==="
                 cleanWs()
                 git branch: 'master',
                     url: 'https://github.com/bumjinDev/wherehouse_SpringBoot.git',
                     credentialsId: 'github-credentials'
-                echo "=== Git Clone 완료 ==="
             }
         }
 
@@ -35,7 +34,6 @@ pipeline {
                 dir('wherehouse') {
                     sh 'chmod +x ./gradlew'
                     sh './gradlew --version'
-                    echo "=== 빌드 환경 설정 완료 ==="
                 }
             }
         }
@@ -44,7 +42,6 @@ pipeline {
             steps {
                 dir('wherehouse') {
                     sh './gradlew compileJava'
-                    echo "=== 컴파일 테스트 완료 ==="
                 }
             }
         }
@@ -53,8 +50,7 @@ pipeline {
             steps {
                 dir('wherehouse') {
                     sh './gradlew clean bootWar'
-                    sh "ls -lah build/libs/${WAR_FILE}"
-                    echo "=== WAR 빌드 완료 ==="
+                    sh 'ls -lah build/libs/wherehouse.war'
                 }
             }
         }
@@ -62,18 +58,41 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    echo "=== 배포 시작 ==="
+                    echo "=== Deploy ==="
                     def TIMESTAMP = new Date().format('yyyyMMdd_HHmmss')
 
-                    sh """
-                        sudo ${TOMCAT_HOME}/bin/shutdown.sh || true
-                        sleep 5
-                        sudo pkill -9 -f tomcat || true
-                        sudo pkill -9 -f catalina || true
-                        sleep 3
-                    """
+                    sh 'sudo /opt/tomcat/bin/shutdown.sh || true'
+                    sh 'sleep 5'
+                    sh 'sudo pkill -9 -f tomcat || true'
+                    sh 'sudo pkill -9 -f catalina || true'
+                    sh 'sleep 3'
 
-                    sh """
-                        if [ -d "${TOMCAT_HOME}/webapps/${APP_NAME}" ]; then
-                            sudo mv ${TOMCAT_HOME}/webapps/${APP_NAME} ${TOMCAT_HOME}/webapps/${APP_NAME}_backup_${TIMESTAMP}
-                        fi
+                    sh 'sudo cp wherehouse/build/libs/wherehouse.war /opt/tomcat/webapps/'
+                    sh 'sudo chown tomcat:tomcat /opt/tomcat/webapps/wherehouse.war'
+                    sh 'sudo chmod 755 /opt/tomcat/webapps/wherehouse.war'
+
+                    sh 'sudo -u tomcat /opt/tomcat/bin/startup.sh'
+                    echo "=== Deploy Done ==="
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    sleep(30)
+                    sh 'sudo netstat -tlnp | grep :8080 || echo port not ready'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and Deploy SUCCESS'
+        }
+        failure {
+            echo 'Build or Deploy FAILED'
+        }
+    }
+}
