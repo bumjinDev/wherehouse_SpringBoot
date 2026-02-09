@@ -131,13 +131,15 @@ dependencies {
 	// ========================================================================
 	// DB 병목현상 측정 의존성
 	// ========================================================================
-	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'	//	p6spy 의 db 기능 및 로깅 확인 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'		// 	p6spy 의 별도의 dbcp 대기열 확인.
+//	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'	//	p6spy 의 db 기능 및 로깅 확인 의존성
+//	implementation 'org.springframework.boot:spring-boot-starter-actuator'		// 	p6spy 의 별도의 dbcp 대기열 확인.
 
 	// ========================================================================
 	// WAR 배포용 (외장 톰캣 사용 시)
 	// ========================================================================
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+	implementation 'org.apache.commons:commons-pool2'
 
 	// ========================================================================
 	// Test

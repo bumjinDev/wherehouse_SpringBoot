@@ -20,16 +20,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.SessionCallback;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.lettuce.LettuceConnection;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
-// [2차 테스트] Slice 페이징을 위한 import 추가
+
+
+// [2차 테스트] Slice 페이징을 위한 import
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 
-// [2차 테스트] 영속성 컨텍스트 초기화를 위한 import 추가
+// [2차 테스트] 영속성 컨텍스트 초기화를 위한 import
 import jakarta.persistence.EntityManager;
 
 
@@ -51,9 +55,20 @@ import jakarta.persistence.EntityManager;
  * [2차 테스트 변경사항 - 2026-01-30]
  * - findAll() → Slice 기반 청크 처리로 변경
  * - 목적: OOM 병목 해소 (힙 피크 사용량 제한)
+ *
+ * [3차 변경 - Pipeline 정상화]
+ * - Lettuce 네이티브 커넥션 직접 사용 방식 제거
+ * - LettuceConnectionFactory.setPipeliningFlushPolicy(flushOnClose()) 설정 기반으로
+ *   executePipelined(RedisCallback) 패턴이 진짜 Pipeline으로 동작하도록 변경
+ * - 변경 전: Spring의 pipeline 모드에서도 Lettuce가 매 명령마다 writeAndFlush 수행
+ * - 변경 후: closePipeline() 시점에만 flush → 배치 내 모든 명령이 한 번의 RTT로 전송
+ *
+ * [전제조건]
+ * RedisConfig에서 아래 설정이 반드시 적용되어 있어야 함:
+ *   factory.setPipeliningFlushPolicy(LettuceConnection.PipeliningFlushPolicy.flushOnClose());
  */
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class RdbSyncListener {
 
@@ -66,7 +81,7 @@ public class RdbSyncListener {
     private final AnalysisPopulationDensityRepository populationRepository;
     private final AnalysisCrimeRepository crimeRepository;
 
-    // RedisHandler만 사용 (백업본과 동일)
+    // RedisHandler
     private final RedisHandler redisHandler;
 
     // [2차 테스트] 영속성 컨텍스트 초기화용 EntityManager
@@ -98,23 +113,27 @@ public class RdbSyncListener {
      * - 1차 테스트 결과: 건당 Retained Size 약 863 Bytes
      * - 10,000건 기준 예상 메모리: 약 8.6MB
      * - 256MB 힙 기준 안전 마진 확보 (피크 시 ~3.4% 점유)
-     *
-     * 조정 가이드:
-     * - 힙 여유 시: 20,000건으로 증가 (쿼리 횟수 감소)
-     * - 힙 부족 시: 5,000건으로 감소 (메모리 피크 완화)
      */
     private static final int CHUNK_SIZE = 10000;
 
     /**
+     * Redis Pipeline 배치 크기
+     *
+     * executePipelined() 한 번 호출 시 처리할 매물 건수.
+     * closePipeline()에서 모든 응답을 List<Object>로 수집하므로,
+     * 너무 크면 응답 리스트가 힙을 압박한다.
+     * 2,000건 × 3 commands = 6,000개 응답 → 충분히 안전한 범위.
+     */
+    private static final int PIPELINE_BATCH_SIZE = 2000;
+
+    /**
      * 데이터 수집 완료 이벤트 핸들러
      */
-    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 4000)
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)
     /* 이 부분 실제로 사용하는 코드이나 현재 테스트 환경이므로 임시로 주석 */
 //    @EventListener
 //    @Transactional
     public void handleDataCollectionCompletedEvent() {  // DataCollectionCompletedEvent event
-//        log.info(">>> [Phase 2] RdbSyncListener 이벤트 수신. 데이터 적재 프로세스 시작. (전세: {}건, 월세: {}건)",
-//                event.getCharterCount(), event.getMonthlyCount());
 
         // =================================================================================
         // [2차 테스트] 성능 측정 로깅 - Slice 청크 처리 버전
@@ -126,7 +145,7 @@ public class RdbSyncListener {
         long startTime = System.currentTimeMillis();
 
         /* ** 이 위치 실제 사용하는 코드이나 임시 주석, 이유는 현재 테스트 환경에서 매번 저장하는 로직 발생 시 매우 시간 오래 걸림. */
-        // Step 1. [RDB] 매물 원본 데이터 적재 (1차 배치 프로세스로부터 전달 받은 데이터를 저장)
+        // Step 1. [RDB] 매물 원본 데이터 적재
 //        saveCharterPropertiesToRdb(event.getCharterProperties());
 //        saveMonthlyPropertiesToRdb(event.getMonthlyProperties());
 
@@ -135,13 +154,8 @@ public class RdbSyncListener {
         // =================================================================================
         // [2차 테스트] Step 2 + Step 3 통합: Slice 기반 청크 로드 + 즉시 DTO 변환
         // =================================================================================
-        // 설계 원리:
-        // - Entity 청크를 로드하자마자 DTO로 변환하여 charterProperties/monthlyProperties에 누적
-        // - Entity 청크 참조는 다음 반복에서 덮어쓰여 GC 대상이 됨
-        // - 힙 피크: 청크 크기(10,000건) 수준으로 제한
-        // =================================================================================
 
-        // === [2차 테스트] 전세 데이터: Slice 청크 로드 + DTO 변환 ===
+        // === 전세 데이터: Slice 청크 로드 + DTO 변환 ===
         long charterStartTs = System.currentTimeMillis();
         log.info("[PERF:DBLOAD:CHARTER] thread={} | phase=START | ts={} | chunkSize={}",
                 threadName, charterStartTs, CHUNK_SIZE);
@@ -151,7 +165,7 @@ public class RdbSyncListener {
         Slice<PropertyCharter> charterSlice;
         int charterChunkIndex = 0;
         int charterTotalCount = 0;
-        long charterTransformTotalMs = 0;  // [2차 테스트] 변환 시간 누적
+        long charterTransformTotalMs = 0;
 
         do {
             long chunkStartTs = System.currentTimeMillis();
@@ -161,9 +175,6 @@ public class RdbSyncListener {
 
             long chunkLoadEndTs = System.currentTimeMillis();
             long chunkLoadMs = chunkLoadEndTs - chunkStartTs;
-
-            // ▶▶▶ 브레이크포인트 #1: 첫 번째 청크 로드 직후 (charterChunkIndex == 0일 때)
-            //     이 시점에서 VisualVM 힙 덤프 → 청크 크기(10,000건)만 적재 상태 확인
 
             // 즉시 DTO 변환 → charterProperties에 누적
             long transformStartTs = System.currentTimeMillis();
@@ -181,8 +192,7 @@ public class RdbSyncListener {
                     threadName, charterChunkIndex, chunkEntities.size(), charterTotalCount,
                     chunkLoadMs, chunkTransformMs, (chunkEndTs - chunkStartTs), charterSlice.hasNext());
 
-            // [2차 테스트] 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
-            // 이 호출이 없으면 1차 캐시에 모든 청크의 Entity가 누적되어 findAll()과 동일한 메모리 사용
+            // 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
             entityManager.clear();
 
             charterPageable = charterSlice.nextPageable();
@@ -194,7 +204,7 @@ public class RdbSyncListener {
         log.info("[PERF:DBLOAD:CHARTER] thread={} | phase=END | ts={} | totalCount={} | totalChunks={} | elapsed_ms={}",
                 threadName, charterEndTs, charterTotalCount, charterChunkIndex, (charterEndTs - charterStartTs));
 
-        // === [2차 테스트] 월세 데이터: Slice 청크 로드 + DTO 변환 ===
+        // === 월세 데이터: Slice 청크 로드 + DTO 변환 ===
         long monthlyStartTs = System.currentTimeMillis();
         log.info("[PERF:DBLOAD:MONTHLY] thread={} | phase=START | ts={} | chunkSize={}",
                 threadName, monthlyStartTs, CHUNK_SIZE);
@@ -204,7 +214,7 @@ public class RdbSyncListener {
         Slice<PropertyMonthly> monthlySlice;
         int monthlyChunkIndex = 0;
         int monthlyTotalCount = 0;
-        long monthlyTransformTotalMs = 0;  // [2차 테스트] 변환 시간 누적
+        long monthlyTransformTotalMs = 0;
 
         do {
             long chunkStartTs = System.currentTimeMillis();
@@ -214,9 +224,6 @@ public class RdbSyncListener {
 
             long chunkLoadEndTs = System.currentTimeMillis();
             long chunkLoadMs = chunkLoadEndTs - chunkStartTs;
-
-            // ▶▶▶ 브레이크포인트 #2: 첫 번째 청크 로드 직후 (monthlyChunkIndex == 0일 때)
-            //     이 시점에서 VisualVM 힙 덤프 → 전세 DTO 전체 + 월세 청크(10,000건) 적재 상태 확인
 
             // 즉시 DTO 변환 → monthlyProperties에 누적
             long transformStartTs = System.currentTimeMillis();
@@ -234,7 +241,7 @@ public class RdbSyncListener {
                     threadName, monthlyChunkIndex, chunkEntities.size(), monthlyTotalCount,
                     chunkLoadMs, chunkTransformMs, (chunkEndTs - chunkStartTs), monthlySlice.hasNext());
 
-            // [2차 테스트] 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
+            // 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
             entityManager.clear();
 
             monthlyPageable = monthlySlice.nextPageable();
@@ -249,7 +256,6 @@ public class RdbSyncListener {
         log.info(">>> [Phase 2-2] RDB 재조회 완료. (전세: {}건, 월세: {}건)",
                 charterProperties.size(), monthlyProperties.size());
 
-        // [2차 테스트] Step 3 Entity→DTO 변환은 위 루프에서 통합 처리됨
         log.info(">>> [Phase 2-3] Entity → Property 변환 완료. Redis 동기화 시작.");
 
         // Step 4. [Redis] 매물 정보 및 검색 인덱스 동기화 (RDB 기준)
@@ -270,15 +276,16 @@ public class RdbSyncListener {
         log.info(">>> [Phase 2] 배치 동기화 프로세스 정상 종료. 총 소요시간: {}ms", (endTime - startTime));
 
         // =================================================================================
-        // [2차 테스트] 배치 종료 로깅 및 측정 결과 요약
+        // 배치 종료 로깅 및 측정 결과 요약
         // =================================================================================
         long batchEndTs = System.currentTimeMillis();
         log.info("[PERF:BATCH:TOTAL] thread={} | phase=END | ts={} | elapsed_ms={}",
                 threadName, batchEndTs, (batchEndTs - batchStartTs));
 
         log.info("====================================================================");
-        log.info(">>> [2차 테스트] 측정 결과 요약 (Slice 청크 처리) <<<");
+        log.info(">>> 측정 결과 요약 (Slice 청크 처리) <<<");
         log.info("  CHUNK_SIZE          = {} 건/청크", CHUNK_SIZE);
+        log.info("  PIPELINE_BATCH_SIZE = {} 건/파이프라인", PIPELINE_BATCH_SIZE);
         log.info("  DBLOAD:CHARTER      = {} ms ({}건, {}청크)", (charterEndTs - charterStartTs), charterTotalCount, charterChunkIndex);
         log.info("  DBLOAD:MONTHLY      = {} ms ({}건, {}청크)", (monthlyEndTs - monthlyStartTs), monthlyTotalCount, monthlyChunkIndex);
         log.info("  TRANSFORM:CHARTER   = {} ms (누적)", charterTransformTotalMs);
@@ -291,9 +298,6 @@ public class RdbSyncListener {
     // Entity → Property 변환 메서드
     // =================================================================================
 
-    /**
-     * PropertyCharter Entity → Property DTO 변환
-     */
     private Property convertCharterEntityToProperty(PropertyCharter entity) {
         return Property.builder()
                 .propertyId(entity.getPropertyId())
@@ -315,9 +319,6 @@ public class RdbSyncListener {
                 .build();
     }
 
-    /**
-     * PropertyMonthly Entity → Property DTO 변환
-     */
     private Property convertMonthlyEntityToProperty(PropertyMonthly entity) {
         return Property.builder()
                 .propertyId(entity.getPropertyId())
@@ -366,217 +367,309 @@ public class RdbSyncListener {
     }
 
     // =================================================================================
-    // Redis Operation (백업본과 동일한 구조)
+    // Redis Operation - executePipelined(RedisCallback) 기반
+    // =================================================================================
+    //
+    // [전제조건] RedisConfig에 아래 설정이 적용되어 있어야 진짜 Pipeline으로 동작한다:
+    //   factory.setPipeliningFlushPolicy(LettuceConnection.PipeliningFlushPolicy.flushOnClose());
+    //
+    // 이 설정이 없으면 Lettuce의 기본 정책(flushEachCommand)에 의해
+    // pipeline 모드에서도 매 명령마다 writeAndFlush가 발생하여 동기 순차 실행으로 전락한다.
+    //
+    // flushOnClose() 설정 시 동작 흐름:
+    //   1. executePipelined() → connection.openPipeline() 호출
+    //   2. 콜백 내 hMSet(), zAdd() 등 → write만 수행 (flush 안 함, TCP 버퍼에 축적)
+    //   3. 콜백 종료 → connection.closePipeline() → 이 시점에 한 번 flush → 응답 일괄 수신
+    //
+    // 검증 방법: DEBUG 로그에서 "write()" (flush 없이)가 연속으로 찍히고,
+    //           closePipeline 시점에 한 번 flush되는 패턴이 나오면 정상.
     // =================================================================================
 
+    /**
+     * 전세 매물 Redis 동기화 - executePipelined(RedisCallback) + flushOnClose 정책
+     *
+     * 매물 1건당 Redis 명령:
+     * - hMSet: 1회 (매물 원본 데이터, 단일 HMSET 명령으로 전송)
+     * - zAdd: 2회 (전세금 인덱스, 평수 인덱스)
+     * - 합계: 3 commands/건
+     *
+     * PIPELINE_BATCH_SIZE=2,000건 기준: 6,000 commands가 한 번의 RTT로 전송됨
+     */
     private void syncCharterToRedis(List<Property> properties) {
+
+        log.debug("syncCharterToRedis");
+
         if (properties == null || properties.isEmpty()) return;
 
-        final int BATCH_SIZE = 500;
+        long syncStartTs = System.currentTimeMillis();
         int totalSuccess = 0;
 
-        for (int batchStart = 0; batchStart < properties.size(); batchStart += BATCH_SIZE) {
+        for (int batchStart = 0; batchStart < properties.size(); batchStart += PIPELINE_BATCH_SIZE) {
 
-            final int start = batchStart;
-            final int end = Math.min(batchStart + BATCH_SIZE, properties.size());
-            List<Property> batch = properties.subList(start, end);
-
-            // 익명 클래스 내부에서 batchStart를 참조하기 위해 final 변수 사용
-            final int currentBatchStart = batchStart;
+            int end = Math.min(batchStart + PIPELINE_BATCH_SIZE, properties.size());
+            List<Property> batch = properties.subList(batchStart, end);
 
             try {
-                redisHandler.redisTemplate.executePipelined(new SessionCallback<Object>() {
-                    @Override
-                    @SuppressWarnings("unchecked")
-                    public Object execute(RedisOperations operations) throws DataAccessException {
+                log.info(">>> [DEBUG:PIPELINE:CHARTER] BATCH START (range: {}-{})", batchStart, end);
 
-                        for (int i = 0; i < batch.size(); i++) {
-                            Property property = batch.get(i);
-                            String propertyId = property.getPropertyId();
-                            String districtName = property.getDistrictName();
+                redisHandler.redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
 
-                            if (propertyId == null || districtName == null) continue;
-
-                            // -------------------------------------------------------
-                            // [비즈니스 로직 유지] 데이터 준비
-                            // -------------------------------------------------------
-                            Map<String, Object> propertyHash = new HashMap<>();
-                            propertyHash.put("propertyId", propertyId != null ? propertyId : "");
-                            propertyHash.put("aptNm", property.getAptNm() != null ? property.getAptNm() : "");
-                            propertyHash.put("excluUseAr", property.getExcluUseAr() != null ? property.getExcluUseAr().toString() : "0.0");
-                            propertyHash.put("floor", property.getFloor() != null ? property.getFloor().toString() : "0");
-                            propertyHash.put("buildYear", property.getBuildYear() != null ? property.getBuildYear().toString() : "0");
-                            propertyHash.put("dealDate", property.getDealDate() != null ? property.getDealDate() : "");
-                            propertyHash.put("leaseType", "전세");
-                            propertyHash.put("umdNm", property.getUmdNm() != null ? property.getUmdNm() : "");
-                            propertyHash.put("jibun", property.getJibun() != null ? property.getJibun() : "");
-                            propertyHash.put("sggCd", property.getSggCd() != null ? property.getSggCd() : "");
-                            propertyHash.put("address", property.getAddress() != null ? property.getAddress() : "");
-                            propertyHash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
-                            propertyHash.put("rgstDate", property.getRgstDate() != null ? property.getRgstDate() : "");
-                            propertyHash.put("districtName", districtName != null ? districtName : "");
-                            propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
-
-                            // -------------------------------------------------------
-                            // [비즈니스 로직 유지] 키 생성
-                            // -------------------------------------------------------
-                            String charterPropertyKey = "property:charter:" + propertyId;
-                            String charterPriceIndexKey = "idx:charterPrice:" + districtName;
-                            String charterAreaIndexKey = "idx:area:" + districtName + ":전세";
-
-                            // -------------------------------------------------------
-                            // [비즈니스 로직 유지] Redis 명령어 수행
-                            // -------------------------------------------------------
-
-                            // [저장소 1] 매물 원본 데이터 (Hash)
-                            // 로그 추가: Hash 키와 적재되는 필드 개수 확인
-//                            log.info("   [Hash] Key=[{}] -> putAll({} fields)", charterPropertyKey, propertyHash.size());
-                            operations.opsForHash().putAll(charterPropertyKey, propertyHash);
-
-                            // [저장소 2] 전세금 인덱스 (Sorted Set)
-                            double charterPrice = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
-
-                            // 로그 추가: 인덱스 키, 멤버(ID), 점수(가격) 확인 -> 여기서 propertyId가 UUID인지 MD5인지 확실히 보입니다.
-//                            log.info("   [ZSet:Price] Key=[{}], Member=[{}], Score=[{}]",
-//                                    charterPriceIndexKey, propertyId, charterPrice);
-
-                            operations.opsForZSet().add(charterPriceIndexKey, propertyId, charterPrice);
-
-                            // [저장소 3] 평수 인덱스 (Sorted Set)
-                            double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
-
-                            operations.opsForZSet().add(charterAreaIndexKey, propertyId, areaScore);
+                    // ====== [DEBUG] Pipeline + autoFlush 상태 확인 ======
+                    log.info(">>> [DEBUG:PIPELINE:CHARTER] isPipelined={}, connectionClass={}",
+                            connection.isPipelined(), connection.getClass().getName());
+                    if (connection instanceof LettuceConnection lc) {
+                        Object nativeConn = lc.getNativeConnection();
+                        log.info(">>> [DEBUG:PIPELINE:CHARTER] nativeConnectionClass={}", nativeConn.getClass().getName());
+                        if (nativeConn instanceof io.lettuce.core.api.StatefulConnection<?,?> sc) {
+                            try {
+                                java.lang.reflect.Field field = io.lettuce.core.RedisChannelHandler.class.getDeclaredField("autoFlushCommands");
+                                field.setAccessible(true);
+                                log.info(">>> [DEBUG:PIPELINE:CHARTER] autoFlushCommands={}", field.get(sc));
+                            } catch (Exception e) {
+                                log.warn(">>> [DEBUG] autoFlush 확인 실패: {}", e.getMessage());
+                            }
                         }
-
-                        return null;
                     }
+                    // ====== [DEBUG] END ======
+
+                    for (Property property : batch) {
+                        String propertyId = property.getPropertyId();
+                        String districtName = property.getDistrictName();
+                        if (propertyId == null || districtName == null) continue;
+
+                        // [저장소 1] 매물 원본 데이터 - hMSet은 단일 HMSET 명령으로 전송
+                        byte[] hashKey = serializeKey("property:charter:" + propertyId);
+                        Map<byte[], byte[]> propertyHash = serializeHashEntries(buildCharterHash(property));
+                        connection.hashCommands().hMSet(hashKey, propertyHash);
+
+                        // [저장소 2] 전세금 인덱스
+                        byte[] memberKey = serializeHashValue(propertyId);
+                        double charterPrice = property.getDeposit() != null
+                                ? property.getDeposit().doubleValue() : 0.0;
+                        connection.zSetCommands().zAdd(
+                                serializeKey("idx:charterPrice:" + districtName),
+                                charterPrice,
+                                memberKey
+                        );
+
+                        // [저장소 3] 평수 인덱스
+                        double areaScore = property.getAreaInPyeong() != null
+                                ? property.getAreaInPyeong() : 0.0;
+                        connection.zSetCommands().zAdd(
+                                serializeKey("idx:area:" + districtName + ":전세"),
+                                areaScore,
+                                memberKey
+                        );
+                    }
+
+                    return null;
                 });
 
+                log.info(">>> [DEBUG:PIPELINE:CHARTER] BATCH COMPLETE (range: {}-{}, closePipeline 완료)", batchStart, end);
                 totalSuccess += batch.size();
 
             } catch (Exception e) {
-                log.error("전세 배치 저장 실패 (범위: {}-{}): {}", start, end, e.getMessage());
+                log.error("전세 배치 저장 실패 (범위: {}-{}): {}", batchStart, end, e.getMessage());
             }
         }
 
-        log.info("Redis [Pipeline]: 전세 매물 저장 완료 - 성공: {}건", totalSuccess);
-//        verifyRedisStorage(properties, "charter", Math.min(10, properties.size()));
-    }
-
-    private void syncMonthlyToRedis(List<Property> properties) {
-        if (properties == null || properties.isEmpty()) return;
-
-        final int BATCH_SIZE = 500;
-        int totalSuccess = 0;
-
-        for (int batchStart = 0; batchStart < properties.size(); batchStart += BATCH_SIZE) {
-
-            final int start = batchStart;
-            final int end = Math.min(batchStart + BATCH_SIZE, properties.size());
-            List<Property> batch = properties.subList(start, end);
-
-            // 익명 클래스 내부에서 batchStart를 참조하기 위해 final 변수 사용
-            final int currentBatchStart = batchStart;
-
-            try {
-                redisHandler.redisTemplate.executePipelined(new SessionCallback<Object>() {
-                    @Override
-                    @SuppressWarnings("unchecked")
-                    public Object execute(RedisOperations operations) throws DataAccessException {
-
-                        for (int i = 0; i < batch.size(); i++) {
-                            Property property = batch.get(i);
-                            String propertyId = property.getPropertyId();
-                            String districtName = property.getDistrictName();
-
-                            if (propertyId == null || districtName == null) continue;
-
-                            // -------------------------------------------------------
-                            // [비즈니스 로직 유지] 데이터 준비
-                            // -------------------------------------------------------
-                            Map<String, Object> propertyHash = new HashMap<>();
-                            propertyHash.put("propertyId", propertyId != null ? propertyId : "");
-                            propertyHash.put("aptNm", property.getAptNm() != null ? property.getAptNm() : "");
-                            propertyHash.put("excluUseAr", property.getExcluUseAr() != null ? property.getExcluUseAr().toString() : "0.0");
-                            propertyHash.put("floor", property.getFloor() != null ? property.getFloor().toString() : "0");
-                            propertyHash.put("buildYear", property.getBuildYear() != null ? property.getBuildYear().toString() : "0");
-                            propertyHash.put("dealDate", property.getDealDate() != null ? property.getDealDate() : "");
-                            propertyHash.put("leaseType", "월세");
-                            propertyHash.put("umdNm", property.getUmdNm() != null ? property.getUmdNm() : "");
-                            propertyHash.put("jibun", property.getJibun() != null ? property.getJibun() : "");
-                            propertyHash.put("sggCd", property.getSggCd() != null ? property.getSggCd() : "");
-                            propertyHash.put("address", property.getAddress() != null ? property.getAddress() : "");
-                            propertyHash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
-                            propertyHash.put("rgstDate", property.getRgstDate() != null ? property.getRgstDate() : "");
-                            propertyHash.put("districtName", districtName != null ? districtName : "");
-                            propertyHash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
-                            propertyHash.put("monthlyRent", property.getMonthlyRent() != null ? property.getMonthlyRent().toString() : "0");
-
-                            // -------------------------------------------------------
-                            // [비즈니스 로직 유지] 키 생성
-                            // -------------------------------------------------------
-                            String monthlyPropertyKey = "property:monthly:" + propertyId;
-                            String depositIndexKey = "idx:deposit:" + districtName;
-                            String monthlyRentIndexKey = "idx:monthlyRent:" + districtName + ":월세";
-                            String monthlyAreaIndexKey = "idx:area:" + districtName + ":월세";
-
-                            // -------------------------------------------------------
-                            // [비즈니스 로직 유지] Redis 명령어 수행
-                            // -------------------------------------------------------
-
-                            // [저장소 1] 매물 원본 데이터 (Hash)
-                            operations.opsForHash().putAll(monthlyPropertyKey, propertyHash);
-
-                            // [저장소 2] 보증금 인덱스 (Sorted Set)
-                            double depositPrice = property.getDeposit() != null ? property.getDeposit().doubleValue() : 0.0;
-                            operations.opsForZSet().add(depositIndexKey, propertyId, depositPrice);
-
-                            // [저장소 3] 월세금 인덱스 (Sorted Set)
-                            double monthlyRentPrice = property.getMonthlyRent() != null ? property.getMonthlyRent().doubleValue() : 0.0;
-                            operations.opsForZSet().add(monthlyRentIndexKey, propertyId, monthlyRentPrice);
-
-                            // [저장소 4] 평수 인덱스 (Sorted Set)
-                            double areaScore = property.getAreaInPyeong() != null ? property.getAreaInPyeong() : 0.0;
-                            operations.opsForZSet().add(monthlyAreaIndexKey, propertyId, areaScore);
-                        }
-
-                        return null;
-                    }
-                });
-
-                totalSuccess += batch.size();
-
-            } catch (Exception e) {
-                log.error("월세 배치 저장 실패 (범위: {}-{}): {}", start, end, e.getMessage());
-            }
-        }
-
-        log.info("Redis [Pipeline]: 월세 매물 저장 완료 - 성공: {}건", totalSuccess);
-//        verifyRedisStorage(properties, "monthly", Math.min(10, properties.size()));
+        long syncEndTs = System.currentTimeMillis();
+        log.info("Redis [Pipeline]: 전세 매물 저장 완료 - 성공: {}건, 소요: {}ms",
+                totalSuccess, (syncEndTs - syncStartTs));
     }
 
     /**
-     * Redis 저장 검증 - Hash 뿐만 아니라 Index Key까지 패턴 확인
+     * 월세 매물 Redis 동기화 - executePipelined(RedisCallback) + flushOnClose 정책
+     *
+     * 매물 1건당 Redis 명령:
+     * - hMSet: 1회 (매물 원본 데이터)
+     * - zAdd: 3회 (보증금 인덱스, 월세금 인덱스, 평수 인덱스)
+     * - 합계: 4 commands/건
+     *
+     * PIPELINE_BATCH_SIZE=2,000건 기준: 8,000 commands가 한 번의 RTT로 전송됨
      */
+    private void syncMonthlyToRedis(List<Property> properties) {
+        if (properties == null || properties.isEmpty()) return;
+
+        long syncStartTs = System.currentTimeMillis();
+        int totalSuccess = 0;
+
+        for (int batchStart = 0; batchStart < properties.size(); batchStart += PIPELINE_BATCH_SIZE) {
+
+            int end = Math.min(batchStart + PIPELINE_BATCH_SIZE, properties.size());
+            List<Property> batch = properties.subList(batchStart, end);
+
+            try {
+                log.info(">>> [DEBUG:PIPELINE:MONTHLY] BATCH START (range: {}-{})", batchStart, end);
+
+                redisHandler.redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+
+                    // ====== [DEBUG] Pipeline + autoFlush 상태 확인 ======
+                    log.info(">>> [DEBUG:PIPELINE:MONTHLY] isPipelined={}, connectionClass={}",
+                            connection.isPipelined(), connection.getClass().getName());
+                    if (connection instanceof LettuceConnection lc) {
+                        Object nativeConn = lc.getNativeConnection();
+                        log.info(">>> [DEBUG:PIPELINE:MONTHLY] nativeConnectionClass={}", nativeConn.getClass().getName());
+                        if (nativeConn instanceof io.lettuce.core.api.StatefulConnection<?,?> sc) {
+                            try {
+                                java.lang.reflect.Field field = io.lettuce.core.RedisChannelHandler.class.getDeclaredField("autoFlushCommands");
+                                field.setAccessible(true);
+                                log.info(">>> [DEBUG:PIPELINE:MONTHLY] autoFlushCommands={}", field.get(sc));
+                            } catch (Exception e) {
+                                log.warn(">>> [DEBUG] autoFlush 확인 실패: {}", e.getMessage());
+                            }
+                        }
+                    }
+                    // ====== [DEBUG] END ======
+
+                    for (Property property : batch) {
+                        String propertyId = property.getPropertyId();
+                        String districtName = property.getDistrictName();
+                        if (propertyId == null || districtName == null) continue;
+
+                        // [저장소 1] 매물 원본 데이터
+                        byte[] hashKey = serializeKey("property:monthly:" + propertyId);
+                        Map<byte[], byte[]> propertyHash = serializeHashEntries(buildMonthlyHash(property));
+                        connection.hashCommands().hMSet(hashKey, propertyHash);
+
+                        byte[] memberKey = serializeHashValue(propertyId);
+
+                        // [저장소 2] 보증금 인덱스
+                        double depositPrice = property.getDeposit() != null
+                                ? property.getDeposit().doubleValue() : 0.0;
+                        connection.zSetCommands().zAdd(
+                                serializeKey("idx:deposit:" + districtName),
+                                depositPrice,
+                                memberKey
+                        );
+
+                        // [저장소 3] 월세금 인덱스
+                        double monthlyRentPrice = property.getMonthlyRent() != null
+                                ? property.getMonthlyRent().doubleValue() : 0.0;
+                        connection.zSetCommands().zAdd(
+                                serializeKey("idx:monthlyRent:" + districtName + ":월세"),
+                                monthlyRentPrice,
+                                memberKey
+                        );
+
+                        // [저장소 4] 평수 인덱스
+                        double areaScore = property.getAreaInPyeong() != null
+                                ? property.getAreaInPyeong() : 0.0;
+                        connection.zSetCommands().zAdd(
+                                serializeKey("idx:area:" + districtName + ":월세"),
+                                areaScore,
+                                memberKey
+                        );
+                    }
+
+                    return null;
+                });
+
+                log.info(">>> [DEBUG:PIPELINE:MONTHLY] BATCH COMPLETE (range: {}-{}, closePipeline 완료)", batchStart, end);
+                totalSuccess += batch.size();
+
+            } catch (Exception e) {
+                log.error("월세 배치 저장 실패 (범위: {}-{}): {}", batchStart, end, e.getMessage());
+            }
+        }
+
+        long syncEndTs = System.currentTimeMillis();
+        log.info("Redis [Pipeline]: 월세 매물 저장 완료 - 성공: {}건, 소요: {}ms",
+                totalSuccess, (syncEndTs - syncStartTs));
+    }
+
+    // =================================================================================
+    // Hash 데이터 빌드 (Map<String, Object> → serializeHashEntries로 byte[] 변환)
+    // =================================================================================
+
+    private Map<String, Object> buildCharterHash(Property property) {
+        Map<String, Object> hash = new HashMap<>();
+        hash.put("propertyId", nvl(property.getPropertyId()));
+        hash.put("aptNm", nvl(property.getAptNm()));
+        hash.put("excluUseAr", property.getExcluUseAr() != null ? property.getExcluUseAr().toString() : "0.0");
+        hash.put("floor", property.getFloor() != null ? property.getFloor().toString() : "0");
+        hash.put("buildYear", property.getBuildYear() != null ? property.getBuildYear().toString() : "0");
+        hash.put("dealDate", nvl(property.getDealDate()));
+        hash.put("leaseType", "전세");
+        hash.put("umdNm", nvl(property.getUmdNm()));
+        hash.put("jibun", nvl(property.getJibun()));
+        hash.put("sggCd", nvl(property.getSggCd()));
+        hash.put("address", nvl(property.getAddress()));
+        hash.put("areaInPyeong", property.getAreaInPyeong() != null ? property.getAreaInPyeong().toString() : "0.0");
+        hash.put("rgstDate", nvl(property.getRgstDate()));
+        hash.put("districtName", nvl(property.getDistrictName()));
+        hash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
+        return hash;
+    }
+
+    private Map<String, Object> buildMonthlyHash(Property property) {
+        Map<String, Object> hash = buildCharterHash(property);
+        hash.put("leaseType", "월세");  // 덮어쓰기
+        hash.put("monthlyRent", property.getMonthlyRent() != null ? property.getMonthlyRent().toString() : "0");
+        return hash;
+    }
+
+    private String nvl(String value) {
+        return value != null ? value : "";
+    }
+
+    // =================================================================================
+    // 직렬화 헬퍼 메서드 (RedisCallback은 byte[] 수준 API이므로 필요)
+    // =================================================================================
+
+    @SuppressWarnings("unchecked")
+    private byte[] serializeKey(String key) {
+        RedisSerializer<String> keySerializer =
+                (RedisSerializer<String>) redisHandler.redisTemplate.getKeySerializer();
+        return keySerializer.serialize(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    private byte[] serializeHashKey(String hashKey) {
+        RedisSerializer<String> hashKeySerializer =
+                (RedisSerializer<String>) redisHandler.redisTemplate.getHashKeySerializer();
+        return hashKeySerializer.serialize(hashKey);
+    }
+
+    @SuppressWarnings("unchecked")
+    private byte[] serializeHashValue(Object value) {
+        RedisSerializer<Object> hashValueSerializer =
+                (RedisSerializer<Object>) redisHandler.redisTemplate.getHashValueSerializer();
+        return hashValueSerializer.serialize(value);
+    }
+
+    private Map<byte[], byte[]> serializeHashEntries(Map<String, Object> entries) {
+        Map<byte[], byte[]> rawMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : entries.entrySet()) {
+            rawMap.put(
+                    serializeHashKey(entry.getKey()),
+                    serializeHashValue(entry.getValue())
+            );
+        }
+        return rawMap;
+    }
+
+    // =================================================================================
+    // Redis 저장 검증
+    // =================================================================================
+
     private void verifyRedisStorage(List<Property> properties, String leaseType, int sampleSize) {
         log.info("=== Redis 저장 상세 검증 시작 ({}) - 샘플 {}건 ===", leaseType, sampleSize);
 
         for (int i = 0; i < sampleSize; i++) {
             Property p = properties.get(i);
             String propertyId = p.getPropertyId();
-            String districtName = p.getDistrictName(); // DTO에 districtName 필드가 public이거나 getter 사용
+            String districtName = p.getDistrictName();
 
             // 1. Hash Key 검증
             String redisKey = "property:" + leaseType + ":" + propertyId;
             Map<Object, Object> storedData = redisHandler.redisTemplate.opsForHash().entries(redisKey);
 
-
-            // 2. Index Key 검증 (실제 데이터 존재 여부 확인은 생략하더라도 키 패턴 로그 출력)
+            // 2. Index Key 검증
             if ("charter".equals(leaseType)) {
                 String priceIdx = "idx:charterPrice:" + districtName;
                 String areaIdx = "idx:area:" + districtName + ":전세";
 
-                // 실제 스코어 조회로 검증
                 Double priceScore = redisHandler.redisTemplate.opsForZSet().score(priceIdx, propertyId);
                 log.info("    -> [Index Check] {} : Score={}", priceIdx, priceScore);
 
@@ -612,6 +705,13 @@ public class RdbSyncListener {
         Map<String, List<Property>> groupedProperties = groupPropertiesByDistrictAndLeaseType(properties);
         String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
+        // =====================================================================
+        // [Pipeline 변환] 모든 그룹의 bounds 해시를 먼저 수집한 뒤 한 번의 Pipeline으로 전송
+        // 변경 전: 그룹별 개별 putAll() → 그룹 수만큼 RTT 발생
+        // 변경 후: 전체 그룹을 한 Pipeline에 적재 → 1 RTT
+        // =====================================================================
+        Map<String, Map<String, Object>> boundsEntries = new LinkedHashMap<>();
+
         for (Map.Entry<String, List<Property>> entry : groupedProperties.entrySet()) {
             String groupKey = entry.getKey();
             List<Property> groupProperties = entry.getValue();
@@ -622,10 +722,46 @@ public class RdbSyncListener {
                 NormalizationBounds bounds = calculateBoundsForGroupFixed(groupProperties, groupKey);
                 if (bounds == null) continue;
 
-                storeBoundsToRedisFixed(groupKey, bounds, groupProperties, currentTime);
+                // Redis에 저장할 해시 데이터를 수집만 하고, 실제 전송은 아래 Pipeline에서 일괄 처리
+                Map<String, Object> boundsHash = buildBoundsHash(groupKey, bounds, groupProperties, currentTime);
+                if (boundsHash != null) {
+                    String[] keyParts = groupKey.split(":");
+                    String districtName = keyParts[0];
+                    String leaseType = keyParts[1];
+                    String redisKey = "bounds:" + districtName + ":" + leaseType;
+                    boundsEntries.put(redisKey, boundsHash);
+                }
 
             } catch (Exception e) {
-                log.error("그룹 [{}] 정규화 범위 저장 실패", groupKey, e);
+                log.error("그룹 [{}] 정규화 범위 계산 실패", groupKey, e);
+            }
+        }
+
+        // Pipeline 일괄 전송
+        if (!boundsEntries.isEmpty()) {
+            try {
+                log.info(">>> [DEBUG:PIPELINE:BOUNDS] BATCH START (총 {}개 그룹)", boundsEntries.size());
+
+                redisHandler.redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+
+                    // ====== [DEBUG] Pipeline 상태 확인 ======
+                    log.info(">>> [DEBUG:PIPELINE:BOUNDS] isPipelined = {}, connection class = {}",
+                            connection.isPipelined(), connection.getClass().getName());
+                    // ====== [DEBUG] END ======
+
+                    for (Map.Entry<String, Map<String, Object>> entry : boundsEntries.entrySet()) {
+                        byte[] key = serializeKey(entry.getKey());
+                        Map<byte[], byte[]> rawHash = serializeHashEntries(entry.getValue());
+                        connection.hashCommands().hMSet(key, rawHash);
+                    }
+
+                    return null;
+                });
+
+                log.info(">>> [DEBUG:PIPELINE:BOUNDS] BATCH COMPLETE ({}개 그룹, closePipeline 완료)", boundsEntries.size());
+
+            } catch (Exception e) {
+                log.error("Bounds Pipeline 저장 실패", e);
             }
         }
 
@@ -681,26 +817,29 @@ public class RdbSyncListener {
         return new NormalizationBounds(minPrice, maxPrice, minArea, maxArea);
     }
 
-    private void storeBoundsToRedisFixed(String groupKey, NormalizationBounds bounds,
-                                         List<Property> groupProperties, String currentTime) {
+    /**
+     * Bounds 해시 데이터 빌드 (Redis 전송 없이 Map만 반환)
+     *
+     * Pipeline에서 일괄 전송하기 위해 데이터 수집 전용으로 분리.
+     * 기존 storeBoundsToRedisFixed()의 해시 빌드 로직만 추출한 것.
+     */
+    private Map<String, Object> buildBoundsHash(String groupKey, NormalizationBounds bounds,
+                                                List<Property> groupProperties, String currentTime) {
         String[] keyParts = groupKey.split(":");
         String districtName = keyParts[0];
         String leaseType = keyParts[1];
         int propertyCount = groupProperties.size();
 
+        Map<String, Object> boundsHash = new HashMap<>();
+
         if ("전세".equals(leaseType)) {
-            String redisKey = "bounds:" + districtName + ":전세";
-            Map<String, Object> boundsHash = new HashMap<>();
             boundsHash.put("minPrice", String.valueOf(bounds.minPrice));
             boundsHash.put("maxPrice", String.valueOf(bounds.maxPrice));
             boundsHash.put("minArea", String.valueOf(bounds.minArea));
             boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
             boundsHash.put("propertyCount", String.valueOf(propertyCount));
             boundsHash.put("lastUpdated", currentTime);
-            redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
-
-//            log.info("Redis [Bounds] 저장 완료 - Key: {}, Count: {}, Price[{}-{}], Area[{}-{}]",
-//                    redisKey, propertyCount, bounds.minPrice, bounds.maxPrice, bounds.minArea, bounds.maxArea);
+            return boundsHash;
 
         } else if ("월세".equals(leaseType)) {
             List<Double> monthlyRents = new ArrayList<>();
@@ -713,8 +852,6 @@ public class RdbSyncListener {
             double maxMonthlyRent = monthlyRents.isEmpty() ? 500.0 : Collections.max(monthlyRents);
             if (minMonthlyRent == maxMonthlyRent) maxMonthlyRent = minMonthlyRent + 10.0;
 
-            String redisKey = "bounds:" + districtName + ":월세";
-            Map<String, Object> boundsHash = new HashMap<>();
             boundsHash.put("minDeposit", String.valueOf(bounds.minPrice));
             boundsHash.put("maxDeposit", String.valueOf(bounds.maxPrice));
             boundsHash.put("minMonthlyRent", String.valueOf(minMonthlyRent));
@@ -723,11 +860,14 @@ public class RdbSyncListener {
             boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
             boundsHash.put("propertyCount", String.valueOf(propertyCount));
             boundsHash.put("lastUpdated", currentTime);
-            redisHandler.redisTemplate.opsForHash().putAll(redisKey, boundsHash);
 
-            log.info("Redis [Bounds] 저장 완료 - Key: {}, Count: {}, Deposit[{}-{}], Rent[{}-{}], Area[{}-{}]",
-                    redisKey, propertyCount, bounds.minPrice, bounds.maxPrice, minMonthlyRent, maxMonthlyRent, bounds.minArea, bounds.maxArea);
+            log.info("Redis [Bounds] 준비 완료 - Key: bounds:{}:{}, Count: {}, Deposit[{}-{}], Rent[{}-{}], Area[{}-{}]",
+                    districtName, leaseType, propertyCount, bounds.minPrice, bounds.maxPrice,
+                    minMonthlyRent, maxMonthlyRent, bounds.minArea, bounds.maxArea);
+            return boundsHash;
         }
+
+        return null;
     }
 
     private static class NormalizationBounds {
@@ -836,23 +976,57 @@ public class RdbSyncListener {
         }
     }
 
+    /**
+     * 안전성 점수 Redis 저장 - executePipelined(RedisCallback) 기반
+     *
+     * 25개 자치구 × 1 hMSet = 25 commands → 1 RTT
+     * 변경 전: 자치구별 개별 putAll() → 25 RTT
+     */
     private void storeSafetyScoresToRedis(Map<String, Double> safetyScoreMap) {
         String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-        for (Map.Entry<String, Double> entry : safetyScoreMap.entrySet()) {
-            try {
-                String redisKey = "safety:" + entry.getKey();
-                Map<String, Object> safetyHash = new HashMap<>();
-                safetyHash.put("districtName", entry.getKey());
-                safetyHash.put("safetyScore", String.valueOf(entry.getValue()));
-                safetyHash.put("lastUpdated", currentTime);
-                safetyHash.put("version", "1.0");
-                redisHandler.redisTemplate.opsForHash().putAll(redisKey, safetyHash);
 
-//                log.info("Redis [Safety] 저장 완료 - Key: {}, Score: {}", redisKey, entry.getValue());
+        try {
+            log.info(">>> [DEBUG:PIPELINE:SAFETY] BATCH START (총 {}개 자치구)", safetyScoreMap.size());
 
-            } catch (Exception e) {
-                log.error("Redis 저장 실패: {}", entry.getKey(), e);
-            }
+            redisHandler.redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+
+                // ====== [DEBUG] Pipeline + autoFlush 상태 확인 ======
+                log.info(">>> [DEBUG:PIPELINE:SAFETY] isPipelined={}, connectionClass={}",
+                        connection.isPipelined(), connection.getClass().getName());
+                if (connection instanceof LettuceConnection lc) {
+                    Object nativeConn = lc.getNativeConnection();
+                    log.info(">>> [DEBUG:PIPELINE:SAFETY] nativeConnectionClass={}", nativeConn.getClass().getName());
+                    if (nativeConn instanceof io.lettuce.core.api.StatefulConnection<?,?> sc) {
+                        try {
+                            java.lang.reflect.Field field = io.lettuce.core.RedisChannelHandler.class.getDeclaredField("autoFlushCommands");
+                            field.setAccessible(true);
+                            log.info(">>> [DEBUG:PIPELINE:SAFETY] autoFlushCommands={}", field.get(sc));
+                        } catch (Exception e) {
+                            log.warn(">>> [DEBUG] autoFlush 확인 실패: {}", e.getMessage());
+                        }
+                    }
+                }
+                // ====== [DEBUG] END ======
+
+                for (Map.Entry<String, Double> entry : safetyScoreMap.entrySet()) {
+                    Map<String, Object> safetyHash = new HashMap<>();
+                    safetyHash.put("districtName", entry.getKey());
+                    safetyHash.put("safetyScore", String.valueOf(entry.getValue()));
+                    safetyHash.put("lastUpdated", currentTime);
+                    safetyHash.put("version", "1.0");
+
+                    byte[] key = serializeKey("safety:" + entry.getKey());
+                    Map<byte[], byte[]> rawHash = serializeHashEntries(safetyHash);
+                    connection.hashCommands().hMSet(key, rawHash);
+                }
+
+                return null;
+            });
+
+            log.info(">>> [DEBUG:PIPELINE:SAFETY] BATCH COMPLETE ({}개 자치구, closePipeline 완료)", safetyScoreMap.size());
+
+        } catch (Exception e) {
+            log.error("Safety Score Pipeline 저장 실패", e);
         }
     }
 }

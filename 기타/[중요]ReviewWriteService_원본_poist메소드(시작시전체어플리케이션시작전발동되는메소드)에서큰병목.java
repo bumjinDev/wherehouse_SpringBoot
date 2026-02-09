@@ -12,9 +12,7 @@ import com.wherehouse.review.repository.ReviewStatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +20,6 @@ import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -103,88 +99,70 @@ public class ReviewWriteService {
     public void initializeStatisticsCache() {
         long startTime = System.nanoTime();
 
-        // ==========================================================================
-        // [Phase 1] RDB 전체 조회 + 유효 데이터 필터링 & sum 역산
-        // ==========================================================================
         List<ReviewStatistics> allStats = reviewStatisticsRepository.findAll();
+        HashOperations<String, String, Object> hashOps = redisTemplate.opsForHash();
 
-        // key → {reviewCount, sum} 매핑 (Redis 쓰기 대상만)
-        List<String[]> validEntries = new ArrayList<>(); // [key, countStr, sumStr]
-        int skipCount = 0;
-
-        for (ReviewStatistics stats : allStats) {
-            Integer reviewCount = stats.getReviewCount();
-            BigDecimal avgRating = stats.getAvgRating();
-
-            if (reviewCount == null || reviewCount == 0) {
-                skipCount++;
-                continue;
-            }
-
-            if (avgRating == null) {
-                avgRating = BigDecimal.ZERO;
-                log.warn("[{}][{}][INIT_WARN] propertyId={}, avgRating=null → 0으로 대체",
-                        TASK, VERSION, stats.getPropertyId());
-            }
-
-            long sum = avgRating
-                    .multiply(BigDecimal.valueOf(reviewCount))
-                    .setScale(4, RoundingMode.HALF_UP)
-                    .setScale(0, RoundingMode.HALF_UP)
-                    .longValue();
-
-            String key = STATS_KEY_PREFIX + stats.getPropertyId();
-            validEntries.add(new String[]{key, String.valueOf(reviewCount), String.valueOf(sum)});
-        }
-
-        // ==========================================================================
-        // [Phase 2] executePipelined 일괄 저장
-        //
-        // 변경 전: hashOps.put() × 2 × 52,020건 = 104,040 RTT (~69분 @40ms RTT)
-        // 변경 후: hMSet × 5,000건/배치 = 1 RTT/배치 × 11배치 (~0.5초 @40ms RTT)
-        // ==========================================================================
-        int BATCH_SIZE = 5000;
         int successCount = 0;
         int failCount = 0;
 
-        RedisSerializer<String> keySerializer = redisTemplate.getStringSerializer();
-        RedisSerializer hashValueSerializer = redisTemplate.getHashValueSerializer();
-
-        for (int batchStart = 0; batchStart < validEntries.size(); batchStart += BATCH_SIZE) {
-
-            int end = Math.min(batchStart + BATCH_SIZE, validEntries.size());
-            List<String[]> batch = validEntries.subList(batchStart, end);
-
+        for (ReviewStatistics stats : allStats) {
             try {
-                redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+                String key = STATS_KEY_PREFIX + stats.getPropertyId();
 
-                    for (String[] entry : batch) {
-                        byte[] rawKey = keySerializer.serialize(entry[0]);
+                // ================================================================
+                // [Null 체크] avgRating 또는 reviewCount가 null인 경우 방어
+                // - 신규 매물 등록 직후 통계 행만 생성되고 리뷰가 없는 상태
+                // - 데이터 마이그레이션 오류로 null이 들어간 경우
+                // ================================================================
+                Integer reviewCount = stats.getReviewCount();
+                BigDecimal avgRating = stats.getAvgRating();
 
-                        Map<byte[], byte[]> hash = new HashMap<>();
-                        hash.put(keySerializer.serialize(FIELD_COUNT),
-                                hashValueSerializer.serialize(Integer.parseInt(entry[1])));
-                        hash.put(keySerializer.serialize(FIELD_SUM),
-                                hashValueSerializer.serialize(Long.parseLong(entry[2])));
+                if (reviewCount == null || reviewCount == 0) {
+                    // 리뷰 0건인 경우 캐시 생성 생략 (조회 시 CACHE_MISS로 처리)
+                    log.debug("[{}][{}][INIT_SKIP] propertyId={}, reviewCount=null 또는 0",
+                            TASK, VERSION, stats.getPropertyId());
+                    continue;
+                }
 
-                        connection.hashCommands().hMSet(rawKey, hash);
-                    }
-                    return null;
-                });
+                if (avgRating == null) {
+                    avgRating = BigDecimal.ZERO;
+                    log.warn("[{}][{}][INIT_WARN] propertyId={}, avgRating=null → 0으로 대체",
+                            TASK, VERSION, stats.getPropertyId());
+                }
 
-                successCount += batch.size();
+                // ================================================================
+                // [소수점 정밀도 처리] sum 역산: avgRating × reviewCount
+                //
+                // 문제 상황:
+                //   avgRating=4.25, count=4 → sum=17 (정수)
+                //   avgRating=4.33, count=3 → sum=12.99 → 반올림 시 13 (오차 발생)
+                //
+                // 해결:
+                //   1. 곱셈 시 scale을 충분히 확보 (소수점 4자리)
+                //   2. 최종 결과를 HALF_UP으로 정수 변환
+                //   3. 이 오차는 점진적 갱신 과정에서 자연 보정됨
+                // ================================================================
+                long sum = avgRating
+                        .multiply(BigDecimal.valueOf(reviewCount))
+                        .setScale(4, RoundingMode.HALF_UP)  // 중간 연산 정밀도 확보
+                        .setScale(0, RoundingMode.HALF_UP)  // 최종 정수 변환
+                        .longValue();
+
+                hashOps.put(key, FIELD_COUNT, reviewCount);
+                hashOps.put(key, FIELD_SUM, sum);
+                successCount++;
 
             } catch (Exception e) {
-                log.error("[{}][{}][INIT_BATCH_ERROR] range={}-{}, error={}",
-                        TASK, VERSION, batchStart, end, e.getMessage());
-                failCount += batch.size();
+                log.error("[{}][{}][INIT_ERROR] propertyId={}, error={}",
+                        TASK, VERSION, stats.getPropertyId(), e.getMessage());
+                failCount++;
             }
         }
 
         long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
 
-        log.info("[{}][{}][CACHE_INIT] 완료: 총={}건, 유효={}건, 스킵={}건, 성공={}건, 실패={}건, 소요시간={}ms",
-                TASK, VERSION, allStats.size(), validEntries.size(), skipCount, successCount, failCount, elapsedMs);
+        log.info("[{}][{}][CACHE_INIT] 완료: 총={}건, 성공={}건, 실패={}건, 소요시간={}ms",
+                TASK, VERSION, allStats.size(), successCount, failCount, elapsedMs);
     }
 
     // ==========================================================================

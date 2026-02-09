@@ -17,12 +17,8 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnection;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-
-import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 /**
  * Redis 환경 설정
@@ -37,7 +33,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-    //    @Bean
+//    @Bean
 //    public RedisConnectionFactory redisConnectionFactory() {
 //        return new LettuceConnectionFactory(host, port);
 //    }
@@ -45,30 +41,16 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
 
-        // Pool 설정
-        GenericObjectPoolConfig<?> poolConfig = new GenericObjectPoolConfig<>();
-        poolConfig.setMaxTotal(8);
-        poolConfig.setMaxIdle(4);
-        poolConfig.setMinIdle(2);
-
-        // LettucePoolingClientConfiguration으로 변경
-        LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .clientOptions(ClientOptions.builder()
                         .protocolVersion(ProtocolVersion.RESP2)
                         .build())
-                .poolConfig(poolConfig)
                 .build();
 
         RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration(host, port);
         serverConfig.setPassword("abed1234");
 
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(serverConfig, clientConfig);
-
-        factory.setPipeliningFlushPolicy(
-                LettuceConnection.PipeliningFlushPolicy.flushOnClose()
-        );
-
-        return factory;
+        return new LettuceConnectionFactory(serverConfig, clientConfig);
     }
 
     @Bean
@@ -93,18 +75,18 @@ public class RedisConfig {
 
         return redisTemplate;
     }
-
+    
     /* 테이블 "MapData" 내 모든 테이터 한꺼번에 가져오는 것. */
     @Bean
     public RedisTemplate<String, Map<String, List<Map<String, Double>>>> redisTemplateAllMapData(RedisConnectionFactory redisConnectionFactory) {
-
-        RedisTemplate<String, Map<String, List<Map<String, Double>>>> template = new RedisTemplate<>();
+        
+    	RedisTemplate<String, Map<String, List<Map<String, Double>>>> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 
         // JSON 직렬화 설정 (타입 명시적으로 지정)
         ObjectMapper objectMapper = new ObjectMapper();
         Jackson2JsonRedisSerializer<Map<String, List<Map<String, Double>>>> serializer =
-                new Jackson2JsonRedisSerializer<>(objectMapper.getTypeFactory().constructType(new TypeReference<Map<String, List<Map<String, Double>>>>() {}));
+            new Jackson2JsonRedisSerializer<>(objectMapper.getTypeFactory().constructType(new TypeReference<Map<String, List<Map<String, Double>>>>() {}));
 
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(serializer);
@@ -117,16 +99,16 @@ public class RedisConfig {
     /* 테이블 "MapData" 내 guIds 를 기준으로 데이터를 가져오는 것. */
     @Bean
     public RedisTemplate<String, List<MapDataEntity>> redisTemplateChoiceMapData(RedisConnectionFactory redisConnectionFactory) {
-
-        RedisTemplate<String, List<MapDataEntity>> template = new RedisTemplate<>();
+        
+    	RedisTemplate<String, List<MapDataEntity>> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 
         // JSON 직렬화 설정
         ObjectMapper objectMapper = new ObjectMapper();
-
-        // 올바른 타입 사용
+        
+        // ✅ 올바른 타입 사용
         Jackson2JsonRedisSerializer<List<MapDataEntity>> serializer =
-                new Jackson2JsonRedisSerializer<>(objectMapper.getTypeFactory().constructType(new TypeReference<List<MapDataEntity>>() {}));
+            new Jackson2JsonRedisSerializer<>(objectMapper.getTypeFactory().constructType(new TypeReference<List<MapDataEntity>>() {}));
 
         template.setKeySerializer(new StringRedisSerializer()); // Key는 문자열 직렬화
         template.setValueSerializer(serializer); // Value 직렬화

@@ -7,12 +7,14 @@ spring:
     # [수정: P6Spy 적용] JDBC 드라이버 교체 (Driver Wrapping)
     # 기술적 원리: JDBC 인터페이스 구현체를 P6Spy로 교체(Swap)하여 SQL 실행 흐름을 제어합니다.
     # 기존 'oracle.jdbc.OracleDriver' 대신 'P6SpyDriver'가 애플리케이션의 연결 요청을 1차적으로 수신(Intercept)합니다.
-    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+#    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
 
     # [수정: P6Spy 적용] 프로토콜 식별자 변경
     # URL 스키마에 'p6spy'를 추가하여 Java DriverManager가 P6Spy 드라이버를 선택하도록 강제합니다.
     # P6Spy는 내부적으로 'p6spy' 문자열을 제거한 원본 URL을 파싱하여 실제 DB와 연결을 맺습니다.
-    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
+#    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
+#    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
+    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
     username: SCOTT
     password: tiger
 
@@ -26,10 +28,15 @@ spring:
       # 수정: 실제 로직 수행 시간을 고려하여 임계값 조정 (예: 60초)
       leak-detection-threshold: 60000
       maximum-pool-size: 6
+      # [수정] Direct Buffer Memory OOM 해결
+      # 기존: SDU 2MB, RECV/SEND_BUF 4MB → 커넥션 6개 기준 ~60MB Direct Memory 점유
+      # 변경: SDU 32KB, RECV/SEND_BUF 64KB → 커넥션 6개 기준 ~0.75MB Direct Memory 점유
+      # 로컬 개발 환경의 일반 OLTP 쿼리에서는 기본값으로 충분하며,
+      # 대용량 LOB/bulk select가 아닌 이상 과도한 버퍼는 Netty Direct Memory와 충돌함
       data-source-properties:
-        oracle.net.SDU: 2097152
-        oracle.net.RECV_BUF_SIZE: 4194304
-        oracle.net.SEND_BUF_SIZE: 4194304
+        oracle.net.SDU: 32768            # 32KB (기존 2MB)
+        oracle.net.RECV_BUF_SIZE: 65536  # 64KB (기존 4MB)
+        oracle.net.SEND_BUF_SIZE: 65536  # 64KB (기존 4MB)
     dbcp2:
       validation-query: SELECT 1
 
@@ -37,15 +44,22 @@ spring:
   # Redis 연결 설정
   data:
     redis:
-      host: 127.0.0.1  # Local(no 127.0.0.1)
+      host: 61.75.54.208 # MiniPc
+      #host: 127.0.0.1  # Local(no 127.0.0.1)
       #host: 43.202.178.156 # (aws - 확인 완료)
       port: 6379
-      timeout: 0  # 0초 무제한 타임아웃 설정
+      password: abed1234
+      timeout: 10s
+      connect-timeout: 10s    # 이거 추가
       lettuce:
         pool:
-          max-active: 100   # 동시에 처리 가능한 최대 요청 개수
-          max-idle: 50       # 최대 유휴 커넥션 개수
-          min-idle: 10       # 최소 유휴 커넥션 개수
+          # [수정] Direct Buffer Memory OOM 해결
+          # Lettuce는 Netty 기반이므로 커넥션마다 Direct Buffer 청크(4MB)를 할당함
+          # max-active: 100이면 최악의 경우 400MB Direct Memory 필요 → -Xmx256m 환경에서 즉시 OOM
+          # 로컬 개발 환경에서는 8개면 충분함
+          max-active: 8     # 동시에 처리 가능한 최대 요청 개수 (기존 100)
+          max-idle: 4        # 최대 유휴 커넥션 개수 (기존 50)
+          min-idle: 2        # 최소 유휴 커넥션 개수 (기존 10)
           max-wait: -1ms     # 무제한 대기 설정 (-1ms)
           time-between-eviction-runs: 10s  # 유휴 커넥션 정리 주기 (10초)
 
@@ -130,12 +144,12 @@ spring:
 
 # [추가] P6Spy 상세 로깅 설정 (p6spy-spring-boot-starter)
 # 가로챈(Intercepted) SQL 정보를 콘솔에 어떻게 출력할지 정의합니다.
-decorator:
-  datasource:
-    p6spy:
-      enable-logging: true # 로깅 활성화 (운영 환경에서는 false 권장)
-      multiline: true      # SQL을 보기 좋게 줄바꿈(Pretty Print)하여 출력
-      logging: slf4j       # Spring Boot의 기본 로깅 시스템(Logback)에 출력을 위임
+#decorator:
+#  datasource:
+#    p6spy:
+#      enable-logging: false # 로깅 활성화 (운영 환경에서는 false 권장)
+#      multiline: true      # SQL을 보기 좋게 줄바꿈(Pretty Print)하여 출력
+#      logging: slf4j       # Spring Boot의 기본 로깅 시스템(Logback)에 출력을 위임
 
 # 서버 설정
 server:
@@ -162,19 +176,15 @@ molit:
 # 로깅 설정
 logging:
   file:
-    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
+#    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
+    name: /opt/tomcat/logs/wherehouse.log  # 배포 위치
   level:
-    root: INFO  # 기본 로그 레벨 설정
+    root: info
     com.zaxxer.hikari.pool: DEBUG
     com.zaxxer.hikari.HikariConfig: DEBUG
-
-    # 개발 중 JSON 처리 디버깅을 위한 상세 로그 (필요시 활성화)
-    # com.wherehouse: DEBUG
-    # org.springframework.web: DEBUG
-    # org.springframework.validation: DEBUG
-    # com.fasterxml.jackson: DEBUG  # Jackson 라이브러리 디버그 로그
-
-  # 로그 출력 형식 설정
+    io.lettuce.core: DEBUG
+#    io.lettuce.core: info
+# 로그 출력 형식 설정
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
