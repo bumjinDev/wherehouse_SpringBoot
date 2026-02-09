@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * * @author 정범진
  * @since 2025-12-05
  */
-//@Component
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class BatchScheduler {
@@ -82,10 +82,10 @@ public class BatchScheduler {
         SEOUL_DISTRICT_CODES = Collections.unmodifiableMap(codes);
     }
 
-    // 매달 새벽 4시 1분 30초 수행
-//    @Scheduled(cron = "30 1 4 28 * *")
+    // 매달 새벽 4시 수행
+    @Scheduled(cron = "0 0 4 * * ?")
     // 테스트를 위해 즉시 실행 (필요 시 cron으로 변경)
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 (Data Collection Phase) ===");
 

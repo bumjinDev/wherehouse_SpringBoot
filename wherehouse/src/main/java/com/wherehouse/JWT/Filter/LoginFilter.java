@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.security.Key;
@@ -152,6 +153,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     static class LoginRequest {
     	String userid;

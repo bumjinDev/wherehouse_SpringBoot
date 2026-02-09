@@ -152,4 +152,24 @@ public class SecurityConfig {
 	            )
 	    ));  return http.build();
     }
+
+    /* [리뷰 서비스 - 모든 요청] : 리뷰 작성/수정/삭제는 인증 필요, 조회는 비인증 허용 */
+    @Bean
+    public SecurityFilterChain reviewServiceFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/api/v1/reviews/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.POST, "/api/v1/reviews").authenticated()       // 리뷰 작성
+                .requestMatchers(HttpMethod.POST, "/api/v1/reviews/update").authenticated() // 리뷰 수정
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/reviews/**").authenticated()   // 리뷰 삭제
+                .anyRequest().permitAll()                                                    // 리뷰 조회 (GET)
+            )
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(exception ->
+                exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler())
+                         .accessDeniedHandler(new JwtAccessDeniedHandler())
+            );
+        return http.build();
+    }
 }

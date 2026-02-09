@@ -286,7 +286,7 @@ public class ReviewWriteService {
      * @return 리뷰 수정 응답 (reviewId, updatedAt)
      */
     @Transactional
-    public ReviewUpdateResponseDto updateReview(ReviewUpdateRequestDto requestDto) {
+    public ReviewUpdateResponseDto updateReview(ReviewUpdateRequestDto requestDto, String userId) {
 
         // ======================================================================
         // Step 1: 리뷰 조회
@@ -294,6 +294,13 @@ public class ReviewWriteService {
         Review review = reviewRepository.findById(requestDto.getReviewId())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "리뷰를 찾을 수 없습니다: reviewId=" + requestDto.getReviewId()));
+
+        // ======================================================================
+        // Step 1-1: 본인 작성 리뷰 여부 검증 (인가 처리)
+        // ======================================================================
+        if (!review.getUserId().equals(userId)) {
+            throw new SecurityException("본인이 작성한 리뷰만 수정할 수 있습니다");
+        }
 
         String propertyId = review.getPropertyId();
         Integer oldRating = review.getRating();  // 수정 전 별점 (점진적 갱신에 필요)
@@ -371,12 +378,17 @@ public class ReviewWriteService {
      * @param reviewId 삭제할 리뷰 ID
      */
     @Transactional
-    public void deleteReview(Long reviewId) {
+    public void deleteReview(Long reviewId, String userId) {
 
         // Step 1: 리뷰 조회 =======================================================
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
+
+        // Step 1-1: 본인 작성 리뷰 여부 검증 (인가 처리) ===========================
+        if (!review.getUserId().equals(userId)) {
+            throw new SecurityException("본인이 작성한 리뷰만 삭제할 수 있습니다");
+        }
 
         String propertyId = review.getPropertyId();
         Integer deletedRating = review.getRating();  // 삭제되는 별점

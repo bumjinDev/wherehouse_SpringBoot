@@ -35,9 +35,6 @@ public class ReviewWriteController {
             @Valid @RequestBody ReviewCreateRequestDto requestDto,
             @AuthenticationPrincipal String userId) {
 
-        userId = "tes"; // Spring Secuirty Filter Chain 개발 전 임시 구현.
-
-        // propertyId가 String으로 들어오므로 로그에서도 문자열로 출력됨
         log.info("리뷰 작성 요청: userId={}, propertyId={}", userId, requestDto.getPropertyId());
 
         ReviewCreateResponseDto response = reviewWriteService.createReview(requestDto, userId);
@@ -64,14 +61,13 @@ public class ReviewWriteController {
      */
     @PostMapping("/update")
     public ResponseEntity<ReviewUpdateResponseDto> updateReview(
-            @Valid @RequestBody ReviewUpdateRequestDto requestDto ) {
-            // @AuthenticationPrincipal String userId : Spring Seucurity 구현 시 실제 ID 값을 반영하여 준비된 실제 수정 메소드를 주석 해제 해서 추가 반영 필요.
+            @Valid @RequestBody ReviewUpdateRequestDto requestDto,
+            @AuthenticationPrincipal String userId) {
 
-        log.info("리뷰 수정 요청: reviewId={}, rating={}",
-                requestDto.getReviewId(),
-                requestDto.getRating());
+        log.info("리뷰 수정 요청: userId={}, reviewId={}, rating={}",
+                userId, requestDto.getReviewId(), requestDto.getRating());
 
-        ReviewUpdateResponseDto response = reviewWriteService.updateReview(requestDto);
+        ReviewUpdateResponseDto response = reviewWriteService.updateReview(requestDto, userId);
 
         log.info("리뷰 수정 완료: reviewId={}, updatedAt={}",
                 response.getReviewId(),
@@ -92,11 +88,13 @@ public class ReviewWriteController {
      * @return 204 No Content
      */
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId) {
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal String userId) {
 
-        log.info("리뷰 삭제 요청: reviewId={}", reviewId);
+        log.info("리뷰 삭제 요청: userId={}, reviewId={}", userId, reviewId);
 
-        reviewWriteService.deleteReview(reviewId);
+        reviewWriteService.deleteReview(reviewId, userId);
 
         log.info("리뷰 삭제 완료: reviewId={}", reviewId);
 

@@ -60,7 +60,7 @@ public class RedisConfig {
                 .build();
 
         RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration(host, port);
-        serverConfig.setPassword("abed1234");
+        serverConfig.setPassword("abed1234");   // 로컬은 패스워드 없음.
 
         LettuceConnectionFactory factory = new LettuceConnectionFactory(serverConfig, clientConfig);
 
