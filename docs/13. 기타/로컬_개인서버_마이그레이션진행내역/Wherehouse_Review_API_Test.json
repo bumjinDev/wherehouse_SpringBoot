@@ -1,0 +1,305 @@
+{
+	"info": {
+		"name": "Wherehouse Review API 인증/인가 테스트",
+		"description": "Review 작성/수정/삭제 Spring Security 인증/인가 통합 테스트\n\n실행 순서:\n1. 로그인 → JWT 쿠키 자동 저장\n2. 리뷰 작성 (인증 O)\n3. 리뷰 수정 (인증 O, 본인 검증)\n4. 리뷰 삭제 (인증 O, 본인 검증)\n5. 미인증 리뷰 작성 → 401 확인\n6. 타인 리뷰 수정 → SecurityException 확인",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8185/wherehouse",
+			"type": "string"
+		},
+		{
+			"key": "reviewId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "=== 정상 흐름 (Happy Path) ===",
+			"item": [
+				{
+					"name": "1. 로그인 (JWT 쿠키 획득)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('로그인 성공', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+									"});",
+									"",
+									"var cookies = pm.response.headers.filter(h => h.key === 'Set-Cookie');",
+									"var hasAuthCookie = cookies.some(c => c.value.includes('Authorization'));",
+									"pm.test('Authorization 쿠키 발급됨', function () {",
+									"    pm.expect(hasAuthCookie).to.be.true;",
+									"});",
+									"",
+									"console.log('=== 쿠키 확인 ===');",
+									"cookies.forEach(c => console.log(c.value));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userid\": \"user0048\",\n    \"password\": \"Test1234!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
+						},
+						"description": "로그인 후 Authorization 쿠키에 JWT가 저장됩니다.\nPostman이 자동으로 쿠키를 관리하므로 이후 요청에 자동 포함됩니다."
+					}
+				},
+				{
+					"name": "2. 리뷰 작성 (인증 O)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('리뷰 작성 성공 - 201 Created', function () {",
+									"    pm.expect(pm.response.code).to.eql(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test('reviewId 반환됨', function () {",
+									"    pm.expect(jsonData.review_id).to.exist;",
+									"});",
+									"",
+									"if (jsonData.review_id) {",
+									"    pm.collectionVariables.set('reviewId', jsonData.review_id);",
+									"    console.log('저장된 reviewId: ' + jsonData.review_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"propertyId\": \"e4da3b7fbbce2345d7772b0674a318d5\",\n    \"rating\": 4,\n    \"content\": \"테스트 리뷰입니다. Spring Security 인증 테스트를 위한 리뷰 작성 요청입니다. 최소 20자 이상 필요합니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reviews"]
+						},
+						"description": "인증된 상태에서 리뷰를 작성합니다.\n\n⚠️ propertyId를 실제 존재하는 매물 ID로 변경하세요.\n\n성공 시 reviewId가 컬렉션 변수에 자동 저장되어 수정/삭제 테스트에 사용됩니다."
+					}
+				},
+				{
+					"name": "3. 리뷰 수정 (인증 O, 본인)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('리뷰 수정 성공 - 200 OK', function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test('수정된 reviewId 일치', function () {",
+									"    pm.expect(jsonData.review_id).to.eql(",
+									"        Number(pm.collectionVariables.get('reviewId'))",
+									"    );",
+									"});",
+									"",
+									"pm.test('updatedAt 반환됨', function () {",
+									"    pm.expect(jsonData.updated_at).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewId\": {{reviewId}},\n    \"rating\": 5,\n    \"content\": \"수정된 리뷰 내용입니다. Spring Security 인가 테스트 - 본인 리뷰 수정이 정상 동작하는지 확인합니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/update",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reviews", "update"]
+						},
+						"description": "본인이 작성한 리뷰를 수정합니다.\nreviewId는 리뷰 작성 테스트에서 자동 저장된 값을 사용합니다."
+					}
+				},
+				{
+					"name": "4. 리뷰 삭제 (인증 O, 본인)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('리뷰 삭제 성공 - 204 No Content', function () {",
+									"    pm.expect(pm.response.code).to.eql(204);",
+									"});",
+									"",
+									"pm.test('응답 body 없음', function () {",
+									"    pm.expect(pm.response.text()).to.be.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reviews", "{{reviewId}}"]
+						},
+						"description": "본인이 작성한 리뷰를 삭제합니다.\nreviewId는 리뷰 작성 테스트에서 자동 저장된 값을 사용합니다."
+					}
+				}
+			]
+		},
+		{
+			"name": "=== 실패 흐름 (Security 검증) ===",
+			"item": [
+				{
+					"name": "5. 미인증 리뷰 작성 → 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('미인증 요청 거부 - 401 Unauthorized', function () {",
+									"    pm.expect(pm.response.code).to.eql(401);",
+									"});",
+									"",
+									"console.log('응답:', pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "",
+								"description": "쿠키 비우기 - 미인증 시뮬레이션"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"propertyId\": \"e4da3b7fbbce2345d7772b0674a318d5\",\n    \"rating\": 3,\n    \"content\": \"미인증 상태에서 리뷰 작성을 시도합니다. 이 요청은 401로 거부되어야 합니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reviews"]
+						},
+						"description": "JWT 쿠키 없이 리뷰 작성을 시도합니다.\n\n기대 결과: 401 Unauthorized\n\n⚠️ Postman이 이전 로그인의 쿠키를 자동 전송할 수 있으므로,\nCookies 탭에서 Authorization 쿠키를 수동 삭제 후 테스트하세요."
+					}
+				},
+				{
+					"name": "6. 타인 리뷰 수정 → 403/500",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('타인 리뷰 수정 거부', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([403, 500]);",
+									"});",
+									"",
+									"console.log('응답:', pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewId\": 9999,\n    \"rating\": 1,\n    \"content\": \"타인의 리뷰를 수정하려는 시도입니다. 이 요청은 SecurityException으로 거부되어야 합니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/update",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reviews", "update"]
+						},
+						"description": "로그인한 사용자가 타인이 작성한 리뷰를 수정하려 시도합니다.\n\n⚠️ reviewId를 실제 다른 사용자가 작성한 리뷰 ID로 변경하세요.\n\n기대 결과: SecurityException → 500 Internal Server Error"
+					}
+				},
+				{
+					"name": "7. 타인 리뷰 삭제 → 403/500",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('타인 리뷰 삭제 거부', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([403, 500]);",
+									"});",
+									"",
+									"console.log('응답:', pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/9999",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reviews", "9999"]
+						},
+						"description": "로그인한 사용자가 타인이 작성한 리뷰를 삭제하려 시도합니다.\n\n⚠️ reviewId(9999)를 실제 다른 사용자가 작성한 리뷰 ID로 변경하세요.\n\n기대 결과: SecurityException → 500 Internal Server Error"
+					}
+				}
+			]
+		}
+	]
+}
