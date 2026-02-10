@@ -30,7 +30,7 @@
     <header>
         <nav class="navbar navbar-expand-lg fixed-top bg-light border-bottom">
             <div class="container-fluid">
-                <a id="logo" class="navbar-brand ms-4 py-3" href="/wherehouse/loginSuccess">Where House</a>
+                <a id="logo" class="navbar-brand ms-4 py-3" href="/wherehouse">Where House</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
                     aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
