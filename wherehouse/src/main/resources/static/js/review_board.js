@@ -2,6 +2,7 @@
  * 리뷰 게시판 JavaScript (Final Fixed Version)
  * - [Fix] close_detail_modal 함수 누락 수정
  * - [Fix] 페이지네이션 UI 개선 (페이지 번호 클릭 네비게이션)
+ * - [Fix] #btn / toggle_sidebar 제거 (JSP에 해당 요소 없어 TypeError 발생하던 문제)
  * - 페이지 번호 필터링 정상 동작
  * - 디버깅 로그 포함
  */
@@ -32,7 +33,6 @@ window.onload = function() {
 
 // ========== 이벤트 리스너 ==========
 function init_event_listeners() {
-    document.getElementById('btn').addEventListener('click', toggle_sidebar);
 
     // [Debug] 필터 적용 버튼
     const applyBtn = document.getElementById('apply_filter_btn');
@@ -595,16 +595,6 @@ function go_to_page(p) {
 }
 
 // ========== 유틸리티 ==========
-function toggle_sidebar() {
-    const info = document.getElementById('information');
-    const btn = document.getElementById('btn');
-    const main = document.getElementById('main_content');
-    if (info.style.left === '-480px' || !info.style.left) {
-        info.style.left = '0'; btn.style.left = '475px'; btn.innerHTML = '▼'; main.style.marginLeft = '480px';
-    } else {
-        info.style.left = '-480px'; btn.style.left = '10px'; btn.innerHTML = '▶'; main.style.marginLeft = '0';
-    }
-}
 
 function format_date(s) {
     if(!s) return '-';

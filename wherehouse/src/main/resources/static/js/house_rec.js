@@ -304,8 +304,8 @@ window.onload = function() {
         console.log('카카오맵 초기화 성공:', map);
 
         // 추가적인 제어 비활성화
-        map.setZoomable(false);    // 모든 줌 기능 비활성화
-        map.setDraggable(false);   // 드래그 비활성화
+        // map.setZoomable(false);    // 모든 줌 기능 비활성화
+        // map.setDraggable(false);   // 드래그 비활성화
 
         // 전역 변수로 map 저장
         window.kakaoMap = map;

@@ -39,27 +39,6 @@ body {
     height: 100vh;
 }
 
-#btn {
-    position: absolute;
-    width: 33px;
-    height: 50px;
-    border: 3px solid #0B5ED7;
-    background: white;
-    color: #0B5ED7;
-    text-align: center;
-    line-height: 40px;
-    border-radius: 7px;
-    left: 475px;
-    top: 450px;
-    box-shadow: 3px 3px 7px 3px rgba(0, 0, 0, 0.3);
-    transition: 500ms;
-    cursor: pointer;
-}
-
-#btn:hover {
-    background: #e3f2fd;
-}
-
 #side-bar {
     position: relative;
     background: white;
@@ -541,7 +520,6 @@ body {
 /* 반응형 */
 @media (max-width: 1024px) {
     #side-bar { width: 400px; }
-    #btn { left: 395px; }
     #main_content { margin-left: 400px; width: calc(100% - 400px); }
 }
 
@@ -549,7 +527,6 @@ body {
     #main_content { margin-left: 0; width: 100%; padding: 15px; }
     #side-bar { transform: translateX(-100%); }
     #information.active #side-bar { transform: translateX(0); }
-    #btn { left: 10px; top: 10px; }
 }
 
 .autocomplete_list {

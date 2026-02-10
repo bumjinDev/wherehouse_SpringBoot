@@ -130,7 +130,6 @@ public class RdbSyncListener {
      * 데이터 수집 완료 이벤트 핸들러
      */
 //    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)  // 테스트목적
-    /* 이 부분 실제로 사용하는 코드이나 현재 테스트 환경이므로 임시로 주석 */
     @EventListener
     @Transactional
     public void handleDataCollectionCompletedEvent(DataCollectionCompletedEvent event) {  // DataCollectionCompletedEvent event : handleDataCollectionCompletedEvent() 내 넣을 매개변수
