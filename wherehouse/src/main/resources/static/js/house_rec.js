@@ -297,11 +297,6 @@ window.onload = function() {
         var options = {
             center: new kakao.maps.LatLng(37.5642135, 127.0016985),
             level: 9,    // 확대 수준 3으로 설정
-            // 지도 조작 제한 옵션들
-            scrollwheel: false,     // 마우스 휠로 확대/축소 비활성화
-            disableDoubleClick: true, // 더블클릭 확대 비활성화
-            disableDoubleClickZoom: true, // 더블클릭 줌 비활성화
-            draggable: false        // 드래그로 지도 이동 비활성화
         };
         console.log('지도 옵션 설정 완료:', options);
 

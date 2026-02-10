@@ -374,7 +374,7 @@ body {
     text-align: right;
 }
 
-/* 추천결과 확인 버튼 */
+/* 추천결과 확인 버튼 - 외곽 컨테이너 */
 #recommend_result,
 #recommend_comparison {
     width: 190px;
@@ -386,28 +386,59 @@ body {
     background-color: rgba(11, 94, 215, 0.50);
     border-radius: 40px;
     cursor: pointer;
+    overflow: hidden;
 }
 
 #recommend_result:hover,
 #recommend_comparison:hover {
-    background-color: #dfdfdf;
+    background-color: #094bb5;
 }
 
-#recommend_result_btn input[type=button],
-#recommend_comparison input[type=button] {
-    border: none;
+/* 중간 div - 완전 투명, 크기 맞춤 */
+#recommend_result > *,
+#recommend_comparison > * {
+    background: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
 }
 
-/* 버튼 활성화/비활성화 */
-#recommend_result_btn input[type="button"]:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+/* input 버튼 - 완전 투명 */
+#recommend_result input,
+#recommend_comparison input {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: white !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    width: 100% !important;
+    height: 100% !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    opacity: 1 !important;
 }
 
-#recommend_result_btn input[type="button"]:not(:disabled) {
-    background-color: #0B5ED7;
-    cursor: pointer;
-    color: white;
+/* disabled 상태도 동일하게 */
+#recommend_result input:disabled,
+#recommend_comparison input:disabled {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background: none !important;
+    background-color: transparent !important;
+    color: white !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
 }
 
 /* ========== 전세 추천 결과 페이지 ========== */

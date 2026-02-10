@@ -16,7 +16,7 @@
 <div id="review_board_container">
 
     <div id="information">
-        <div id="btn">▼</div>
+
         <aside id="side-bar">
 
             <div class="review_board_header">
