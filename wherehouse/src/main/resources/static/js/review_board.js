@@ -1,6 +1,7 @@
 /**
  * 리뷰 게시판 JavaScript (Final Fixed Version)
  * - [Fix] close_detail_modal 함수 누락 수정
+ * - [Fix] 페이지네이션 UI 개선 (페이지 번호 클릭 네비게이션)
  * - 페이지 번호 필터링 정상 동작
  * - 디버깅 로그 포함
  */
@@ -217,8 +218,8 @@ function load_reviews() {
         .then(data => {
             console.log('4. 수신 데이터:', data);
             render_reviews(data.reviews);
-            update_header(data.reviews ? data.reviews.length : 0);
-            render_simple_pagination(data.reviews);
+            update_header(data.reviews ? data.reviews.length : 0, data.total_elements);
+            render_pagination(data);
             console.groupEnd();
         })
         .catch(err => {
@@ -399,29 +400,82 @@ function create_review_card(review) {
     `;
 }
 
-function render_simple_pagination(reviews) {
+/**
+ * [수정됨] 페이지네이션 렌더링 — 페이지 번호 클릭 네비게이션
+ *
+ * 백엔드 응답의 total_pages, total_elements, current_page 사용
+ * UI: « ‹ ... 3 4 [5] 6 7 ... › »
+ */
+function render_pagination(data) {
     const container = document.getElementById('pagination_container');
+    const totalPages = data.total_pages || 1;
+    const currentPage = data.current_page || current_page;
+    const totalElements = data.total_elements || 0;
+
+    // 페이지가 1 이하면 페이지네이션 불필요
+    if (totalPages <= 1) {
+        container.innerHTML = '<div class="pagination_total">총 ' + totalElements + '개 리뷰</div>';
+        return;
+    }
+
     let html = '';
 
-    // 이전 버튼
-    const prev_disabled = current_page <= 1 ? 'disabled' : '';
-    html += `<button class="pagination_btn" onclick="go_to_page(${current_page - 1})" ${prev_disabled}>이전</button>`;
+    // 총 리뷰 수 표시
+    html += '<div class="pagination_total">총 ' + totalElements + '개</div>';
 
-    // 페이지 정보
-    html += `<div class="pagination_info">Page ${current_page}</div>`;
+    // « 첫 페이지 버튼
+    var firstDisabled = currentPage <= 1 ? 'disabled' : '';
+    html += '<button class="pagination_btn" onclick="go_to_page(1)" ' + firstDisabled + '>&laquo;</button>';
 
-    // 다음 버튼
-    const next_disabled = (!reviews || reviews.length < 10) ? 'disabled' : '';
-    html += `<button class="pagination_btn" onclick="go_to_page(${current_page + 1})" ${next_disabled}>다음</button>`;
+    // ‹ 이전 페이지 버튼
+    html += '<button class="pagination_btn" onclick="go_to_page(' + (currentPage - 1) + ')" ' + firstDisabled + '>&lsaquo;</button>';
+
+    // 페이지 번호 그룹 계산 (현재 페이지 기준 최대 5개)
+    var startPage = Math.max(1, currentPage - 2);
+    var endPage = Math.min(totalPages, startPage + 4);
+
+    // startPage 재조정 (endPage가 totalPages에 닿은 경우)
+    if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+    }
+
+    // 앞 생략 표시
+    if (startPage > 1) {
+        html += '<span class="pagination_ellipsis">...</span>';
+    }
+
+    // 페이지 번호 버튼들
+    for (var i = startPage; i <= endPage; i++) {
+        var activeClass = (i === currentPage) ? ' active' : '';
+        html += '<button class="pagination_btn' + activeClass + '" onclick="go_to_page(' + i + ')">' + i + '</button>';
+    }
+
+    // 뒤 생략 표시
+    if (endPage < totalPages) {
+        html += '<span class="pagination_ellipsis">...</span>';
+    }
+
+    // › 다음 페이지 버튼
+    var lastDisabled = currentPage >= totalPages ? 'disabled' : '';
+    html += '<button class="pagination_btn" onclick="go_to_page(' + (currentPage + 1) + ')" ' + lastDisabled + '>&rsaquo;</button>';
+
+    // » 마지막 페이지 버튼
+    html += '<button class="pagination_btn" onclick="go_to_page(' + totalPages + ')" ' + lastDisabled + '>&raquo;</button>';
 
     container.innerHTML = html;
 }
 
-function update_header(count) {
-    const el = document.getElementById('total_review_count');
+/**
+ * [수정됨] 헤더 업데이트 — 전체 리뷰 수 표시
+ */
+function update_header(count, totalElements) {
     const countDiv = document.querySelector('.total_count');
     if (countDiv) {
-        countDiv.innerHTML = `현재 페이지 <span>${count}</span>개`;
+        if (totalElements != null) {
+            countDiv.innerHTML = '전체 <span>' + totalElements + '</span>개 리뷰';
+        } else {
+            countDiv.innerHTML = '현재 페이지 <span>' + count + '</span>개';
+        }
     }
 }
 
@@ -522,8 +576,13 @@ function clear_keyword_search() {
     load_reviews();
 }
 
+/**
+ * [수정됨] 페이지 이동 — 범위 방어 로직 추가
+ */
 function go_to_page(p) {
-    console.log(`[Pagination] 페이지 이동 요청: ${p}`);
+    if (p < 1) return;
+
+    console.log('[Pagination] 페이지 이동 요청: ' + p);
     current_page = p;
 
     const pageInput = document.getElementById('page_input');

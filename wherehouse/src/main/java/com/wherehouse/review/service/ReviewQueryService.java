@@ -102,6 +102,9 @@ public class ReviewQueryService {
         return ReviewListResponseDto.builder()
                 .filterMeta(filterMeta)
                 .reviews(reviewDtos)
+                .totalPages(reviewPage.getTotalPages())
+                .totalElements(reviewPage.getTotalElements())
+                .currentPage(requestDto.getPage())
                 .build();
     }
 

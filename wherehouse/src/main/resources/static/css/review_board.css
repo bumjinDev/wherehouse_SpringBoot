@@ -625,3 +625,24 @@ body {
 .autocomplete_list::-webkit-scrollbar-track { background: #f1f1f1; }
 .autocomplete_list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 .autocomplete_list::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+/* ========== [추가] 페이지네이션 UI 개선 스타일 ========== */
+
+/* 총 리뷰 수 표시 */
+.pagination_total {
+    font-size: 13px;
+    color: #666;
+    margin-right: 10px;
+}
+
+/* 생략 표시 (...) */
+.pagination_ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    color: #999;
+    user-select: none;
+}
