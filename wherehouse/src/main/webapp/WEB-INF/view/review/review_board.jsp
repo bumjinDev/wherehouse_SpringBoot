@@ -55,7 +55,7 @@
                     <input type="hidden" id="size_select" value="10">
                     <input type="hidden" id="search_type_select" value="all">
 
-                    <div class="filter_item">
+                    <div class="filter_item" style="display: none;">
                         <div class="filter_label">키워드 검색:</div>
                         <div class="search_input_group">
                             <input type="text" id="keyword_search" placeholder="내용 또는 태그 검색" maxlength="100">
