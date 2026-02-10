@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.security.Key;
 import java.sql.Date;
 import java.time.Duration;
@@ -23,6 +24,8 @@ import com.wherehouse.members.dao.MemberEntityRepository;
 import com.wherehouse.members.exception.JwtKeyNotFoundException;
 import com.wherehouse.members.exception.MemberNotFoundException;
 import com.wherehouse.members.exception.NicknameAlreadyExistsException;
+import com.wherehouse.members.exception.ReservedNicknameException;
+import com.wherehouse.members.exception.ReservedUserIdException;
 import com.wherehouse.members.exception.UserIdAlreadyExistsException;
 import com.wherehouse.members.model.MemberConverter;
 import com.wherehouse.members.model.MemberDTO;
@@ -59,16 +62,28 @@ public class MemberService implements IMemberService {
     public final int USER_ID_DUPLICATE = 1;
     public final int NICKNAME_DUPLICATE = 2;
 
+    /**
+     * 사용 불가능한 예약어 ID 목록
+     *
+     * 시스템 관리자, 관리 기능, 테스트 계정 등과 혼동될 수 있는 ID를
+     * 정책적으로 차단한다. DB 존재 여부와 무관하게 가입 자체를 거부한다.
+     * 대소문자 우회 방지를 위해 비교 시 toLowerCase() 변환 후 대조한다.
+     */
+    private static final Set<String> RESERVED_IDS = Set.of(
+            "admin", "root", "system", "administrator", "superuser",
+            "test", "null", "undefined", "master", "operator"
+    );
+
     public MemberService(
-    		
-        IMembersRepository membersRepository,
-        MemberEntityRepository memberEntityRepository,
-        UserEntityRepository userEntityRepository,
-        RedisHandler redisHandler,
-        JWTUtil jwtUtil,
-        BCryptPasswordEncoder passwordEncoder,
-        MemberConverter memberConverter,
-        AuthenticationEntityConverter authenticationEntityConverter) {
+
+            IMembersRepository membersRepository,
+            MemberEntityRepository memberEntityRepository,
+            UserEntityRepository userEntityRepository,
+            RedisHandler redisHandler,
+            JWTUtil jwtUtil,
+            BCryptPasswordEncoder passwordEncoder,
+            MemberConverter memberConverter,
+            AuthenticationEntityConverter authenticationEntityConverter) {
 
         this.membersRepository = membersRepository;
         this.memberEntityRepository = memberEntityRepository;
@@ -91,7 +106,7 @@ public class MemberService implements IMemberService {
         logger.info("MemberService.validLogin()");
 
         Map<String, String> loginSuccessInfo = new HashMap<>();
-        
+
         loginSuccessInfo.put("userId", jwtUtil.extractUserId(jwt));
         loginSuccessInfo.put("userName", jwtUtil.extractUsername(jwt));
 
@@ -100,16 +115,26 @@ public class MemberService implements IMemberService {
 
     /**
      * 회원 가입 요청 처리
-     * ID 및 닉네임 중복 검증, 비밀번호 암호화 후
+     * ID 및 닉네임 중복 검증, 예약어 검증, 비밀번호 암호화 후
      * 회원 테이블과 인증 테이블에 사용자 정보 등록.
      *
      * @param memberDTO 클라이언트로부터 전달받은 가입 요청 데이터
+     * @throws ReservedUserIdException 예약어 ID 사용 시도
+     * @throws ReservedNicknameException 예약어 닉네임 사용 시도
      * @throws UserIdAlreadyExistsException 아이디 중복
      * @throws NicknameAlreadyExistsException 닉네임 중복
      */
     @Override
     public void validJoin(MemberDTO memberDTO) {
         logger.info("MemberService.validJoin()");
+
+        if (RESERVED_IDS.contains(memberDTO.getId().toLowerCase())) {
+            throw new ReservedUserIdException("\"" + memberDTO.getId() + "\"은(는) 사용할 수 없는 아이디입니다.");
+        }
+
+        if (RESERVED_IDS.contains(memberDTO.getNickName().toLowerCase())) {
+            throw new ReservedNicknameException("\"" + memberDTO.getNickName() + "\"은(는) 사용할 수 없는 닉네임입니다.");
+        }
 
         if (memberEntityRepository.findById(memberDTO.getId()).isPresent()) {
             throw new UserIdAlreadyExistsException("이미 사용 중인 아이디입니다.");
@@ -122,8 +147,8 @@ public class MemberService implements IMemberService {
         memberDTO.setJoinDate(new Date(System.currentTimeMillis()));
 
         membersRepository.addMember(
-            memberConverter.toEntity(memberDTO),
-            authenticationEntityConverter.toEntity(memberDTO, List.of("ROLE_USER"))
+                memberConverter.toEntity(memberDTO),
+                authenticationEntityConverter.toEntity(memberDTO, List.of("ROLE_USER"))
         );
     }
 
@@ -133,49 +158,54 @@ public class MemberService implements IMemberService {
      * @param editId 조회 대상 사용자 ID
      * @return 사용자 정보 DTO
      * @throws MemberNotFoundException 존재하지 않는 사용자 ID
-     * 
+     *
      * JPA.update
      */
     @Override
     public MemberDTO searchEditMember(String editId) {
-    	
+
         return memberConverter.toDTO(membersRepository.getMember(editId)
-                						.orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다")));
+                .orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다")));
     }
 
     /**
      * 회원 정보 수정 처리
-     * 비밀번호 암호화, 닉네임 중복 검사, 테이블 갱신 및 JWT 토큰 재발급 포함.
+     * 닉네임 예약어 검증, 비밀번호 암호화, 닉네임 중복 검사, 테이블 갱신 및 JWT 토큰 재발급 포함.
      *
      * @param currentToken 기존 JWT 토큰
      * @param memberDTO 수정 요청된 회원 정보
      * @return 새롭게 갱신된 JWT 토큰
+     * @throws ReservedNicknameException 예약어 닉네임 사용 시도
      * @throws MemberNotFoundException 사용자 ID 존재하지 않을 경우
      * @throws NicknameAlreadyExistsException 닉네임 중복 시
      */
     @Override
     public String editMember(String currentToken, MemberDTO memberDTO) {
-    	
+
         logger.info("MemberService.editMember()");
 
+        if (RESERVED_IDS.contains(memberDTO.getNickName().toLowerCase())) {
+            throw new ReservedNicknameException("\"" + memberDTO.getNickName() + "\"은(는) 사용할 수 없는 닉네임입니다.");
+        }
+
         List<String> roles = userEntityRepository.findById(memberDTO.getId())
-            .orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다"))
-            .getRoles();
+                .orElseThrow(() -> new MemberNotFoundException("현재 존재하지 않는 사용자 ID 입니다"))
+                .getRoles();
 
         memberDTO.setPw(passwordEncoder.encode(memberDTO.getPw()));
         memberDTO.setJoinDate(new Date(System.currentTimeMillis()));
 
         Optional<MembersEntity> membersEntity = membersRepository.isNEditickNameAllowed(
-            memberConverter.toEntity(memberDTO),
-            authenticationEntityConverter.toEntity(memberDTO, roles)  
+                memberConverter.toEntity(memberDTO),
+                authenticationEntityConverter.toEntity(memberDTO, roles)
         );
 
         if(membersEntity.isPresent())
-        	throw new NicknameAlreadyExistsException("닉네임이 중복되어 수정할 수 없습니다.");
+            throw new NicknameAlreadyExistsException("닉네임이 중복되어 수정할 수 없습니다.");
 
         membersRepository.editMember(
-            memberConverter.toEntity(memberDTO),
-            authenticationEntityConverter.toEntity(memberDTO, roles)
+                memberConverter.toEntity(memberDTO),
+                authenticationEntityConverter.toEntity(memberDTO, roles)
         );
 
         return editToken(currentToken, "username", memberDTO.getNickName());
@@ -194,4 +224,4 @@ public class MemberService implements IMemberService {
     private String editToken(String currentToken, String claimName, String newUsername) {
         return jwtUtil.modifyClaim(currentToken, claimName, newUsername);
     }
-    }
+}

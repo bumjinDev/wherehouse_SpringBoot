@@ -45,14 +45,9 @@ public class JwtAuthenticationFailureHandler implements AuthenticationEntryPoint
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 		
-		
 		logger.warn("JwtAuthenticationFailureHandler - 인증 실패 : {}", authException.getMessage());
 		
-		/* 인증 실패 했으므로 쿠키 삭제 */
-		response.setContentType("text/html; charset=UTF-8");
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);	// 401 : 인증 에러 의미
-		
-		logger.warn(authException.getMessage());
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         // Authorization 쿠키 삭제
         Cookie expiredCookie = new Cookie(AUTH_COOKIE_NAME, null);
@@ -60,10 +55,28 @@ public class JwtAuthenticationFailureHandler implements AuthenticationEntryPoint
         expiredCookie.setMaxAge(0);
         response.addCookie(expiredCookie);
 
-        // 사용자에게 안내 스크립트 반환
-        response.setContentType("text/html; charset=UTF-8");
-        response.getWriter().write("<script>alert('" + "올바른 로그인 사용자가 아닙니다." + "'); history.back();</script>");
-		
+        /**
+         * 요청 URL 패턴에 따른 응답 형태 분기
+         *
+         * /api/ 경로 요청 (fetch/AJAX 기반 API 호출):
+         *   → application/json 으로 에러 응답 반환.
+         *     JS 에서 res.json() 파싱이 정상 동작하여 message 필드를 추출할 수 있다.
+         *
+         * 그 외 요청 (브라우저 View 기반 페이지 요청):
+         *   → text/html 로 <script> alert 반환.
+         *     브라우저가 직접 렌더링하여 사용자에게 안내 후 이전 페이지로 이동.
+         */
+        String requestUri = request.getRequestURI();
+
+        if (requestUri.contains("/api/")) {
+            response.setContentType("application/json; charset=UTF-8");
+            response.getWriter().write(
+                "{\"code\": 401, \"status\": \"Unauthorized\", \"message\": \"로그인이 필요합니다.\"}"
+            );
+        } else {
+            response.setContentType("text/html; charset=UTF-8");
+            response.getWriter().write("<script>alert('올바른 로그인 사용자가 아닙니다.'); history.back();</script>");
+        }
 	}
 
 }

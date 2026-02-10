@@ -15,19 +15,22 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.wherehouse.members.exception.JwtKeyNotFoundException;
 import com.wherehouse.members.exception.MemberNotFoundException;
 import com.wherehouse.members.exception.NicknameAlreadyExistsException;
+import com.wherehouse.members.exception.ReservedNicknameException;
+import com.wherehouse.members.exception.ReservedUserIdException;
+import com.wherehouse.members.exception.UserIdAlreadyExistsException;
 
 
 @Order(1)
 @RestControllerAdvice(basePackages = "com.wherehouse.members.controller")
 public class MemberAPIControllerExceptionHandler {		/* 클래스 'BindException' 상속 받음.  */
-	
-	private static final Logger logger = LoggerFactory.getLogger(MemberAPIControllerExceptionHandler.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(MemberAPIControllerExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-    	
-    	logger.info("MemberControllerExceptionHandler.handleValidationExceptions()!");
-    	
+
+        logger.info("MemberControllerExceptionHandler.handleValidationExceptions()!");
+
         Map<String, String> errors = new HashMap<>();
 
         /**
@@ -45,15 +48,49 @@ public class MemberAPIControllerExceptionHandler {		/* 클래스 'BindException'
          *   • @Valid 어노테이션은 어노테이션 종류와 관계없이 MethodArgumentNotValidException 발생
          *   • 오류 메시지는 FieldError.getDefaultMessage()를 통해 분기 가능
          */
-        ex.getBindingResult().getFieldErrors().forEach(error -> {		
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
             errors.put(error.getField(), error.getDefaultMessage());
         });
-        
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
-    
+
     /* ===== Serivce 빈에서 발생한 예외 처리 ==== */
-    
+
+    /**
+     * 422 Unprocessable Entity – 예약어 ID 사용 시도
+     *
+     * "admin", "root", "system" 등 정책상 사용 불가능한 ID로 가입 시도 시 발생.
+     * 409(DB 중복)와 구분되는 정책적 거부이므로 422를 반환한다.
+     */
+    @ExceptionHandler(ReservedUserIdException.class)
+    public ResponseEntity<?> handleReservedUserId(ReservedUserIdException ex) {
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    }
+
+    /**
+     * 422 Unprocessable Entity – 예약어 닉네임 사용 시도
+     *
+     * "admin", "root", "system" 등 정책상 사용 불가능한 닉네임으로 가입/수정 시도 시 발생.
+     * 409(DB 중복)와 구분되는 정책적 거부이므로 422를 반환한다.
+     */
+    @ExceptionHandler(ReservedNicknameException.class)
+    public ResponseEntity<?> handleReservedNickname(ReservedNicknameException ex) {
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    }
+
+    /**
+     * 409 Conflict – 아이디 중복
+     *
+     * Service 계층에서 동일 ID 존재 시 UserIdAlreadyExistsException을 throw하면
+     * 이 핸들러가 409 + JSON 에러 응답을 반환한다.
+     * 클라이언트(join.js)에서는 response.status === 409 분기에서 메시지를 표시한다.
+     */
+    @ExceptionHandler(UserIdAlreadyExistsException.class)
+    public ResponseEntity<?> handleUserIdDuplicate(UserIdAlreadyExistsException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     /**
      * 409 Conflict – 닉네임 중복
      */

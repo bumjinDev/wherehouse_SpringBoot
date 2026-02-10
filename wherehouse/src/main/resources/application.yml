@@ -13,8 +13,8 @@ spring:
     # URL 스키마에 'p6spy'를 추가하여 Java DriverManager가 P6Spy 드라이버를 선택하도록 강제합니다.
     # P6Spy는 내부적으로 'p6spy' 문자열을 제거한 원본 URL을 파싱하여 실제 DB와 연결을 맺습니다.
 #    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
-#    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
-    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
+#    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
     username: SCOTT
     password: ${ORACLE_PASSWORD}  # 환경변수에서 로드
 
@@ -168,6 +168,12 @@ server:
     include-binding-errors: always
 
 # API 지점 설정
+# Kakao API 설정
+kakao:
+  api:
+    sdk-key: ${KAKAO_API_KEY}
+    javascript-key: ${KAKAO_JAVASCRIPT_KEY}
+
 # 국토부 API 설정
 molit:
   rent-api:

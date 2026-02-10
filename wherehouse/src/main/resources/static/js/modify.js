@@ -24,25 +24,40 @@ window.onload = function () {
             });
 
             if (response.ok) {
-				
+
                 alert("회원 정보 수정이 정상적으로 되었습니다.");
                 window.location.href = "/wherehouse/members/loginSuccess";
-				
+
+            } else if (response.status === 422) {
+                /**
+                 * 예약어 닉네임 사용 시도 (ReservedNicknameException)
+                 *
+                 * 서버 응답 구조: { "code": 422, "status": "Unprocessable Entity", "message": "..." }
+                 * "admin", "root" 등 정책상 사용 불가능한 닉네임으로 수정 시도 시 발생.
+                 * 닉네임 필드만 초기화하여 재입력 유도.
+                 */
+                const error = await response.json();
+                alert(error.message);
+
+                document.getElementById("nickname").value = '';
+                document.getElementById("pw").value = '';
+                document.getElementById("pwcheck").value = '';
+
             } else if (response.status >= 400 && response.status <= 499) {	/* 서버 측에서 요청 정보를 검증하여 아이디 누락, 핸드폰 번호 형식에 맞게 미 입력 등을 검증하여 에러를 발생 시킨 후 이에 대한 alert 을 띄운다.(400 번으로 통일) */
-				
+
                 const res = await response.json();
                 const messages = Object.values(res).join('\n');
-				
+
                 alert("[입력 오류]\n" + messages);
-				
+
                 //window.location.href = "/wherehouse/members/edit?editid=" + id;
-				/* 재 입력 해야 되니 리다이렉트 대신 공백 값으로 치환 */
-				document.getElementById("pw").value = '';
-				document.getElementById("pwcheck").value = '';
-				document.getElementById("nickname").value = '';
-				document.getElementById("tel").value = '';
-				document.getElementById("email").value = '';
-				
+                /* 재 입력 해야 되니 리다이렉트 대신 공백 값으로 치환 */
+                document.getElementById("pw").value = '';
+                document.getElementById("pwcheck").value = '';
+                document.getElementById("nickname").value = '';
+                document.getElementById("tel").value = '';
+                document.getElementById("email").value = '';
+
             } else {
                 alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             }

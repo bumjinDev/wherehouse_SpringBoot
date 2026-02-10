@@ -5,12 +5,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-
+import org.springframework.beans.factory.annotation.Value;
 /* main.jsp 및 회원가입과 로그인 페이지, 로그 아웃 요청 그리고 분석 상세 내용을 처리하는 컨트롤러. */
 
 @Controller
 public class PageResponseController  {
-	
+
+	@Value("${kakao.api.sdk-key}")
+	private String kakaoSdkKey;
+
+	@Value("${kakao.api.javascript-key}")
+	private String kakaoJavascriptKey;
+
 	/* index.jsp 페이지 제공 : .....
 	 * 	"JWTAuthenticationFilter" 에서 다른 요청과 마찬가지로 HTTPRequest 내 설정한 것으로
 	 * 	Model 객체 삽입.*/
@@ -45,17 +51,19 @@ public class PageResponseController  {
 	
 	/*  house_rec.jsp 페이지 요청 처리 */
 	@GetMapping("/houserec")
-	public String pageHouserec() {
-		
+	public String pageHouserec(Model model) {
 		System.out.println(("pageHouserec() 실행!"));
+		model.addAttribute("kakaoSdkKey", kakaoSdkKey);
+		model.addAttribute("kakaoJavascriptKey", kakaoJavascriptKey);
 		return "recommand/house_rec";
 	}
 	
 	/* gu_map.jsp 페이지 요청 처리 */
 	@GetMapping("/gumap")
-	public String pageGumap() {
-		
+	public String pageGumap(Model model) {
 		System.out.println(("pageGumap 메소드 실행!"));
+		model.addAttribute("kakaoSdkKey", kakaoSdkKey);
+		model.addAttribute("kakaoJavascriptKey", kakaoJavascriptKey);
 		return "recommand/gu_map";
 	}
 	

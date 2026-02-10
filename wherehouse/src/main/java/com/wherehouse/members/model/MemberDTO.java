@@ -26,6 +26,10 @@ public class MemberDTO {
 
     @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     @Size(min = 8, message = "비밀번호는 최소 8자 이상이어야 합니다.")
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).+$",
+        message = "비밀번호는 영문 대문자, 소문자, 숫자, 특수문자를 각각 1자 이상 포함해야 합니다."
+    )
     private String pw;
 
     @NotBlank(message = "닉네임은 필수 입력값입니다.")
@@ -39,6 +43,10 @@ public class MemberDTO {
 
     @NotBlank(message = "이메일은 필수 입력값입니다.")
     @Email(message = "유효한 이메일 주소 형식이 아닙니다.")
+    @Pattern(
+        regexp = "^[A-Za-z0-9._+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+        message = "이메일 도메인 형식이 올바르지 않습니다. 예: example@gmail.com"
+    )
     private String email;
 
     private Date joinDate;  // 이 필드는 서버 내부에서 설정되므로 별도 검증 불필요

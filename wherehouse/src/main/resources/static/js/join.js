@@ -20,9 +20,9 @@ window.onload = function () {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    id: id,           // 변수명과 키가 같으면 생략 가능
+                    id: id,
                     pw: pw,
-                    nick_name: nickName,  // 여기가 문제
+                    nick_name: nickName,
                     tel: tel,
                     email: email
                 })
@@ -31,27 +31,82 @@ window.onload = function () {
             if (response.ok) {
                 alert("회원가입이 정상적으로 되었습니다.");
                 window.location.href = "/wherehouse/members/login";
-				
-            } else if (response.status === 400 || response.status === 401 || response.status === 404 || response.status === 409) {
-                
-				const res = await response.json();
-                const messages = Object.values(res).join('\n');
+
+            } else if (response.status === 400) {
+                /**
+                 * @Valid 검증 실패 (MethodArgumentNotValidException)
+                 *
+                 * 서버 응답 구조: { "필드명": "에러메시지", ... }
+                 * 예: { "id": "아이디는 필수 입력입니다", "pw": "비밀번호는 필수 입력입니다" }
+                 *
+                 * 각 필드별 에러 메시지를 줄바꿈으로 연결하여 alert 표시 후,
+                 * 비밀번호 필드만 초기화 (재입력 유도)
+                 */
+                const errors = await response.json();
+                const messages = Object.values(errors).join('\n');
                 alert(messages);
-                
-				//window.location.href = "/wherehouse/members/join";
-				/* 재 입력 해야 되니 리다이렉트 대신 공백 값으로 치환 */
-				document.getElementById("pw").value = '';
-				document.getElementById("pw_check").value = '';
-				document.getElementById("nickName").value = '';
-				document.getElementById("tel").value = '';
-				document.getElementById("email").value = '';
-				
+
+                document.getElementById("pw").value = '';
+                document.getElementById("pw_check").value = '';
+
+            } else if (response.status === 422) {
+                /**
+                 * 예약어 사용 시도 (ReservedUserIdException / ReservedNicknameException)
+                 *
+                 * 서버 응답 구조: { "code": 422, "status": "Unprocessable Entity", "message": "..." }
+                 * "admin", "root" 등 정책상 사용 불가능한 ID 또는 닉네임으로 가입 시도 시 발생.
+                 * 메시지 내용에 따라 해당 필드를 선택적으로 초기화하여 재입력 유도.
+                 */
+                const error = await response.json();
+                alert(error.message);
+
+                if (error.message.includes("아이디")) {
+                    document.getElementById("id").value = '';
+                } else if (error.message.includes("닉네임")) {
+                    document.getElementById("nickname").value = '';
+                }
+
+                document.getElementById("pw").value = '';
+                document.getElementById("pw_check").value = '';
+
+            } else if (response.status === 409) {
+                /**
+                 * 중복 충돌 (UserIdAlreadyExistsException / NicknameAlreadyExistsException)
+                 *
+                 * 서버 응답 구조: { "code": 409, "status": "Conflict", "message": "..." }
+                 * buildResponse()에서 생성된 공통 에러 포맷
+                 *
+                 * message 필드만 추출하여 사용자에게 표시하고,
+                 * 메시지 내용에 따라 해당 필드만 선택적으로 초기화
+                 */
+                const error = await response.json();
+                alert(error.message);
+
+                if (error.message.includes("아이디")) {
+                    document.getElementById("id").value = '';
+                } else if (error.message.includes("닉네임")) {
+                    document.getElementById("nickname").value = '';
+                }
+
+                document.getElementById("pw").value = '';
+                document.getElementById("pw_check").value = '';
+
+            } else if (response.status === 401 || response.status === 404) {
+                /**
+                 * 401: JWT 키 없음 (JwtKeyNotFoundException)
+                 * 404: 회원 미존재 (MemberNotFoundException)
+                 *
+                 * 회원가입 흐름에서는 정상적으로 발생하지 않는 상태 코드이나,
+                 * 방어적으로 처리하여 서버 메시지를 그대로 표시
+                 */
+                const error = await response.json();
+                alert(error.message || "요청 처리 중 오류가 발생했습니다.");
+
             } else {
                 alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             }
 
         } catch (error) {
-			
             console.error("서버 오류:", error);
             alert("서버와 통신 중 오류가 발생했습니다.");
         }

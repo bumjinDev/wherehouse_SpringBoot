@@ -68,7 +68,7 @@ import jakarta.persistence.EntityManager;
  *   factory.setPipeliningFlushPolicy(LettuceConnection.PipeliningFlushPolicy.flushOnClose());
  */
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class RdbSyncListener {
 
@@ -131,7 +131,7 @@ public class RdbSyncListener {
      */
 //    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)  // 원래 이 파일에서 실행하면 안되는 코드이나, 부분적으로 테스트 시에만 앞선 선행 스케줄러 사용 안하고 수행할 수 있도록
     /* 이 부분 실제로 사용하는 코드이나 현재 테스트 환경이므로 임시로 주석 */
-    @EventListener
+//    @EventListener
     @Transactional
     public void handleDataCollectionCompletedEvent(DataCollectionCompletedEvent event) {  // DataCollectionCompletedEvent event : handleDataCollectionCompletedEvent() 내 넣을 매개변수
 

@@ -23,6 +23,7 @@ import com.wherehouse.JWT.Provider.UserAuthenticationProvider;
 import com.wherehouse.JWT.Repository.UserEntityRepository;
 import com.wherehouse.JWT.UserDetailService.UserEntityDetailService;
 import com.wherehouse.JWT.exceptionHandler.JwtAccessDeniedHandler;
+import com.wherehouse.JWT.exceptionHandler.ApiAuthenticationEntryPoint;
 import com.wherehouse.JWT.exceptionHandler.JwtAuthenticationFailureHandler;
 
 @Configuration
@@ -167,7 +168,7 @@ public class SecurityConfig {
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(exception ->
-                exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler())
+                exception.authenticationEntryPoint(new ApiAuthenticationEntryPoint())
                          .accessDeniedHandler(new JwtAccessDeniedHandler())
             );
         return http.build();
