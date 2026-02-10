@@ -48,7 +48,7 @@ spring:
 #      host: 127.0.0.1  # Local(no 127.0.0.1)
 #      host: 43.202.178.156 # (aws - 확인 완료)
       port: 6379
-      password: abed1234 #MiniPC / Local 은 패스워드 없음
+      password: ${REDIS_PASSWORD} #MiniPC / Local 은 패스워드 없음
       timeout: 10s
       connect-timeout: 10s    # 이거 추가
       lettuce:
