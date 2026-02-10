@@ -6,7 +6,8 @@
  */
 
 // ========== 전역 변수 ==========
-const BASE_URL = 'http://localhost:8185/wherehouse';
+// const BASE_URL = 'http://localhost:8185/wherehouse';    // 현재 줄은 로컬 환경이며, 배포 환경에서는 수정 필요
+const BASE_URL = 'http://wherehouse.it.kr:8185/';   // 원격 미니 피씨.
 const API_URL = BASE_URL + '/api/v1/reviews';
 const SEARCH_API_URL = BASE_URL + '/api/v1/properties/search';
 

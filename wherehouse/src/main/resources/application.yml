@@ -16,7 +16,7 @@ spring:
 #    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
     url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
     username: SCOTT
-    password: tiger
+    password: ${ORACLE_PASSWORD}  # 환경변수에서 로드
 
     # HikariCP 커넥션 풀 설정
     hikari:
