@@ -13,11 +13,9 @@
 }
 
 body {
-    /* height: 100vh; */
     background-image: url(./../images/city9.jpg);
     background-repeat: no-repeat;
     background-size: cover;
-    /* backdrop-filter: blur(5px); */
 }
 
 #join-all-section {
@@ -25,7 +23,6 @@ body {
     border-radius: 7px;
     background-color: #ffffff;
 }
-
 
 #logo {
     font-size: 50px;
@@ -60,64 +57,38 @@ section {
     background-color: #ffffff;
 }
 
-#inputBox input[type=text],
-input[type=password] {
+/* 회원가입 input 그룹 - 아이콘 + input 가로 배치 */
+.join-input-group {
+    display: flex;
+    align-items: center;
     border: 2px solid rgb(128, 128, 128);
-    height: 55px;
     border-radius: 10px;
-
+    height: 55px;
+    overflow: hidden;
 }
 
-#join-id input::placeholder {
+.join-input-group .join-icon {
+    font-size: 18px;
     color: #777777;
-    background-image: url(https://ifh.cc/g/FVW7fW.png);
-    background-repeat: no-repeat;
-    background-size: contain;
+    padding: 0 10px;
+    flex-shrink: 0;
 }
 
-#join-pw input::placeholder {
+.join-input-group input.form-control {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100%;
+}
+
+.join-input-group input.form-control:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.join-input-group input::placeholder {
     color: #777777;
-    background-image: url(https://ifh.cc/g/shHqCV.png);
-    background-repeat: no-repeat;
-    background-size: contain;
 }
-
-#join-pwCheck input::placeholder {
-    color: #777777;
-    background-image: url(https://ifh.cc/g/8xo1ss.png);
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-#join-name input::placeholder {
-    color: #777777;
-    background-image: url(https://ifh.cc/g/JCJpZ7.png);
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-#join-nickName input::placeholder {
-    color: #777777;
-    background-image: url(https://ifh.cc/g/AKoLd0.png);
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-#join-tel input::placeholder {
-    color: #777777;
-    background-image: url(https://ifh.cc/g/kkfmgx.png);
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-#join-email input::placeholder {
-    color: #777777;
-    background-image: url(https://ifh.cc/g/DQvNoq.png);
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-
 
 #join-btn input[type=button] {
     font-size: 1.4rem;

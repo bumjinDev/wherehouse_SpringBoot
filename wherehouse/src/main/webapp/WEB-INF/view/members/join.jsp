@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/wherehouse/images/home_icon.png">
     <link rel="stylesheet" href="/wherehouse/css/join.css">
-    
+
     <!-- Google Fonts & Bootstrap -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,22 +39,40 @@
             <div id="login-form-border" class="pt-3 pb-3">
 
                 <div class="mt-3 mb-1" id="join-id">
-                    <input type="text" id="id" name="id" class="form-control" placeholder="아이디">
+                    <div class="join-input-group">
+                        <i class="bi bi-person join-icon"></i>
+                        <input type="text" id="id" name="id" class="form-control" placeholder="아이디">
+                    </div>
                 </div>
                 <div class="mb-1" id="join-pw">
-                    <input type="password" id="pw" name="pw" class="form-control" placeholder="비밀번호">
+                    <div class="join-input-group">
+                        <i class="bi bi-lock join-icon"></i>
+                        <input type="password" id="pw" name="pw" class="form-control" placeholder="비밀번호">
+                    </div>
                 </div>
                 <div class="mb-5" id="join-pwCheck">
-                    <input type="password" id="pw_check" class="form-control" placeholder="비밀번호 확인">
+                    <div class="join-input-group">
+                        <i class="bi bi-lock-fill join-icon"></i>
+                        <input type="password" id="pw_check" class="form-control" placeholder="비밀번호 확인">
+                    </div>
                 </div>
                 <div class="mb-1" id="join-nickName">
-                    <input type="text" id="nickname" name="nickName" class="form-control" placeholder="닉네임">
+                    <div class="join-input-group">
+                        <i class="bi bi-tag join-icon"></i>
+                        <input type="text" id="nickname" name="nickName" class="form-control" placeholder="닉네임">
+                    </div>
                 </div>
                 <div class="mb-1" id="join-tel">
-                    <input type="text" id="tel" name="tel" class="form-control" placeholder="전화번호">
+                    <div class="join-input-group">
+                        <i class="bi bi-telephone join-icon"></i>
+                        <input type="text" id="tel" name="tel" class="form-control" placeholder="전화번호">
+                    </div>
                 </div>
                 <div class="mb-4" id="join-email">
-                    <input type="text" id="email" name="email" class="form-control" placeholder="이메일">
+                    <div class="join-input-group">
+                        <i class="bi bi-envelope join-icon"></i>
+                        <input type="text" id="email" name="email" class="form-control" placeholder="이메일">
+                    </div>
                 </div>
 
                 <div id="logo-img">

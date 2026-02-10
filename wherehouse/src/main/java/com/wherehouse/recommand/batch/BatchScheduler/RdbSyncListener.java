@@ -129,7 +129,7 @@ public class RdbSyncListener {
     /**
      * 데이터 수집 완료 이벤트 핸들러
      */
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)  // 원래 이 파일에서 실행하면 안되는 코드이나, 부분적으로 테스트 시에만 앞선 선행 스케줄러 사용 안하고 수행할 수 있도록
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)  // 테스트목적
     /* 이 부분 실제로 사용하는 코드이나 현재 테스트 환경이므로 임시로 주석 */
     @EventListener
     @Transactional

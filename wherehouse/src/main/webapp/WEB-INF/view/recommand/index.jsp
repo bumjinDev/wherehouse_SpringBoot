@@ -62,7 +62,7 @@
                                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                 지도
                                             </a>
-                                            <ul class="dropdown-menu dropdown-menu-end me-4 text-end"
+                                            <ul class="dropdown-menu dropdown-menu-end me-4 text-center"
                                                 id="nav_btn_gu_map_dropdown">
                                                 <li><a class="dropdown-item nav_choose" href="/wherehouse/main" id="gu_btn">지역구 지도</a>
                                                 </li>
@@ -75,7 +75,7 @@
 				                                data-bs-toggle="dropdown" aria-expanded="false">
 				                                데이터 분석
 				                            </a>
-				                            <ul class="dropdown-menu me-5 dropdown-menu-end text-end nav_btn_house_rec_dropdown" id="">
+				                            <ul class="dropdown-menu me-5 dropdown-menu-end text-center nav_btn_house_rec_dropdown" id="">
 				                                <li><a class="dropdown-item nav_choose" href="/wherehouse/reinfo">분석 적용 방식 페이지</a>
 				                                </li>
 				                                <hr id="navbar_hr">
@@ -99,7 +99,7 @@
                                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                 로그인 /회원가입
                                             </a>
-                                            <ul class="dropdown-menu me-2 dropdown-menu-end text-end nav_btn_house_rec_dropdown"
+                                            <ul class="dropdown-menu me-2 dropdown-menu-end text-center nav_btn_house_rec_dropdown"
                                                 id="">
                                                 <li><a class="dropdown-item nav_choose nav_item"
                                                         href="/wherehouse/members/login">로그인</a>	<!-- GET 요청으로 login.jsp 페이지 요청, 해당 페이지에서 실제 로그인 요청은 post /login-->

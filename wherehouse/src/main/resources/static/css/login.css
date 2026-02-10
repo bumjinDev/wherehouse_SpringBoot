@@ -35,33 +35,33 @@ section {
 #login-form-border  {
     border: 2px solid rgba(63, 125, 217, 0.601);
     border-radius: 7px;
-    /* background-color: #dfdfdfce; */
 }
 
-#inputBox input[type=text], input[type=password] {
-    border: 2px solid rgb(171, 171, 171);
-
-    border-radius: 0px;
-    border-top: none;
-    border-left: none;
-    border-right: none;
+/* 로그인 input 그룹 - 아이콘 + input 가로 배치 */
+.login-input-group {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid rgb(171, 171, 171);
 }
 
-#login-id input::placeholder    {
-    background-image: url(https://ifh.cc/g/FVW7fW.png);
-    background-repeat: no-repeat;
-    background-size: contain;
+.login-input-group .login-icon {
+    font-size: 18px;
+    color: #888;
+    padding: 0 8px;
 }
 
-#login-pw input::placeholder    {
-    background-image: url(https://ifh.cc/g/shHqCV.png);
-    background-repeat: no-repeat;
-    background-size: contain;
+.login-input-group input.form-control {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 }
 
+.login-input-group input.form-control:focus {
+    box-shadow: none;
+    outline: none;
+}
 
-
-/* Ǫ�� */
+/* 푸터 */
 footer {
     background-color: #ffffff;
 }

@@ -42,7 +42,7 @@
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 거주지 추천
                             </a>
-                            <ul class="nav_btn_house_rec_dropdown dropdown-menu me-5 dropdown-menu-end text-end" id="">
+                            <ul class="nav_btn_house_rec_dropdown dropdown-menu me-5 dropdown-menu-end text-center" id="">
                                 <li><a class="dropdown-item nav_choose" href="./main">직접 입력 추천</a></li>
                             </ul>
                         </li>
@@ -51,7 +51,7 @@
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 지도
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end me-4 text-end" id="nav_btn_gu_map_dropdown">
+                            <ul class="dropdown-menu dropdown-menu-end me-4 text-center" id="nav_btn_gu_map_dropdown">
                                 <li><a class="dropdown-item nav_choose" href="/wherehouse/main" id="gu_btn">지역구 지도</a></li>
                                 <li><a class="dropdown-item nav_choose" href="/wherehouse/main" id="detail_btn">상세 지도</a>
                                 </li>
@@ -62,7 +62,7 @@
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 데이터 분석
                             </a>
-                            <ul class="nav_btn_house_rec_dropdown dropdown-menu me-5 dropdown-menu-end text-end" id="">
+                            <ul class="nav_btn_house_rec_dropdown dropdown-menu me-5 dropdown-menu-end text-center" id="">
                                 <li><a class="dropdown-item nav_choose" href="/wherehouse/reinfo">분석 적용 방식 페이지</a></li>
                                 <hr id="navbar_hr">
                                 <li><a class="dropdown-item nav_choose" href="/wherehouse/reinfo#first_page">생활 안전
