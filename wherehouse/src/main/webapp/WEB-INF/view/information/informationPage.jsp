@@ -16,7 +16,7 @@
     <script src="https://kit.fontawesome.com/eafa49c7a2.js" crossorigin="anonymous"></script>
     <script src="/wherehouse/js/LoadMapData.js"></script>
 
-    <link rel="stylesheet" href="<c:url value="/css/information.css"/>">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/information.css">
     <title>상세 페이지</title>
 </head>
 <body>
@@ -55,11 +55,11 @@
                 <div class="each-menu" id="each5" style="color: #3a80e9;">-</div>
             </li>
             <li id="pinImgs">
-                <img src="<c:url value="/images/pin_icon.png"/>" alt="">
-                <img src="<c:url value="/images/pin_icon.png"/>" alt="">
-                <img src="<c:url value="/images/pin_icon.png"/>" alt="">
-                <img src="<c:url value="/images/pin_icon.png"/>" alt="">
-                <img src="<c:url value="/images/pin_icon.png"/>" alt="">
+                <img src="${pageContext.request.contextPath}/images/pin_icon.png" alt="">
+                <img src="${pageContext.request.contextPath}/images/pin_icon.png" alt="">
+                <img src="${pageContext.request.contextPath}/images/pin_icon.png" alt="">
+                <img src="${pageContext.request.contextPath}/images/pin_icon.png" alt="">
+                <img src="${pageContext.request.contextPath}/images/pin_icon.png" alt="">
             </li>
             <div class="tip" style="bottom: 0; right: 6px; bottom: 3px;">*반경 500m 범위의 정보 입니다.</div>
         </ul>
@@ -100,25 +100,25 @@
         </ul>
     </div>
     <footer>
-        <img src="<c:url value="/images/home_icon.png"/>" alt="" style="width: 110px;">
+        <img src="${pageContext.request.contextPath}/images/home_icon.png" alt="" style="width: 110px;">
         <div class="tip" style="font-size: 0.64rem;">마포구 신촌로 176 / 마포구 대흥동 12-20 / 전화번호 : 02-313-1711</div>
     </footer>
 </div>
 
 <!-- API 모듈 먼저 로드 -->
-<script type="module" src="<c:url value="/js/api.module.js"/>"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/api.module.js"></script>
 
 <!-- 기본 스크립트들 -->
-<script src="<c:url value="/js/map.js"/>"></script>
-<script src="<c:url value="/js/panel.js"/>"></script>
-<script src="<c:url value="/js/marker.js"/>"></script>
-<script src="<c:url value="/js/circle.js"/>"></script>
-<script src="<c:url value="/js/graph.js"/>"></script>
-<script src="<c:url value="/js/policeOffice.js"/>"></script>
-<script src="<c:url value="/js/cctv.js"/>"></script>
-<script src="<c:url value="/js/amenity.js"/>"></script>
-<script type="module" src="<c:url value="/js/mouseEvent.js"/>"></script>
-<script src="<c:url value="/js/emoji.js"/>"></script>
-<script src="<c:url value="/js/polygonView.js"/>"></script>
+<script src="${pageContext.request.contextPath}/js/map.js"></script>
+<script src="${pageContext.request.contextPath}/js/panel.js"></script>
+<script src="${pageContext.request.contextPath}/js/marker.js"></script>
+<script src="${pageContext.request.contextPath}/js/circle.js"></script>
+<script src="${pageContext.request.contextPath}/js/graph.js"></script>
+<script src="${pageContext.request.contextPath}/js/policeOffice.js"></script>
+<script src="${pageContext.request.contextPath}/js/cctv.js"></script>
+<script src="${pageContext.request.contextPath}/js/amenity.js"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/mouseEvent.js"></script>
+<script src="${pageContext.request.contextPath}/js/emoji.js"></script>
+<script src="${pageContext.request.contextPath}/js/polygonView.js"></script>
 </body>
 </html>

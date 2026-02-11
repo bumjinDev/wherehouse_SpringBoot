@@ -56,8 +56,7 @@ public class GeohashIndexingEtlProcessor {
      * 스케줄: 매일 새벽 4시 (cron = "0 0 4 * * ?")
      */
     @Scheduled(cron = "0 0 4 * * ?")
-    // 테스트를 위해 즉시 실행 (필요 시 cron으로 변경)
-    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)   // 테스트를 위해 즉시 실행 (필요 시 cron으로 변경)
     @Transactional
     public void executeEtlProcess() {
         log.info("========================================");
