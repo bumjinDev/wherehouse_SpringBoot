@@ -13,8 +13,8 @@ spring:
     # URL 스키마에 'p6spy'를 추가하여 Java DriverManager가 P6Spy 드라이버를 선택하도록 강제합니다.
     # P6Spy는 내부적으로 'p6spy' 문자열을 제거한 원본 URL을 파싱하여 실제 DB와 연결을 맺습니다.
 #    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
-    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
-#    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
+#    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
+    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
     username: SCOTT
     password: ${ORACLE_PASSWORD}  # 환경변수에서 로드
 
@@ -27,7 +27,7 @@ spring:
       keepalive-time: 10000
       # 수정: 실제 로직 수행 시간을 고려하여 임계값 조정 (예: 60초)
       leak-detection-threshold: 60000
-      maximum-pool-size: 6
+      maximum-pool-size: 12
       # [수정] Direct Buffer Memory OOM 해결
       # 기존: SDU 2MB, RECV/SEND_BUF 4MB → 커넥션 6개 기준 ~60MB Direct Memory 점유
       # 변경: SDU 32KB, RECV/SEND_BUF 64KB → 커넥션 6개 기준 ~0.75MB Direct Memory 점유
@@ -159,6 +159,8 @@ server:
   port: 8185
   servlet:
     context-path: /wherehouse # 이 설정은 내장 톰켓 환경에서만 유효하며 외장 톰켓 환경에서는 server.xml을 따르거나 /opt /tomcat/webapps 내 실제 .war 로 배포된 결과의 디렉토리 이름을 따름.
+    session:
+      tracking-modes: cookie  # jsessionid를 URL path에 삽입하지 않고 Cookie로만 전달. <c:url>의 URL rewriting 방지.
 
   # HTTP 에러 응답 설정
   error:
@@ -182,8 +184,8 @@ molit:
 # 로깅 설정
 logging:
   file:
-#    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
-    name: /opt/tomcat/logs/wherehouse.log  # 배포 위치
+    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
+#    name: /opt/tomcat/logs/wherehouse.log  # 배포 위치
   level:
     root: info
     com.zaxxer.hikari.pool: DEBUG
