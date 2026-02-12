@@ -125,7 +125,7 @@ public class MonthlyRecommendationService {
         double avgTimePerDistrict = filteredDistricts.size() > 0
                 ? loopTimeMs / filteredDistricts.size() : 0;
 
-        log.info("[Metrics-LoopSummary] mode=SEQUENTIAL, totalDistricts={}, " +
+        log.info("[Metrics-LoopSummary] mode=PIPELINE, totalDistricts={}, " +
                         "successDistricts={}, emptyDistricts={}, totalProperties={}, " +
                         "loopTime={} ms, avgPerDistrict={} ms",
                 filteredDistricts.size(),
@@ -226,165 +226,193 @@ public class MonthlyRecommendationService {
                 .build();
     }
 
+
     /**
      * 월세 매물 검색 - 3개 인덱스 교집합
-     * [Before 측정 버전] 계획서 5.3.1절 기반
+     * [After 측정 버전 - Pipeline 적용] 계획서 4.3절 + 5.3.2절 기반
+     *
+     * 개선 사항:
+     * - 3회 순차 RTT → 1회 Pipeline RTT
+     * - Early Termination 불가 (트레이드오프 수용)
      *
      * 측정 항목:
-     * - 각 Redis Command의 개별 Latency
-     * - 총 Command Latency (3개 명령 합계)
+     * - Pipeline 단일 Command Latency
+     * - 개별 결과셋 크기 (디버깅용)
      * - 메소드 총 실행 시간
-     * - I/O 비율 (Command Latency / 메소드 시간)
+     * - I/O 비율
      */
     private List<String> findValidMonthlyPropertiesInDistrict(String district, MonthlyRecommendationRequestDto request) {
 
         long methodStart = System.nanoTime();
-        long totalCommandLatency = 0;
-        long cmd1Latency = 0, cmd2Latency = 0, cmd3Latency = 0;
+        long pipelineLatency = 0;
         int resultSize1 = 0, resultSize2 = 0, resultSize3 = 0;
+
+        // 1. Redis Key 구성
+        String depositKey = "idx:deposit:" + district;
+        String monthlyRentKey = "idx:monthlyRent:" + district + ":월세";
+        String areaKey = "idx:area:" + district + ":월세";
 
         try {
             // ========================================
-            // Command #1: 보증금 범위 검색
+            // 2. Pipeline 실행: 3개 명령을 단일 RTT로 전송
             // ========================================
-            String depositIndexKey = "idx:deposit:" + district;
+            long pipelineStart = System.nanoTime();
 
-            long cmd1Start = System.nanoTime();
-            Set<Object> depositValidObjects = redisHandler.redisTemplate.opsForZSet()
-                    .rangeByScore(depositIndexKey, request.getBudgetMin(), request.getBudgetMax());
-            long cmd1End = System.nanoTime();
+            List<Object> pipelineResults = redisHandler.redisTemplate.executePipelined(
+                    (org.springframework.data.redis.core.RedisCallback<Object>) connection -> {
+                        // 명령 #1: 보증금 범위 검색
+                        connection.zRangeByScore(
+                                depositKey.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                                request.getBudgetMin(),
+                                request.getBudgetMax()
+                        );
+                        // 명령 #2: 월세금 범위 검색
+                        connection.zRangeByScore(
+                                monthlyRentKey.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                                request.getMonthlyRentMin(),
+                                request.getMonthlyRentMax()
+                        );
+                        // 명령 #3: 평수 범위 검색
+                        connection.zRangeByScore(
+                                areaKey.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                                request.getAreaMin(),
+                                request.getAreaMax()
+                        );
+                        return null;  // Pipeline에서는 반환값이 executePipelined() 결과로 수집됨
+                    }
+            );
 
-            cmd1Latency = cmd1End - cmd1Start;
-            totalCommandLatency += cmd1Latency;
-            resultSize1 = (depositValidObjects != null) ? depositValidObjects.size() : 0;
-
-            if (depositValidObjects == null || depositValidObjects.isEmpty()) {
-                logSequentialMetrics(district, methodStart, totalCommandLatency,
-                        cmd1Latency, 0, 0,
-                        resultSize1, 0, 0,
-                        1, "EARLY_RETURN_DEPOSIT_EMPTY");
-                return Collections.emptyList();
-            }
-            Set<String> depositValidIds = depositValidObjects.stream()
-                    .map(Object::toString).collect(Collectors.toSet());
-
-            // ========================================
-            // Command #2: 월세금 범위 검색
-            // ========================================
-            String monthlyRentIndexKey = "idx:monthlyRent:" + district + ":월세";
-
-            long cmd2Start = System.nanoTime();
-            Set<Object> monthlyRentValidObjects = redisHandler.redisTemplate.opsForZSet()
-                    .rangeByScore(monthlyRentIndexKey, request.getMonthlyRentMin(), request.getMonthlyRentMax());
-            long cmd2End = System.nanoTime();
-
-            cmd2Latency = cmd2End - cmd2Start;
-            totalCommandLatency += cmd2Latency;
-            resultSize2 = (monthlyRentValidObjects != null) ? monthlyRentValidObjects.size() : 0;
-
-            if (monthlyRentValidObjects == null || monthlyRentValidObjects.isEmpty()) {
-                logSequentialMetrics(district, methodStart, totalCommandLatency,
-                        cmd1Latency, cmd2Latency, 0,
-                        resultSize1, resultSize2, 0,
-                        2, "EARLY_RETURN_RENT_EMPTY");
-                return Collections.emptyList();
-            }
-            Set<String> monthlyRentValidIds = monthlyRentValidObjects.stream()
-                    .map(Object::toString).collect(Collectors.toSet());
+            long pipelineEnd = System.nanoTime();
+            pipelineLatency = pipelineEnd - pipelineStart;
 
             // ========================================
-            // Command #3: 평수 범위 검색
+            // 3. 결과 추출 (인덱스 순서 = 명령 실행 순서)
+            //    RedisTemplate Serializer 설정에 따라 Set<byte[]> 또는 Set<Object>로 반환됨
             // ========================================
-            String areaIndexKey = "idx:area:" + district + ":월세";
+            Set<?> depositRaw = (Set<?>) pipelineResults.get(0);
+            Set<?> rentRaw = (Set<?>) pipelineResults.get(1);
+            Set<?> areaRaw = (Set<?>) pipelineResults.get(2);
 
-            long cmd3Start = System.nanoTime();
-            Set<Object> areaValidObjects = redisHandler.redisTemplate.opsForZSet()
-                    .rangeByScore(areaIndexKey, request.getAreaMin(), request.getAreaMax());
-            long cmd3End = System.nanoTime();
+            resultSize1 = (depositRaw != null) ? depositRaw.size() : 0;
+            resultSize2 = (rentRaw != null) ? rentRaw.size() : 0;
+            resultSize3 = (areaRaw != null) ? areaRaw.size() : 0;
 
-            cmd3Latency = cmd3End - cmd3Start;
-            totalCommandLatency += cmd3Latency;
-            resultSize3 = (areaValidObjects != null) ? areaValidObjects.size() : 0;
-
-            if (areaValidObjects == null || areaValidObjects.isEmpty()) {
-                logSequentialMetrics(district, methodStart, totalCommandLatency,
-                        cmd1Latency, cmd2Latency, cmd3Latency,
+            // ========================================
+            // 4. 빈 결과 체크 (Pipeline 이후 Early Termination)
+            // ========================================
+            if (depositRaw == null || depositRaw.isEmpty()) {
+                logPipelineMetrics(district, methodStart, pipelineLatency,
                         resultSize1, resultSize2, resultSize3,
-                        3, "EARLY_RETURN_AREA_EMPTY");
+                        "EMPTY_DEPOSIT");
                 return Collections.emptyList();
             }
-            Set<String> areaValidIds = areaValidObjects.stream()
-                    .map(Object::toString).collect(Collectors.toSet());
+
+            if (rentRaw == null || rentRaw.isEmpty()) {
+                logPipelineMetrics(district, methodStart, pipelineLatency,
+                        resultSize1, resultSize2, resultSize3,
+                        "EMPTY_RENT");
+                return Collections.emptyList();
+            }
+
+            if (areaRaw == null || areaRaw.isEmpty()) {
+                logPipelineMetrics(district, methodStart, pipelineLatency,
+                        resultSize1, resultSize2, resultSize3,
+                        "EMPTY_AREA");
+                return Collections.emptyList();
+            }
 
             // ========================================
-            // 교집합 계산 (Java 측)
+            // 5. 결과 타입에 따른 String 변환
+            //    - byte[] → new String(bytes, UTF-8)
+            //    - Object → toString()
             // ========================================
-            depositValidIds.retainAll(monthlyRentValidIds);
-            depositValidIds.retainAll(areaValidIds);
+            Set<String> depositIds = convertToStringSet(depositRaw);
+            Set<String> rentIds = convertToStringSet(rentRaw);
+            Set<String> areaIds = convertToStringSet(areaRaw);
 
-            int intersectionSize = depositValidIds.size();
+            // ========================================
+            // 6. 교집합 계산 (기존 로직 유지)
+            // ========================================
+            depositIds.retainAll(rentIds);
+            depositIds.retainAll(areaIds);
 
-            logSequentialMetrics(district, methodStart, totalCommandLatency,
-                    cmd1Latency, cmd2Latency, cmd3Latency,
+            int intersectionSize = depositIds.size();
+
+            logPipelineMetrics(district, methodStart, pipelineLatency,
                     resultSize1, resultSize2, resultSize3,
-                    3, "SUCCESS|intersection=" + intersectionSize);
+                    "SUCCESS|intersection=" + intersectionSize);
 
-            return new ArrayList<>(depositValidIds);
+            return new ArrayList<>(depositIds);
 
         } catch (Exception e) {
-            logSequentialMetrics(district, methodStart, totalCommandLatency,
-                    cmd1Latency, cmd2Latency, cmd3Latency,
+            logPipelineMetrics(district, methodStart, pipelineLatency,
                     resultSize1, resultSize2, resultSize3,
-                    -1, "ERROR|" + e.getClass().getSimpleName());
-            log.debug("월세 매물 검색 중 오류 - 지역구: {}", district, e);
+                    "ERROR|" + e.getClass().getSimpleName());
+            log.debug("Pipeline 월세 매물 검색 중 오류 - 지역구: {}", district, e);
             return Collections.emptyList();
         }
     }
 
     /**
-     * [Before 측정] 순차 호출 측정 결과 로깅
-     * 계획서 5.3.3절 기반 - 확장 버전
+     * [After 측정] Pipeline 호출 측정 결과 로깅
      *
-     * 로그 포맷:
-     * [Metrics-Sequential] district=강남구, commands=3,
-     *   methodTime=X.XXXXms, totalCmdLatency=X.XXXXms, ioRatio=XX.XX%,
-     *   cmd1=X.XXXXms(N건), cmd2=X.XXXXms(N건), cmd3=X.XXXXms(N건),
-     *   status=SUCCESS
+     * 로그 포맷 (Phase 1과 비교 가능하도록 설계):
+     * [Metrics-Pipeline] district=강남구, commands=3(batched),
+     *   methodTime=X.XXXXms, pipelineLatency=X.XXXXms, ioRatio=XX.XX%,
+     *   nonIoTime=X.XXXXms,
+     *   result1=N건, result2=N건, result3=N건,
+     *   status=SUCCESS|intersection=N
      */
-    private void logSequentialMetrics(String district, long methodStartNano, long totalCommandLatencyNano,
-                                      long cmd1LatencyNano, long cmd2LatencyNano, long cmd3LatencyNano,
-                                      int resultSize1, int resultSize2, int resultSize3,
-                                      int executedCommands, String status) {
+    private void logPipelineMetrics(String district, long methodStartNano, long pipelineLatencyNano,
+                                    int resultSize1, int resultSize2, int resultSize3,
+                                    String status) {
 
         long methodEndNano = System.nanoTime();
         long methodTimeNano = methodEndNano - methodStartNano;
 
         // 나노초 → 밀리초 변환
         double methodTimeMs = methodTimeNano / 1_000_000.0;
-        double totalCmdLatencyMs = totalCommandLatencyNano / 1_000_000.0;
-        double cmd1Ms = cmd1LatencyNano / 1_000_000.0;
-        double cmd2Ms = cmd2LatencyNano / 1_000_000.0;
-        double cmd3Ms = cmd3LatencyNano / 1_000_000.0;
+        double pipelineLatencyMs = pipelineLatencyNano / 1_000_000.0;
 
-        // I/O 비율 계산: (Command Latency / Method Time) × 100
-        double ioRatio = (methodTimeMs > 0) ? (totalCmdLatencyMs / methodTimeMs) * 100 : 0;
+        // I/O 비율 계산: (Pipeline Latency / Method Time) × 100
+        double ioRatio = (methodTimeMs > 0) ? (pipelineLatencyMs / methodTimeMs) * 100 : 0;
 
-        // 비-I/O 시간 (교집합 계산, 스트림 변환 등)
-        double nonIoTimeMs = methodTimeMs - totalCmdLatencyMs;
+        // 비-I/O 시간 (Key 구성, byte[]→String 변환, 교집합 계산 등)
+        double nonIoTimeMs = methodTimeMs - pipelineLatencyMs;
 
-        log.info("[Metrics-Sequential] district={}, commands={}, " +
-                        "methodTime={} ms, totalCmdLatency={} ms, ioRatio={} %, nonIoTime={} ms, " +
-                        "cmd1={} ms ({}건), cmd2={} ms ({}건), cmd3={} ms ({}건), status={}",
+        log.info("[Metrics-Pipeline] district={}, commands=3(batched), " +
+                        "methodTime={} ms, pipelineLatency={} ms, ioRatio={} %, nonIoTime={} ms, " +
+                        "result1={} 건, result2={} 건, result3={} 건, status={}",
                 district,
-                executedCommands,
                 String.format("%.4f", methodTimeMs),
-                String.format("%.4f", totalCmdLatencyMs),
+                String.format("%.4f", pipelineLatencyMs),
                 String.format("%.2f", ioRatio),
                 String.format("%.4f", nonIoTimeMs),
-                String.format("%.4f", cmd1Ms), resultSize1,
-                String.format("%.4f", cmd2Ms), resultSize2,
-                String.format("%.4f", cmd3Ms), resultSize3,
+                resultSize1,
+                resultSize2,
+                resultSize3,
                 status);
+    }
+
+    /**
+     * Pipeline 결과 타입에 따른 String Set 변환
+     * - byte[] 요소 → new String(bytes, UTF-8)
+     * - Object 요소 → toString()
+     */
+    private Set<String> convertToStringSet(Set<?> rawSet) {
+        if (rawSet == null || rawSet.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return rawSet.stream()
+                .map(item -> {
+                    if (item instanceof byte[]) {
+                        return new String((byte[]) item, java.nio.charset.StandardCharsets.UTF_8);
+                    } else {
+                        return item.toString();
+                    }
+                })
+                .collect(Collectors.toSet());
     }
 
     // ========================================

@@ -22,8 +22,6 @@
 | Redis 서버 | 61.75.54.208:6379 (원격 서버) |
 | 네트워크 경로 | 클라이언트 → 인터넷 → 원격 Redis 서버 (loopback이 아닌 실제 원격 구간) |
 
-Layer 1 애플리케이션 로그에는 Redis 접속 정보가 `localhost:6379`로 기록되어 있으나, Layer 2 Wireshark 패킷 캡처에서 실제 TCP 연결 대상은 `61.75.54.208:6379`임이 확인되었다. Spring Boot 설정에서 Redis host가 원격 서버로 지정되어 있으며, 로그상의 `localhost` 표기는 로깅 방식의 차이다.
-
 ### 1.2 소프트웨어 구성
 
 | 항목 | 값 |
@@ -178,7 +176,7 @@ Set<Object> areaValidObjects = redisHandler.redisTemplate.opsForZSet()
 | 최소 | 0.15 ms |
 | 최대 | 1.01 ms |
 
-NonIO 시간은 Java 측 `retainAll()` 교집합 연산, `Stream.map(Object::toString)`, `Collectors.toSet()` 등의 처리 비용이다. 전체 MethodTime(113~160ms) 대비 0.1~0.8% 수준이므로 무시할 수 있다.
+NonIO 시간은 Java 측 `retainAll()` 교집합 연산, `Stream.map(Object::toString)`, `Collectors.toSet()` 등의 처리 비용이다. 전체 MethodTime(113–160ms) 대비 0.1–0.8% 수준이므로 무시할 수 있다.
 
 ### 3.4 강남구 이상치 분석
 
@@ -190,7 +188,7 @@ NonIO 시간은 Java 측 `retainAll()` 교집합 연산, `Stream.map(Object::toS
 | 노원구 (최대 반환건수 2위) | 623 | 816 | 752 | 2,191 | 124.98 |
 | 관악구 (최소 MethodTime) | 200 | 290 | 229 | 719 | 113.43 |
 
-강남구의 ZSet 반환 건수는 노원구의 약 47.2배이다. `ZRANGEBYSCORE` 명령의 응답을 RESP 프로토콜로 직렬화하여 네트워크 전송하고, Lettuce가 역직렬화하여 `Set<Object>`로 변환하는 전 과정에서 데이터 건수에 비례하는 비용이 발생한다. 강남구의 높은 Latency는 RTT 횟수 문제가 아니라 단일 Command의 payload 크기 문제이며, Pipeline은 RTT 횟수를 줄이는 기법이므로 강남구에 대한 개선 효과는 제한적이다.
+강남구의 ZSet 반환 건수는 노원구의 약 47.2배이다. `ZRANGEBYSCORE` 명령의 응답을 RESP 프로토콜로 직렬화하여 네트워크 전송하고, 역직렬화하여 `Set<Object>`로 변환하는 전 과정에서 데이터 건수에 비례하는 비용이 발생한다. 강남구의 높은 Latency는 RTT 횟수 문제가 아니라 단일 Command의 payload 크기 문제이며, Pipeline은 RTT 횟수를 줄이는 기법이므로 강남구에 대한 개선 효과는 제한적이다.
 
 이후 모든 통계에서 전체 25개 지역구 통계와 강남구 제외 24개 지역구 통계를 병기한다.
 
@@ -222,7 +220,7 @@ Layer 2에서는 Wireshark로 TCP 패킷 송수신 타임스탬프를 캡처하�
 | ZRANGEBYSCORE 요청 패킷 | 75개 (25 지역구 × 3 Command) |
 | 응답 패킷 (ZRANGEBYSCORE 응답에 매핑) | 3,852개 |
 | 총 응답 바이트 | 5,238,203 bytes (약 5.0 MB) |
-| 미매핑 패킷 (Lettuce heartbeat/PING 등) | 50개 (측정 대상 외) |
+| 미매핑 패킷 (heartbeat/PING 등) | 50개 (측정 대상 외) |
 
 ### 4.4 측정 지표 정의
 
@@ -316,7 +314,7 @@ Pipeline이 절감하는 비용은 **Req-Resp Latency**이다. 3개 Command를 P
 | 50 ~ 60 | 3 | 4.0% |
 | 60 ~ 80 | 1 | 1.3% |
 
-75개 Command 중 74.6%(56개)가 30~40ms 구간에 집중되어 있다. 40ms 이상은 전체의 25.3%이며, 50ms 이상의 고지연 패킷은 5.3%(4개)로 소수다.
+75개 Command 중 74.6%(56개)가 30–40ms 구간에 집중되어 있다. 40ms 이상은 전체의 25.3%이며, 50ms 이상의 고지연 패킷은 5.3%(4개)로 소수다.
 
 #### 사분위수 및 이상치
 
@@ -329,79 +327,28 @@ Pipeline이 절감하는 비용은 **Req-Resp Latency**이다. 3개 Command를 P
 | Upper Fence (Q3 + 1.5×IQR) | 48.170 ms |
 | 이상치 (Upper Fence 초과) | 4개 |
 
-Upper Fence(48.170ms)를 초과하는 이상치 4개: 52.924ms, 56.066ms, 59.197ms, 78.542ms. 최대값 78.542ms(강북구/Cmd2)는 중앙값 37.237ms의 2.1배이며, 네트워크 경로상의 일시적 지연(jitter)으로 판단된다. 이상치를 제외한 71개 Command의 Req-Resp Latency 범위는 30.368~44.242ms로, 변동 폭 13.9ms 이내에서 안정적으로 분포한다.
+Upper Fence(48.170ms)를 초과하는 이상치 4개: 52.924ms, 56.066ms, 59.197ms, 78.542ms. 최대값 78.542ms(강북구/Cmd2)는 중앙값 37.237ms의 2.1배이며, 네트워크 경로상의 일시적 지연(jitter)으로 판단된다. 이상치를 제외한 71개 Command의 Req-Resp Latency 범위는 30.368–44.242ms로, 변동 폭 13.9ms 이내에서 안정적으로 분포한다.
 
 
 ---
 
-## 5. Layer 1 — Layer 2 교차 검증
+## 5. 분석 종합
 
-### 5.1 검증 원리
-
-Layer 1 CmdLatency(Java `System.nanoTime()`)와 Layer 2 Total Transfer(Wireshark 패킷 타임스탬프)를 비교한다. Layer 1은 직렬화/역직렬화 오버헤드가 포함되고, Layer 2는 네트워크 스택 수준이므로 이 오버헤드가 제외된다. 따라서 항상 `L1 > L2`이어야 하며, 차이가 Java 측 오버헤드에 해당한다.
-
-### 5.2 검증 결과 (강남구 제외 24개 지역구)
-
-| 지표 | 값 |
-|------|---:|
-| L1 총 CmdLatency 합계 | 3,086.27 ms |
-| L2 총 Total Transfer 합계 | 3,011.60 ms |
-| 차이 (L1 − L2) | 74.67 ms |
-| 지역구당 평균 차이 | 3.11 ms |
-| 평균 오차율 | 2.4% |
-
-두 계층의 측정값이 2.4% 이내로 일치한다. 지역구당 3.11ms 차이는 3개 Command 각각에서 약 1ms의 Java 측 오버헤드(Lettuce 직렬화, RedisTemplate 내부 처리, syscall 전환)가 발생한 것으로 설명된다.
-
----
-
-## 6. 분석 종합
-
-### 6.1 I/O 바운드 확정
+### 5.1 I/O 바운드 확정
 
 전 지역구에서 I/O 비율이 99.33% ~ 99.88%로 측정되었다. 계획서에서 정의한 "I/O 비율 80% 이상이면 Pipeline 개선 효과가 크다"의 기준을 모든 지역구가 초과한다. `findValidMonthlyPropertiesInDistrict()` 메서드는 전형적인 I/O 바운드 워크로드이다.
 
-### 6.2 RTT 누적 구조 확인
+### 5.2 RTT 누적 구조 확인
 
 강남구 제외 24개 지역구에서 3개 Command의 평균 개별 Latency 합계(40.18 + 46.05 + 42.37 = 128.60ms)와 평균 총 CmdLatency(128.59ms)가 일치한다. 명령 간 추가 오버헤드 없이 순수하게 3회의 순차 호출이 Latency를 누적시키는 구조이다.
 
-### 6.3 Command Latency 균등 분포
+### 5.3 Command Latency 균등 분포
 
 3개 Command가 총 CmdLatency에서 차지하는 비중은 Cmd1 31.3%, Cmd2 35.8%, Cmd3 32.9%로 거의 균등하다. 특정 Command에 Latency가 편중되지 않으므로, 3개를 Pipeline으로 묶는 것이 구조적으로 타당하다.
 
-### 6.4 강남구 특이성
+### 5.4 강남구 특이성
 
-강남구의 병목은 RTT 횟수가 아닌 응답 payload 크기(총 103,470건, 4.2MB)에 있다. Pipeline 적용 시 Req-Resp Latency 2회분(약 76ms)이 절감되지만, 이는 전체 MethodTime(3,428ms) 대비 2.2%에 불과하다. 강남구에 대한 근본적 해결은 ZSet 데이터 규모 축소(사전 필터링) 또는 네트워크 대역폭 확보(Redis 서버 위치 변경) 방향이 필요하다.
-
----
-
-## 7. Phase 2 테스트 계획
-
-### 7.1 목적
-
-Phase 1에서 확인된 순차 호출 구조의 RTT 누적 병목을 Redis Pipeline 적용으로 해소한 뒤, 동일 조건·동일 환경에서 After 측정을 수행하여 Before-After 정량 비교를 완료한다.
-
-### 7.2 변경 범위
-
-`findValidMonthlyPropertiesInDistrict()` 메서드의 3개 `opsForZSet().rangeByScore()` 순차 호출을 `redisTemplate.executePipelined(RedisCallback)` 단일 호출로 교체한다. 비즈니스 로직(교집합 계산, Early Termination 사후 처리)은 유지한다.
-
-### 7.3 예상 절감 (Layer 2 기준)
-
-| 구분 | Before | After (예상) | 절감 |
-|------|-------:|------------:|-----:|
-| 지역구당 Req-Resp Latency (강남구 제외 평균) | 115.6 ms (3회 × 38.5ms) | 38.5 ms (1회) | 77.0 ms (66.7%) |
-| 24개 지역구 총 Req-Resp Latency | 2,773 ms | 924 ms | 1,849 ms |
-| 강남구 Req-Resp Latency | 113.6 ms | 37.9 ms | 75.7 ms (MethodTime 대비 2.2%) |
-| 총 RTT 횟수 | 75회 | 25회 | 50회 감소 (66.7%) |
-
-이 수치는 Wireshark 실측 데이터 기반 예측이며, 실제 Pipeline 구현 시 Lettuce 내부 버퍼링, TCP Nagle 알고리즘, 서버 측 명령 큐잉 등의 영향이 추가로 작용할 수 있다. Phase 2 실측을 통해 검증한다.
-
-### 7.4 측정 방식
-
-Phase 1과 동일한 2-Layer 측정 체계를 적용한다. Layer 1에서는 `executePipelined()` 호출 전후의 Pipeline Latency를, Layer 2에서는 Wireshark로 Pipeline 패킷의 Req-Resp Latency와 Total Transfer를 캡처한다. Before-After 교차 검증으로 개선 효과를 입증한다.
-
-### 7.5 Early Termination 트레이드오프
-
-Pipeline 적용 시 3개 Command가 동시에 전송되므로, 중간 결과가 비어 있더라도 나머지 Command를 생략할 수 없다. 다만 Phase 1 실측에서 25개 지역구 전체가 Early Return 없이 SUCCESS로 완료되었으므로, 현재 서비스 조건에서 Early Termination으로 인한 손실은 발생하지 않는다. 이 트레이드오프는 Phase 2 보고서에서 실측 데이터와 함께 재검증한다.
+강남구의 병목은 RTT 횟수가 아닌 응답 payload 크기(총 103,470건, 4.2MB)에 있다. Pipeline 적용 시 Req-Resp Latency 2회분(약 76ms)이 절감되지만, 이는 전체 MethodTime(3,428ms) 대비 2.2%에 불과하다. 강남구에 대한 근본적 해결은 payload 볼륨을 줄일 수 있는 알고리즘을 별도로 고민해야 한다.
 
 ---
 
@@ -415,7 +362,6 @@ Pipeline 적용 시 3개 Command가 동시에 전송되므로, 중간 결과가 
 | Req-Resp Latency | Wireshark 기준 요청 패킷 전송~첫 응답 패킷 도착 시간. 순수 네트워크 왕복 + Redis 서버 처리 시간 |
 | Total Transfer | Wireshark 기준 요청 패킷 전송~마지막 응답 패킷 도착 시간 |
 | NonIO 시간 | Method Time에서 총 Command Latency를 뺀 값. Java 측 교집합 연산 등의 비용 |
-| Early Termination | 중간 Command 결과가 빈 경우 이후 Command를 생략하고 즉시 반환하는 최적화 |
 
 ## 부록 B. 원본 데이터 출처
 
