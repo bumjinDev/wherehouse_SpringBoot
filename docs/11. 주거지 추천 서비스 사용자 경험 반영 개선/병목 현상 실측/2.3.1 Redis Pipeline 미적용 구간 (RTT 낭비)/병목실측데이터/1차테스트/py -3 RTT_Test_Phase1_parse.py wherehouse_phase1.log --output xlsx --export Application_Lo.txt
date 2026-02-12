@@ -1,0 +1,1 @@
+py -3 RTT_Test_Phase1_parse.py wherehouse_phase1.log --output xlsx --export Application_Log_Test_Phase1_result.xlsx
