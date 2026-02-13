@@ -184,8 +184,8 @@ molit:
 # 로깅 설정
 logging:
   file:
-    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
-#    name: /opt/tomcat/logs/wherehouse.log  # 배포 위치
+#    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
+    name: /opt/tomcat/logs/wherehouse.log  # 배포 위치
   level:
     root: info
     com.zaxxer.hikari.pool: DEBUG
