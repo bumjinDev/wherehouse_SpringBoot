@@ -6,11 +6,17 @@ import com.wherehouse.review.domain.ReviewKeyword;
 import com.wherehouse.review.domain.ReviewStatistics;
 import com.wherehouse.review.dto.*;
 import com.wherehouse.review.enums.StatisticsOperation;
+import com.wherehouse.review.execptionHandler.ReviewAccessDeniedException;
+import com.wherehouse.review.execptionHandler.ReviewDuplicateException;
+import com.wherehouse.review.execptionHandler.ReviewNotFoundException;
+import com.wherehouse.review.execptionHandler.ReviewXssException;
 import com.wherehouse.review.repository.ReviewKeywordRepository;
 import com.wherehouse.review.repository.ReviewRepository;
 import com.wherehouse.review.repository.ReviewStatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -78,6 +84,16 @@ public class ReviewWriteService {
     // ==========================================================================
     private static final String TASK = "TASK_1";
     private static final String VERSION = "V2_INCREMENTAL";
+
+    // ==========================================================================
+    // [XSS 방어] OWASP HTML Sanitizer — 빈 정책 (모든 HTML 태그 불허)
+    //
+    // PolicyFactory는 스레드 안전(thread-safe)하므로 static final 상수로 선언한다.
+    // sanitize() 호출 시 입력 문자열을 HTML 파서로 구문 분석하여,
+    // 유효한 HTML 태그 구조(<script>, <img onerror=...> 등)를 감지하고 제거한다.
+    // 태그 구조를 형성하지 않는 단독 <, >, &, ", ' 문자는 그대로 통과시킨다.
+    // ==========================================================================
+    private static final PolicyFactory PLAIN_TEXT_POLICY = new HtmlPolicyBuilder().toFactory();
 
     // ==========================================================================
     // [캐시 초기화] @PostConstruct
@@ -188,6 +204,25 @@ public class ReviewWriteService {
     }
 
     // ==========================================================================
+    // [XSS 방어] HTML 태그 감지 메서드
+    //
+    // OWASP HTML Sanitizer의 sanitize()는 입력 문자열을 HTML 파서로 구문 분석한다.
+    // 유효한 HTML 태그 구조가 존재하면 해당 태그를 제거한 결과를 반환하므로,
+    // 원본과 sanitize 결과가 다르면 HTML 태그가 포함되어 있었다는 의미이다.
+    //
+    // 단독 <, >, &, ", ' 문자(태그 구조를 형성하지 않는 경우)는
+    // sanitize 결과가 원본과 동일하므로 정상 통과된다.
+    // ==========================================================================
+    private void validateNoHtmlTags(String content) {
+        String sanitized = PLAIN_TEXT_POLICY.sanitize(content);
+        if (!sanitized.equals(content)) {
+            log.warn("[XSS_BLOCKED] HTML 태그 감지됨: original_length={}, sanitized_length={}, sanitized_content={}",
+                    content.length(), sanitized.length(), sanitized);
+            throw new ReviewXssException("리뷰 내용에 HTML 태그를 포함할 수 없습니다");
+        }
+    }
+
+    // ==========================================================================
     // [리뷰 작성] CREATE
     // ==========================================================================
     /**
@@ -208,8 +243,13 @@ public class ReviewWriteService {
         // Step 1: 중복 작성 방지
         // ======================================================================
         if (reviewRepository.existsByPropertyIdAndUserId(propertyId, userId)) {
-            throw new IllegalStateException("이미 해당 매물에 대한 리뷰를 작성하셨습니다");
+            throw new ReviewDuplicateException("이미 해당 매물에 대한 리뷰를 작성하셨습니다");
         }
+
+        // ======================================================================
+        // Step 1-1: XSS 방어 — OWASP HTML Sanitizer 기반 HTML 태그 감지
+        // ======================================================================
+        validateNoHtmlTags(requestDto.getContent());
 
         // ======================================================================
         // Step 2: 리뷰 엔티티 생성 및 저장 (REVIEWS 테이블)
@@ -292,15 +332,20 @@ public class ReviewWriteService {
         // Step 1: 리뷰 조회
         // ======================================================================
         Review review = reviewRepository.findById(requestDto.getReviewId())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ReviewNotFoundException(
                         "리뷰를 찾을 수 없습니다: reviewId=" + requestDto.getReviewId()));
 
         // ======================================================================
         // Step 1-1: 본인 작성 리뷰 여부 검증 (인가 처리)
         // ======================================================================
         if (!review.getUserId().equals(userId)) {
-            throw new SecurityException("본인이 작성한 리뷰만 수정할 수 있습니다");
+            throw new ReviewAccessDeniedException("본인이 작성한 리뷰만 수정할 수 있습니다");
         }
+
+        // ======================================================================
+        // Step 1-2: XSS 방어 — OWASP HTML Sanitizer 기반 HTML 태그 감지
+        // ======================================================================
+        validateNoHtmlTags(requestDto.getContent());
 
         String propertyId = review.getPropertyId();
         Integer oldRating = review.getRating();  // 수정 전 별점 (점진적 갱신에 필요)
@@ -382,12 +427,12 @@ public class ReviewWriteService {
 
         // Step 1: 리뷰 조회 =======================================================
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ReviewNotFoundException(
                         "리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
 
         // Step 1-1: 본인 작성 리뷰 여부 검증 (인가 처리) ===========================
         if (!review.getUserId().equals(userId)) {
-            throw new SecurityException("본인이 작성한 리뷰만 삭제할 수 있습니다");
+            throw new ReviewAccessDeniedException("본인이 작성한 리뷰만 삭제할 수 있습니다");
         }
 
         String propertyId = review.getPropertyId();

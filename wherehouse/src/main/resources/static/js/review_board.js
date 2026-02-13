@@ -5,6 +5,11 @@
  * - [Fix] #btn / toggle_sidebar 제거 (JSP에 해당 요소 없어 TypeError 발생하던 문제)
  * - 페이지 번호 필터링 정상 동작
  * - 디버깅 로그 포함
+ *
+ * [XSS 테스트] 아래 두 지점을 의도적으로 취약하게 변경함
+ *   1. create_review_card() — escape_html() 제거, innerHTML로 content 직접 삽입
+ *   2. load_review_detail() — textContent → innerHTML 변경
+ *   원본 코드는 주석으로 보존됨 (// [원본] 표시)
  */
 
 // ========== 전역 변수 ==========
@@ -268,7 +273,12 @@ function load_review_detail(review_id) {
             document.getElementById('detail_property_id').textContent = data.propertyId || data.property_id || '-';
             document.getElementById('detail_rating').textContent = '⭐'.repeat(data.rating || 0) + ` (${data.rating}점)`;
             document.getElementById('detail_created_at').textContent = (data.createdAt || data.created_at || '').replace('T', ' ');
-            document.getElementById('detail_content').textContent = data.content || '';
+
+            // ================================================================
+            // [XSS 테스트] 지점 2: 상세 모달 — content를 HTML로 해석하도록 변경
+            // [원본] document.getElementById('detail_content').textContent = data.content || '';
+            document.getElementById('detail_content').innerHTML = data.content || '';
+            // ================================================================
 
             // 태그 바인딩
             const tagsDiv = document.getElementById('detail_tags');
@@ -381,7 +391,13 @@ function render_reviews(reviews) {
 function create_review_card(review) {
     const stars = '⭐'.repeat(review.rating || 0);
     const date = review.created_at ? format_date(review.created_at) : '-';
-    const summary = escape_html(review.summary || review.content || '내용 없음');
+
+    // ====================================================================
+    // [XSS 테스트] 지점 1: 리뷰 카드 — escape_html() 제거, content를 그대로 삽입
+    // [원본] const summary = escape_html(review.summary || review.content || '내용 없음');
+    const summary = review.summary || review.content || '내용 없음';
+    // ====================================================================
+
     const user = escape_html(review.user_id || review.userId || '익명');
     const prop = escape_html(review.property_name || review.propertyName || review.apt_nm || '미확인');
     const tags = (review.tags || []).map(t => `<span class="tag">${escape_html(t)}</span>`).join('');
