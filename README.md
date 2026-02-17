@@ -108,7 +108,7 @@ java -jar build/libs/wherehouse-0.0.1-SNAPSHOT.jar
 
 ### CQRS + Hybrid Storage 전략
 
-![Architecture](https://github.com/user-attachments/assets/3f642b20-0713-453b-8be0-b3a10f56a950)
+![Architecture](https://github.com/user-attachments/assets/8210c262-73c5-4e9f-b7cd-3dc038f74859)
 
 ### 설계 결정과 근거
 
