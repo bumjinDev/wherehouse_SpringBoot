@@ -116,7 +116,7 @@ java -jar build/libs/wherehouse-0.0.1-SNAPSHOT.jar
 
 추천 조회 트래픽의 대부분이 읽기이고, 쓰기(리뷰)는 저빈도다. 두 경로의 성능 특성과 일관성 요구사항이 근본적으로 다르다. 읽기 경로는 지연 시간 최소화가 핵심이므로 Redis 메모리 기반 처리가 적합하고, 쓰기 경로는 리뷰 데이터의 무결성을 위해 RDB 트랜잭션의 ACID 보장이 필요하다. 이 차이로 인해 읽기와 쓰기를 물리적으로 분리하여 각 경로에 최적화된 저장소를 할당하는 CQRS 패턴을 적용하였다.
 
-단일 RDB 유지 시 추천 조회마다 디스크 I/O가 발생하고, 단일 Redis로 통합하면 ACID 보장이 불가능하며 CLOB 저장에도 부적합하다. CQRS는 추천 조회(RecommendationService → Redis Only)에서 RDB 접근 0회를 달성하면서, 리뷰 작성(ReviewService → RDB → Redis Sync)에서 ACID를 유지한다. Redis와 RDB 간 정합성은 Write-Through 패턴으로 보장한다.
+단일 RDB 유지 시 추천 조회마다 디스크 I/O가 발생하고, 단일 Redis로 통합하면 ACID 보장이 불가능하다. CQRS는 추천 조회(RecommendationService → Redis Only)에서 RDB 접근 0회를 달성하면서, 리뷰 작성(ReviewService → RDB → Redis Sync)에서 ACID를 유지한다. Redis와 RDB 간 정합성은 Write-Through 패턴으로 보장한다.
 
 **Write-Through 캐시 동기화**
 
