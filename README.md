@@ -95,8 +95,6 @@ export MOLIT_RENT_API_SERVICE_KEY=
 # 빌드
 ./gradlew clean build
 
-# Docker 실행
-docker-compose up -d
 
 # 또는 직접 실행
 java -jar build/libs/wherehouse-0.0.1-SNAPSHOT.jar
