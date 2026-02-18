@@ -4,6 +4,7 @@ import com.wherehouse.review.domain.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -140,4 +141,20 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                     "WHERE apt_nm LIKE %:keyword%",
             nativeQuery = true)
     List<Object[]> searchPropertiesByName(@Param("keyword") String keyword);
+
+    // =========================================================================
+    // [추가됨] 밴 대상 사용자의 리뷰 일괄 삭제
+    //
+    // BanService.ban() 호출 시 밴 대상 userId가 작성한 모든 리뷰를 삭제한다.
+    // @Modifying + @Query 조합으로 JPQL Bulk DELETE를 수행하여
+    // N건의 리뷰를 단일 DELETE 문으로 처리한다.
+    //
+    // 반환값: 삭제된 행 수 (로그 기록용)
+    //
+    // [실행되는 SQL]
+    // DELETE FROM REVIEWS WHERE USER_ID = :userId
+    // =========================================================================
+    @Modifying
+    @Query("DELETE FROM Review r WHERE r.userId = :userId")
+    long deleteAllByUserId(@Param("userId") String userId);
 }
