@@ -11,7 +11,7 @@
 - [1. 프로젝트 개요](#1-프로젝트-개요)
 - [2. 시스템 아키텍처](#2-시스템-아키텍처)
 - [3. ERD 및 데이터 설계](#3-erd-및-데이터-설계)
-- [4. 기술 챌린지 상세](#4-기술-챌린지-상세)
+- [4. 주요 구현 내역](#4-주요 구현 내역)
   - [4.1 Redis 기반 실시간 검색 엔진](#41-redis-기반-실시간-검색-엔진)
   - [4.2 2단계 Fallback 추천 로직](#42-2단계-fallback-추천-로직)
   - [4.3 리뷰 기반 하이브리드 추천 + Write-Through 동기화](#43-리뷰-기반-하이브리드-추천--write-through-동기화)
@@ -21,7 +21,6 @@
   - [4.7 OOM 병목 Slice 청크 처리](#47-oom-병목-slice-청크-처리)
   - [4.8 Redis Pipeline RTT 최적화](#48-redis-pipeline-rtt-최적화)
 - [5. Spring Security 인증 아키텍처](#5-spring-security-인증-아키텍처)
-- [6. 회고 및 개선 과제](#6-회고-및-개선-과제)
 
 ---
 
@@ -39,9 +38,9 @@
 
 이 구조적 한계가 CQRS 도입(읽기/쓰기 경로 분리), Redis 기반 검색 엔진 설계(디스크 I/O 제거), 외부 API 병렬화(네트워크 I/O 대기 해소), Write-Through 캐시 동기화(정합성 보장) 등 이후 모든 기술적 의사결정의 출발점이 되었다.
 
-### 기술 도전 과제
+### 주요 구현 내역
 
-| Challenge | 문제 정의 | 목표 |
+| 주요 구현 내역 | 문제 정의 | 목표 |
 |-----------|----------|------|
 | 실시간 다중 조건 필터 | 25개 자치구 × 수만 건 매물 × 3개 우선순위 조건 | DB 조회 없이 빠른 응답 |
 | 외부 API 순차 호출 | Kakao Map API 15종 카테고리 순차 호출 | 순차 호출을 병렬 호출로 개선하여 응답 지연 해결 |
@@ -51,18 +50,6 @@
 ### 핵심 기능 요약
 
 사용자의 입력 조건에 대해 '가격, 안전, 공간' 우선순위 기반으로 60/30/10% 가중치를 반영하는 개인 맞춤형 추천 엔진을 구현하였다. Redis Sorted Set 기반 실시간 검색 엔진으로 DB 조회 없이 다중 조건 필터링을 수행하고, 2단계 Fallback 로직으로 매물 부족 시 사용자가 덜 중요하다고 명시한 조건부터 순차 완화하여 빈 결과 없이 대안을 제시한다. 리뷰 텍스트에서 키워드를 자동 추출하여 정량 점수와 정성 점수를 통합하는 하이브리드 추천을 적용하였다.
-
-### 핵심 성과 요약
-
-| 기술 챌린지 | 해결 방식 | 정량 성과 |
-|-----------|---------|---------|
-| 외부 API 15개 순차 호출 | CompletableFuture 병렬 처리 | 응답 시간 72.3% 단축 (1,324ms → 367ms) |
-| N+1 쿼리 패턴 (25회 반복) | Bulk Fetch + IN절 Chunking | RDB 호출 96% 감소, 경합 47.9% → 0% |
-| LIKE 검색 Full Table Scan | 전방 일치 + Index Range Scan | 쿼리 시간 77.2% 단축 (26.3ms → 6.0ms) |
-| 배치 OOM 위험 (힙 64.4%) | Slice 기반 청크 처리 | 힙 피크 72.7% 감소 (64.4% → 17.6%) |
-| Redis 순차 RTT 누적 | Pipeline 일괄 전송 | RTT 66.7% 절감, 지역구당 응답 54.4% 단축 |
-
-> ※ 측정 환경: 로컬 Oracle 19c + Redis 7.0, 약 5만 건 매물 데이터 기준. 운영 환경에서는 네트워크 레이턴시, 커넥션 풀 경합 등으로 수치가 달라질 수 있음.
 
 ### 프로젝트 정보
 
@@ -182,7 +169,7 @@ REVIEW_KEYWORDS 테이블은 리뷰 텍스트에서 자동 추출된 키워드 �
 
 ---
 
-## 4. 기술 챌린지 상세
+## 4. 주요 구현 내역
 
 ### 4.1 Redis 기반 실시간 검색 엔진
 
@@ -583,7 +570,7 @@ Soft Parse 88.5%, Index Scan 유지, Connection 경합 0%, 심각 경합 비율 
 
 **회고 — 예상 외 발견과 후속 과제**
 
-Chunk 61의 응답 시간(318ms)이 Chunk 1000(178ms)보다 느린 것은 예상과 달랐다. DBMS 계층 지표(Soft Parse, Index Scan, Connection 경합)는 모두 개선되었으나 전체 응답이 느린 것은, 애플리케이션 계층에서 Redis 순차 호출로 인한 RTT 누적 병목이 별도로 존재했기 때문이다. 이 발견이 챌린지 4.8(Redis Pipeline RTT 최적화)의 출발점이 되었다.
+Chunk 61의 응답 시간(318ms)이 Chunk 1000(178ms)보다 느린 것은 예상과 달랐다. DBMS 계층 지표(Soft Parse, Index Scan, Connection 경합)는 모두 개선되었으나 전체 응답이 느린 것은, 애플리케이션 계층에서 Redis 순차 호출로 인한 RTT 누적 병목이 별도로 존재했기 때문이다. 이 발견이 주요 구현 내역 중 4.8(Redis Pipeline RTT 최적화)의 출발점이 되었다.
 
 > 📄 상세 분석: [N+1 → Chunking V$SQL 분석 보고서](https://github.com/bumjinDev/wherehouse_SpringBoot/blob/master/docs/11.%20%EC%A3%BC%EA%B1%B0%EC%A7%80%20%EC%B6%94%EC%B2%9C%20%EC%84%9C%EB%B9%84%EC%8A%A4%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B2%BD%ED%97%98%20%EB%B0%98%EC%98%81%20%EA%B0%9C%EC%84%A0/%EB%B3%91%EB%AA%A9%20%ED%98%84%EC%83%81%20%EC%8B%A4%EC%B8%A1/2.1.1%20%EB%B0%98%EB%B3%B5%EC%A0%81%20%EC%A7%91%EA%B3%84%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20RDB%20%EC%A1%B0%ED%9A%8C%20(N%2B1%20%EB%B3%80%ED%98%95)/3.%203%EC%B0%A8%20%ED%85%8C%EC%8A%A4%ED%8A%B8/Chunk61_DBMS_%EB%B3%91%EB%AA%A9_%EC%8B%A4%EC%B8%A1_%EB%B6%84%EC%84%9D_%EB%B3%B4%EA%B3%A0%EC%84%9C_MD.md)
 
@@ -694,7 +681,7 @@ Slice\<T> 기반 청크 처리: Pageable.ofSize(10,000) 분할 조회. 청크 �
 
 **문제 인식**
 
-챌린지 4.5(N+1 → Chunk 최적화)의 회고에서, Chunk 61의 응답 시간(318ms)이 Chunk 1000(178ms)보다 느린 현상이 발견되었다. DBMS 계층 지표(Soft Parse, Index Scan, Connection 경합)는 모두 개선되었음에도 전체 응답이 느린 것은, DBMS가 아닌 애플리케이션 계층에서 별도의 병목이 존재한다는 것을 의미했다. 분석 결과, Redis에 대한 순차 동기 호출로 인한 RTT(Round-Trip Time) 누적이 그 병목의 실체였다.
+주요 구현 내역 중 4.5(N+1 → Chunk 최적화)의 회고에서, Chunk 61의 응답 시간(318ms)이 Chunk 1000(178ms)보다 느린 현상이 발견되었다. DBMS 계층 지표(Soft Parse, Index Scan, Connection 경합)는 모두 개선되었음에도 전체 응답이 느린 것은, DBMS가 아닌 애플리케이션 계층에서 별도의 병목이 존재한다는 것을 의미했다. 분석 결과, Redis에 대한 순차 동기 호출로 인한 RTT(Round-Trip Time) 누적이 그 병목의 실체였다.
 
 **문제 정의**
 
@@ -752,7 +739,7 @@ Pipeline 1회 왕복 비용(39.3ms) ≈ 순차 3번 중 단일 명령 RTT(38.5ms
 
 103,470건(4.0MB) 응답 payload → MethodTime 3,429ms → 2,895ms (15.6% 감소). RTT 절감분(65.8ms)은 전체 대비 2.2%에 불과했다. 강남구의 병목 본질은 RTT가 아니라 payload 크기이며, 별도 알고리즘 개선(데이터 필터링, 페이징 등)이 필요하다.
 
-**핵심 인사이트:** Pipeline은 RTT 횟수를 1/3로 줄이면서 1회 왕복 비용을 증가시키지 않는 구조적 개선이다. Layer 1(nanoTime) + Layer 2(Wireshark) 2계층 실측으로 입증하였다. 챌린지 4.5에서 발견된 "애플리케이션 계층 병목"이 이 최적화로 해소되어, DBMS 계층 최적화(Chunk 61)의 효과가 비로소 전체 응답 시간에 반영되는 결과를 얻었다.
+**핵심 인사이트:** Pipeline은 RTT 횟수를 1/3로 줄이면서 1회 왕복 비용을 증가시키지 않는 구조적 개선이다. Layer 1(nanoTime) + Layer 2(Wireshark) 2계층 실측으로 입증하였다. 주요 구현 내역 4.5에서 발견된 "애플리케이션 계층 병목"이 이 최적화로 해소되어, DBMS 계층 최적화(Chunk 61)의 효과가 비로소 전체 응답 시간에 반영되는 결과를 얻었다.
 
 ---
 
@@ -797,24 +784,6 @@ Client (Browser)
 Wireshark 패킷 분석으로 TLS 1.2 암호화 통신을 검증하였다. Application Data Protocol: Hypertext Transfer Protocol로 암호화된 HTTP 트래픽을 확인하였다.
 
 > 📄 상세 분석: [HTTPS TLS 1.2 구조와 원리 검증](https://velog.io/@yhjj815/%EC%8B%A4%EC%A0%9C-%EC%84%9C%EB%B2%84%EC%97%90%EC%84%9C-%EC%A6%9D%EB%AA%85%ED%95%98%EB%8A%94-HTTPS%EC%9D%98-%EA%B5%AC%EC%A1%B0%EC%99%80-%EC%9B%90%EB%A6%ACTLS-1.2-ECDHE-ECDSA)
-
----
-
-## 6. 회고 및 개선 과제
-
-### 현재 한계점
-
-**MySQL 경험 부재:** Oracle 19c 기반으로 개발하여 MySQL 환경에서의 실행계획 분석, 인덱스 전략, 쿼리 최적화 경험이 없다. 실무에서 MySQL이 주류인 점을 고려하면 MySQL 환경 학습이 필요하다.
-
-**테스트 코드 부재:** JUnit/Mockito 기반 단위 테스트 및 통합 테스트가 구현되어 있지 않다. 성능 최적화 결과의 회귀 방지, 리팩토링 시 기능 정합성 보장을 위해 테스트 코드 도입이 최우선 과제다.
-
-### 향후 개선 방향
-
-**1순위 — 테스트 코드 도입 (JUnit/Mockito):** 추천 엔진 핵심 로직(Redis 검색, Fallback, 하이브리드 점수)의 단위 테스트, Write-Through 동기화의 통합 테스트를 우선 구현한다.
-
-**2순위 — CS 기본기 보강:** IoC/DI/AOP 동작 원리, HashMap 내부 구조, 인덱스 원리, HTTP 상세, REST 설계 원칙에 대한 역량을 확보한다.
-
-**3순위 — Spring 3대장 구두 설명:** Spring MVC 요청 처리 흐름, Spring Security 필터 체인, Spring Data JPA 동작 원리를 3분 이내로 설명할 수 있는 수준으로 준비한다.
 
 ---
 
