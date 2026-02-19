@@ -78,16 +78,7 @@ export KAKAO_API_KEY=
 export MOLIT_RENT_API_SERVICE_KEY=
 ```
 
-```bash
-# 빌드
-./gradlew clean build
-
-
-# 또는 직접 실행
-java -jar build/libs/wherehouse-0.0.1-SNAPSHOT.jar
-```
-
-**배포:** 현재 정부 공공데이터 API 서버 점검으로 일시 중단
+**배포:** [Wherehouse](https://wherehouse.it.kr/wherehouse/)
 
 ---
 
