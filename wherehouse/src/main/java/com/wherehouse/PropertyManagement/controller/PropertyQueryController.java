@@ -3,7 +3,7 @@ package com.wherehouse.PropertyManagement.controller;
 import com.wherehouse.PropertyManagement.dto.PropertyDetailDto;
 import com.wherehouse.PropertyManagement.dto.PropertyListRequestDto;
 import com.wherehouse.PropertyManagement.dto.PropertyListResponseDto;
-import com.wherehouse.PropertyManagement.service.PropertyQueryService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class PropertyQueryController {
 
-    private final PropertyQueryService propertyQueryService;
+
 
     /**
      * F004 매물 목록 조회 (섹션 7.5, 9.4.1)
@@ -59,7 +59,7 @@ public class PropertyQueryController {
                 requestDto.getPage(),
                 requestDto.getSort());
 
-        PropertyListResponseDto response = propertyQueryService.getProperties(requestDto);
+        PropertyListResponseDto response = null;
 
         log.info("매물 목록 조회 완료: totalElements={}, currentPage={}",
                 response.getTotalElements(), response.getCurrentPage());
@@ -85,10 +85,10 @@ public class PropertyQueryController {
 
         log.info("매물 상세 조회 요청: propertyId={}", propertyId);
 
-        PropertyDetailDto response = propertyQueryService.getPropertyDetail(propertyId);
+        PropertyDetailDto response = null;
 
-        log.info("매물 상세 조회 완료: propertyId={}, status={}, dataSource={}",
-                response.getPropertyId(), response.getStatus(), response.getDataSource());
+//        log.info("매물 상세 조회 완료: propertyId={}, status={}, dataSource={}",
+//                response.getPropertyId(), response.getStatus(), response.getDataSource());
 
         return ResponseEntity.ok(response);
     }
