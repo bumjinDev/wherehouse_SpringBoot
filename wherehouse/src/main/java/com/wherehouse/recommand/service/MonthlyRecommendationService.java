@@ -248,9 +248,9 @@ public class MonthlyRecommendationService {
         int resultSize1 = 0, resultSize2 = 0, resultSize3 = 0;
 
         // 1. Redis Key 구성
-        String depositKey = "idx:deposit:" + district;
-        String monthlyRentKey = "idx:monthlyRent:" + district + ":월세";
-        String areaKey = "idx:area:" + district + ":월세";
+        String depositKey = "idx:deposit:" + district;                      // 보증금
+        String monthlyRentKey = "idx:monthlyRent:" + district + ":월세";     // 월세
+        String areaKey = "idx:area:" + district + ":월세";                   // 평수 범위
 
         try {
             // ========================================
@@ -298,7 +298,7 @@ public class MonthlyRecommendationService {
             resultSize3 = (areaRaw != null) ? areaRaw.size() : 0;
 
             // ========================================
-            // 4. 빈 결과 체크 (Pipeline 이후 Early Termination)
+            // 4. 빈 결과 체크
             // ========================================
             if (depositRaw == null || depositRaw.isEmpty()) {
                 logPipelineMetrics(district, methodStart, pipelineLatency,
@@ -400,6 +400,7 @@ public class MonthlyRecommendationService {
      * - Object 요소 → toString()
      */
     private Set<String> convertToStringSet(Set<?> rawSet) {
+
         if (rawSet == null || rawSet.isEmpty()) {
             return Collections.emptySet();
         }

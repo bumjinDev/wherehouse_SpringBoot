@@ -71,7 +71,7 @@ public class KakaoApiService {
      * - Executors.newCachedThreadPool() 사용 가능하나, 최대 스레드 수 제한 위해 고정 크기 선택
      */
     private static final ExecutorService KAKAO_API_EXECUTOR =
-            Executors.newFixedThreadPool(20, runnable -> {
+            Executors.newFixedThreadPool(15, runnable -> {
                 Thread thread = new Thread(runnable);
                 thread.setName("kakao-api-worker-" + thread.getId());
                 thread.setDaemon(true);  // JVM 종료 시 함께 종료
@@ -260,7 +260,7 @@ public class KakaoApiService {
             // KAKAO_API_EXECUTOR: I/O 바운드 작업에 최적화된 전용 스레드 풀 사용
             CompletableFuture<List<Map<String, Object>>> future =
                     CompletableFuture.supplyAsync(() -> {
-                                log.debug("[KakaoApiService] 카테고리 {} 조회 시작 - 스레드: {}",
+                                log.info("[KakaoApiService] 카테고리 {} 조회 시작 - 스레드: {}",
                                         category, Thread.currentThread().getName());
 
                                 List<Map<String, Object>> result =
@@ -270,16 +270,24 @@ public class KakaoApiService {
                                         category, result.size(), Thread.currentThread().getName());
 
                                 return result;
+
                             }, KAKAO_API_EXECUTOR)
                             .exceptionally(ex -> {
                                 // 장애 격리: 특정 카테고리 실패 시 빈 리스트 반환 (전체 프로세스 중단 방지)
                                 log.error("[KakaoApiService] 카테고리 {} 조회 실패 - 빈 리스트 반환", category, ex);
                                 return new ArrayList<>();
                             });
+            
+            // CompletableFuture 구문 종료
+
+            // 결과 저장.
             futureMap.put(category, future);
-        }
+        }      // For 구문 종료
+
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(
-                futureMap.values().toArray(new CompletableFuture[0])
+//                futureMap.values().toArray(new CompletableFuture[0])
+//                futureMap.values().stream().toArray(CompletableFuture[]::new)
+                futureMap.values().toArray(CompletableFuture[]::new)
         );
         allFutures.join();
 

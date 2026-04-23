@@ -13,10 +13,11 @@ spring:
     # URL 스키마에 'p6spy'를 추가하여 Java DriverManager가 P6Spy 드라이버를 선택하도록 강제합니다.
     # P6Spy는 내부적으로 'p6spy' 문자열을 제거한 원본 URL을 파싱하여 실제 DB와 연결을 맺습니다.
 #    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
-#    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
-    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
+    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
+#    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
     username: SCOTT
-    password: ${ORACLE_PASSWORD}  # 환경변수에서 로드
+#    password: ${ORACLE_PASSWORD}  # 환경변수에서 로드 : 운영 미미 pc
+    password: tiger
 
     # HikariCP 커넥션 풀 설정
     hikari:
@@ -44,11 +45,11 @@ spring:
   # Redis 연결 설정
   data:
     redis:
-      host: 61.75.54.208 # MiniPc
-#      host: 127.0.0.1  # Local(no 127.0.0.1)
-#      host: 43.202.178.156 # (aws - 확인 완료)
+      #host: 61.75.54.208 # MiniPc
+      host: 127.0.0.1  # Local(no 127.0.0.1)
       port: 6379
-      password: ${REDIS_PASSWORD} #MiniPC / Local 은 패스워드 없음
+     # password: ${REDIS_PASSWORD} #MiniPC / Local 은 패스워드 없음
+      #password: AZPKMzETCSPRyjixRE9sNGTZLtoktcXZ # 원격 미니피씨
       timeout: 10s
       connect-timeout: 10s    # 이거 추가
       lettuce:

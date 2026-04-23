@@ -7,6 +7,7 @@ import com.wherehouse.recommand.batch.entity.PropertyMonthly;
 import com.wherehouse.recommand.batch.event.DataCollectionCompletedEvent;
 import com.wherehouse.recommand.batch.repository.*;
 import com.wherehouse.redis.handler.RedisHandler;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -129,10 +130,10 @@ public class RdbSyncListener {
     /**
      * 데이터 수집 완료 이벤트 핸들러
      */
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)  // 테스트목적
-    @EventListener
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)  // 테스트목적 (@EventListener 이것 또한 테스트 시 주석 처리)
+//    @EventListener
     @Transactional
-    public void handleDataCollectionCompletedEvent(DataCollectionCompletedEvent event) {  // DataCollectionCompletedEvent event : handleDataCollectionCompletedEvent() 내 넣을 매개변수
+    public void handleDataCollectionCompletedEvent() {  // DataCollectionCompletedEvent event : handleDataCollectionCompletedEvent() 내 넣을 매개변수
 
         // =================================================================================
         // [2차 테스트] 성능 측정 로깅 - Slice 청크 처리 버전
@@ -145,8 +146,8 @@ public class RdbSyncListener {
 
         /* ** 이 위치 실제 사용하는 코드이나 임시 주석, 이유는 현재 테스트 환경에서 매번 저장하는 로직 발생 시 매우 시간 오래 걸림. */
         // Step 1. [RDB] 매물 원본 데이터 적재
-        saveCharterPropertiesToRdb(event.getCharterProperties());
-        saveMonthlyPropertiesToRdb(event.getMonthlyProperties());
+//        saveCharterPropertiesToRdb(event.getCharterProperties());
+//        saveMonthlyPropertiesToRdb(event.getMonthlyProperties());
 
         log.info(">>> [Phase 2-1] RDB 적재 완료. RDB 기준 데이터 재조회 시작.");
 
@@ -162,6 +163,7 @@ public class RdbSyncListener {
         List<Property> charterProperties = new ArrayList<>();
         Pageable charterPageable = PageRequest.of(0, CHUNK_SIZE, Sort.by("propertyId"));
         Slice<PropertyCharter> charterSlice;
+
         int charterChunkIndex = 0;
         int charterTotalCount = 0;
         long charterTransformTotalMs = 0;
@@ -176,11 +178,13 @@ public class RdbSyncListener {
             long chunkLoadMs = chunkLoadEndTs - chunkStartTs;
 
             // 즉시 DTO 변환 → charterProperties에 누적
-            long transformStartTs = System.currentTimeMillis();
+            long transformStartTs = System.currentTimeMillis(); // 단순 로깅
+            
             for (PropertyCharter entity : chunkEntities) {
                 charterProperties.add(convertCharterEntityToProperty(entity));
             }
-            long transformEndTs = System.currentTimeMillis();
+            
+            long transformEndTs = System.currentTimeMillis();   // 단순 로깅
             long chunkTransformMs = transformEndTs - transformStartTs;
             charterTransformTotalMs += chunkTransformMs;
 

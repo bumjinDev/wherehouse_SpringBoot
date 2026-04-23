@@ -117,7 +117,7 @@ public class ReviewWriteService {
      */
     @PostConstruct
     public void initializeStatisticsCache() {
-        long startTime = System.nanoTime();
+        // long startTime = System.nanoTime();
 
         // ==========================================================================
         // [Phase 1] RDB 전체 조회 + 유효 데이터 필터링 & sum 역산
@@ -178,6 +178,7 @@ public class ReviewWriteService {
                         byte[] rawKey = keySerializer.serialize(entry[0]);
 
                         Map<byte[], byte[]> hash = new HashMap<>();
+
                         hash.put(keySerializer.serialize(FIELD_COUNT),
                                 hashValueSerializer.serialize(Integer.parseInt(entry[1])));
                         hash.put(keySerializer.serialize(FIELD_SUM),
@@ -197,10 +198,10 @@ public class ReviewWriteService {
             }
         }
 
-        long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
+        // long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
 
-        log.info("[{}][{}][CACHE_INIT] 완료: 총={}건, 유효={}건, 스킵={}건, 성공={}건, 실패={}건, 소요시간={}ms",
-                TASK, VERSION, allStats.size(), validEntries.size(), skipCount, successCount, failCount, elapsedMs);
+        log.info("[{}][{}][CACHE_INIT] 완료: 총={}건, 유효={}건, 스킵={}건, 성공={}건, 실패={}건",
+                TASK, VERSION, allStats.size(), validEntries.size(), skipCount, successCount, failCount);
     }
 
     // ==========================================================================
@@ -280,7 +281,7 @@ public class ReviewWriteService {
         }
 
         // ======================================================================
-        // Step 4: 리뷰 통계 초기화 또는 조회
+        // Step 4: 리뷰 통계 초기화 또는 조회 : 이미 통계가 존재한다면 별 다른 저장 작업 없이 다음 과정을 진행하며, 이미 통계가 존재 하지 않는 다면 새롭게 생성하여 다음 작업인 통계 작업 할 수 있도록.
         // ======================================================================
         ReviewStatistics statistics = reviewStatisticsRepository
                 .findById(propertyId)
@@ -299,7 +300,7 @@ public class ReviewWriteService {
                 statistics,
                 StatisticsOperation.CREATE,
                 null,                       // oldRating: CREATE 시 불필요
-                requestDto.getRating()      // newRating: 새로 추가되는 별점
+                requestDto.getRating()               // newRating: 새로 추가되는 별점
         );
 
         // ======================================================================
@@ -484,18 +485,19 @@ public class ReviewWriteService {
             Integer oldRating,
             Integer newRating) {
 
-        String redisKey = STATS_KEY_PREFIX + propertyId;
-        HashOperations<String, String, Object> hashOps = redisTemplate.opsForHash();
+        String redisKey = STATS_KEY_PREFIX + propertyId;            // review:stats: + propertyId : Redis 내 리뷰 통계 데이터 저장 위한 키 값
+        HashOperations<String, String, Object> hashOps = redisTemplate.opsForHash();    // Reids 연산자
         // 1. Redis에서 기존 count, sum 조회
-        Map<String, Object> cached = hashOps.entries(redisKey);
+        Map<String, Object> cached = hashOps.entries(redisKey);     // Redis 로부터 통계 데이터 로드
 
         int currentCount;
         long currentSum;
 
+        /* Redis 조회 결과가 빈 값이라면 초기화 */
         if (cached.isEmpty()) {
             currentCount = 0;
             currentSum = 0L;
-        } else {
+        } else {    /* Redis 내 조회 결과를 저장 한다. */
             currentCount = ((Number) cached.get(FIELD_COUNT)).intValue();
             currentSum = ((Number) cached.get(FIELD_SUM)).longValue();
         }

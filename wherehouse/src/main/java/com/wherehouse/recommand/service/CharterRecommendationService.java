@@ -44,11 +44,11 @@ public class CharterRecommendationService {
      * S-01 ~ S-06 단계를 순차적으로 수행하여 전세 매물 기반 지역구 추천
      */
     public CharterRecommendationResponseDto getCharterDistrictRecommendations(CharterRecommendationRequestDto request) {
-        log.info("=== 전세 지역구 추천 서비스 시작 ===");
-        log.info("요청 조건: 전세금={}-{}, 평수={}-{}, 우선순위={},{},{}",
-                request.getBudgetMin(), request.getBudgetMax(),
-                request.getAreaMin(), request.getAreaMax(),
-                request.getPriority1(), request.getPriority2(), request.getPriority3());
+        // log.info("=== 전세 지역구 추천 서비스 시작 ===");
+        // log.info("요청 조건: 전세금={}-{}, 평수={}-{}, 우선순위={},{},{}",
+        //         request.getBudgetMin(), request.getBudgetMax(),
+        //         request.getAreaMin(), request.getAreaMax(),
+        //         request.getPriority1(), request.getPriority2(), request.getPriority3());
 
         try {
             // S-01: 전 지역구 1차 검색 (전세 전용 인덱스 사용)
@@ -67,7 +67,7 @@ public class CharterRecommendationService {
             // S-06: 최종 응답 생성 (전세 전용 DTO)
             CharterRecommendationResponseDto finalResponse = generateCharterFinalResponse(sortedDistricts, searchResult, request);
 
-            log.info("=== 전세 지역구 추천 서비스 완료 ===");
+            // log.info("=== 전세 지역구 추천 서비스 완료 ===");
             return finalResponse;
 
         } catch (Exception e) {
@@ -81,13 +81,16 @@ public class CharterRecommendationService {
     // ========================================
 
     /**
-     * S-01: 전세 매물 1차 검색 (Strict Search)
+     * S-01: 전세 매물 1차 검색 (Strict Search) - 2차 폴백 과정 전 선별 과정 및 Fallback 과정도 마찬가지로 현재 메소드에서 수행.
      */
     private Map<String, List<String>> performCharterStrictSearch(CharterRecommendationRequestDto request,
                                                                  List<String> targetDistricts) {
-        log.info("S-01: 전세 매물 검색 시작 - 대상: {}", targetDistricts.size());
+         log.info("S-01: 전세 매물 검색 시작 - 대상: {}", targetDistricts.size());
 
+         /* 1차 검색 : 모든 지역구 별 안전성 점수가 기준치(HTTP Request)에 부합하는 지역구만 선별 저장 컬렉션 */
         List<String> filteredDistricts = targetDistricts;
+
+        /* 안전성 점수 기준 부합하는 지역구 목록만 선별 */
         if (request.getMinSafetyScore() != null && request.getMinSafetyScore() > 0) {
             filteredDistricts = targetDistricts.stream()
                     .filter(district -> {
@@ -97,31 +100,38 @@ public class CharterRecommendationService {
                     .collect(Collectors.toList());
         }
 
-        Map<String, List<String>> result = new HashMap<>();
+        Map<String, List<String>> result = new HashMap<>(); // 실제 매물 검색 결과인 매물 목록을 저장하는 컬렉션
         int totalFound = 0;
 
+        /* 실 매물 1차 검색 로직 : 앞서 과정으로 안전성 요구 점수 충족하여 선발된 지역구들에 한하여 가격과 평수 인덱스(Redis)로 선별 */
         for (String district : filteredDistricts) {
-            List<String> validProperties = findValidCharterPropertiesInDistrict(district, request);
 
+            List<String> validProperties = findValidCharterPropertiesInDistrict(district, request); // 실 로직.
+
+            /* 현재 지역구에 대한 매물 조회 결과를 결과를 저장 로직,  */
             if (!validProperties.isEmpty()) {
+
                 result.put(district, validProperties);
-                totalFound += validProperties.size();
+
+                totalFound += validProperties.size();   // 현재 안 쓰는 변수.
             }
         }
 
-        log.info("전세 매물 검색 완료: 총 {}개 매물 ID 발견 ({}개 지역구)", totalFound, result.size());
+        // log.info("전세 매물 검색 완료: 총 {}개 매물 ID 발견 ({}개 지역구)", totalFound, result.size());
         return result;
     }
 
     /**
-     * S-02: 전세 매물 폴백 조건 판단 및 확장 검색 수행
+     * S-02: 전세 매물 폴백 조건 판단 및 확장 검색을 호출하는 지점
      */
     private SearchResult checkAndPerformCharterFallback(Map<String, List<String>> districtProperties,
                                                         CharterRecommendationRequestDto request) {
 
+        /* 폴백 조건 판단 : 각 지역구 별 1차로 조회한 결과로 각 지역구 내 매물 개수가 3개 이하라면 fallback 대상으로써 이를 확인 과정. */
         boolean hasInsufficientDistricts = districtProperties.values().stream()
                 .anyMatch(propertyList -> propertyList.size() < MIN_PROPERTIES_THRESHOLD);
 
+        /* 모든 지역구가 매물 3개 이상 있다면 더 이상 조회할 필요 없음. */
         if (!hasInsufficientDistricts) {
             return SearchResult.builder()
                     .searchStatus("SUCCESS_NORMAL")
@@ -130,7 +140,8 @@ public class CharterRecommendationService {
                     .build();
         }
 
-        log.info("일부 전세 지역구의 매물 부족 - S-03 확장 검색 수행");
+        /* 모든 지역구 내 한 개의 지역구라도 3개 이상의 매물이 확보되지 않는 지역구가 있다면 fallback 검색 진행 */
+        log.info("일부 전세 지역구의 매물 부족 - S-03 : 확장 검색 수행");
         SearchResult expandedResult = performCharterExpandedSearch(request, districtProperties);
 
         Map<String, List<String>> finalResult = new HashMap<>(districtProperties);
@@ -151,21 +162,22 @@ public class CharterRecommendationService {
     }
 
     /**
-     * S-03: 전세 매물 확장 검색
+     * S-03: Fallback - 전세 매물 확장 검색
      */
     private SearchResult performCharterExpandedSearch(CharterRecommendationRequestDto request,
                                                       Map<String, List<String>> originalResult) {
 
+        /* FallBack 조회할 지역구 목록 추출 */
         List<String> insufficientDistricts = originalResult.entrySet().stream()
                 .filter(entry -> entry.getValue().size() < MIN_PROPERTIES_THRESHOLD)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        // 1단계: 3순위 조건 완화
-        CharterRecommendationRequestDto expandedRequest = relaxCharterThirdPriority(request);
-        String relaxedCondition = getCharterRelaxedConditionMessage(request.getPriority3(), request, expandedRequest);
+        // 1단계: 3순위 조건 완화 - 현재 시점에서 매물 수 추가 부족하다면 2단계로 진행.
+        CharterRecommendationRequestDto expandedRequest = relaxCharterThirdPriority(request);      // 3순위 우선순위 항목에 대한 수치 조정
+        String relaxedCondition = getCharterRelaxedConditionMessage(request.getPriority3(), request, expandedRequest);  // 3순위 우선순위 수치 조정에 따른 사용자 응답 메시지 작성
 
-        Map<String, List<String>> expandedResult = performCharterStrictSearch(expandedRequest, insufficientDistricts);
+        Map<String, List<String>> expandedResult = performCharterStrictSearch(expandedRequest, insufficientDistricts);  // Fallback 수행 : s-01 재 수행
 
         boolean stillInsufficient = expandedResult.values().stream()
                 .anyMatch(propertyList -> propertyList.size() < MIN_PROPERTIES_THRESHOLD);
@@ -178,11 +190,14 @@ public class CharterRecommendationService {
                     .build();
         }
 
-        // 2단계: 2순위 조건 추가 완화
-        CharterRecommendationRequestDto doubleExpandedRequest = relaxCharterSecondPriority(expandedRequest, request);
-        String doubleRelaxedCondition = relaxedCondition + ", " + getCharterRelaxedConditionMessage(request.getPriority2(), request, doubleExpandedRequest);
+        /* !이후 추가 최적화 가능한 지점은 현재 2차 Fallback 탐색 내 "insufficientDistricts" 을 그대로 반영 후 재 검색 하나, "stillInsufficient" 내 다소 수정 하여 해당 지역구들만
+        * 추가 탐색 가능함..*/
 
-        Map<String, List<String>> doubleExpandedResult = performCharterStrictSearch(doubleExpandedRequest, insufficientDistricts);
+        // 2단계: 2순위 조건 추가 완화
+        CharterRecommendationRequestDto doubleExpandedRequest = relaxCharterSecondPriority(expandedRequest, request); // 2순위 우선순위 항목에 대한 수치 조정
+        String doubleRelaxedCondition = relaxedCondition + ", " + getCharterRelaxedConditionMessage(request.getPriority2(), request, doubleExpandedRequest);    // 2순위 우선순위 수치 조정에 따른 사용자 응답 메시지 작성
+
+        Map<String, List<String>> doubleExpandedResult = performCharterStrictSearch(doubleExpandedRequest, insufficientDistricts);  // Fallback 수행 : s-01 재 수행
 
         if (doubleExpandedResult.isEmpty() ||
                 doubleExpandedResult.values().stream().mapToInt(List::size).sum() == 0) {
@@ -201,7 +216,7 @@ public class CharterRecommendationService {
     }
 
     /**
-     * 전세 매물 검색 - 2개 인덱스 교집합
+     * 전세 매물 검색 - 2개 인덱스 교집합 : 1차 검색과 2차 fallback 검색 모두 적용
      */
     private List<String> findValidCharterPropertiesInDistrict(String district, CharterRecommendationRequestDto request) {
         try {
@@ -265,48 +280,48 @@ public class CharterRecommendationService {
     private Map<String, List<PropertyWithScore>> calculateCharterPropertyScores(
             Map<String, List<String>> districtProperties, CharterRecommendationRequestDto request) {
 
-        log.info("S-04: 전세 매물 점수 계산 시작 (Hybrid Logic - Chunking Optimization)");
+        // log.info("S-04: 전세 매물 점수 계산 시작 (Hybrid Logic - Chunking Optimization)");
 
         // [측정 시작] 전체 로직 수행 시간
-        long totalLoopStart = System.currentTimeMillis();
-        long totalRdbTime = 0; // RDB 조회 누적 시간
-        int rdbCallCount = 0;  // RDB 호출 횟수
+        // long totalLoopStart = System.currentTimeMillis();
+        // long totalRdbTime = 0; // RDB 조회 누적 시간
+        // int rdbCallCount = 0;  // RDB 호출 횟수
 
         // =================================================================================
         // 1. [Optimization] 전체 매물 ID 추출 및 RDB 청크 조회 (Loop 외부 실행)
         // =================================================================================
 
-        // 1-1. 모든 지역구의 매물 ID를 하나로 병합 (Flatten)
+        // 1-1. 모든 지역구의 매물 ID를 하나로 병합 (Flatten) : 현재 매물 Id들에 대해서 각각 리뷰 데이터를 DBMS 조회하기 위함(Chunk 61 단위)
         List<String> allPropertyIds = districtProperties.values().stream()
                 .flatMap(List::stream)
                 .distinct() // 중복 제거
                 .collect(Collectors.toList());
 
-        Map<String, ReviewStatistics> globalReviewStatsMap = new HashMap<>();
+        Map<String, ReviewStatistics> globalReviewStatsMap = new HashMap<>();   // 모든 지역구의 각 매물 ID 별 해당하는 리뷰 점수 테이블 정보를 저장.
 
         // 1-2. Chunking (1,000개 단위 분할 조회) 적용
         if (!allPropertyIds.isEmpty()) {
             // 리스트 분할 (1000개씩)
             List<List<String>> chunks = partitionList(allPropertyIds, 61);  // Chunk 개수 1000 개 테스트 완료 -> 22개 테스트 완료 -> 61개 테스트 진행 중
-            log.info("[Profiling] 총 {}건 매물, {}개 Chunk로 분할하여 RDB 조회 시작", allPropertyIds.size(), chunks.size());
+            // log.info("[Profiling] 총 {}건 매물, {}개 Chunk로 분할하여 RDB 조회 시작", allPropertyIds.size(), chunks.size());
 
             for (List<String> chunk : chunks) {
-                long rdbStart = System.currentTimeMillis();
+                // long rdbStart = System.currentTimeMillis();
 
                 // Chunk 단위 RDB 조회
                 // 효과: IN 절 파라미터 개수가 1,000개 이하로 고정되어 DB 파싱 부하 감소 및 INLIST ITERATOR 효율화
                 List<ReviewStatistics> chunkStats = reviewStatisticsRepository.findAllById(chunk);
 
-                long rdbDuration = System.currentTimeMillis() - rdbStart;
-                totalRdbTime += rdbDuration;
-                rdbCallCount++;
+                // long rdbDuration = System.currentTimeMillis() - rdbStart;
+                // totalRdbTime += rdbDuration;
+                // rdbCallCount++;
 
                 // 조회 결과를 메모리 Map에 병합
                 for (ReviewStatistics stat : chunkStats) {
                     globalReviewStatsMap.put(stat.getPropertyId(), stat);
                 }
             }
-            log.info("[Profiling] Chunk 조회 완료 - 총 소요시간: {}ms, 총 호출: {}회", totalRdbTime, rdbCallCount);
+            // log.info("[Profiling] Chunk 조회 완료 - 총 소요시간: {}ms, 총 호출: {}회", totalRdbTime, rdbCallCount);
         }
 
         // =================================================================================
@@ -315,7 +330,8 @@ public class CharterRecommendationService {
 
         Map<String, List<PropertyWithScore>> result = new HashMap<>();
 
-        for (Map.Entry<String, List<String>> entry : districtProperties.entrySet()) {
+        /* 각 지역구를 순차적으로 순회하면서 각 지역구 별 매물 ID 들을 기준으로 Reids 조회 */
+        for (Map.Entry<String, List<String>> entry : districtProperties.entrySet()) {   // districtProperties : 각 지역구 이름 별 매물 ID들을 저장한 컬렉션(요청 파라메터에 포함)
 
             String districtName = entry.getKey();
             List<String> propertyIds = entry.getValue();
@@ -325,37 +341,42 @@ public class CharterRecommendationService {
                 continue;
             }
 
-            // 2-1. 매물 상세 정보 조회 (Redis - Pipeline 유지)
+            // 2-1. 매물 상세 정보 조회 (Redis - Pipeline 유지) : 현재 지역구 이름 내 포함된 매물 Id들.
             List<PropertyDetail> propertyDetails = getMultipleCharterPropertiesFromRedis(propertyIds);
 
             // [변경점] RDB 조회 로직 제거됨 (위에서 미리 조회한 globalReviewStatsMap 사용)
             // Map<String, ReviewStatistics> reviewStatsMap = getReviewStatisticsFromRDB(propertyIds); <--- 삭제됨
 
-            // 2-2. 기준 데이터 조회
-            ScoreNormalizationBounds districtBounds = getCharterBoundsFromRedis(districtName);
-            double districtSafetyScore = getDistrictSafetyScoreFromRedis(districtName);
+            // 2-2. 기준 데이터 조회 : 지역구를 순차적으로 순회하면서 각 지역구 별 매물 ID 들을 기준으로 Reids 조회할 때에 현재 지역구 이름에 대한
+            
+            /* 현재 조회 중인 지역구(지역구 이름 기준)애 대한 전세금 최소/최대 및 안전성 최소/최대 정보를 객체로써 가져옴, 이 객체를 적용 하여 현재 지역구 내 각 메물에 대한 가격 점수 및 안전성 점수를 측정 */
+            ScoreNormalizationBounds districtBounds = getCharterBoundsFromRedis(districtName);  
+            double districtSafetyScore = getDistrictSafetyScoreFromRedis(districtName);         // 현재 조회 중인 지역구(지역구 이름 기준)에 대한 안전성 점수를 가져옴
 
-            List<PropertyWithScore> propertiesWithScores = new ArrayList<>();
+            List<PropertyWithScore> propertiesWithScores = new ArrayList<>();                   // 가격, 공간, 안정성 점수를 저장하는 객체(PropertyWithScore) 컬렉션
 
+            /* == 현재 지역구 내 각 매물들을 id 별 순차적으로 각 매물 점수 산정 및 리뷰 점수 계산 후 통합. == */
             for (PropertyDetail propertyDetail : propertyDetails) {
                 try {
-                    // === 4-1. 정량적 점수(Legacy Score) 산출 (기존 로직 유지) ===
-                    double priceScore = calculatePriceScore(propertyDetail.getDeposit(), districtBounds);
-                    double spaceScore = calculateSpaceScore(propertyDetail.getAreaInPyeong(), districtBounds);
-                    double safetyScore = propertyDetail.getSafetyScore() != null ?
+                    // === 4-1. 정량적 점수(매물 자체에 대한 점수 - 리뷰 점수 제외) 산출 (기존 로직 유지) ===
+                    double priceScore = calculatePriceScore(propertyDetail.getDeposit(), districtBounds);       // 현재 매물에 대한 가격 점수 계산(가격이 낮을 수록 높은 점수(최대 100점) - 설계 명세서 명시
+                    double spaceScore = calculateSpaceScore(propertyDetail.getAreaInPyeong(), districtBounds);  // 현재 매물에 대한 평수 점수 계산 - 설계 명세서 명시
+                    double safetyScore = propertyDetail.getSafetyScore() != null ?                              // 현재 매물 자체에 대한 안전성 점수는 없으며 지역구 단위로 미리 배치에서 계산한 점수 사용.
                             propertyDetail.getSafetyScore() : districtSafetyScore;
 
+                    /* 최종 매물 점수 산출 : 현재 매물. */
                     double legacyScore = calculateWeightedFinalScore(
                             priceScore, spaceScore, safetyScore,
                             request.getPriority1(), request.getPriority2(), request.getPriority3());
 
-                    // === 4-2. 정성적 점수(Review Score) 산출 및 통합 (기존 로직 유지) ===
-                    String propertyId = propertyDetail.getPropertyId();
+                    // === 4-2. 정성적 점수(Review Score) 산출 로직 및 기존 각 매물 점수와 통합 ===
+                    String propertyId = propertyDetail.getPropertyId();     // 현재 지역구 내 현재 선택된 매물 정보 가져오기.
 
-                    // [변경점] 메모리 Map에서 조회 (O(1) 속도)
+                    /* 현재 점수 계산 중인 매물 ID 에 대한 매물 점수 테이블 정보 로드 */
                     ReviewStatistics stats = globalReviewStatsMap.getOrDefault(propertyId,
                             ReviewStatistics.builder().propertyId(propertyId).build());
 
+                    /* 기존 매물 자체에 대한 최종 점수와 매물 ID 를 합산하여 현재 매물에 대한 최종 점수 확정 */
                     double finalScore = calculateHybridScore(legacyScore, stats);
 
                     // 결과 객체 생성
@@ -384,14 +405,14 @@ public class CharterRecommendationService {
         }
 
         // [측정 종료] 결과 리포트
-        long totalLoopEnd = System.currentTimeMillis();
-        long totalDuration = totalLoopEnd - totalLoopStart;
+        // long totalLoopEnd = System.currentTimeMillis();
+        // long totalDuration = totalLoopEnd - totalLoopStart;
 
-        log.info("=== [Bottleneck Resolved: 2.1.1 (Chunking)] ===");
-        log.info("1. 총 소요 시간: {}ms", totalDuration);
-        log.info("2. RDB 조회 시간 (Chunk Sum): {}ms (전체의 {}%)", totalRdbTime, String.format("%.1f", (double)totalRdbTime/totalDuration * 100));
-        log.info("3. RDB 호출 횟수: {}회 (Chunk 단위 실행)", rdbCallCount);
-        log.info("==============================================");
+        // log.info("=== [Bottleneck Resolved: 2.1.1 (Chunking)] ===");
+        // log.info("1. 총 소요 시간: {}ms", totalDuration);
+        // log.info("2. RDB 조회 시간 (Chunk Sum): {}ms (전체의 {}%)", totalRdbTime, String.format("%.1f", (double)totalRdbTime/totalDuration * 100));
+        // log.info("3. RDB 호출 횟수: {}회 (Chunk 단위 실행)", rdbCallCount);
+        // log.info("==============================================");
 
         return result;
     }
@@ -415,7 +436,7 @@ public class CharterRecommendationService {
     }
 
     /**
-     * 리뷰 점수 자체 계산 로직
+     * 리뷰 점수 자체 계산 로직 : 긍정 키워드 개수 및 부정 키워드 개수 합산 처리
      * ReviewScore = (RatingScore * 0.5) + (KeywordScore * 0.5)
      */
     private double calculateReviewScoreOnly(ReviewStatistics stats) {
@@ -427,13 +448,12 @@ public class CharterRecommendationService {
         int negative = stats.getNegativeKeywordCount();
         double keywordScore;
 
-        if (positive + negative == 0) {
+        if (positive + negative == 0) {     // 긍정 키워드와 부정 키워드 모두 0개인 상황 : 중립 점수
             keywordScore = 50.0; // 중립
-        } else {
+        } else {                            // 긍정 키워드 비율 기반 점수 산출 (절대 개수 차이가 아닌 전체 대비 긍정 비율 — 리뷰 양 보정은 Cold Start 분기에서 처리), 설계서와 다르게 개발.
             keywordScore = ((double) positive / (positive + negative)) * 100.0;
         }
-
-        return (ratingScore * 0.5) + (keywordScore * 0.5);
+        return (ratingScore * 0.5) + (keywordScore * 0.5);  // 리뷰 평균 점수와 키워드 점수는 가중치를 동등하게 설정
     }
 
     /**
@@ -460,12 +480,16 @@ public class CharterRecommendationService {
             Map<String, List<PropertyWithScore>> districtPropertiesWithScores) {
 
         log.info("S-05: 지역구 점수 계산 및 정렬 시작");
-        List<DistrictWithScore> districtScores = new ArrayList<>();
 
+        List<DistrictWithScore> districtScores = new ArrayList<>(); // 각 지역구 별 점수 저장 컬렉션
+
+        /* 각 지역구를 순회 하면서 각 지역구의 매물 기준으로 지역구 별 점수 산정 */
         for (Map.Entry<String, List<PropertyWithScore>> entry : districtPropertiesWithScores.entrySet()) {
             String districtName = entry.getKey();
             List<PropertyWithScore> propertiesWithScores = entry.getValue();
 
+            // 매물이 없는 자치구: 0점 기본값으로 DistrictWithScore를 생성하되,
+            // propertiesWithScores에 빈 리스트(non-null)를 세팅하여 이후 stream/size 호출 시 NPE 방어
             if (propertiesWithScores.isEmpty()) {
                 districtScores.add(DistrictWithScore.builder()
                         .districtName(districtName)
@@ -477,13 +501,20 @@ public class CharterRecommendationService {
                 continue;
             }
 
+            /* 현재 선택된 지역구에 대한 실제 지역구 점수 계산. */
+            // 해당 자치구 내 모든 매물의 finalScore 합산
             double totalFinalScore = propertiesWithScores.stream()
                     .mapToDouble(PropertyWithScore::getFinalScore)
                     .sum();
+            // 자치구 평균 점수: 매물 간 품질 편차를 평탄화한 자치구 단위 지표
             double averageFinalScore = totalFinalScore / propertiesWithScores.size();
+            // 조건 부합 매물 수: representativeScore 보정 계수 및 동점 시 2차 정렬 기준
             int propertyCount = propertiesWithScores.size();
+            // 자치구 대표 점수: 평균 점수에 log(매물수+1)을 곱하여 매물 풍부도 반영
+            // — 소수 고점 매물만 있는 자치구가 다수 매물 자치구를 역전하는 것을 방지
             double representativeScore = averageFinalScore * Math.log(propertyCount + 1);
 
+            // 산출된 지표들을 DistrictWithScore 객체로 조립
             DistrictWithScore districtWithScore = DistrictWithScore.builder()
                     .districtName(districtName)
                     .propertiesWithScores(propertiesWithScores)
@@ -515,8 +546,9 @@ public class CharterRecommendationService {
     private CharterRecommendationResponseDto generateCharterFinalResponse(List<DistrictWithScore> sortedDistricts,
                                                                           SearchResult searchResult,
                                                                           CharterRecommendationRequestDto request) {
-        log.info("S-06: 전세 최종 응답 생성 시작");
+        // log.info("S-06: 전세 최종 응답 생성 시작");
 
+        /* 검색 상태가 NO_RESULTS이거나 정렬된 자치구 리스트 자체가 비어 있으면, 빈 추천 리스트와 함께 "NO_RESULTS" 상태의 응답 DTO를 즉시 반환하고 종료한다. (S-03 확장 검색까지 수행했음에도 매물을 찾지 못한 경우) */
         if ("NO_RESULTS".equals(searchResult.getSearchStatus()) || sortedDistricts.isEmpty()) {
             return CharterRecommendationResponseDto.builder()
                     .searchStatus("NO_RESULTS")
@@ -525,6 +557,7 @@ public class CharterRecommendationService {
                     .build();
         }
 
+        /* 지역구 목록 중 추천 매물 개수가 3개 이상인 지역구 들만 선별 후 List 컬렉션 내 저장. */
         List<DistrictWithScore> validDistricts = sortedDistricts.stream()
                 .filter(district -> district.getPropertyCount() > 0)
                 .limit(3)
@@ -649,12 +682,14 @@ public class CharterRecommendationService {
         return propertyDetails;
     }
 
+    /* 지역구 전세금 최소/최대 값 및 공간 최소/최대 값을 Redis Hash 연산자로 가져 온다.*/
     private ScoreNormalizationBounds getCharterBoundsFromRedis(String districtName) {
         try {
+
             String boundsKey = "bounds:" + districtName + ":전세";
             Map<Object, Object> boundsHash = redisHandler.redisTemplate.opsForHash().entries(boundsKey);
 
-            if (boundsHash.isEmpty()) {
+            if (boundsHash.isEmpty()) { // ScoreNormalizationBounds : "boundsHash" 데이터를 객체로써 저장하기 위한 private 클래스
                 return ScoreNormalizationBounds.builder().minPrice(0.0).maxPrice(100000.0).minArea(10.0).maxArea(100.0).build();
             }
             return ScoreNormalizationBounds.builder()
@@ -668,6 +703,7 @@ public class CharterRecommendationService {
         }
     }
 
+    /* 해당 지역구의 안정성 점수를 Redis 로부터 로드. */
     private double getDistrictSafetyScoreFromRedis(String districtName) {
         try {
             String safetyKey = "safety:" + districtName;
@@ -695,6 +731,7 @@ public class CharterRecommendationService {
         return Math.max(0.0, Math.min(100.0, normalizedArea * 100.0));
     }
 
+    /* 매물 최종 점수 산출 : 우선순위 요소 3개에 대한 각각의 가중치 설정 및 그에 따른 점수 계산, 최종 비율 1.0 */
     private double calculateWeightedFinalScore(double priceScore, double spaceScore, double safetyScore,
                                                String priority1, String priority2, String priority3) {
         Map<String, Double> priorityWeights = new HashMap<>();
@@ -867,11 +904,11 @@ public class CharterRecommendationService {
     @lombok.Builder
     @lombok.Getter
     private static class DistrictWithScore {
-        private String districtName;
-        private List<PropertyWithScore> propertiesWithScores;
-        private double averageFinalScore;
-        private int propertyCount;
-        private double representativeScore;
+        private String districtName;                          // 자치구명 (예: "강남구")
+        private List<PropertyWithScore> propertiesWithScores; // 해당 자치구 내 조건 부합 매물별 점수 리스트
+        private double averageFinalScore;                     // 자치구 내 전체 매물 finalScore 산술 평균
+        private int propertyCount;                            // 조건 부합 매물 수 — representativeScore 산출 및 동점 시 2차 정렬 기준
+        private double representativeScore;                   // 자치구 대표 점수 (averageFinalScore * log(propertyCount+1)) — 1차 정렬 기준
     }
 
     @lombok.Builder
