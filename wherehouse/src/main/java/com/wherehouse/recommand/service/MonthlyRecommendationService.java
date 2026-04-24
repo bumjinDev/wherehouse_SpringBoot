@@ -42,7 +42,7 @@ public class MonthlyRecommendationService {
      * 월세 지역구 추천 메인 메소드
      * S-01 ~ S-06 단계를 순차적으로 수행하여 월세 매물 기반 지역구 추천
      */
-    public MonthlyRecommendationResponseDto getMonthlyDistrictRecommendations(MonthlyRecommendationRequestDto request) {
+    public MonthlyRecommendationResponseDto getMonthlyDistrictRecommendations(MonthlyRecommendationRequestDto request, String currentUserId) {
         log.info("=== 월세 지역구 추천 서비스 시작 ===");
         log.info("요청 조건: 보증금={}-{}, 월세={}-{}, 평수={}-{}, 우선순위={},{},{}",
                 request.getBudgetMin(), request.getBudgetMax(),
@@ -65,7 +65,7 @@ public class MonthlyRecommendationService {
             List<DistrictWithScore> sortedDistricts = calculateDistrictScoresAndSort(districtPropertiesWithScores);
 
             // S-06: 최종 응답 생성 (월세 전용 DTO)
-            MonthlyRecommendationResponseDto finalResponse = generateMonthlyFinalResponse(sortedDistricts, searchResult, request);
+            MonthlyRecommendationResponseDto finalResponse = generateMonthlyFinalResponse(sortedDistricts, searchResult, request, currentUserId);
 
             log.info("=== 월세 지역구 추천 서비스 완료 ===");
             return finalResponse;
@@ -603,7 +603,8 @@ public class MonthlyRecommendationService {
      */
     private MonthlyRecommendationResponseDto generateMonthlyFinalResponse(List<DistrictWithScore> sortedDistricts,
                                                                           SearchResult searchResult,
-                                                                          MonthlyRecommendationRequestDto request) {
+                                                                          MonthlyRecommendationRequestDto request,
+                                                                          String currentUserId) {
         log.info("S-06: 월세 최종 응답 생성 시작");
 
         if ("NO_RESULTS".equals(searchResult.getSearchStatus()) || sortedDistricts.isEmpty()) {
@@ -625,7 +626,7 @@ public class MonthlyRecommendationService {
             DistrictWithScore district = validDistricts.get(i);
             int rank = i + 1;
 
-            List<TopMonthlyPropertyDto> topProperties = selectTopMonthlyProperties(district.getPropertiesWithScores(), 3);
+            List<TopMonthlyPropertyDto> topProperties = selectTopMonthlyProperties(district.getPropertiesWithScores(), 3, currentUserId);
             String summary = generateDistrictSummary(district, rank, request.getPriority1());
 
             Double averagePriceScore = calculateMonthlyAverageScore(district.getPropertiesWithScores(), "price");
@@ -675,14 +676,14 @@ public class MonthlyRecommendationService {
         return totalScore / propertiesWithScores.size();
     }
 
-    private List<TopMonthlyPropertyDto> selectTopMonthlyProperties(List<PropertyWithScore> propertiesWithScores, int maxCount) {
+    private List<TopMonthlyPropertyDto> selectTopMonthlyProperties(List<PropertyWithScore> propertiesWithScores, int maxCount, String currentUserId) {
         return propertiesWithScores.stream()
                 .limit(maxCount)
-                .map(this::convertToTopMonthlyPropertyDto)
+                .map(pws -> convertToTopMonthlyPropertyDto(pws, currentUserId))
                 .collect(Collectors.toList());
     }
 
-    private TopMonthlyPropertyDto convertToTopMonthlyPropertyDto(PropertyWithScore propertyWithScore) {
+    private TopMonthlyPropertyDto convertToTopMonthlyPropertyDto(PropertyWithScore propertyWithScore, String currentUserId) {
         PropertyDetail detail = propertyWithScore.getPropertyDetail();
 
         return TopMonthlyPropertyDto.builder()
@@ -696,9 +697,14 @@ public class MonthlyRecommendationService {
                 .floor(detail.getFloor())
                 .buildYear(detail.getBuildYear())
                 .finalScore(propertyWithScore.getFinalScore())
-                // [Phase 2] 리뷰 정보 매핑
                 .reviewCount(propertyWithScore.getReviewCount())
                 .avgRating(propertyWithScore.getAvgRating())
+                // [F005] 매물 출처·상태·본인 소유 여부
+                .dataSource(detail.getDataSource())
+                .status(detail.getStatus())
+                .ownedByCurrentUser(
+                        currentUserId != null
+                        && currentUserId.equals(detail.getRegisteredUserId()))
                 .build();
     }
 
@@ -897,7 +903,11 @@ public class MonthlyRecommendationService {
                     .areaInPyeong(getDoubleValue(propertyHash, "areaInPyeong"))
                     .rgstDate(getStringValue(propertyHash, "rgstDate"))
                     .districtName(getStringValue(propertyHash, "districtName"))
-                    .safetyScore(null).build();
+                    .safetyScore(null)
+                    .dataSource(getStringValue(propertyHash, "dataSource"))
+                    .status(getStringValue(propertyHash, "status"))
+                    .registeredUserId(getStringValue(propertyHash, "registeredUserId"))
+                    .build();
         } catch (Exception e) { return null; }
     }
 
@@ -991,6 +1001,9 @@ public class MonthlyRecommendationService {
         private String rgstDate;
         private String districtName;
         private Double safetyScore;
+        private String dataSource;        // [F005]
+        private String status;            // [F005]
+        private String registeredUserId;  // [F005] ownedByCurrentUser 산출용
     }
 
     @lombok.Builder

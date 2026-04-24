@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,14 +30,15 @@ public class RecommendationController {
      */
     @PostMapping("/charter-districts")
     public ResponseEntity<CharterRecommendationResponseDto> getCharterDistrictRecommendations(
-            @Valid @RequestBody CharterRecommendationRequestDto request) {
+            @Valid @RequestBody CharterRecommendationRequestDto request,
+            @AuthenticationPrincipal String userId) {
 
         log.info("=== 전세 지역구 추천 요청 시작 (POST) ===");
-        log.info("요청 파라미터: {}", request);
+        log.info("요청 파라미터: {}, userId={}", request, userId);
 
         try {
             // 전세 전용 RecommendationService 호출
-            CharterRecommendationResponseDto response = charterRecommendationService.getCharterDistrictRecommendations(request);
+            CharterRecommendationResponseDto response = charterRecommendationService.getCharterDistrictRecommendations(request, userId);
 
             log.info("=== 전세 지역구 추천 요청 완료 - 상태: {} ===", response.getSearchStatus());
             return ResponseEntity.ok(response);
@@ -62,14 +64,15 @@ public class RecommendationController {
      */
     @PostMapping("/monthly-districts")
     public ResponseEntity<MonthlyRecommendationResponseDto> getMonthlyDistrictRecommendations(
-            @Valid @RequestBody MonthlyRecommendationRequestDto request) {
+            @Valid @RequestBody MonthlyRecommendationRequestDto request,
+            @AuthenticationPrincipal String userId) {
 
         log.info("=== 월세 지역구 추천 요청 시작 (POST) ===");
-        log.info("요청 파라미터: {}", request);
+        log.info("요청 파라미터: {}, userId={}", request, userId);
 
         try {
             // 월세 전용 RecommendationService 호출
-            MonthlyRecommendationResponseDto response = monthlyRecommendationService.getMonthlyDistrictRecommendations(request);
+            MonthlyRecommendationResponseDto response = monthlyRecommendationService.getMonthlyDistrictRecommendations(request, userId);
 
             log.info("=== 월세 지역구 추천 요청 완료 - 상태: {} ===", response.getSearchStatus());
             return ResponseEntity.ok(response);

@@ -22,6 +22,8 @@ import org.springframework.stereotype.Repository;
  *   - findById       : F002·F003 권한 검증(섹션 9.2.3), F004 상세 조회(섹션 9.4.2)
  *   - existsById     : F006 중복 감지 스텁 구현체가 호출
  *   - save           : F001 신규 저장, F002·F003 Dirty Checking 갱신
+ *
+ *   ! 현재 키워드를 중간 부분 일치로 처리하여서 인덱스 FullScan 발생 될 것이며 이를 해결할 기술 필요.
  */
 @Repository
 public interface PropertyCharterRegistrationRepository extends JpaRepository<PropertyCharterEntity, String> {

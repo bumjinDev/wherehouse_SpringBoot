@@ -165,6 +165,39 @@ public class SecurityConfig {
                 ));  return http.build();
     }
 
+    /* [추천 서비스] : 선택적 인증 — JWT 있으면 검증·주입, 없으면 비인증 통과 (F005 설계 섹션 3.2) */
+    @Bean
+    public SecurityFilterChain recommendationServiceFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/api/recommendations/**")
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    /* [매물 관리 서비스] : 등록·수정·상태변경(POST·PATCH)은 JWT 인증 필수, 조회(GET)는 비인증 허용 */
+    @Bean
+    public SecurityFilterChain propertyServiceFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/api/v1/properties/**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/api/v1/properties/**").authenticated()    // F001 등록
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/properties/**").authenticated()   // F002 수정, F003 상태변경
+                        .requestMatchers(HttpMethod.GET, "/api/v1/properties/**").permitAll()          // F004 조회
+                        .anyRequest().denyAll()
+                )
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(new ApiAuthenticationEntryPoint())
+                                .accessDeniedHandler(new JwtAccessDeniedHandler())
+                );
+        return http.build();
+    }
+
     /* [리뷰 서비스 - 모든 요청] : 리뷰 작성/수정/삭제는 인증 필요, 조회는 비인증 허용 */
     @Bean
     public SecurityFilterChain reviewServiceFilterChain(HttpSecurity http) throws Exception {

@@ -43,7 +43,7 @@ public class CharterRecommendationService {
      * 전세 지역구 추천 메인 메소드
      * S-01 ~ S-06 단계를 순차적으로 수행하여 전세 매물 기반 지역구 추천
      */
-    public CharterRecommendationResponseDto getCharterDistrictRecommendations(CharterRecommendationRequestDto request) {
+    public CharterRecommendationResponseDto getCharterDistrictRecommendations(CharterRecommendationRequestDto request, String currentUserId) {
         // log.info("=== 전세 지역구 추천 서비스 시작 ===");
         // log.info("요청 조건: 전세금={}-{}, 평수={}-{}, 우선순위={},{},{}",
         //         request.getBudgetMin(), request.getBudgetMax(),
@@ -65,7 +65,7 @@ public class CharterRecommendationService {
             List<DistrictWithScore> sortedDistricts = calculateDistrictScoresAndSort(districtPropertiesWithScores);
 
             // S-06: 최종 응답 생성 (전세 전용 DTO)
-            CharterRecommendationResponseDto finalResponse = generateCharterFinalResponse(sortedDistricts, searchResult, request);
+            CharterRecommendationResponseDto finalResponse = generateCharterFinalResponse(sortedDistricts, searchResult, request, currentUserId);
 
             // log.info("=== 전세 지역구 추천 서비스 완료 ===");
             return finalResponse;
@@ -545,7 +545,8 @@ public class CharterRecommendationService {
      */
     private CharterRecommendationResponseDto generateCharterFinalResponse(List<DistrictWithScore> sortedDistricts,
                                                                           SearchResult searchResult,
-                                                                          CharterRecommendationRequestDto request) {
+                                                                          CharterRecommendationRequestDto request,
+                                                                          String currentUserId) {
         // log.info("S-06: 전세 최종 응답 생성 시작");
 
         /* 검색 상태가 NO_RESULTS이거나 정렬된 자치구 리스트 자체가 비어 있으면, 빈 추천 리스트와 함께 "NO_RESULTS" 상태의 응답 DTO를 즉시 반환하고 종료한다. (S-03 확장 검색까지 수행했음에도 매물을 찾지 못한 경우) */
@@ -569,7 +570,7 @@ public class CharterRecommendationService {
             DistrictWithScore district = validDistricts.get(i);
             int rank = i + 1;
 
-            List<TopCharterPropertyDto> topProperties = selectTopCharterProperties(district.getPropertiesWithScores(), 3);
+            List<TopCharterPropertyDto> topProperties = selectTopCharterProperties(district.getPropertiesWithScores(), 3, currentUserId);
             String summary = generateDistrictSummary(district, rank, request.getPriority1());
 
             Double averagePriceScore = calculateAverageScore(district.getPropertiesWithScores(), "price");
@@ -619,17 +620,17 @@ public class CharterRecommendationService {
         return totalScore / propertiesWithScores.size();
     }
 
-    private List<TopCharterPropertyDto> selectTopCharterProperties(List<PropertyWithScore> propertiesWithScores, int maxCount) {
+    private List<TopCharterPropertyDto> selectTopCharterProperties(List<PropertyWithScore> propertiesWithScores, int maxCount, String currentUserId) {
         return propertiesWithScores.stream()
                 .limit(maxCount)
-                .map(this::convertToTopCharterPropertyDto)
+                .map(pws -> convertToTopCharterPropertyDto(pws, currentUserId))
                 .collect(Collectors.toList());
     }
 
     /**
      * DTO 변환 시 리뷰 통계 정보 매핑
      */
-    private TopCharterPropertyDto convertToTopCharterPropertyDto(PropertyWithScore propertyWithScore) {
+    private TopCharterPropertyDto convertToTopCharterPropertyDto(PropertyWithScore propertyWithScore, String currentUserId) {
         PropertyDetail detail = propertyWithScore.getPropertyDetail();
 
         return TopCharterPropertyDto.builder()
@@ -642,9 +643,14 @@ public class CharterRecommendationService {
                 .floor(detail.getFloor())
                 .buildYear(detail.getBuildYear())
                 .finalScore(propertyWithScore.getFinalScore())
-                // [Phase 2] 리뷰 정보 매핑
                 .reviewCount(propertyWithScore.getReviewCount())
                 .avgRating(propertyWithScore.getAvgRating())
+                // [F005] 매물 출처·상태·본인 소유 여부
+                .dataSource(detail.getDataSource())
+                .status(detail.getStatus())
+                .ownedByCurrentUser(
+                        currentUserId != null
+                        && currentUserId.equals(detail.getRegisteredUserId()))
                 .build();
     }
 
@@ -833,6 +839,9 @@ public class CharterRecommendationService {
                     .rgstDate(getStringValue(propertyHash, "rgstDate"))
                     .districtName(getStringValue(propertyHash, "districtName"))
                     .safetyScore(null)
+                    .dataSource(getStringValue(propertyHash, "dataSource"))
+                    .status(getStringValue(propertyHash, "status"))
+                    .registeredUserId(getStringValue(propertyHash, "registeredUserId"))
                     .build();
         } catch (Exception e) {
             return null;
@@ -931,6 +940,9 @@ public class CharterRecommendationService {
         private String rgstDate;
         private String districtName;
         private Double safetyScore;
+        private String dataSource;        // [F005]
+        private String status;            // [F005]
+        private String registeredUserId;  // [F005] ownedByCurrentUser 산출용
     }
 
     @lombok.Builder

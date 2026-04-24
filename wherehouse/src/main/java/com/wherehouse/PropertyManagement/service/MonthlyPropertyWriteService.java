@@ -33,7 +33,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class MonthlyPropertyWriteService {
 
-    static String testUserId = "testUserId";
 
     private final PropertyMonthlyRegistrationRepository monthlyRepository;
     private final RedisHandler redisHandler;
@@ -67,7 +66,6 @@ public class MonthlyPropertyWriteService {
     @Transactional
     public PropertyCreateResponseDto createProperty(MonthlyCreateRequestDto dto, String userId) {
 
-        userId = testUserId;
         validateDistrictCode(dto.getSggCd());
 
         String propertyId = idGenerator.generatePropertyId(
@@ -111,18 +109,17 @@ public class MonthlyPropertyWriteService {
     // F002 월세 매물 수정
     // ============================================================
 
-    //    @Transactional
+//    @Transactional    // 테스트 목적
     public PropertyUpdateResponseDto updateProperty(
             String propertyId, MonthlyUpdateRequestDto dto, String userId) {
-
-        userId = testUserId;
 
         PropertyMonthlyEntity entity = monthlyRepository.findById(propertyId)
                 .filter(e -> e.getStatus() != PropertyStatus.DELETED)
                 .orElseThrow(() -> new PropertyNotFoundException(
                         "매물을 찾을 수 없습니다. propertyId=" + propertyId));
 
-        verifyOwnership(entity, userId);
+
+//        verifyOwnership(entity, userId);   // 요구사항 수정 : 모든 사용자가 등록자 외에도 접근하여 수정 가능하도록.
         verifyActiveForUpdate(entity.getStatus());
 
         List<String> changedFields = new ArrayList<>();
@@ -171,20 +168,21 @@ public class MonthlyPropertyWriteService {
     public PropertyStatusUpdateResponseDto changeStatus(
             String propertyId, PropertyStatusUpdateRequestDto dto, String userId) {
 
-        userId = testUserId;
-
         // 1. 매물 조회
         PropertyMonthlyEntity entity = monthlyRepository.findById(propertyId)
                 .filter(e -> e.getStatus() != PropertyStatus.DELETED)
                 .orElseThrow(() -> new PropertyNotFoundException(
                         "매물을 찾을 수 없습니다. propertyId=" + propertyId));
 
-        // 2. 권한 검증 3단계
+        // 2. 권한 검증 : 매물 등록자인지 확인.
         verifyOwnership(entity, userId);
 
-        // 3. 상태 전이 허용성 검증
+        // 3. 상태 전이 허용성 검증 : ACTIVE -> COMPLETED, ACTIVE -> DELETED
         PropertyStatus previous = entity.getStatus();
+
+        // 요청 당시와 현재 확인 시점의 매물 올바른지 확인 - 설계 고려사항으로 현재 메소드 대부분을 락 걸것인지 혹은 이렇게 구조 변경해서 락 걸것인지..
         PropertyStatus target = PropertyStatus.valueOf(dto.getTargetStatus());
+
         verifyTransition(previous, target);
 
         // 4. STATUS + MODIFIED_AT 갱신
@@ -274,14 +272,14 @@ public class MonthlyPropertyWriteService {
     /**
      * F003 상태 변경 후: 인덱스 Member 제거 + 상태별 Hash 처리.
      *
-     * 인덱스 제거 대상 (월세, 3개):
+     * 인덱스 제거 대상 (월세, 3개) : 기존 주거지 추천 서비스 로직 내 포함되면 안되기 때문
      *   idx:deposit:{district}            — 보증금 인덱스
      *   idx:monthlyRent:{district}:월세   — 월세금 인덱스
      *   idx:area:{district}:월세          — 평수 인덱스
      *
      * Hash 처리:
-     *   COMPLETED — Hash 유지, status·modifiedAt 필드만 갱신
-     *   DELETED   — Hash 전면 제거
+     *   COMPLETED — Hash 유지, status·modifiedAt 필드만 갱신  : 단순 매물 목록 조회에는 표현
+     *   DELETED   — Hash 전면 제거 : 단순 매물 목록 조회 또한 표현 되면 안됨.
      */
     private void syncRedisAfterStatusChange(PropertyMonthlyEntity entity, PropertyStatus target) {
         String propertyId = entity.getPropertyId();

@@ -98,4 +98,32 @@ public class TopCharterPropertyDto {
      * - 데이터 소스: RDB REVIEWS 테이블 집계
      */
     private Double avgRating;
+
+    // ======================================================================
+    // [F005 신규 추가 필드] 매물 출처·상태·본인 소유 여부
+    // ======================================================================
+
+    /**
+     * 매물 데이터 출처
+     * - 값: "BATCH" | "USER" | "MERGED"
+     * - 데이터 소스: Redis 매물 Hash ‘dataSource’ 필드
+     */
+    private String dataSource;
+
+    /**
+     * 매물 상태
+     * - 값: "ACTIVE" | "COMPLETED"
+     * - 추천 결과는 기본적으로 ACTIVE만 포함하나,
+     *   조회 후 상태 변경되는 경합 윈도우 UI 대응을 위해 필드 노출
+     * - 데이터 소스: Redis 매물 Hash ‘status’ 필드
+     */
+    private String status;
+
+    /**
+     * 현재 요청자가 등록한 매물인지 여부
+     * - true: 인증 사용자 + registeredUserId 일치
+     * - false: 비인증 / 불일치 / 배치 매물
+     * - 데이터 소스: 인증 컨텍스트 userId 와 Redis Hash ‘registeredUserId’ 비교 산출
+     */
+    private Boolean ownedByCurrentUser;
 }

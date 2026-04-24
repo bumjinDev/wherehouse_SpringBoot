@@ -78,7 +78,7 @@ public class PropertyListRequestDto {
     private String dataSource;
 
     /**
-     * 검색 키워드. 아파트명 또는 지역구명 부분 일치.
+     * 검색 키워드. 아파트명 또는 지역구명 부분 일치. : 이 부분 개선 예정 사항
      */
     private String keyword;
 

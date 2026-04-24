@@ -30,7 +30,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CharterPropertyWriteService {
 
-    static String testUserId = "testUserId";
 
     private final PropertyCharterRegistrationRepository charterRepository;
     private final RedisHandler redisHandler;
@@ -63,7 +62,6 @@ public class CharterPropertyWriteService {
     @Transactional
     public PropertyCreateResponseDto createProperty(CharterCreateRequestDto dto, String userId) {
 
-        userId = testUserId;
         validateDistrictCode(dto.getSggCd());
 
         String propertyId = idGenerator.generatePropertyId(
@@ -106,18 +104,16 @@ public class CharterPropertyWriteService {
     // F002 전세 매물 수정
     // ============================================================
 
-    //    @Transactional
+//    @Transactional    // 테스트 목적 주석
     public PropertyUpdateResponseDto updateProperty(
             String propertyId, CharterUpdateRequestDto dto, String userId) {
-
-        userId = testUserId;
 
         PropertyCharterEntity entity = charterRepository.findById(propertyId)
                 .filter(e -> e.getStatus() != PropertyStatus.DELETED)
                 .orElseThrow(() -> new PropertyNotFoundException(
                         "매물을 찾을 수 없습니다. propertyId=" + propertyId));
 
-        verifyOwnership(entity, userId);
+//        verifyOwnership(entity, userId);  // 요구사항 수정 : 모든 사용자가 등록자 외에도 접근하여 수정 가능하도록.
         verifyActiveForUpdate(entity.getStatus());
 
         List<String> changedFields = new ArrayList<>();
@@ -165,11 +161,9 @@ public class CharterPropertyWriteService {
      *      DELETED:   인덱스 Member 제거 + Hash 전면 제거
      *   7. 응답 반환
      */
-//    @Transactional
+//    @Transactional    // 테스트 목적 주석
     public PropertyStatusUpdateResponseDto changeStatus(
             String propertyId, PropertyStatusUpdateRequestDto dto, String userId) {
-
-        userId = testUserId;
 
         // 1. 매물 조회
         PropertyCharterEntity entity = charterRepository.findById(propertyId)
@@ -180,9 +174,15 @@ public class CharterPropertyWriteService {
         // 2. 권한 검증 3단계
         verifyOwnership(entity, userId);
 
-        // 3. 상태 전이 허용성 검증
-        PropertyStatus previous = entity.getStatus();
+        /* 3. 상태 전이 허용성 검증 : 요청 시점의 상태와 실제 갱신 당시의 상태를 비교 검사
+            당연히 이것만으로는 동시성을 보장할 수 없으나, 이 로직을 사용하면 전체를 락 안 걸고 이 갱신 부분만 락 거는 지 여부 등
+            피드백 따른 설계 지점으로 불 수 있을듯?
+        *
+        * */
+        PropertyStatus previous = entity.getStatus();   // PropertyStatus : Eume 객체
         PropertyStatus target = PropertyStatus.valueOf(dto.getTargetStatus());
+        
+        // 상태 검증
         verifyTransition(previous, target);
 
         // 4. STATUS + MODIFIED_AT 갱신

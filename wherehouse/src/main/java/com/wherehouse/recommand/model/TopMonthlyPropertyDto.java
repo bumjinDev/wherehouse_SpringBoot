@@ -98,4 +98,9 @@ public class TopMonthlyPropertyDto {
      * - 데이터 소스: RDB REVIEWS 테이블 집계
      */
     private Double avgRating;
+
+    // [F005] 매물 출처·상태·본인 소유 여부
+    private String dataSource;
+    private String status;
+    private Boolean ownedByCurrentUser;
 }

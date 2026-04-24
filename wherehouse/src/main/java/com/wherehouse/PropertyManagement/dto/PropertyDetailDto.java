@@ -123,8 +123,9 @@ public class PropertyDetailDto {
     /**
      * 계약일자. 미등록 매물은 null 가능.
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dealDate;
+//    @JsonFormat(pattern = "yyyy-MM-dd")   // DBMS 호환 문제..추후 개선 예정
+//    private LocalDate dealDate;
+    private String dealDate;
 
     /**
      * 등록자 식별자. 배치 매물은 null.
