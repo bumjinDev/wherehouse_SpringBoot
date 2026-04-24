@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,13 +142,18 @@ public class ReviewQueryService {
             return Collections.emptyMap();
         }
 
-        List<Object[]> results = reviewRepository.findPropertyNames(propertyIds);
+        List<Object[]> charterResults = reviewRepository.findCharterPropertyNames(propertyIds);
+        List<Object[]> monthlyResults = reviewRepository.findMonthlyPropertyNames(propertyIds);
 
-        return results.stream()
-                .collect(Collectors.toMap(
-                        row -> (String) row[0],
-                        row -> (String) row[1]
-                ));
+        Map<String, String> result = new HashMap<>();
+        for (Object[] row : charterResults) {
+            result.put((String) row[0], (String) row[1]);
+        }
+        for (Object[] row : monthlyResults) {
+            result.putIfAbsent((String) row[0], (String) row[1]);
+        }
+
+        return result;
     }
 
     private FilterMetaDto createFilterMeta(String propertyId) {

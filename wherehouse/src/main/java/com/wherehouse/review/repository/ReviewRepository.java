@@ -83,19 +83,28 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findByPropertyIdIn(@Param("propertyIds") List<String> propertyIds, Pageable pageable);
 
     /**
-     * 매물명 일괄 조회 (DTO 매핑용)
+     * 전세 매물명 조회 (DTO 매핑용)
      *
      * @param propertyIds 매물 ID Set
      * @return [property_id, apt_nm] 리스트
      */
     @Query(value =
             "SELECT property_id, apt_nm FROM properties_charter " +
-                    "WHERE property_id IN :propertyIds " +
-                    "UNION ALL " +
-                    "SELECT property_id, apt_nm FROM properties_monthly " +
                     "WHERE property_id IN :propertyIds",
             nativeQuery = true)
-    List<Object[]> findPropertyNames(@Param("propertyIds") Set<String> propertyIds);
+    List<Object[]> findCharterPropertyNames(@Param("propertyIds") Set<String> propertyIds);
+
+    /**
+     * 월세 매물명 조회 (DTO 매핑용)
+     *
+     * @param propertyIds 매물 ID Set
+     * @return [property_id, apt_nm] 리스트
+     */
+    @Query(value =
+            "SELECT property_id, apt_nm FROM properties_monthly " +
+                    "WHERE property_id IN :propertyIds",
+            nativeQuery = true)
+    List<Object[]> findMonthlyPropertyNames(@Param("propertyIds") Set<String> propertyIds);
 
     /**
      * 중복 리뷰 체크
