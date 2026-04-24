@@ -52,7 +52,7 @@ section {
     top: 10px;
 }
 
-/* 홈 아이콘 스타일 */
+/* 홈 아이콘 */
 #menu_home {
     width: 88px;
     height: 88px;
@@ -83,7 +83,6 @@ section {
     border: 1px solid white;
 }
 
-/* 메뉴 전체 텍스트 스타일 */
 .menu_txt {
     color: rgba(255, 255, 255, 1);
     width: 88px;
@@ -97,7 +96,7 @@ section {
     letter-spacing: 0;
 }
 
-/* 주거지 추천 선택 스타일 */
+/* ① 거주지 추천 — top: 90px */
 #menu_suggest {
     width: 88px;
     height: 90px;
@@ -131,8 +130,8 @@ section {
     transform: scale(1.1);
 }
 
-/* 지역구 선택 스타일 */
-#menu_gu {
+/* ② 매물 게시판 — top: 180px */
+#menu_property {
     width: 88px;
     height: 90px;
     position: absolute;
@@ -140,7 +139,7 @@ section {
     top: 180px;
 }
 
-#menu_gu_icon {
+#menu_property_icon {
     width: 88px;
     height: 88px;
     position: absolute;
@@ -150,7 +149,7 @@ section {
     cursor: pointer;
 }
 
-#menu_gu_icon img {
+#menu_property_icon img {
     width: 55px;
     height: 55px;
     position: absolute;
@@ -159,12 +158,12 @@ section {
     border-radius: 45px;
 }
 
-#menu_gu_icon:hover img {
+#menu_property_icon:hover img {
     transition: 0.2s;
     transform: scale(1.1);
 }
 
-/* 상세 지도 선택 스타일 */
+/* ③ 상세 지도 — top: 270px */
 #menu_detail {
     width: 88px;
     height: 90px;
@@ -197,7 +196,7 @@ section {
     transform: scale(1.1);
 }
 
-/* 리뷰 게시판 선택 스타일 */
+/* ④ 리뷰 시스템 — top: 360px */
 #menu_review {
     width: 88px;
     height: 90px;
@@ -230,8 +229,8 @@ section {
     transform: scale(1.1);
 }
 
-/* 매물 게시판 선택 스타일 (신규) */
-#menu_property {
+/* ⑤ 지역구 지도 — top: 450px */
+#menu_gu {
     width: 88px;
     height: 90px;
     position: absolute;
@@ -239,7 +238,7 @@ section {
     top: 450px;
 }
 
-#menu_property_icon {
+#menu_gu_icon {
     width: 88px;
     height: 88px;
     position: absolute;
@@ -249,7 +248,7 @@ section {
     cursor: pointer;
 }
 
-#menu_property_icon img {
+#menu_gu_icon img {
     width: 55px;
     height: 55px;
     position: absolute;
@@ -258,12 +257,12 @@ section {
     border-radius: 45px;
 }
 
-#menu_property_icon:hover img {
+#menu_gu_icon:hover img {
     transition: 0.2s;
     transform: scale(1.1);
 }
 
-/* 게시판 선택 스타일 - 숨김 처리 */
+/* 게시판 — 숨김 */
 #menu_board {
     display: none;
 }
