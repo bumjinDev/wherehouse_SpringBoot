@@ -266,6 +266,7 @@ public class PropertyQueryService {
                 .buildYear(e.getBuildYear())
                 .dataSource(e.getDataSource() != null ? e.getDataSource().name() : null)
                 .status(e.getStatus() != null ? e.getStatus().name() : null)
+                .registeredUserId(e.getRegisteredUserId())
                 .registeredAt(e.getRegisteredAt())
                 .lastUpdated(resolveLastUpdated(e.getModifiedAt(), e.getRegisteredAt(), e.getLastUpdated()))
                 .build();
@@ -286,6 +287,7 @@ public class PropertyQueryService {
                 .buildYear(e.getBuildYear())
                 .dataSource(e.getDataSource() != null ? e.getDataSource().name() : null)
                 .status(e.getStatus() != null ? e.getStatus().name() : null)
+                .registeredUserId(e.getRegisteredUserId())
                 .registeredAt(e.getRegisteredAt())
                 .lastUpdated(resolveLastUpdated(e.getModifiedAt(), e.getRegisteredAt(), e.getLastUpdated()))
                 .build();

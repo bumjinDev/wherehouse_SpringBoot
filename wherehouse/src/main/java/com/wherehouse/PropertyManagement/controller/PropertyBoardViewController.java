@@ -1,7 +1,9 @@
 package com.wherehouse.PropertyManagement.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *   /wherehouse/properties/register              → 매물 등록 페이지 (F001)
  *   /wherehouse/properties/edit/{propertyId}     → 매물 수정 페이지 (F002)
  *
- * 비고: 기존 ReviewBoardViewController 와 동일한 구조·네이밍 관례를 따름.
+ * 인증 상태 전달:
+ *   SecurityConfig.propertyViewFilterChain 이 /properties/** 경로에
+ *   JwtAuthProcessorFilter 를 적용하여 선택적 인증을 지원한다.
+ *   JWT 쿠키가 있으면 SecurityContext 에 userId 가 세팅되고,
+ *   없으면 AnonymousAuthenticationFilter 가 "anonymousUser" 를 주입한다.
+ *   뷰 컨트롤러는 이를 정규화(anonymousUser → null)하여 Model 에 주입하고,
+ *   JSP 에서 JavaScript 변수로 출력하여 버튼 노출 제어에 사용한다.
  */
 @Slf4j
 @Controller
@@ -28,15 +36,18 @@ public class PropertyBoardViewController {
     /**
      * 매물 게시판 메인 페이지 (F004 매물 전체 목록 페이지)
      *
-     * 기획서 "UI/UX 연동 방식 — 매물 전체 목록 페이지 (신규)" 구현 지점.
-     * 기존 리뷰 게시판과 동일한 UI 패턴(페이지네이션 + 검색)을 따름.
-     *
+     * @param userId Model 에 currentUserId 로 주입. 비인증 시 null.
      * @return property/property_board 뷰 이름
      */
     @GetMapping("/board")
-    public String showPropertyBoard() {
+    public String showPropertyBoard(
+            @AuthenticationPrincipal String userId,
+            Model model) {
 
-        log.info("매물 게시판 메인 페이지 요청");
+        String currentUserId = normalizeUserId(userId);
+        model.addAttribute("currentUserId", currentUserId);
+
+        log.info("매물 게시판 메인 페이지 요청: currentUserId={}", currentUserId);
 
         return "property/property_board";
     }
@@ -44,15 +55,18 @@ public class PropertyBoardViewController {
     /**
      * 매물 등록 폼 페이지 (F001 매물 등록 화면)
      *
-     * 기획서 "매물 등록 화면 — 입력 폼 영역" 구현 지점.
-     * 필수 입력: 임대 유형, 아파트명, 주소, 층수, 전용면적, 가격 정보.
-     *
+     * @param userId 인증된 사용자만 등록 가능하므로 Model 에 주입하여 UI 안내에 활용.
      * @return property/property_register 뷰 이름
      */
     @GetMapping("/register")
-    public String showRegisterPage() {
+    public String showRegisterPage(
+            @AuthenticationPrincipal String userId,
+            Model model) {
 
-        log.info("매물 등록 폼 페이지 요청");
+        String currentUserId = normalizeUserId(userId);
+        model.addAttribute("currentUserId", currentUserId);
+
+        log.info("매물 등록 폼 페이지 요청: currentUserId={}", currentUserId);
 
         return "property/property_register";
     }
@@ -60,18 +74,28 @@ public class PropertyBoardViewController {
     /**
      * 매물 수정 폼 페이지 (F002)
      *
-     * 주의: 본 뷰 진입 자체에는 권한 검증이 없음.
-     *       등록자 본인 검증은 실제 수정 API 호출 시점에 서비스 계층이 수행(섹션 9.2.3).
-     *       타인 매물의 편집 페이지에 접근은 가능하나 저장 시 E4003 반환.
+     * 수정 기능은 property_board 내 모달로 처리되므로
+     * 이 경로 접근 시 게시판 페이지로 리다이렉트한다.
      *
      * @param propertyId 수정 대상 매물 식별자
-     * @return property/property_edit 뷰 이름
+     * @return 게시판 페이지로 리다이렉트
      */
     @GetMapping("/edit/{propertyId}")
     public String showEditPage(@PathVariable String propertyId) {
 
-        log.info("매물 수정 폼 페이지 요청: propertyId={}", propertyId);
+        log.info("매물 수정 폼 페이지 요청 → 게시판으로 리다이렉트: propertyId={}", propertyId);
 
-        return "property/property_edit";
+        return "redirect:/properties/board";
+    }
+
+    /**
+     * AnonymousAuthenticationFilter 가 주입하는 "anonymousUser" 를 null 로 정규화.
+     * F005 CharterRecommendationService 와 동일 패턴.
+     */
+    private String normalizeUserId(String userId) {
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return null;
+        }
+        return userId;
     }
 }

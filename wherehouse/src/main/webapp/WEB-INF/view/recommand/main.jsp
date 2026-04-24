@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhereHouse</title>
-    <link rel="stylesheet" href="/wherehouse/css/main.css?ver=125_menu_height_fix">
-    <link rel="icon" href="/wherehouse/images/home_icon.png">  <!--  <link rel="icon" href="/wherehouse/images/home_icon.png"> -->
+    <link rel="stylesheet" href="/wherehouse/css/main.css?ver=126_property_menu">
+    <link rel="icon" href="/wherehouse/images/home_icon.png">
     <script src="/wherehouse/js/main.js"></script>
 </head>
 <body>
@@ -14,7 +14,7 @@
     <div id="menu">
         <div id="menu_home">
             <div id="menu_home_icon">
-                <a href="/wherehouse" ><img src="/wherehouse/images/home_icon.png" alt=""></a>		<!-- 별도 스프링 컨트롤러 거치치 않고 바로 컨텍스트 요청 실행. -->
+                <a href="/wherehouse" ><img src="/wherehouse/images/home_icon.png" alt=""></a>
             </div>
             <hr id="menu_division">
         </div>
@@ -49,6 +49,14 @@
             </div>
             <div class="menu_txt">
                 리뷰 시스템
+            </div>
+        </div>
+        <div id="menu_property">
+            <div id="menu_property_icon">
+                <img src="/wherehouse/images/board_icon.png" alt="">
+            </div>
+            <div class="menu_txt">
+                매물 게시판
             </div>
         </div>
         <div id="menu_board">

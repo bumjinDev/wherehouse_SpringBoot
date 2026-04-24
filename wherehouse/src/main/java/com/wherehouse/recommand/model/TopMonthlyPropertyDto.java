@@ -103,4 +103,8 @@ public class TopMonthlyPropertyDto {
     private String dataSource;
     private String status;
     private Boolean ownedByCurrentUser;
+
+    // [F005] 버튼 렌더링 제어
+    private Boolean canEdit;
+    private Boolean canChangeStatus;
 }

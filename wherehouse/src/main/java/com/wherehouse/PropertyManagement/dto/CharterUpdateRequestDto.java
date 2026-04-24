@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * F002 전세 매물 수정 요청 DTO.
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
  * 에러가 발생하지 않는다.
  */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

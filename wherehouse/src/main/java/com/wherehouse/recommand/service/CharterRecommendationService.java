@@ -44,11 +44,16 @@ public class CharterRecommendationService {
      * S-01 ~ S-06 단계를 순차적으로 수행하여 전세 매물 기반 지역구 추천
      */
     public CharterRecommendationResponseDto getCharterDistrictRecommendations(CharterRecommendationRequestDto request, String currentUserId) {
-        // log.info("=== 전세 지역구 추천 서비스 시작 ===");
-        // log.info("요청 조건: 전세금={}-{}, 평수={}-{}, 우선순위={},{},{}",
-        //         request.getBudgetMin(), request.getBudgetMax(),
-        //         request.getAreaMin(), request.getAreaMax(),
-        //         request.getPriority1(), request.getPriority2(), request.getPriority3());
+
+        // [F005] 익명 인증 주체 정규화 (설계 섹션 9.5.4)
+        currentUserId = "anonymousUser".equals(currentUserId) ? null : currentUserId;
+
+         log.info("=== 전세 지역구 추천 서비스 시작 ===");
+         log.info("요청 조건: 전세금={}-{}, 평수={}-{}, 우선순위={},{},{}, 요청자: ={}",
+                 request.getBudgetMin(), request.getBudgetMax(),
+                 request.getAreaMin(), request.getAreaMax(),
+                 request.getPriority1(), request.getPriority2(), request.getPriority3(),
+                 currentUserId);
 
         try {
             // S-01: 전 지역구 1차 검색 (전세 전용 인덱스 사용)
@@ -649,6 +654,10 @@ public class CharterRecommendationService {
                 .dataSource(detail.getDataSource())
                 .status(detail.getStatus())
                 .ownedByCurrentUser(
+                        currentUserId != null
+                        && currentUserId.equals(detail.getRegisteredUserId()))
+                .canEdit(currentUserId != null) // 인증된 사용자라면 누구나 수정 가능
+                .canChangeStatus(               // 매물 상태 변경은 매물 등록자 본인만 가능
                         currentUserId != null
                         && currentUserId.equals(detail.getRegisteredUserId()))
                 .build();

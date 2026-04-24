@@ -1684,7 +1684,7 @@ function renderMonthlyPropertyList(properties) {
 }
 
 /**
- * 전세 개별 매물 카드 생성 (완전히 새로운 함수)
+ * 전세 개별 매물 카드 생성 — [F005] 수정·거래완료·삭제 버튼 포함
  */
 function createCharterPropertyCard(property, rank) {
     const card = document.createElement('div');
@@ -1694,7 +1694,20 @@ function createCharterPropertyCard(property, rank) {
     const buildYearText = property.build_year ? `${property.build_year}년` : '정보없음';
     const floorText = property.floor ? `${property.floor}층` : '정보없음';
     const scoreText = property.final_score ? `${Math.floor(property.final_score * 100) / 100}점` : '-';
-    //                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 버림 처리
+
+    // [F005] 버튼 HTML — 서버가 결정한 can_edit, can_change_status 기반
+    let buttonsHtml = '';
+    if (property.can_edit || property.can_change_status) {
+        buttonsHtml = '<div class="property_card_actions">';
+        if (property.can_edit) {
+            buttonsHtml += `<button class="property_action_btn edit" onclick="openEditModal('${property.property_id}', '전세', ${property.price || 0}, null, ${property.build_year || 'null'}, null)">수정</button>`;
+        }
+        if (property.can_change_status) {
+            buttonsHtml += `<button class="property_action_btn complete" onclick="changePropertyStatus('${property.property_id}', '전세', 'COMPLETED')">거래완료</button>`;
+            buttonsHtml += `<button class="property_action_btn delete" onclick="changePropertyStatus('${property.property_id}', '전세', 'DELETED')">삭제</button>`;
+        }
+        buttonsHtml += '</div>';
+    }
 
     card.innerHTML = `
         <div class="charter_property_header">
@@ -1738,13 +1751,14 @@ function createCharterPropertyCard(property, rank) {
                 </div>
             </div>
         </div>
+        ${buttonsHtml}
     `;
 
     return card;
 }
 
 /**
- * 월세 개별 매물 카드 생성 (완전히 새로운 함수)
+ * 월세 개별 매물 카드 생성 — [F005] 수정·거래완료·삭제 버튼 포함
  */
 function createMonthlyPropertyCard(property, rank) {
     const card = document.createElement('div');
@@ -1756,7 +1770,20 @@ function createMonthlyPropertyCard(property, rank) {
     const buildYearText = property.build_year ? `${property.build_year}년` : '정보없음';
     const floorText = property.floor ? `${property.floor}층` : '정보없음';
     const scoreText = property.final_score ? `${Math.floor(property.final_score * 100) / 100}점` : '-';
-    //                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 버림 처리
+
+    // [F005] 버튼 HTML
+    let buttonsHtml = '';
+    if (property.can_edit || property.can_change_status) {
+        buttonsHtml = '<div class="property_card_actions">';
+        if (property.can_edit) {
+            buttonsHtml += `<button class="property_action_btn edit" onclick="openEditModal('${property.property_id}', '월세', ${property.price || 0}, ${property.monthly_rent || 0}, ${property.build_year || 'null'}, null)">수정</button>`;
+        }
+        if (property.can_change_status) {
+            buttonsHtml += `<button class="property_action_btn complete" onclick="changePropertyStatus('${property.property_id}', '월세', 'COMPLETED')">거래완료</button>`;
+            buttonsHtml += `<button class="property_action_btn delete" onclick="changePropertyStatus('${property.property_id}', '월세', 'DELETED')">삭제</button>`;
+        }
+        buttonsHtml += '</div>';
+    }
 
     card.innerHTML = `
         <div class="monthly_property_header">
@@ -1800,6 +1827,7 @@ function createMonthlyPropertyCard(property, rank) {
                 </div>
             </div>
         </div>
+        ${buttonsHtml}
     `;
 
     return card;
@@ -1947,3 +1975,117 @@ window.closePropertyModal = closePropertyModal;
 // 전역 함수로 내보내기 - 상세 순위 모달 함수 추가
 window.showDetailRankModal = showDetailRankModal;
 window.closeDetailRankModal = closeDetailRankModal;
+
+// ============================================================
+// [F005] 매물 수정 모달 + 상태변경 API 호출
+// ============================================================
+
+function resolveApiPath(leaseType) {
+    return leaseType === '전세' ? 'charter' : 'monthly';
+}
+
+function openEditModal(propertyId, leaseType, deposit, monthlyRent, buildYear, dealDate) {
+    document.getElementById('edit_property_id').value = propertyId;
+    document.getElementById('edit_lease_type').value = leaseType;
+    document.getElementById('edit_deposit').value = deposit || '';
+    document.getElementById('edit_build_year').value = buildYear || '';
+    document.getElementById('edit_deal_date').value = dealDate || '';
+
+    const monthlySection = document.getElementById('edit_monthly_rent_section');
+    if (leaseType === '월세') {
+        monthlySection.style.display = 'block';
+        document.getElementById('edit_monthly_rent').value = monthlyRent || '';
+    } else {
+        monthlySection.style.display = 'none';
+        document.getElementById('edit_monthly_rent').value = '';
+    }
+
+    document.getElementById('edit_modal_title').textContent =
+        `${leaseType} 매물 수정 (${propertyId.substring(0, 8)}...)`;
+
+    document.getElementById('property_edit_modal').style.display = 'block';
+    document.body.classList.add('modal_open');
+}
+
+function closeEditModal() {
+    document.getElementById('property_edit_modal').style.display = 'none';
+    document.body.classList.remove('modal_open');
+}
+
+async function submitPropertyEdit() {
+    const propertyId = document.getElementById('edit_property_id').value;
+    const leaseType = document.getElementById('edit_lease_type').value;
+    const pathType = resolveApiPath(leaseType);
+
+    const body = {};
+    const deposit = document.getElementById('edit_deposit').value;
+    const buildYear = document.getElementById('edit_build_year').value;
+    const dealDate = document.getElementById('edit_deal_date').value;
+
+    if (deposit) body.deposit = parseInt(deposit);
+    if (buildYear) body.build_year = parseInt(buildYear);
+    if (dealDate) body.deal_date = dealDate;
+
+    if (leaseType === '월세') {
+        const monthlyRent = document.getElementById('edit_monthly_rent').value;
+        if (monthlyRent) body.monthly_rent = parseInt(monthlyRent);
+    }
+
+    if (Object.keys(body).length === 0) {
+        alert('수정할 항목을 입력해주세요.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/wherehouse/api/v1/properties/${pathType}/${propertyId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => null);
+            throw new Error(err?.message || `수정 실패 (${response.status})`);
+        }
+
+        const result = await response.json();
+        alert(`매물 수정 완료\n변경된 필드: ${(result.changed_fields || []).join(', ')}`);
+        closeEditModal();
+    } catch (error) {
+        console.error('매물 수정 오류:', error);
+        alert(error.message || '매물 수정 중 오류가 발생했습니다.');
+    }
+}
+
+async function changePropertyStatus(propertyId, leaseType, targetStatus) {
+    const statusLabel = targetStatus === 'COMPLETED' ? '거래완료' : '삭제';
+    if (!confirm(`이 매물을 "${statusLabel}" 처리하시겠습니까?\n\n매물 ID: ${propertyId.substring(0, 8)}...\n이 작업은 되돌릴 수 없습니다.`)) {
+        return;
+    }
+
+    const pathType = resolveApiPath(leaseType);
+
+    try {
+        const response = await fetch(`/wherehouse/api/v1/properties/${pathType}/${propertyId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target_status: targetStatus })
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => null);
+            throw new Error(err?.message || `상태변경 실패 (${response.status})`);
+        }
+
+        const result = await response.json();
+        alert(`매물 상태 변경 완료\n${result.previous_status} → ${result.current_status}`);
+    } catch (error) {
+        console.error('상태변경 오류:', error);
+        alert(error.message || '상태변경 중 오류가 발생했습니다.');
+    }
+}
+
+window.openEditModal = openEditModal;
+window.closeEditModal = closeEditModal;
+window.submitPropertyEdit = submitPropertyEdit;
+window.changePropertyStatus = changePropertyStatus;

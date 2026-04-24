@@ -339,5 +339,47 @@
 </div>
 
 <script src="/wherehouse/js/house_rec.js"></script>
+
+<!-- [F005] 매물 수정 모달 -->
+<div id="property_edit_modal" style="display: none;">
+    <div class="property_modal_overlay">
+        <div class="edit_modal_content">
+            <div class="property_modal_header">
+                <h3 id="edit_modal_title">매물 정보 수정</h3>
+                <button class="property_modal_close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="edit_modal_body">
+                <input type="hidden" id="edit_property_id">
+                <input type="hidden" id="edit_lease_type">
+
+                <div class="edit_form_group">
+                    <label class="edit_form_label">보증금/전세금 (만원)</label>
+                    <input type="number" id="edit_deposit" class="edit_form_input" placeholder="예: 45000">
+                </div>
+
+                <div class="edit_form_group" id="edit_monthly_rent_section" style="display:none;">
+                    <label class="edit_form_label">월세 (만원)</label>
+                    <input type="number" id="edit_monthly_rent" class="edit_form_input" placeholder="예: 50">
+                </div>
+
+                <div class="edit_form_group">
+                    <label class="edit_form_label">건축연도</label>
+                    <input type="number" id="edit_build_year" class="edit_form_input" placeholder="예: 2015">
+                </div>
+
+                <div class="edit_form_group">
+                    <label class="edit_form_label">거래일</label>
+                    <input type="date" id="edit_deal_date" class="edit_form_input">
+                </div>
+
+                <div class="edit_modal_actions">
+                    <button class="edit_btn_cancel" onclick="closeEditModal()">취소</button>
+                    <button class="edit_btn_save" onclick="submitPropertyEdit()">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

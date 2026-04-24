@@ -43,12 +43,17 @@ public class MonthlyRecommendationService {
      * S-01 ~ S-06 단계를 순차적으로 수행하여 월세 매물 기반 지역구 추천
      */
     public MonthlyRecommendationResponseDto getMonthlyDistrictRecommendations(MonthlyRecommendationRequestDto request, String currentUserId) {
+
+        // [F005] 익명 인증 주체 정규화 (설계 섹션 9.5.4)
+        currentUserId = "anonymousUser".equals(currentUserId) ? null : currentUserId;
+
         log.info("=== 월세 지역구 추천 서비스 시작 ===");
-        log.info("요청 조건: 보증금={}-{}, 월세={}-{}, 평수={}-{}, 우선순위={},{},{}",
+        log.info("요청 조건: 보증금={}-{}, 월세={}-{}, 평수={}-{}, 우선순위={},{},{}, 요청자={}",
                 request.getBudgetMin(), request.getBudgetMax(),
                 request.getMonthlyRentMin(), request.getMonthlyRentMax(),
                 request.getAreaMin(), request.getAreaMax(),
-                request.getPriority1(), request.getPriority2(), request.getPriority3());
+                request.getPriority1(), request.getPriority2(), request.getPriority3(),
+                currentUserId);
 
         try {
             // S-01: 전 지역구 1차 검색 (월세 전용 인덱스 사용)
@@ -703,6 +708,10 @@ public class MonthlyRecommendationService {
                 .dataSource(detail.getDataSource())
                 .status(detail.getStatus())
                 .ownedByCurrentUser(
+                        currentUserId != null
+                        && currentUserId.equals(detail.getRegisteredUserId()))
+                .canEdit(currentUserId != null)
+                .canChangeStatus(
                         currentUserId != null
                         && currentUserId.equals(detail.getRegisteredUserId()))
                 .build();

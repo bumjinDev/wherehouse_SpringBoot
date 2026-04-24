@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * F002 월세 매물 수정 요청 DTO.
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
  * 월세 수정이므로 monthlyRent 는 선택적 수정 대상이다(@NotNull 아님, PATCH 시맨틱).
  */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

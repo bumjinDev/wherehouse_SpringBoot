@@ -178,7 +178,21 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /* [매물 관리 서비스] : 등록·수정·상태변경(POST·PATCH)은 JWT 인증 필수, 조회(GET)는 비인증 허용 */
+    /* [매물 관리 서비스 - 뷰] : 매물 게시판·등록·수정 JSP 페이지. 선택적 인증 (F004 버튼 노출 제어용)
+     *   iframe 내 로드를 위해 X-Frame-Options: SAMEORIGIN 설정 필수.
+     *   Spring Security 기본값이 DENY 이므로 명시적으로 sameOrigin 지정. */
+    @Bean
+    public SecurityFilterChain propertyViewFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/properties/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    /* [매물 관리 서비스 - API] : 등록·수정·상태변경(POST·PATCH)은 JWT 인증 필수, 조회(GET)는 비인증 허용 */
     @Bean
     public SecurityFilterChain propertyServiceFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/api/v1/properties/**")

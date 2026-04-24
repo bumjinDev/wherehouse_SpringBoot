@@ -102,6 +102,12 @@ public class PropertySummaryDto {
     private String status;
 
     /**
+     * 등록자 식별자. 배치 매물은 null.
+     * F004 목록 화면에서 버튼 노출 제어(canEdit/canChangeStatus 판단)에 필요.
+     */
+    private String registeredUserId;
+
+    /**
      * 사용자 등록 시각. 배치 매물은 null.
      */
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

@@ -126,4 +126,8 @@ public class TopCharterPropertyDto {
      * - 데이터 소스: 인증 컨텍스트 userId 와 Redis Hash ‘registeredUserId’ 비교 산출
      */
     private Boolean ownedByCurrentUser;
+
+    // [F005] 버튼 렌더링 제어 — 서버가 인증 상태 기반으로 결정
+    private Boolean canEdit;
+    private Boolean canChangeStatus;
 }
