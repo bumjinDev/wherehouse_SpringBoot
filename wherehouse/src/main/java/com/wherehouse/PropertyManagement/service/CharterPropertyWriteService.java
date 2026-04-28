@@ -15,6 +15,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/* 실패에 대한 대처(스케줄러) 위해 추가하는 부분들 */
+import com.wherehouse.PropertyManagement.entity.PropertySyncFailure;
+import com.wherehouse.PropertyManagement.repository.PropertySyncFailureRepository;
+import org.springframework.dao.QueryTimeoutException;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.data.redis.RedisSystemException;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -36,6 +45,9 @@ public class CharterPropertyWriteService {
     private final PropertyHashBuilder propertyHashBuilder;
     private final BoundsUpdater boundsUpdater;
     private final IdGenerator idGenerator;
+
+    /* 실패에 대한 대처(스케줄러) 위해 추가하는 부분들 */
+    private final PropertySyncFailureRepository syncFailureRepository;
 
     private static final String LEASE_CHARTER_CODE = "CHARTER";
     private static final String LEASE_CHARTER_KOR = "전세";
@@ -62,16 +74,21 @@ public class CharterPropertyWriteService {
     @Transactional
     public PropertyCreateResponseDto createProperty(CharterCreateRequestDto dto, String userId) {
 
+        /* 자치구 25 개 명칭 중 올바른 지역구 이름 목록 내 포함되는 지역구 명칭 사용했는지 검사. */
         validateDistrictCode(dto.getSggCd());
 
+        /* 현재 요청한 매물에 대한 매물 ID 생성 : md5 해쉬 결과이며, 시군구코드, 지번, 매물명, 층수, 평수 5가지 조합. */
         String propertyId = idGenerator.generatePropertyId(
                 dto.getSggCd(), dto.getJibun(), dto.getAptNm(),
                 String.valueOf(dto.getFloor()), dto.getExcluUseAr().toPlainString());
 
+        /* 매물 ID 를 조회하여 전세 매물들 중 중복 매물 여부 확인. */
         Optional<PropertyCharterEntity> existing = charterRepository.findById(propertyId);
         if (existing.isPresent()) {
             throw new DuplicatePropertyException("이미 등록된 전세 매물입니다. propertyId=" + propertyId);
         }
+
+        log.info("매물 ID={}", propertyId);
 
         String districtName = resolveDistrictName(dto.getSggCd());
         BigDecimal areaInPyeong = toPyeong(dto.getExcluUseAr());
@@ -91,7 +108,18 @@ public class CharterPropertyWriteService {
                 .build();
 
         charterRepository.save(entity);
-        syncRedisAfterCreate(entity);
+//        syncRedisAfterCreate(entity); // 수정 전
+
+        // ── F008: syncRedisAfterCreate 직접 호출 → afterCommit 콜백 등록으로 교체 ──
+        // RDB 커밋 확정 후에만 Redis 동기화를 실행하여 유령 데이터를 구조적으로 차단한다.
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        executeRedisSyncWithCompensation(entity);
+                    }
+                }
+        );
 
         return PropertyCreateResponseDto.builder()
                 .propertyId(propertyId).leaseType(LEASE_CHARTER_CODE)
@@ -134,6 +162,7 @@ public class CharterPropertyWriteService {
         LocalDateTime now = LocalDateTime.now();
         entity.setModifiedAt(now);
         charterRepository.save(entity);
+
         syncRedisAfterUpdate(entity, changedFields);
 
         return PropertyUpdateResponseDto.builder()
@@ -211,6 +240,7 @@ public class CharterPropertyWriteService {
 
     /** F001 등록 후: Hash 생성 + 인덱스 2개 추가 + bounds 경계 확장. */
     private void syncRedisAfterCreate(PropertyCharterEntity entity) {
+
         String propertyId = entity.getPropertyId();
         String districtName = entity.getDistrictName();
 
@@ -342,5 +372,92 @@ public class CharterPropertyWriteService {
     private boolean longEqualsInteger(Long entityVal, Integer dtoVal) {
         if (entityVal == null) return false;
         return entityVal.equals(Long.valueOf(dtoVal));
+    }
+
+    // ============================================================
+    // F008 — Redis 동기화 보상 처리
+    // ============================================================
+
+    /**
+     * Redis 동기화 + 예외 분류 + 즉시 재시도 + 실패 기록.
+     * afterCommit 콜백 내부에서 호출된다.
+     */
+    private void executeRedisSyncWithCompensation(PropertyCharterEntity entity) {
+
+        // 1차 시도
+        try {
+            syncRedisAfterCreate(entity);
+            return;
+        } catch (RedisConnectionFailureException e) {
+            log.warn("[REDIS_SYNC_RETRY] 연결 실패, 재시도 진입: propertyId={}",
+                    entity.getPropertyId());
+        } catch (QueryTimeoutException e) {
+            log.warn("[REDIS_SYNC_RETRY] 타임아웃, 재시도 진입: propertyId={}, cause={}",
+                    entity.getPropertyId(), e.getClass().getSimpleName());
+        } catch (RedisSystemException e) {
+            log.error("[REDIS_SYNC_INFRA] 인프라 장애(OOM 등), 재시도 생략: propertyId={}, msg={}",
+                    entity.getPropertyId(), e.getMessage());
+            recordSyncFailure(entity.getPropertyId(), e.getMessage());
+            return;
+        } catch (Exception e) {
+            log.error("[REDIS_SYNC_UNEXPECTED] 예상 외 예외: propertyId={}, msg={}",
+                    entity.getPropertyId(), e.getMessage());
+            recordSyncFailure(entity.getPropertyId(), e.getMessage());
+            return;
+        }
+
+        // 2차 시도 (재시도 1회)
+        try {
+            Thread.sleep(200);
+            syncRedisAfterCreate(entity);
+            log.info("[REDIS_SYNC_RETRY_OK] 재시도 성공: propertyId={}", entity.getPropertyId());
+            return;
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        } catch (Exception retryEx) {
+            log.warn("[REDIS_SYNC_RETRY_FAIL] 재시도 실패: propertyId={}", entity.getPropertyId());
+        }
+
+        // 재시도도 실패 → 실패 테이블 기록, 스케줄러 위임
+        recordSyncFailure(entity.getPropertyId(), "즉시 재시도 1회 실패 후 스케줄러 위임");
+    }
+
+    /**
+     * Redis 동기화 실패를 PROPERTY_SYNC_FAILURES 테이블에 기록.
+     */
+    private void recordSyncFailure(String propertyId, String failReason) {
+
+        try {
+            PropertySyncFailure failure = PropertySyncFailure.builder()
+                    .propertyId(propertyId)
+                    .leaseType("CHARTER")
+                    .operationType("CREATE")
+                    .failStep("FULL")
+                    .failReason(failReason != null && failReason.length() > 500
+                            ? failReason.substring(0, 500) : failReason)
+                    .failTime(LocalDateTime.now())
+                    .retryCount(0)
+                    .maxRetries(5)
+                    .resolved("N")
+                    .build();
+
+            syncFailureRepository.save(failure);
+            log.warn("[SYNC_FAILURE_RECORDED] propertyId={}", propertyId);
+
+        } catch (Exception e) {
+            log.error("[SYNC_FAILURE_RECORD_FAILED] propertyId={}, error={}",
+                    propertyId, e.getMessage());
+        }
+    }
+
+    /**
+     * 스케줄러(PropertySyncRetryScheduler) 호출용 public 래퍼.
+     */
+    public void retrySyncForCreate(String propertyId) {
+        PropertyCharterEntity entity = charterRepository.findById(propertyId)
+                .orElseThrow(() -> new PropertyNotFoundException(
+                        "재시도 대상 매물이 존재하지 않습니다. propertyId=" + propertyId));
+
+        syncRedisAfterCreate(entity);
     }
 }
