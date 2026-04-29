@@ -24,6 +24,10 @@ import org.springframework.data.redis.RedisSystemException;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -48,6 +52,8 @@ public class CharterPropertyWriteService {
 
     /* 실패에 대한 대처(스케줄러) 위해 추가하는 부분들 */
     private final PropertySyncFailureRepository syncFailureRepository;
+
+    private final PlatformTransactionManager transactionManager;
 
     private static final String LEASE_CHARTER_CODE = "CHARTER";
     private static final String LEASE_CHARTER_KOR = "전세";
@@ -109,6 +115,8 @@ public class CharterPropertyWriteService {
 
         charterRepository.save(entity);
 //        syncRedisAfterCreate(entity); // 수정 전
+
+        if (true) { throw new RuntimeException("[F008-TEST] RDB 커밋 실패 시뮬레이션"); }
 
         // ── F008: syncRedisAfterCreate 직접 호출 → afterCommit 콜백 등록으로 교체 ──
         // RDB 커밋 확정 후에만 Redis 동기화를 실행하여 유령 데이터를 구조적으로 차단한다.
@@ -425,23 +433,31 @@ public class CharterPropertyWriteService {
     /**
      * Redis 동기화 실패를 PROPERTY_SYNC_FAILURES 테이블에 기록.
      */
+
     private void recordSyncFailure(String propertyId, String failReason) {
 
         try {
-            PropertySyncFailure failure = PropertySyncFailure.builder()
-                    .propertyId(propertyId)
-                    .leaseType("CHARTER")
-                    .operationType("CREATE")
-                    .failStep("FULL")
-                    .failReason(failReason != null && failReason.length() > 500
-                            ? failReason.substring(0, 500) : failReason)
-                    .failTime(LocalDateTime.now())
-                    .retryCount(0)
-                    .maxRetries(5)
-                    .resolved("N")
-                    .build();
+            TransactionTemplate txTemplate = new TransactionTemplate(transactionManager);
+            txTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
-            syncFailureRepository.save(failure);
+            txTemplate.execute(status -> {
+                PropertySyncFailure failure = PropertySyncFailure.builder()
+                        .propertyId(propertyId)
+                        .leaseType("CHARTER")
+                        .operationType("CREATE")
+                        .failStep("FULL")
+                        .failReason(failReason != null && failReason.length() > 500
+                                ? failReason.substring(0, 500) : failReason)
+                        .failTime(LocalDateTime.now())
+                        .retryCount(0)
+                        .maxRetries(5)
+                        .resolved("N")
+                        .build();
+
+                syncFailureRepository.save(failure);
+                return null;
+            });
+
             log.warn("[SYNC_FAILURE_RECORDED] propertyId={}", propertyId);
 
         } catch (Exception e) {
