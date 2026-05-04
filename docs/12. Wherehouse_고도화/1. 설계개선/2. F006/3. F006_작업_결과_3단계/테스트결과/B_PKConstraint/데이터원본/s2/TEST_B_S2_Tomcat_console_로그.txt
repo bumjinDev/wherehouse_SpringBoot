@@ -1,0 +1,41 @@
+17:54:22.030 [http-nio-8185-exec-7] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_다른매물_C, sggCd=11710
+17:54:22.030 [http-nio-8185-exec-1] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_다른매물_E, sggCd=11350
+17:54:22.030 [http-nio-8185-exec-4] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_다른매물_D, sggCd=11440
+17:54:22.030 [http-nio-8185-exec-5] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_다른매물_B, sggCd=11650
+17:54:22.030 [http-nio-8185-exec-9] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_다른매물_A, sggCd=11680
+17:54:22.030 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-1, propertyId=cbb3831dda8f539420c101716da2bfe3
+17:54:22.030 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-9, propertyId=76622d0ded5d7fc9d29f3d454cfaab5d
+17:54:22.030 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-4, propertyId=818fde86e4c2ad4ef4549389fb17fab6
+17:54:22.030 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-5, propertyId=2de7030c7ed2ca3a02c04ddea411303e
+17:54:22.030 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-7, propertyId=6e52abdb7e1cb02c16a981fe5dd7ae9b
+17:54:22.030 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-4, found=false
+17:54:22.030 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-7, found=false
+17:54:22.030 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=818fde86e4c2ad4ef4549389fb17fab6
+17:54:22.030 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=6e52abdb7e1cb02c16a981fe5dd7ae9b
+17:54:22.030 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-5, found=false
+17:54:22.030 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-1, found=false
+17:54:22.030 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-7, propertyId=6e52abdb7e1cb02c16a981fe5dd7ae9b
+17:54:22.030 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-9, found=false
+17:54:22.030 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=2de7030c7ed2ca3a02c04ddea411303e
+17:54:22.030 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-4, propertyId=818fde86e4c2ad4ef4549389fb17fab6
+17:54:22.030 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=76622d0ded5d7fc9d29f3d454cfaab5d
+17:54:22.030 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=cbb3831dda8f539420c101716da2bfe3
+17:54:22.030 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-9, propertyId=76622d0ded5d7fc9d29f3d454cfaab5d
+17:54:22.030 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-1, propertyId=cbb3831dda8f539420c101716da2bfe3
+17:54:22.030 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-5, propertyId=2de7030c7ed2ca3a02c04ddea411303e
+17:54:22.030 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-4, propertyId=818fde86e4c2ad4ef4549389fb17fab6
+17:54:22.030 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-1, propertyId=cbb3831dda8f539420c101716da2bfe3
+17:54:22.036 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-9, propertyId=76622d0ded5d7fc9d29f3d454cfaab5d
+17:54:22.036 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-7, propertyId=6e52abdb7e1cb02c16a981fe5dd7ae9b
+17:54:22.036 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-5, propertyId=2de7030c7ed2ca3a02c04ddea411303e
+17:54:22.036 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=818fde86e4c2ad4ef4549389fb17fab6
+17:54:22.036 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=cbb3831dda8f539420c101716da2bfe3
+17:54:22.036 [http-nio-8185-exec-4] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=818fde86e4c2ad4ef4549389fb17fab6
+17:54:22.036 [http-nio-8185-exec-1] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=cbb3831dda8f539420c101716da2bfe3
+17:54:22.036 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=76622d0ded5d7fc9d29f3d454cfaab5d
+17:54:22.036 [http-nio-8185-exec-9] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=76622d0ded5d7fc9d29f3d454cfaab5d
+17:54:22.036 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=2de7030c7ed2ca3a02c04ddea411303e
+17:54:22.036 [http-nio-8185-exec-5] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=2de7030c7ed2ca3a02c04ddea411303e
+17:54:22.036 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=6e52abdb7e1cb02c16a981fe5dd7ae9b
+17:54:22.040 [http-nio-8185-exec-7] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=6e52abdb7e1cb02c16a981fe5dd7ae9b
+17:54:23.011 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=12, active=0, idle=12, waiting=0)

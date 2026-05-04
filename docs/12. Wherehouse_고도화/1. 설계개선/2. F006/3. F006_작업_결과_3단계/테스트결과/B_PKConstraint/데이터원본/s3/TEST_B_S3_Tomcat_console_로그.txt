@@ -1,0 +1,83 @@
+17:58:44.409 [http-nio-8185-exec-5] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_D, sggCd=11350
+17:58:44.409 [http-nio-8185-exec-3] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_동일, sggCd=11680
+17:58:44.409 [http-nio-8185-exec-10] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_C, sggCd=11440
+17:58:44.409 [http-nio-8185-exec-2] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_E, sggCd=11200
+17:58:44.409 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-5, propertyId=25ad8f22fbf0f3f6999ea08e58feba2c
+17:58:44.409 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-3, propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.409 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-10, propertyId=e9ac8eafe5eac587702722a1769e60e8
+17:58:44.409 [http-nio-8185-exec-6] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_A, sggCd=11650
+17:58:44.409 [http-nio-8185-exec-4] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_F, sggCd=11560
+17:58:44.409 [http-nio-8185-exec-8] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_B, sggCd=11710
+17:58:44.409 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-2, propertyId=3e48926970a51c516efd3479102666f2
+17:58:44.409 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-6, propertyId=5b6cd22b0dad725545e371e1d282e2ff
+17:58:44.409 [http-nio-8185-exec-1] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_G, sggCd=11230
+17:58:44.409 [http-nio-8185-exec-8] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-8, propertyId=c93e1ab99284804588638dd6036cb187
+17:58:44.409 [http-nio-8185-exec-9] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_다른_H, sggCd=11620
+17:58:44.409 [http-nio-8185-exec-7] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_혼합_동일, sggCd=11680
+17:58:44.409 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-1, propertyId=5adcb691a4b57a66a2465ab55899f836
+17:58:44.422 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-9, propertyId=7b92ffe23e4dfa038f513219d6b417e0
+17:58:44.422 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-4, propertyId=a9f763dc5580b45256f52a537da51dfb
+17:58:44.422 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-7, propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.422 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-9, found=false
+17:58:44.422 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-6, found=false
+17:58:44.422 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-1, found=false
+17:58:44.422 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=7b92ffe23e4dfa038f513219d6b417e0
+17:58:44.422 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-3, found=false
+17:58:44.422 [http-nio-8185-exec-8] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-8, found=false
+17:58:44.422 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=5adcb691a4b57a66a2465ab55899f836
+17:58:44.422 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=58f42e5b33079f1c927026809dea5447
+17:58:44.422 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-2, found=false
+17:58:44.422 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=3e48926970a51c516efd3479102666f2
+17:58:44.422 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=5b6cd22b0dad725545e371e1d282e2ff
+17:58:44.422 [http-nio-8185-exec-8] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=c93e1ab99284804588638dd6036cb187
+17:58:44.422 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-6, propertyId=5b6cd22b0dad725545e371e1d282e2ff
+17:58:44.422 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-1, propertyId=5adcb691a4b57a66a2465ab55899f836
+17:58:44.422 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-2, propertyId=3e48926970a51c516efd3479102666f2
+17:58:44.422 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-9, propertyId=7b92ffe23e4dfa038f513219d6b417e0
+17:58:44.422 [http-nio-8185-exec-8] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-8, propertyId=c93e1ab99284804588638dd6036cb187
+17:58:44.422 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-3, propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.422 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-5, found=false
+17:58:44.422 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-10, found=false
+17:58:44.422 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=25ad8f22fbf0f3f6999ea08e58feba2c
+17:58:44.422 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=e9ac8eafe5eac587702722a1769e60e8
+17:58:44.422 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-5, propertyId=25ad8f22fbf0f3f6999ea08e58feba2c
+17:58:44.422 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-10, propertyId=e9ac8eafe5eac587702722a1769e60e8
+17:58:44.425 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-4, found=false
+17:58:44.425 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-7, found=false
+17:58:44.425 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=a9f763dc5580b45256f52a537da51dfb
+17:58:44.425 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=58f42e5b33079f1c927026809dea5447
+17:58:44.425 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-4, propertyId=a9f763dc5580b45256f52a537da51dfb
+17:58:44.425 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-7, propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.425 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-10, propertyId=e9ac8eafe5eac587702722a1769e60e8
+17:58:44.425 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-5, propertyId=25ad8f22fbf0f3f6999ea08e58feba2c
+17:58:44.425 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-6, propertyId=5b6cd22b0dad725545e371e1d282e2ff
+17:58:44.425 [http-nio-8185-exec-8] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-8, propertyId=c93e1ab99284804588638dd6036cb187
+17:58:44.425 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-9, propertyId=7b92ffe23e4dfa038f513219d6b417e0
+17:58:44.425 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-1, propertyId=5adcb691a4b57a66a2465ab55899f836
+17:58:44.427 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-3, propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.427 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-4, propertyId=a9f763dc5580b45256f52a537da51dfb
+17:58:44.427 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-2, propertyId=3e48926970a51c516efd3479102666f2
+17:58:44.427 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=3e48926970a51c516efd3479102666f2
+17:58:44.427 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=e9ac8eafe5eac587702722a1769e60e8
+17:58:44.427 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=5b6cd22b0dad725545e371e1d282e2ff
+17:58:44.427 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=25ad8f22fbf0f3f6999ea08e58feba2c
+17:58:44.427 [http-nio-8185-exec-1] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=5adcb691a4b57a66a2465ab55899f836
+17:58:44.427 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.427 [http-nio-8185-exec-9] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=7b92ffe23e4dfa038f513219d6b417e0
+17:58:44.427 [http-nio-8185-exec-8] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=c93e1ab99284804588638dd6036cb187
+17:58:44.427 [http-nio-8185-exec-5] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=25ad8f22fbf0f3f6999ea08e58feba2c
+17:58:44.427 [http-nio-8185-exec-4] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=a9f763dc5580b45256f52a537da51dfb
+17:58:44.427 [http-nio-8185-exec-2] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=3e48926970a51c516efd3479102666f2
+17:58:44.427 [http-nio-8185-exec-9] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=7b92ffe23e4dfa038f513219d6b417e0
+17:58:44.427 [http-nio-8185-exec-1] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=5adcb691a4b57a66a2465ab55899f836
+17:58:44.427 [http-nio-8185-exec-3] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.427 [http-nio-8185-exec-6] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=5b6cd22b0dad725545e371e1d282e2ff
+17:58:44.427 [http-nio-8185-exec-8] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=c93e1ab99284804588638dd6036cb187
+17:58:44.427 [http-nio-8185-exec-10] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=e9ac8eafe5eac587702722a1769e60e8
+17:58:44.427 [http-nio-8185-exec-4] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=a9f763dc5580b45256f52a537da51dfb
+17:58:44.435 [http-nio-8185-exec-7] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 1, SQLState: 23000
+17:58:44.435 [http-nio-8185-exec-7] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - ORA-00001: 무결성 제약 조건(SCOTT.PK_PROPERTIES_CHARTER)에 위배됩니다
+
+17:58:44.435 [http-nio-8185-exec-7] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] PK 충돌 또는 INSERT 실패 — thread=http-nio-8185-exec-7, propertyId=58f42e5b33079f1c927026809dea5447
+17:58:44.435 [http-nio-8185-exec-7] WARN  c.w.P.e.GlobalExceptionHandlerProperty - [PROPERTY_DUPLICATE] 동시 등록 충돌: 동일 매물이 다른 사용자에 의해 먼저 등록되었습니다. propertyId=58f42e5b33079f1c927026809dea5447
+17:58:53.074 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=12, active=0, idle=12, waiting=0)

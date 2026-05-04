@@ -308,17 +308,12 @@ try {
 
 **의사결정 A: bounds 갱신의 원자성 확보**
 
-대안 A-1: Redis Lua 스크립트
-- 동작: HGET + 비교 + HSET을 단일 Lua 스크립트로 원자 실행
-- 장점: Redis 서버 측 원자 실행. 추가 인프라 불필요.
-- 단점: Lua 스크립트 디버깅 어려움.
-
-대안 A-2: Redis WATCH + MULTI/EXEC (낙관적 락)
+대안 A-1: Redis WATCH + MULTI/EXEC (낙관적 락)
 - 동작: WATCH bounds key → HGET → 비교 → MULTI + HSET + EXEC. 중간에 다른 클라이언트가 수정했으면 EXEC 실패 → 재시도.
-- 장점: Lua 없이 구현 가능.
+- 장점: Redis 기본 트랜잭션 기능만으로 구현 가능.
 - 단점: 재시도 루프 필요. 경합이 높으면 재시도 횟수 증가.
 
-대안 A-3: 현재 방식 유지 + 주기적 전체 재산출
+대안 A-2: 현재 방식 유지 + 주기적 전체 재산출
 - 동작: tryExtend()의 비원자성을 허용하되, 배치 스케줄러가 주기적으로 bounds를 전체 재산출
 - 장점: 구현 최소. 기존 배치 인프라 활용.
 - 단점: 재산출 주기 동안 부정확한 bounds 허용.
@@ -354,40 +349,16 @@ try {
 
 ### 3-3. 구현 작업
 
-**단계 1: bounds 갱신 원자성 확보 (Lua 스크립트)**
+**단계 1: bounds 갱신 원자성 확보 (Redis WATCH + MULTI/EXEC)**
 
-1. `BoundsUpdater.tryExtend()`를 Redis Lua 스크립트 기반으로 교체
-2. Lua 스크립트: HGET min/max → 비교 → 필요 시 HSET → 변경 여부 반환 (단일 원자 실행)
-3. Spring Data Redis의 `RedisTemplate.execute(RedisScript, keys, args)` 활용
-
-```lua
--- bounds_extend.lua
-local min_val = tonumber(redis.call('HGET', KEYS[1], ARGV[1]))
-local max_val = tonumber(redis.call('HGET', KEYS[1], ARGV[2]))
-local new_val = tonumber(ARGV[3])
-local delta   = tonumber(ARGV[4])
-local changed = 0
-
-if min_val == nil or max_val == nil then
-    redis.call('HSET', KEYS[1], ARGV[1], tostring(new_val))
-    redis.call('HSET', KEYS[1], ARGV[2], tostring(new_val + delta))
-    return 1
-end
-
-if new_val < min_val then
-    redis.call('HSET', KEYS[1], ARGV[1], tostring(new_val))
-    changed = 1
-end
-if new_val > max_val then
-    redis.call('HSET', KEYS[1], ARGV[2], tostring(new_val))
-    changed = 1
-end
-return changed
-```
+1. `BoundsUpdater.tryExtend()`를 Redis WATCH + MULTI/EXEC 기반 낙관적 락 구조로 교체
+2. WATCH로 bounds key를 감시한 뒤 HGET min/max → 비교 → 필요 시 MULTI/HSET/EXEC 실행
+3. EXEC 실패 시 다른 클라이언트가 bounds를 변경한 것으로 판단하고 제한 횟수 내에서 재시도
+4. 재시도 초과 시 로그를 남기고, 주기적 전체 재산출 또는 수동 복구 대상으로 기록
 
 **단계 2: bounds 변경 감지 → 재계산 트리거**
 
-1. `BoundsUpdater.tryExtend()`(또는 Lua 래퍼)의 반환값(changed=true/false) 활용
+1. `BoundsUpdater.tryExtend()`의 반환값(changed=true/false) 활용
 2. changed=true일 때, 해당 지역구+임대유형의 전체 매물 점수 재계산 트리거
 3. 재계산 로직을 별도 서비스 클래스로 분리: `ScoreRecalculationService`
 
@@ -409,13 +380,13 @@ return changed
 
 - 테스트 1: 매물 등록 시 bounds가 확장되면 재계산 트리거 확인
 - 테스트 2: 재계산 결과가 기존 추천 로직과 동일한 점수를 산출하는지 확인
-- 테스트 3: 동시 bounds 갱신 시 Lua 스크립트 원자성 확인
+- 테스트 3: 동시 bounds 갱신 시 WATCH + MULTI/EXEC 기반 원자성 확인
 - 테스트 4: 재계산 소요 시간 측정 (매물 수 기준 성능 프로파일)
 
 ### 3-5. 설계 결정 문서화
 
 `docs/` 디렉토리에 F009 설계 결정 문서 작성.  
-내용: bounds 비원자성 문제 → Lua 스크립트 선택 근거 → 동시 추천 정합성 대안 비교 → ForkJoinPool 선택 근거 (기존 포트폴리오 ForkJoinPool 기각과의 대비) → 검증 결과.
+내용: bounds 비원자성 문제 → WATCH + MULTI/EXEC 적용 근거 → 동시 추천 정합성 대안 비교 → ForkJoinPool 선택 근거 (기존 포트폴리오 ForkJoinPool 기각과의 대비) → 검증 결과.
 
 ---
 
@@ -524,7 +495,7 @@ return changed
 3. F009 (점수 재계산)
    3-1. BoundsUpdater 한계 3가지 문서화
    3-2. 의사결정 3개 분리 (원자성 / 동시 정합성 / 병렬 처리)
-   3-3. 구현 (Lua 스크립트 + 재계산 서비스 + ForkJoinPool)
+   3-3. 구현 (WATCH + MULTI/EXEC + 재계산 서비스 + ForkJoinPool)
    3-4. 검증
    3-5. 설계 결정 문서 작성
    ↓

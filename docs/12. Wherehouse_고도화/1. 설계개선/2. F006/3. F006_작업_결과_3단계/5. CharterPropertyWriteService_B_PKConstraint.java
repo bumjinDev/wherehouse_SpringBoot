@@ -118,9 +118,12 @@ public class CharterPropertyWriteService {
                 dto.getSggCd(), dto.getJibun(), dto.getAptNm(),
                 String.valueOf(dto.getFloor()), dto.getExcluUseAr().toPlainString());
 
+        log.info("[B-PK] 진입 — thread={}, propertyId={}", Thread.currentThread().getName(), propertyId);
+
         // ── 1차 필터: 이미 커밋된 행이 존재하는 경우를 빠르게 거부 ──
         // 정합성 보장 역할이 아님. 대부분의 중복 요청을 INSERT 없이 차단하는 성능 필터.
         Optional<PropertyCharterEntity> existing = charterRepository.findById(propertyId);
+        log.info("[B-PK] findById 결과 — thread={}, found={}", Thread.currentThread().getName(), existing.isPresent());
         if (existing.isPresent()) {
             PropertyCharterEntity existingEntity = existing.get();
             if (existingEntity.getDataSource() == DataSource.BATCH) {
@@ -155,7 +158,9 @@ public class CharterPropertyWriteService {
         // 선착 커밋 후 후착은 ORA-00001 → DataIntegrityViolationException 발생.
         try {
             charterRepository.save(entity);
+            log.info("[B-PK] save 성공 — thread={}, propertyId={}", Thread.currentThread().getName(), propertyId);
         } catch (DataIntegrityViolationException e) {
+            log.info("[B-PK] PK 충돌 — thread={}, propertyId={}", Thread.currentThread().getName(), propertyId);
             throw new DuplicatePropertyException(
                     "동시 등록 충돌: 동일 매물이 다른 사용자에 의해 먼저 등록되었습니다. propertyId=" + propertyId, e);
         }

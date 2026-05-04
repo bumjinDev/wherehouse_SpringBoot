@@ -1,0 +1,52 @@
+17:38:23.978 [http-nio-8185-exec-2] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWT 인증 성공: 사용자 ID = yhjj815
+17:38:24.057 [http-nio-8185-exec-3] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_동일매물, sggCd=11680
+17:38:24.057 [http-nio-8185-exec-6] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_동일매물, sggCd=11680
+17:38:24.057 [http-nio-8185-exec-10] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_동일매물, sggCd=11680
+17:38:24.057 [http-nio-8185-exec-5] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_동일매물, sggCd=11680
+17:38:24.057 [http-nio-8185-exec-2] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 요청: userId=yhjj815, aptNm=F006_3단계_동일매물, sggCd=11680
+17:38:24.057 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-3, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-2, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-6, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-10, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] 진입 — thread=http-nio-8185-exec-5, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=5, idle=7, waiting=0)
+17:38:24.057 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=5, idle=7, waiting=0)
+17:38:24.057 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=5, idle=7, waiting=0)
+17:38:24.057 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-2, found=false
+17:38:24.057 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-5, found=false
+17:38:24.057 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-10, found=false
+17:38:24.057 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-3, found=false
+17:38:24.057 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] findById 결과 — thread=http-nio-8185-exec-6, found=false
+17:38:24.057 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - 매물 ID=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-10, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-2, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-6, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-5, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.057 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 시도 — thread=http-nio-8185-exec-3, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] persist+flush 성공 — thread=http-nio-8185-exec-2, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-3] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 1, SQLState: 23000
+17:38:24.105 [http-nio-8185-exec-10] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 1, SQLState: 23000
+17:38:24.105 [http-nio-8185-exec-6] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 1, SQLState: 23000
+17:38:24.105 [http-nio-8185-exec-5] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 1, SQLState: 23000
+17:38:24.105 [http-nio-8185-exec-3] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - ORA-00001: 무결성 제약 조건(SCOTT.PK_PROPERTIES_CHARTER)에 위배됩니다
+
+17:38:24.105 [http-nio-8185-exec-10] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - ORA-00001: 무결성 제약 조건(SCOTT.PK_PROPERTIES_CHARTER)에 위배됩니다
+
+17:38:24.105 [http-nio-8185-exec-5] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - ORA-00001: 무결성 제약 조건(SCOTT.PK_PROPERTIES_CHARTER)에 위배됩니다
+
+17:38:24.105 [http-nio-8185-exec-6] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - ORA-00001: 무결성 제약 조건(SCOTT.PK_PROPERTIES_CHARTER)에 위배됩니다
+
+17:38:24.105 [http-nio-8185-exec-3] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] PK 충돌 또는 INSERT 실패 — thread=http-nio-8185-exec-3, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-5] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] PK 충돌 또는 INSERT 실패 — thread=http-nio-8185-exec-5, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-10] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] PK 충돌 또는 INSERT 실패 — thread=http-nio-8185-exec-10, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-6] INFO  c.w.P.s.CharterPropertyWriteService - [B-PK] PK 충돌 또는 INSERT 실패 — thread=http-nio-8185-exec-6, propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-2] INFO  c.w.P.s.CharterPropertyWriteService - 전세 매물 Redis 동기화(등록) 완료: propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-2] INFO  c.w.P.c.PropertyWriteController - 전세 매물 등록 완료: propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-5] WARN  c.w.P.e.GlobalExceptionHandlerProperty - [PROPERTY_DUPLICATE] 동시 등록 충돌: 동일 매물이 다른 사용자에 의해 먼저 등록되었습니다. propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-6] WARN  c.w.P.e.GlobalExceptionHandlerProperty - [PROPERTY_DUPLICATE] 동시 등록 충돌: 동일 매물이 다른 사용자에 의해 먼저 등록되었습니다. propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-10] WARN  c.w.P.e.GlobalExceptionHandlerProperty - [PROPERTY_DUPLICATE] 동시 등록 충돌: 동일 매물이 다른 사용자에 의해 먼저 등록되었습니다. propertyId=b8e398e81a7a013ca2b29aee473fefe4
+17:38:24.105 [http-nio-8185-exec-3] WARN  c.w.P.e.GlobalExceptionHandlerProperty - [PROPERTY_DUPLICATE] 동시 등록 충돌: 동일 매물이 다른 사용자에 의해 먼저 등록되었습니다. propertyId=b8e398e81a7a013ca2b29aee473fefe4
