@@ -1,6 +1,7 @@
 # Wherehouse 고도화 — F006~F009 구현 작업 항목
 
 **작성일:** 2026-04-27  
+**최종 수정일:** 2026-05-06  
 **목적:** F001~F005 CRUD 완료 상태에서, 설계 의사결정 케이스 4건(F006~F009)을 구현하기 위한 작업 항목 정리  
 **구현 순서:** F008 → F006 → F009 → F007 (현재 코드에 이미 존재하는 문제부터 해결)
 
@@ -285,108 +286,158 @@ try {
 
 ---
 
-## 3. F009 — 정규화 기준 변경 감지 및 점수 재계산
+## 3. F009 — 정규화 경계값(bounds) 원자적 갱신
 
 ### 핵심 의사결정 질문
-> "매물 등록/수정으로 bounds가 변경될 때, 해당 지역구 전체 매물의 추천 점수를 재계산하는 과정에서 동시 추천 요청과의 정합성을 어떻게 보장하는가? CPU 바운드 재계산을 어떻게 병렬 처리하는가?"
+> "BoundsUpdater.tryExtend()의 HGET→비교→HSET 비원자적 시퀀스가 동시 매물 등록 환경에서 bounds 정합성을 어떻게 훼손하는가? 이를 원자적으로 보장하기 위해 어떤 전략이 적합한가?"
 
-### 3-1. 현재 한계 분석 및 문서화
+### 3-0. 전제 재검증 — Sorted Set Score의 실제 용도
 
-**BoundsUpdater.tryExtend()의 현재 한계:**
+Sorted Set의 Score에는 정규화된 추천 점수가 아니라 원시 값(전세금, 평수)이 저장되어 있다.
 
-1. 경계 확장만 처리, 축소 없음
-   - 매물 삭제/가격 하락 시 bounds가 실제보다 넓게 유지 → 정규화 정밀도 저하
-   - 현재 코드 Javadoc에 "F009 승격 조건 관찰 시 전체 재산출 전략 도입" 명시
+```java
+// CharterPropertyWriteService.syncRedisAfterCreate()
+redisHandler.redisTemplate.opsForZSet().add(
+    "idx:charterPrice:" + districtName, propertyId,
+    entity.getDeposit().doubleValue());      // ← 전세금 원시 값
+redisHandler.redisTemplate.opsForZSet().add(
+    "idx:area:" + districtName + ":전세", propertyId,
+    entity.getAreaInPyeong().doubleValue());  // ← 평수 원시 값
+```
 
-2. HGET → 비교 → HSET 비원자적
-   - 동시 등록 시 뒤에 커밋된 작은 값이 앞에 커밋된 더 작은 값을 덮어쓸 수 있음
+정규화 점수 계산은 추천 조회 시점에 CharterRecommendationService가 수행한다.
 
-3. 재계산 중 추천 요청 정합성 미보장
-   - bounds의 minPrice는 갱신됐지만 maxPrice는 아직 갱신 안 된 중간 상태에서 추천 요청이 들어오면 비정상 점수 산출
+```java
+// CharterRecommendationService.calculateCharterPropertyScores()
+ScoreNormalizationBounds districtBounds = getCharterBoundsFromRedis(districtName);
+double priceScore = calculatePriceScore(propertyDetail.getDeposit(), districtBounds);
+double spaceScore = calculateSpaceScore(propertyDetail.getAreaInPyeong(), districtBounds);
+```
 
-### 3-2. 설계 분리: 두 개의 독립된 의사결정
+따라서 bounds가 변경되어도 Sorted Set Score는 변하지 않으며, 다음 추천 요청이 갱신된 bounds를 읽어 실시간으로 정규화 점수를 계산한다. "저장된 Score를 재계산"하는 Write 경로 작업은 존재하지 않으므로, ScoreRecalculationService·ForkJoinPool 병렬 재계산·더블 버퍼링/Read-Write Lock은 적용 대상이 없다.
 
-**의사결정 A: bounds 갱신의 원자성 확보**
+실제로 존재하는 문제는 BoundsUpdater.tryExtend()의 비원자적 갱신 시퀀스에 한정된다.
 
-대안 A-1: Redis WATCH + MULTI/EXEC (낙관적 락)
-- 동작: WATCH bounds key → HGET → 비교 → MULTI + HSET + EXEC. 중간에 다른 클라이언트가 수정했으면 EXEC 실패 → 재시도.
-- 장점: Redis 기본 트랜잭션 기능만으로 구현 가능.
-- 단점: 재시도 루프 필요. 경합이 높으면 재시도 횟수 증가.
+### 3-1. 현재 문제 분석 및 문서화
 
-대안 A-2: 현재 방식 유지 + 주기적 전체 재산출
-- 동작: tryExtend()의 비원자성을 허용하되, 배치 스케줄러가 주기적으로 bounds를 전체 재산출
-- 장점: 구현 최소. 기존 배치 인프라 활용.
-- 단점: 재산출 주기 동안 부정확한 bounds 허용.
+**BoundsUpdater.tryExtend()의 비원자적 시퀀스:**
 
-**의사결정 B: 재계산 중 동시 추천 요청 정합성**
+```java
+HashOperations ops = redisHandler.redisTemplate.opsForHash();
+Object minRaw = ops.get(boundsKey, minField);   // ① HGET
+Object maxRaw = ops.get(boundsKey, maxField);   // ② HGET
+if (value < currentMin) {
+    ops.put(boundsKey, minField, ...);           // ③ HSET
+}
+if (value > currentMax) {
+    ops.put(boundsKey, maxField, ...);           // ④ HSET
+}
+```
 
-대안 B-1: 더블 버퍼링 (버전닝)
-- 동작: bounds를 `bounds:v1:{district}:{leaseType}`, `bounds:v2:...`로 관리. 재계산 중에는 기존 버전 참조, 재계산 완료 후 참조 버전 전환.
-- 장점: 재계산 중 추천 요청이 일관된 스냅샷을 참조. 가용성 저하 없음.
-- 단점: bounds 키 2벌 관리. 버전 전환 원자성 필요.
+①~④ 사이에 최대 4회의 독립된 Redis 커맨드가 순차 실행되며, 이 구간은 원자적이지 않다.
 
-대안 B-2: 단순 덮어쓰기 + 허용 가능한 비정합 수용
-- 동작: bounds를 순서대로 갱신. 중간 상태에서 추천 요청이 들어오면 약간 부정확한 점수가 나올 수 있으나, 다음 요청에서는 정상.
-- 장점: 구현 최소. 시스템 복잡도 증가 없음.
-- 단점: 재계산 진행 중 수 ms~수십 ms 동안 비정합 점수 노출 가능.
-- 현실적 판단: 추천 점수의 미세한 일시적 오차가 사용자 경험에 미치는 영향이 극히 작음.
+**문제 시나리오 1 — 동시 등록에 의한 bounds 덮어쓰기 (Write-Write 경합)**
 
-대안 B-3: Read-Write Lock
-- 동작: 재계산 시 write lock 획득, 추천 요청은 read lock 획득. 재계산 중 추천 차단.
-- 장점: 정합성 완벽 보장.
-- 단점: 재계산 시간 동안 추천 서비스 지연. 가용성 저하.
+```
+시점 T0: bounds = { minPrice: 15000 }
 
-**의사결정 C: CPU 바운드 재계산 병렬 처리**
+Thread A: 전세금 12000 매물 등록
+Thread B: 전세금 10000 매물 등록
 
-대안 C-1: ForkJoinPool (commonPool 또는 커스텀)
-- 기존 포트폴리오에서 Kakao API 병렬화 시 ForkJoinPool을 **기각**한 이유: I/O 바운드 워크로드에 부적합 (work-stealing은 CPU 연산 분할에 최적화, I/O 대기에는 스레드 수 부족)
-- F009의 재계산은 **CPU 바운드** (Redis에서 데이터 1회 조회 후, 정규화+가중치+합산은 순수 산술): ForkJoinPool이 적합
-- 기존 포트폴리오에서 기각한 기술을 여기서 채택하는 것 자체가 "워크로드 특성에 따라 동일 기술의 적합성이 달라진다"는 설계 판단 역량을 보여줌
+실행 순서가 T1(A읽기)→T2(B읽기)→T4(B쓰기=10000)→T3(A쓰기=12000) 이면:
+결과: minPrice = 12000 (정답: 10000) — Thread B의 더 작은 값이 소실됨
+```
 
-대안 C-2: CompletableFuture + 전용 ThreadPoolExecutor
-- 기존 Kakao API 병렬화에서 선택한 방식. I/O 바운드에 적합.
-- CPU 바운드에도 사용 가능하지만, 스레드 풀 크기를 코어 수 기준으로 설정해야 함.
+**문제 시나리오 2 — bounds 부분 갱신 중 추천 요청의 중간 상태 읽기 (Write-Read 경합)**
 
-### 3-3. 구현 작업
+```
+Thread W: ③에서 minPrice=12000 갱신 완료, ④에서 maxArea=45 갱신 전
+Thread R: entries(boundsKey) 호출 → minPrice는 새 값, maxArea는 이전 값
 
-**단계 1: bounds 갱신 원자성 확보 (Redis WATCH + MULTI/EXEC)**
+Thread R은 부분 갱신된 bounds로 정규화 점수를 계산한다.
+```
 
-1. `BoundsUpdater.tryExtend()`를 Redis WATCH + MULTI/EXEC 기반 낙관적 락 구조로 교체
-2. WATCH로 bounds key를 감시한 뒤 HGET min/max → 비교 → 필요 시 MULTI/HSET/EXEC 실행
-3. EXEC 실패 시 다른 클라이언트가 bounds를 변경한 것으로 판단하고 제한 횟수 내에서 재시도
-4. 재시도 초과 시 로그를 남기고, 주기적 전체 재산출 또는 수동 복구 대상으로 기록
+**영향 범위:** Sorted Set Score가 원시 값이므로 "잘못된 Score가 영구 저장"되는 상황은 없다. bounds 부정확은 해당 시점의 추천 요청 정규화 점수에만 일시적으로 영향을 미친다. 단, 시나리오 1에서 소실된 min 값보다 더 작은 매물이 등록되기 전까지 bounds는 부정확한 상태로 유지된다.
 
-**단계 2: bounds 변경 감지 → 재계산 트리거**
+### 3-2. 의사결정: bounds 갱신 원자성 확보 방식
 
-1. `BoundsUpdater.tryExtend()`의 반환값(changed=true/false) 활용
-2. changed=true일 때, 해당 지역구+임대유형의 전체 매물 점수 재계산 트리거
-3. 재계산 로직을 별도 서비스 클래스로 분리: `ScoreRecalculationService`
+**대안 A-1: WATCH + MULTI/EXEC (낙관적 락)**
 
-**단계 3: 점수 재계산 로직 구현**
+동작: WATCH로 bounds 키를 감시한 뒤 HGET → 비교 → MULTI/HSET/EXEC 실행. 중간에 다른 클라이언트가 수정했으면 EXEC 실패 → 재시도.
 
-1. 해당 지역구+임대유형의 Redis Sorted Set에서 전체 member 조회 (ZRANGEBYSCORE 또는 ZRANGE)
-2. 각 매물의 Hash에서 가격/평수 조회
-3. 갱신된 bounds 기준으로 정규화 점수 재산출 (기존 추천 서비스의 정규화 공식 동일 적용)
-4. 재산출된 점수를 Sorted Set의 Score로 갱신
+- 장점: Redis 기본 명령만으로 구현.
+- 단점: 재시도 루프 필요. Spring Data Redis에서 SessionCallback 패턴 필요(코드 복잡도 증가). 네트워크 왕복 최소 3회.
 
-**단계 4: 병렬 처리 (ForkJoinPool)**
+**대안 A-2: 현재 방식 유지 + 주기적 전체 재산출**
 
-1. 지역구 전체 매물을 서브리스트로 분할
-2. ForkJoinPool 커스텀 인스턴스 생성 (parallelism = Runtime.availableProcessors())
-3. 각 서브리스트의 점수 재산출을 병렬 실행
-4. 전체 완료 후 Sorted Set 일괄 갱신
+동작: tryExtend()의 비원자성을 허용하되, 배치 스케줄러가 주기적으로 RDB 실 데이터 기반 bounds를 전체 재산출.
+
+- 장점: 구현 변경 없음. 기존 배치 인프라 활용.
+- 단점: 재산출 주기(현재 월 1회) 동안 부정확한 bounds 허용.
+
+| 기준 | A-1 WATCH/MULTI/EXEC | A-2 현행 유지 |
+|------|----------------------|---------------|
+| Write-Write 경합 해소 | 재시도로 해소 | 미해소 |
+| Write-Read 경합 해소 | 부분 해소 | 미해소 |
+| 재시도 루프 | 필요 | 해당 없음 |
+| 네트워크 왕복 | 최소 3회 | 최대 4회 |
+| 구현 복잡도 | SessionCallback + 재시도 루프 | 변경 없음 |
+
+### 3-3. 선택 및 구현
+
+**대안 중 하나를 선택하고, 선택 근거를 명확히 기록한다.**
+
+선택 기준:
+- 시나리오 1(Write-Write 경합) 해소 가능 여부
+- 시나리오 2(Write-Read 경합) 해소 가능 여부
+- 재시도 루프 필요 여부
+- 네트워크 왕복 횟수
+- 현재 시스템 구성(단일 Redis 인스턴스, Spring Data Redis) 대비 구현 적합성
+
+**구현 작업 (대안 A-1 선택 시 기준):**
+
+1. BoundsUpdater.tryExtend()를 SessionCallback 기반 WATCH + MULTI/EXEC 구조로 교체
+2. EXEC 실패 시 제한 횟수 내 재시도 루프 구현
+3. 재시도 초과 시 로그 기록 + 주기적 전체 재산출 대상으로 등록
+
+**호출부 확인 (공통):**
+
+syncRedisAfterCreate(), syncRedisAfterUpdate()에서 boundsUpdater.tryExtend() 호출 시그니처·반환값 의미 모두 동일하므로 호출부 코드 변경 불필요.
 
 ### 3-4. 검증
 
-- 테스트 1: 매물 등록 시 bounds가 확장되면 재계산 트리거 확인
-- 테스트 2: 재계산 결과가 기존 추천 로직과 동일한 점수를 산출하는지 확인
-- 테스트 3: 동시 bounds 갱신 시 WATCH + MULTI/EXEC 기반 원자성 확인
-- 테스트 4: 재계산 소요 시간 측정 (매물 수 기준 성능 프로파일)
+- 테스트 1: 정상 흐름 — 최초 생성, 확장(value < min), 무변경(min ≤ value ≤ max) 3가지 케이스.
+- 테스트 2: 동시 등록 시 bounds 정합성 — 2개 이상 스레드가 동일 지역구에 서로 다른 가격 매물을 동시 등록. 선택한 대안 적용 전/후 비교.
+- 테스트 3: Write-Read 경합 — 매물 등록(bounds 갱신)과 추천 조회(bounds 읽기)를 동시 실행. 조회 측이 부분 갱신된 중간 상태를 읽지 않는지 확인.
 
 ### 3-5. 설계 결정 문서화
 
-`docs/` 디렉토리에 F009 설계 결정 문서 작성.  
-내용: bounds 비원자성 문제 → WATCH + MULTI/EXEC 적용 근거 → 동시 추천 정합성 대안 비교 → ForkJoinPool 선택 근거 (기존 포트폴리오 ForkJoinPool 기각과의 대비) → 검증 결과.
+`docs/` 디렉토리에 F009 설계 결정 문서 작성.
+
+문서 구조:
+1. **전제 재검증 기록**: 초기 계획에서 전제한 아키텍처와 실제 코드의 불일치 발견 과정. 이 불일치에 의해 폐기된 항목의 논리.
+2. **실제 문제 정의**: BoundsUpdater.tryExtend()의 비원자적 시퀀스로 인한 2가지 경합 시나리오.
+3. **대안 3개 비교표**.
+4. **선택 근거**: 시스템 환경 기반.
+5. **검증 결과**: 동시 등록 테스트 전/후 비교.
+
+### 3-6. CPU 바운드 구간 이관 — 추천 조회 경로 병렬화
+
+초기 계획에서 F009 범위로 포함했던 "CPU 바운드 재계산의 ForkJoinPool 병렬화"는 Write 경로에 재계산 작업이 존재하지 않으므로 F009에서 분리한다.
+
+실제 CPU 바운드 구간은 CharterRecommendationService.calculateCharterPropertyScores()의 지역구별 점수 계산 루프이다:
+
+```
+지역구 1개당:
+  ① Redis 조회: getCharterBoundsFromRedis()                    — I/O (1 RTT)
+  ② Redis 조회: getMultipleCharterPropertiesFromRedis()         — I/O (Pipeline 1 RTT)
+  ③ 메모리 내 루프: 매물 N건 × (정규화 + 가중치 + 합산)          — CPU
+  ④ 정렬: propertiesWithScores.sort()                           — CPU
+```
+
+이 구간의 병렬화는 "추천 조회 경로 최적화"라는 별도 항목으로 정의한다. 기존 포트폴리오의 Kakao API 병렬화(I/O 바운드 → CompletableFuture 선택, ForkJoinPool 기각)와 워크로드 특성이 다르므로(I/O + CPU 혼합), 동일 기술의 적합성을 재평가하는 설계 판단 소재가 된다.
+
+구체적인 의사결정 구조, 대안 비교, 구현 작업은 별도 문서에서 정의한다.
 
 ---
 
@@ -492,12 +543,14 @@ try {
    2-4. 검증 (동시 등록 스레드 테스트)
    2-5. 설계 결정 문서 작성
    ↓
-3. F009 (점수 재계산)
-   3-1. BoundsUpdater 한계 3가지 문서화
-   3-2. 의사결정 3개 분리 (원자성 / 동시 정합성 / 병렬 처리)
-   3-3. 구현 (WATCH + MULTI/EXEC + 재계산 서비스 + ForkJoinPool)
-   3-4. 검증
+3. F009 (bounds 원자적 갱신)
+   3-0. 전제 재검증 — Sorted Set Score 실제 용도 확인
+   3-1. BoundsUpdater 비원자성 문제 2가지 시나리오 문서화
+   3-2. 대안 2개 비교 (WATCH+MULTI / 현행 유지)
+   3-3. 선택 + 구현
+   3-4. 검증 (동시 등록 bounds 정합성 + Write-Read 경합)
    3-5. 설계 결정 문서 작성
+   3-6. CPU 바운드 구간 → 추천 조회 경로 병렬화 별도 항목으로 이관
    ↓
 4. F007 (배치-사용자 머지)
    4-1. 기존 배치 코드 파악
@@ -529,3 +582,10 @@ try {
 - 설계 선택지: "DB 저장과 캐시 갱신을 어떤 순서로, 어떤 보장 수준으로 할 것인가"
 - 선택 근거: "DB 확정 후 캐시 갱신 방식 선택. 이유: 캐시에만 있고 DB에 없는 유령 매물이 검색에 노출되는 것이, DB에 있는데 캐시에 없어서 검색 누락되는 것보다 더 위험하다"
 - 검증 결과: "DB 커밋 실패 시 캐시 갱신 미실행 확인, 캐시 부분 실패 시 보상 삭제 동작 확인"
+
+예시 (F009):
+- 비즈니스 맥락: "매물이 등록되면 해당 지역구의 가격 범위(최솟값·최댓값)가 갱신되는데, 두 사용자가 동시에 매물을 등록하면 범위 갱신이 꼬여서 추천 점수의 기준이 되는 범위 값이 틀어질 수 있다"
+- 설계 선택지: "범위 갱신 로직(읽기→비교→쓰기)을 어떻게 원자적으로 만들 것인가"
+- 선택 근거: (대안 선택 후 기록)
+- 검증 결과: (대안 적용 후 동시 등록 테스트 전/후 비교)
+- 추가 소재: "초기 계획에서 전제한 아키텍처와 실제 코드의 불일치를 발견하여 작업 범위를 축소한 판단 과정"
