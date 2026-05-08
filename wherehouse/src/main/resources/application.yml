@@ -182,6 +182,11 @@ molit:
   rent-api:
     base-url: https://apis.data.go.kr/1613000/RTMSDataSvcAptRent
 
+# 배치-사용자 머지 설정 (F007)
+batch:
+  merge:
+    price-diff-threshold-percent: 20
+
 # 로깅 설정
 logging:
   file:
