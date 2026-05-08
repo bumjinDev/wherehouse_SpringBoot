@@ -140,22 +140,22 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      */
     private List<String> calculate9BlockGrid(LocationAnalysisRequestDTO request) {
 
-        // R-01 전체 Step 계측 시작
-        PerformanceLogger perfLogger = PerformanceLogger.start(
-                "R-01",                              // step
-                "calculate9BlockGrid",               // action
-                "Service",                           // layer
-                "LocationAnalysisServiceImpl",       // class
-                "calculate9BlockGrid"                // method
-        );
+        // [계측 주석 처리] R-01 전체 Step 계측 시작
+        // PerformanceLogger perfLogger = PerformanceLogger.start(
+        //         "R-01",                              // step
+        //         "calculate9BlockGrid",               // action
+        //         "Service",                           // layer
+        //         "LocationAnalysisServiceImpl",       // class
+        //         "calculate9BlockGrid"                // method
+        // );
 
-        /* 본 루직 결과 담을 빈 dto */
-        R01GridResult result = R01GridResult.builder()
-                .requestLatitude(request.getLatitude())
-                .requestLongitude(request.getLongitude())
-                .requestRadius(request.getRadius())
-                .isSuccess(false)  // 기본값
-                .build();
+        // [계측 주석 처리] 본 루직 결과 담을 빈 dto
+        // R01GridResult result = R01GridResult.builder()
+        //         .requestLatitude(request.getLatitude())
+        //         .requestLongitude(request.getLongitude())
+        //         .requestRadius(request.getRadius())
+        //         .isSuccess(false)  // 기본값
+        //         .build();
 
         try {
 
@@ -170,13 +170,13 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             // GeohashService를 통해 중심 격자 + 인접 8개 격자 = 총 9개 격자 ID 생성
             List<String> nineBlockIds = geohashService.calculate9BlockGeohashes(latitude, longitude);
 
-            /* 로깅 : 성공 결과 dto 에 넣을 값 설정 */
-            result.setCenterGeohashId(nineBlockIds.get(0));
-            result.setNineBlockGeohashes(nineBlockIds);
-            result.setTotalGridCount(nineBlockIds.size());
-            result.setSuccess(true);
+            // [계측 주석 처리] 로깅 : 성공 결과 dto 에 넣을 값 설정
+            // result.setCenterGeohashId(nineBlockIds.get(0));
+            // result.setNineBlockGeohashes(nineBlockIds);
+            // result.setTotalGridCount(nineBlockIds.size());
+            // result.setSuccess(true);
 
-            perfLogger.setResultData(result);
+            // perfLogger.setResultData(result);
 
             log.info("[R-01] 계산된 9-Block 그리드: {}", nineBlockIds);
             log.info("[R-01] 중심 격자 ID: {}", nineBlockIds.get(0));
@@ -188,40 +188,41 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         } catch(Exception e) {
             log.error("[R-01] 9-Block 그리드 계산 실패", e);
 
-            /* 로깅 : 실패 결과 dto 에 넣을 값 설정 */
-            result.setSuccess(false);
-            result.setErrorMessage(e.getMessage());
-            perfLogger.setResultData(result);
+            // [계측 주석 처리] 로깅 : 실패 결과 dto 에 넣을 값 설정
+            // result.setSuccess(false);
+            // result.setErrorMessage(e.getMessage());
+            // perfLogger.setResultData(result);
 
             throw e;
 
         } finally {
 
-            /* R-01 전체 Step 계측 종료 */
-            perfLogger.end();
+            // [계측 주석 처리] R-01 전체 Step 계측 종료
+            // perfLogger.end();
         }
     }
 
     private CacheResult performCacheLookup(List<String> nineBlockGeohashes,
                                            LocationAnalysisRequestDTO request) {
 
-        PerformanceLogger perfLogger = PerformanceLogger.start(
-                "R-02",                              // step
-                "performCacheLookup",                // action
-                "Service",                           // layer
-                "LocationAnalysisServiceImpl",       // class
-                "performCacheLookup"                 // method
-        );
+        // [계측 주석 처리] R-02 PerformanceLogger
+        // PerformanceLogger perfLogger = PerformanceLogger.start(
+        //         "R-02",                              // step
+        //         "performCacheLookup",                // action
+        //         "Service",                           // layer
+        //         "LocationAnalysisServiceImpl",       // class
+        //         "performCacheLookup"                 // method
+        // );
 
-        /* 본 로직 결과 담을 r-02 로직에 대한 dto 초기화. */
-        R02CacheResult r02CacheResult = R02CacheResult.builder()
-                .centerGeohashId(nineBlockGeohashes.get(0))
-                .nineBlockGeohashes(nineBlockGeohashes)
-                .l1CacheHit(false)
-                .l2CacheRequired(false)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] 본 로직 결과 담을 r-02 로직에 대한 dto 초기화.
+        // R02CacheResult r02CacheResult = R02CacheResult.builder()
+        //         .centerGeohashId(nineBlockGeohashes.get(0))
+        //         .nineBlockGeohashes(nineBlockGeohashes)
+        //         .l1CacheHit(false)
+        //         .l2CacheRequired(false)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
         log.info("[R-02] 단계별 캐시 조회 시작");
 
@@ -231,17 +232,17 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         // 1단계 캐시 조회: 중심 격자 ID를 키로 최종 응답 DTO 전체 조회 시도
         log.info("[R-02-1단계] 전체 DTO 캐시 조회 - Key: {}", level1CacheKey);
 
-        // ===== [시간 측정 변수 선언] =====
-        long l1CacheGetDurationNs = 0;
-        Long l1JsonDeserializeDurationNs = null;
+        // [계측 주석 처리] ===== [시간 측정 변수 선언] =====
+        // long l1CacheGetDurationNs = 0;
+        // Long l1JsonDeserializeDurationNs = null;
         // =====
 
         try {
-            // ===== [Action 1: L1 캐시 조회 시간 측정] =====
-            long l1StartNs = System.nanoTime();
+            // [계측 주석 처리] ===== [Action 1: L1 캐시 조회 시간 측정] =====
+            // long l1StartNs = System.nanoTime();
             String cachedJson = redisSingleDataService.getSingleData(level1CacheKey);
-            long l1EndNs = System.nanoTime();
-            l1CacheGetDurationNs = l1EndNs - l1StartNs;
+            // long l1EndNs = System.nanoTime();
+            // l1CacheGetDurationNs = l1EndNs - l1StartNs;
             // =====
 
             /* 1Layer Cache hit */
@@ -249,42 +250,43 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
                 log.info("[R-02-1단계] 캐시 히트! JSON 역직렬화 시도");
 
-                // ===== [Action 3: L1 JSON 역직렬화 시간 측정] =====
-                long deserializeStartNs = System.nanoTime();
+                // [계측 주석 처리] ===== [Action 3: L1 JSON 역직렬화 시간 측정] =====
+                // long deserializeStartNs = System.nanoTime();
                 LocationAnalysisResponseDTO cachedDto = objectMapper.readValue(
                         cachedJson,
                         LocationAnalysisResponseDTO.class
                 );
-                long deserializeEndNs = System.nanoTime();
-                l1JsonDeserializeDurationNs = deserializeEndNs - deserializeStartNs;
+                // long deserializeEndNs = System.nanoTime();
+                // l1JsonDeserializeDurationNs = deserializeEndNs - deserializeStartNs;
                 // =====
 
-                // L1 캐시 히트 결과를 생성
-                R02L1CacheResult r02L1CacheResult = R02L1CacheResult.builder()
-                        .cacheKey(level1CacheKey)
-                        .hit(true)
-                        .valueSize(cachedJson.length())
-                        .l1CacheGetDurationNs(l1CacheGetDurationNs)  // [추가]
-                        .l1JsonDeserializeDurationNs(l1JsonDeserializeDurationNs)  // [추가]
-                        .build();
+                // [계측 주석 처리] L1 캐시 히트 결과를 생성
+                // R02L1CacheResult r02L1CacheResult = R02L1CacheResult.builder()
+                //         .cacheKey(level1CacheKey)
+                //         .hit(true)
+                //         .valueSize(cachedJson.length())
+                //         .l1CacheGetDurationNs(l1CacheGetDurationNs)
+                //         .l1JsonDeserializeDurationNs(l1JsonDeserializeDurationNs)
+                //         .build();
 
-                // R02CacheResult 저장
-                r02CacheResult.setL1CacheHit(true);
-                r02CacheResult.setL1CacheResult(r02L1CacheResult);
-                r02CacheResult.setL2CacheRequired(false);
-                r02CacheResult.setL2CacheResults(null);
-                r02CacheResult.setL2TotalHits(0);
-                r02CacheResult.setL2TotalMisses(0);
-                r02CacheResult.setSuccess(true);
-                r02CacheResult.setErrorMessage(null);
+                // [계측 주석 처리] R02CacheResult 저장
+                // r02CacheResult.setL1CacheHit(true);
+                // r02CacheResult.setL1CacheResult(r02L1CacheResult);
+                // r02CacheResult.setL2CacheRequired(false);
+                // r02CacheResult.setL2CacheResults(null);
+                // r02CacheResult.setL2TotalHits(0);
+                // r02CacheResult.setL2TotalMisses(0);
+                // r02CacheResult.setSuccess(true);
+                // r02CacheResult.setErrorMessage(null);
 
-                log.info("[R-02-1단계] 캐시 히트 성공! 즉시 반환 (L1 조회: {}ms, 역직렬화: {}ms)",
-                        l1CacheGetDurationNs / 1_000_000.0,
-                        l1JsonDeserializeDurationNs / 1_000_000.0);
+                // [계측 주석 처리] 시간 측정 로그
+                // log.info("[R-02-1단계] 캐시 히트 성공! 즉시 반환 (L1 조회: {}ms, 역직렬화: {}ms)",
+                //         l1CacheGetDurationNs / 1_000_000.0,
+                //         l1JsonDeserializeDurationNs / 1_000_000.0);
 
-                // 로깅 후 종료
-                perfLogger.setResultData(r02CacheResult);
-                perfLogger.end();
+                // [계측 주석 처리] 로깅 후 종료
+                // perfLogger.setResultData(r02CacheResult);
+                // perfLogger.end();
 
                 return CacheResult.level1Hit(cachedDto);
             }
@@ -293,24 +295,25 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             log.warn("[R-02-1단계] 캐시 조회 중 오류 발생: {}", e.getMessage());
 
             // L1 캐시 조회 실패 시에도 L2로 진행하므로 여기서 로깅하지 않음
-            // 단, 에러 메시지는 기록
-            r02CacheResult.setErrorMessage(e.getMessage());
+            // [계측 주석 처리] 단, 에러 메시지는 기록
+            // r02CacheResult.setErrorMessage(e.getMessage());
         }
 
-        /* 1차 캐시 미스 - L1 결과 설정 */
-        R02L1CacheResult r02L1CacheResult = R02L1CacheResult.builder()
-                .cacheKey(level1CacheKey)
-                .hit(false)
-                .valueSize(0)
-                .l1CacheGetDurationNs(l1CacheGetDurationNs)  // [추가] 미스 시에도 조회 시간 기록
-                .l1JsonDeserializeDurationNs(null)
-                .build();
+        // [계측 주석 처리] 1차 캐시 미스 - L1 결과 설정
+        // R02L1CacheResult r02L1CacheResult = R02L1CacheResult.builder()
+        //         .cacheKey(level1CacheKey)
+        //         .hit(false)
+        //         .valueSize(0)
+        //         .l1CacheGetDurationNs(l1CacheGetDurationNs)
+        //         .l1JsonDeserializeDurationNs(null)
+        //         .build();
 
-        r02CacheResult.setL1CacheHit(false);
-        r02CacheResult.setL1CacheResult(r02L1CacheResult);
+        // r02CacheResult.setL1CacheHit(false);
+        // r02CacheResult.setL1CacheResult(r02L1CacheResult);
 
-        log.info("[R-02-1단계] 캐시 미스. 2단계 캐시 조회 진행 (L1 조회: {}ms)",
-                l1CacheGetDurationNs / 1_000_000.0);
+        // [계측 주석 처리] 시간 측정 로그
+        // log.info("[R-02-1단계] 캐시 미스. 2단계 캐시 조회 진행 (L1 조회: {}ms)",
+        //         l1CacheGetDurationNs / 1_000_000.0);
 
         // 2단계 캐시 조회: 9개 격자 각각에 대해 CCTV 컴포넌트 데이터 조회
         log.info("[R-02-2단계] 개별 격자 데이터 캐시 조회 시작 (9개 격자)");
@@ -320,14 +323,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         result.setLevel1Hit(false);
         result.setNineBlockGeohashes(nineBlockGeohashes);
 
-        // L2 캐시 결과를 담을 리스트
-        List<R02L2CacheResult> l2CacheResults = new ArrayList<>();
+        // [계측 주석 처리] L2 캐시 결과를 담을 리스트
+        // List<R02L2CacheResult> l2CacheResults = new ArrayList<>();
         int l2Hits = 0;
         int l2Misses = 0;
 
-        // ===== [Action 2: L2 캐시 전체 조회 시간 측정 시작 - B-03 병목 핵심!] =====
-        long l2TotalStartNs = System.nanoTime();
-        long l2JsonDeserializeTotalNs = 0;  // L2 전체 역직렬화 시간 누적
+        // [계측 주석 처리] ===== [Action 2: L2 캐시 전체 조회 시간 측정 시작 - B-03 병목 핵심!] =====
+        // long l2TotalStartNs = System.nanoTime();
+        // long l2JsonDeserializeTotalNs = 0;  // L2 전체 역직렬화 시간 누적
         // =====
 
         // 각 격자 별로 CCTV 데이터 캐시 존재 여부 확인
@@ -338,67 +341,63 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
             try {
                 /* Redis 내 해당 geoHash 값에 따른 캐싱 값 존재 여부 확인 */
-                // ===== [격자별 조회 시간 측정 - 선택적] =====
-                long gridStartNs = System.nanoTime();
+                // [계측 주석 처리] ===== [격자별 조회 시간 측정 - 선택적] =====
+                // long gridStartNs = System.nanoTime();
                 String cctvJson = redisSingleDataService.getSingleData(cctvCacheKey);
-                long gridEndNs = System.nanoTime();
-                long gridDurationNs = gridEndNs - gridStartNs;
+                // long gridEndNs = System.nanoTime();
+                // long gridDurationNs = gridEndNs - gridStartNs;
                 // =====
 
                 if (cctvJson != null && !cctvJson.isEmpty()) {
 
-                    // ===== [JSON 역직렬화 시간 측정] =====
-                    long deserializeStartNs = System.nanoTime();
+                    // [계측 주석 처리] ===== [JSON 역직렬화 시간 측정] =====
+                    // long deserializeStartNs = System.nanoTime();
                     List<CctvGeo> cachedCctv = objectMapper.readValue(
                             cctvJson,
                             new TypeReference<List<CctvGeo>>() {}
                     );
-                    long deserializeEndNs = System.nanoTime();
-                    long deserializeDurationNs = deserializeEndNs - deserializeStartNs;
-                    l2JsonDeserializeTotalNs += deserializeDurationNs;
+                    // long deserializeEndNs = System.nanoTime();
+                    // long deserializeDurationNs = deserializeEndNs - deserializeStartNs;
+                    // l2JsonDeserializeTotalNs += deserializeDurationNs;
                     // =====
 
-                    log.debug("[R-02-2단계] CCTV 캐시 히트 - GeohashId: {}, 개수: {}, 조회: {}ms, 역직렬화: {}ms",
-                            geohashId, cachedCctv.size(),
-                            gridDurationNs / 1_000_000.0,
-                            deserializeDurationNs / 1_000_000.0);
+                    log.debug("[R-02-2단계] CCTV 캐시 히트 - GeohashId: {}, 개수: {}",
+                            geohashId, cachedCctv.size());
 
                     // 캐시 데이터 저장
                     result.addCachedCctv(geohashId, cachedCctv);
 
-                    /* 로깅: 캐시 히트에 따른 해당 격자 ID에 대한 R02L2CacheResult 객체 생성 */
-                    l2CacheResults.add(
-                            R02L2CacheResult.builder()
-                                    .geohashId(geohashId)
-                                    .cacheKey(cctvCacheKey)
-                                    .hit(true)
-                                    .dataType("cctv")
-                                    .dataCount(cachedCctv.size())
-                                    .dataSize(cctvJson.length())  // bytes
-                                    .l2CacheGetDurationNs(gridDurationNs)  // [추가]
-                                    .build()
-                    );
+                    // [계측 주석 처리] 로깅: 캐시 히트에 따른 해당 격자 ID에 대한 R02L2CacheResult 객체 생성
+                    // l2CacheResults.add(
+                    //         R02L2CacheResult.builder()
+                    //                 .geohashId(geohashId)
+                    //                 .cacheKey(cctvCacheKey)
+                    //                 .hit(true)
+                    //                 .dataType("cctv")
+                    //                 .dataCount(cachedCctv.size())
+                    //                 .dataSize(cctvJson.length())
+                    //                 .l2CacheGetDurationNs(gridDurationNs)
+                    //                 .build()
+                    // );
 
                     l2Hits++;
 
                 } else {
-                    log.debug("[R-02-2단계] CCTV 캐시 미스 - GeohashId: {}, 조회: {}ms",
-                            geohashId,
-                            gridDurationNs / 1_000_000.0);
+                    log.debug("[R-02-2단계] CCTV 캐시 미스 - GeohashId: {}", geohashId);
                     result.addCctvMiss(geohashId);
 
-                    /* 로깅: 캐시 미스 */
-                    l2CacheResults.add(
-                            R02L2CacheResult.builder()
-                                    .geohashId(geohashId)
-                                    .cacheKey(cctvCacheKey)
-                                    .hit(false)
-                                    .dataType("cctv")
-                                    .dataCount(0)
-                                    .dataSize(0)
-                                    .l2CacheGetDurationNs(gridDurationNs)  // [추가]
-                                    .build()
-                    );
+                    // [계측 주석 처리] 로깅: 캐시 미스
+                    // l2CacheResults.add(
+                    //         R02L2CacheResult.builder()
+                    //                 .geohashId(geohashId)
+                    //                 .cacheKey(cctvCacheKey)
+                    //                 .hit(false)
+                    //                 .dataType("cctv")
+                    //                 .dataCount(0)
+                    //                 .dataSize(0)
+                    //                 .l2CacheGetDurationNs(gridDurationNs)
+                    //                 .build()
+                    // );
 
                     l2Misses++;
                 }
@@ -408,56 +407,57 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                         geohashId, e.getMessage());
                 result.addCctvMiss(geohashId);
 
-                /* 로깅: 에러 발생 시에도 미스로 기록 */
-                l2CacheResults.add(
-                        R02L2CacheResult.builder()
-                                .geohashId(geohashId)
-                                .cacheKey(cctvCacheKey)
-                                .hit(false)
-                                .dataType("cctv")
-                                .dataCount(0)
-                                .dataSize(0)
-                                .l2CacheGetDurationNs(null)  // [추가] 에러 시 null
-                                .build()
-                );
+                // [계측 주석 처리] 로깅: 에러 발생 시에도 미스로 기록
+                // l2CacheResults.add(
+                //         R02L2CacheResult.builder()
+                //                 .geohashId(geohashId)
+                //                 .cacheKey(cctvCacheKey)
+                //                 .hit(false)
+                //                 .dataType("cctv")
+                //                 .dataCount(0)
+                //                 .dataSize(0)
+                //                 .l2CacheGetDurationNs(null)
+                //                 .build()
+                // );
 
                 l2Misses++;
 
-                // 에러 메시지 누적 (첫 번째 에러만 기록)
-                if (r02CacheResult.getErrorMessage() == null) {
-                    r02CacheResult.setErrorMessage(e.getMessage());
-                }
+                // [계측 주석 처리] 에러 메시지 누적 (첫 번째 에러만 기록)
+                // if (r02CacheResult.getErrorMessage() == null) {
+                //     r02CacheResult.setErrorMessage(e.getMessage());
+                // }
             }
         }
 
-        // ===== [Action 2: L2 캐시 전체 조회 시간 측정 완료 - B-03 병목 핵심!] =====
-        long l2TotalEndNs = System.nanoTime();
-        long l2TotalDurationNs = l2TotalEndNs - l2TotalStartNs;
+        // [계측 주석 처리] ===== [Action 2: L2 캐시 전체 조회 시간 측정 완료 - B-03 병목 핵심!] =====
+        // long l2TotalEndNs = System.nanoTime();
+        // long l2TotalDurationNs = l2TotalEndNs - l2TotalStartNs;
         // =====
 
-        // L2 캐시 결과 설정
-        r02CacheResult.setL2CacheRequired(true);
-        r02CacheResult.setL2CacheResults(l2CacheResults);
-        r02CacheResult.setL2TotalHits(l2Hits);
-        r02CacheResult.setL2TotalMisses(l2Misses);
-        r02CacheResult.setL2CacheTotalDurationNs(l2TotalDurationNs);  // [추가] B-03 병목 핵심 지표!
-        r02CacheResult.setL2JsonDeserializeTotalDurationNs(l2JsonDeserializeTotalNs);  // [추가]
+        // [계측 주석 처리] L2 캐시 결과 설정
+        // r02CacheResult.setL2CacheRequired(true);
+        // r02CacheResult.setL2CacheResults(l2CacheResults);
+        // r02CacheResult.setL2TotalHits(l2Hits);
+        // r02CacheResult.setL2TotalMisses(l2Misses);
+        // r02CacheResult.setL2CacheTotalDurationNs(l2TotalDurationNs);
+        // r02CacheResult.setL2JsonDeserializeTotalDurationNs(l2JsonDeserializeTotalNs);
 
-        // L2 캐시 조회가 완료되었으므로 성공으로 설정
-        if (l2Hits > 0 || l2Misses > 0) {
-            r02CacheResult.setSuccess(true);
-        }
+        // [계측 주석 처리] L2 캐시 조회가 완료되었으므로 성공으로 설정
+        // if (l2Hits > 0 || l2Misses > 0) {
+        //     r02CacheResult.setSuccess(true);
+        // }
 
         log.info("[R-02-2단계] 개별 격자 데이터 캐시 조회 완료");
         log.info("[R-02-2단계] CCTV 캐시 히트: {}개, 미스: {}개", l2Hits, l2Misses);
-        log.info("[R-02-2단계] L2 전체 조회 시간: {}ms, 역직렬화: {}ms",
-                l2TotalDurationNs / 1_000_000.0,
-                l2JsonDeserializeTotalNs / 1_000_000.0);
+        // [계측 주석 처리] 시간 측정 로그
+        // log.info("[R-02-2단계] L2 전체 조회 시간: {}ms, 역직렬화: {}ms",
+        //         l2TotalDurationNs / 1_000_000.0,
+        //         l2JsonDeserializeTotalNs / 1_000_000.0);
         log.info("[R-02] 단계별 캐시 조회 완료");
 
-        // 로깅 후 종료
-        perfLogger.setResultData(r02CacheResult);
-        perfLogger.end();
+        // [계측 주석 처리] 로깅 후 종료
+        // perfLogger.setResultData(r02CacheResult);
+        // perfLogger.end();
 
         return result;
     }
@@ -494,27 +494,28 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      */
     private DatabaseQueryResult performDatabaseQuery(CacheResult cacheResult) {
 
-        PerformanceLogger perfLogger = PerformanceLogger.start(
-                "R-03",
-                "performDatabaseQuery",
-                "Service",
-                "LocationAnalysisServiceImpl",
-                "performDatabaseQuery"
-        );
+        // [계측 주석 처리] R-03 PerformanceLogger
+        // PerformanceLogger perfLogger = PerformanceLogger.start(
+        //         "R-03",
+        //         "performDatabaseQuery",
+        //         "Service",
+        //         "LocationAnalysisServiceImpl",
+        //         "performDatabaseQuery"
+        // );
 
         log.info("[R-03] 선택된 데이터베이스 조회 시작");
 
         DatabaseQueryResult dbResult = new DatabaseQueryResult();
 
-        // R-03 로깅 DTO 초기화
+        // [계측 주석 처리] R-03 로깅 DTO 초기화
         List<String> cctvMisses = cacheResult.getCctvMisses();
-        R03DbResult r03DbResult = R03DbResult.builder()
-                .inputCctvMissGrids(cctvMisses)
-                .cctvQueryResult(null)
-                .cctvCacheWrites(null)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // R03DbResult r03DbResult = R03DbResult.builder()
+        //         .inputCctvMissGrids(cctvMisses)
+        //         .cctvQueryResult(null)
+        //         .cctvCacheWrites(null)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
         // 1. R-02에서 캐시 히트된 데이터를 결과 객체에 먼저 추가 (캐시 재사용)
         dbResult.getCctvData().putAll(cacheResult.getCachedCctvData());
@@ -524,45 +525,46 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         if (!cctvMisses.isEmpty()) {
             log.info("[R-03] CCTV 데이터 DB 조회 시작 - 대상 격자: {}개", cctvMisses.size());
 
-            // 서브 루틴 1: CCTV DB 쿼리 실행 로깅 준비
-            R03CctvQueryResult cctvQueryResult = R03CctvQueryResult.builder()
-                    .queryGeohashIds(cctvMisses)
-                    .totalRowsReturned(0)
-                    .rowsPerGrid(new HashMap<>())
-                    .queryExecutionTimeNs(0)
-                    .isSuccess(false)
-                    .errorMessage(null)
-                    .build();
+            // [계측 주석 처리] 서브 루틴 1: CCTV DB 쿼리 실행 로깅 준비
+            // R03CctvQueryResult cctvQueryResult = R03CctvQueryResult.builder()
+            //         .queryGeohashIds(cctvMisses)
+            //         .totalRowsReturned(0)
+            //         .rowsPerGrid(new HashMap<>())
+            //         .queryExecutionTimeNs(0)
+            //         .isSuccess(false)
+            //         .errorMessage(null)
+            //         .build();
 
-            long queryStartNs = System.nanoTime();
+            // long queryStartNs = System.nanoTime();
 
             try {
                 // B-Tree 인덱스(IDX_CCTV_GEO_GEOHASH)를 활용한 IN 절 조회
                 List<CctvGeo> cctvList = cctvGeoRepository.findByGeohashIdIn(cctvMisses);
 
-                long queryEndNs = System.nanoTime();
-                long queryDurationNs = queryEndNs - queryStartNs;
+                // [계측 주석 처리] 쿼리 시간 측정
+                // long queryEndNs = System.nanoTime();
+                // long queryDurationNs = queryEndNs - queryStartNs;
 
                 log.info("[R-03] CCTV DB 조회 완료 - 조회된 데이터: {}건", cctvList.size());
 
                 // 조회된 CCTV 리스트를 geohash_id 기준으로 그룹화 (Map<GeohashId, List<CctvGeo>>)
                 Map<String, List<CctvGeo>> groupedCctv = groupCctvByGeohash(cctvList);
 
-                // 격자별 행 수 계산 (로깅용)
-                Map<String, Integer> rowsPerGrid = new HashMap<>();
-                for (Map.Entry<String, List<CctvGeo>> entry : groupedCctv.entrySet()) {
-                    rowsPerGrid.put(entry.getKey(), entry.getValue().size());
-                }
+                // [계측 주석 처리] 격자별 행 수 계산 (로깅용)
+                // Map<String, Integer> rowsPerGrid = new HashMap<>();
+                // for (Map.Entry<String, List<CctvGeo>> entry : groupedCctv.entrySet()) {
+                //     rowsPerGrid.put(entry.getKey(), entry.getValue().size());
+                // }
 
-                // 쿼리 결과 로깅 DTO 설정
-                cctvQueryResult.setTotalRowsReturned(cctvList.size());
-                cctvQueryResult.setRowsPerGrid(rowsPerGrid);
-                cctvQueryResult.setQueryExecutionTimeNs(queryDurationNs);
-                cctvQueryResult.setSuccess(true);
-                cctvQueryResult.setErrorMessage(null);
+                // [계측 주석 처리] 쿼리 결과 로깅 DTO 설정
+                // cctvQueryResult.setTotalRowsReturned(cctvList.size());
+                // cctvQueryResult.setRowsPerGrid(rowsPerGrid);
+                // cctvQueryResult.setQueryExecutionTimeNs(queryDurationNs);
+                // cctvQueryResult.setSuccess(true);
+                // cctvQueryResult.setErrorMessage(null);
 
-                // 서브 루틴 2: L2 캐시 쓰기 로깅 준비
-                List<R03CacheWriteResult> cacheWriteResults = new ArrayList<>();
+                // [계측 주석 처리] 서브 루틴 2: L2 캐시 쓰기 로깅 준비
+                // List<R03CacheWriteResult> cacheWriteResults = new ArrayList<>();
 
                 // 격자별로 분류된 데이터를 순회하며 결과 객체에 추가 + Redis 2단계 캐시 저장
                 for (Map.Entry<String, List<CctvGeo>> entry : groupedCctv.entrySet()) {
@@ -572,76 +574,72 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                     // DatabaseQueryResult 객체에 해당 격자의 CCTV 데이터 추가
                     dbResult.getCctvData().put(geohashId, data);
 
-                    // 캐시 쓰기 로깅 객체 생성
-                    String cacheKey = "data:" + geohashId + ":cctv";
-                    R03CacheWriteResult cacheWriteResult = R03CacheWriteResult.builder()
-                            .geohashId(geohashId)
-                            .cacheKey(cacheKey)
-                            .dataCount(data.size())
-                            .dataSize(0)
-                            .isSuccess(false)
-                            .errorMessage(null)
-                            .build();
+                    // [계측 주석 처리] 캐시 쓰기 로깅 객체 생성
+                    // String cacheKey = "data:" + geohashId + ":cctv";
+                    // R03CacheWriteResult cacheWriteResult = R03CacheWriteResult.builder()
+                    //         .geohashId(geohashId)
+                    //         .cacheKey(cacheKey)
+                    //         .dataCount(data.size())
+                    //         .dataSize(0)
+                    //         .isSuccess(false)
+                    //         .errorMessage(null)
+                    //         .build();
 
-                    try {
-                        // JSON 직렬화 (dataSize 측정용)
-                        String jsonData = objectMapper.writeValueAsString(data);
+                    // 기존 메서드 그대로 호출 (비즈니스 로직 변경 없음)
+                    cacheGeohashData(geohashId, "cctv", data);
 
-                        // 기존 메서드 그대로 호출 (비즈니스 로직 변경 없음)
-                        cacheGeohashData(geohashId, "cctv", data);
+                    // [계측 주석 처리] 캐시 쓰기 로깅
+                    // try {
+                    //     String jsonData = objectMapper.writeValueAsString(data);
+                    //     cacheWriteResult.setDataSize(jsonData.length());
+                    //     cacheWriteResult.setSuccess(true);
+                    //     cacheWriteResult.setErrorMessage(null);
+                    // } catch (Exception e) {
+                    //     cacheWriteResult.setSuccess(false);
+                    //     cacheWriteResult.setErrorMessage(e.getMessage());
+                    // }
 
-                        // 캐시 쓰기 성공 로깅
-                        cacheWriteResult.setDataSize(jsonData.length());
-                        cacheWriteResult.setSuccess(true);
-                        cacheWriteResult.setErrorMessage(null);
-
-                    } catch (Exception e) {
-                        // 캐시 쓰기 실패 로깅
-                        cacheWriteResult.setSuccess(false);
-                        cacheWriteResult.setErrorMessage(e.getMessage());
-                    }
-
-                    cacheWriteResults.add(cacheWriteResult);
+                    // cacheWriteResults.add(cacheWriteResult);
                     log.debug("[R-03] CCTV 캐싱 완료 - GeohashId: {}, 개수: {}건", geohashId, data.size());
                 }
 
-                // R-03 결과 설정
-                r03DbResult.setCctvQueryResult(cctvQueryResult);
-                r03DbResult.setCctvCacheWrites(cacheWriteResults);
-                r03DbResult.setSuccess(true);
-                r03DbResult.setErrorMessage(null);
+                // [계측 주석 처리] R-03 결과 설정
+                // r03DbResult.setCctvQueryResult(cctvQueryResult);
+                // r03DbResult.setCctvCacheWrites(cacheWriteResults);
+                // r03DbResult.setSuccess(true);
+                // r03DbResult.setErrorMessage(null);
 
             } catch (Exception e) {
                 log.error("[R-03] CCTV DB 조회 중 오류 발생", e);
                 dbResult.addError("CCTV 데이터 조회 실패: " + e.getMessage());
 
-                // 쿼리 실패 로깅
-                cctvQueryResult.setSuccess(false);
-                cctvQueryResult.setErrorMessage(e.getMessage());
+                // [계측 주석 처리] 쿼리 실패 로깅
+                // cctvQueryResult.setSuccess(false);
+                // cctvQueryResult.setErrorMessage(e.getMessage());
 
-                r03DbResult.setCctvQueryResult(cctvQueryResult);
-                r03DbResult.setCctvCacheWrites(new ArrayList<>());
-                r03DbResult.setSuccess(false);
-                r03DbResult.setErrorMessage(e.getMessage());
+                // r03DbResult.setCctvQueryResult(cctvQueryResult);
+                // r03DbResult.setCctvCacheWrites(new ArrayList<>());
+                // r03DbResult.setSuccess(false);
+                // r03DbResult.setErrorMessage(e.getMessage());
             }
 
         } else {
             log.info("[R-03] CCTV 데이터는 모두 캐시에서 조회됨");
 
-            // 캐시에서 모두 조회된 경우에도 성공으로 기록
-            r03DbResult.setCctvQueryResult(null);
-            r03DbResult.setCctvCacheWrites(new ArrayList<>());
-            r03DbResult.setSuccess(true);
-            r03DbResult.setErrorMessage(null);
+            // [계측 주석 처리] 캐시에서 모두 조회된 경우에도 성공으로 기록
+            // r03DbResult.setCctvQueryResult(null);
+            // r03DbResult.setCctvCacheWrites(new ArrayList<>());
+            // r03DbResult.setSuccess(true);
+            // r03DbResult.setErrorMessage(null);
         }
 
         // 파출소 데이터 처리는 R-05로 이관됨
         log.info("[R-03] 데이터베이스 조회 완료");
         log.info("[R-03] CCTV 총 격자: {}개", dbResult.getCctvData().size());
 
-        // 로깅 후 종료
-        perfLogger.setResultData(r03DbResult);
-        perfLogger.end();
+        // [계측 주석 처리] 로깅 후 종료
+        // perfLogger.setResultData(r03DbResult);
+        // perfLogger.end();
 
         return dbResult;
     }
@@ -742,13 +740,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      */
     private ExternalApiResult performExternalApiCalls(LocationAnalysisRequestDTO request) {
 
-        PerformanceLogger perfLogger = PerformanceLogger.start(
-                "R-04",
-                "performExternalApiCalls",
-                "Service",
-                "LocationAnalysisServiceImpl",
-                "performExternalApiCalls"
-        );
+        // [계측 주석 처리] R-04 PerformanceLogger
+        // PerformanceLogger perfLogger = PerformanceLogger.start(
+        //         "R-04",
+        //         "performExternalApiCalls",
+        //         "Service",
+        //         "LocationAnalysisServiceImpl",
+        //         "performExternalApiCalls"
+        // );
 
         log.info("[R-04] 외부 API 호출 시작 (순차 실행)");
 
@@ -758,43 +757,44 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         ExternalApiResult result = new ExternalApiResult();
 
-        // R-04 메인 로깅 DTO 초기화
-        R04ApiResult r04ApiResult = R04ApiResult.builder()
-                .latitude(latitude)
-                .longitude(longitude)
-                .radius(radius)
-                .totalSequentialTasks(3)
-                .totalExecutionTimeNs(0)
-                .addressApiResult(null)
-                .amenityApiResult(null)
-                .arrestRateResult(null)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R-04 메인 로깅 DTO 초기화
+        // R04ApiResult r04ApiResult = R04ApiResult.builder()
+        //         .latitude(latitude)
+        //         .longitude(longitude)
+        //         .radius(radius)
+        //         .totalSequentialTasks(3)
+        //         .totalExecutionTimeNs(0)
+        //         .addressApiResult(null)
+        //         .amenityApiResult(null)
+        //         .arrestRateResult(null)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
         // ============================================
         // 1. 주소 변환 API 호출 (카카오맵 Reverse Geocoding)
         // ============================================
 
-        R04AddressApiResult addressApiResult = R04AddressApiResult.builder()
-                .cached(false)
-                .cacheKey(null)
-                .roadAddress(null)
-                .jibunAddress(null)
-                .responseSize(null)
-                .executionTimeNs(0)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R04AddressApiResult
+        // R04AddressApiResult addressApiResult = R04AddressApiResult.builder()
+        //         .cached(false)
+        //         .cacheKey(null)
+        //         .roadAddress(null)
+        //         .jibunAddress(null)
+        //         .responseSize(null)
+        //         .executionTimeNs(0)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
-        long addressStartNs = System.nanoTime();
+        // long addressStartNs = System.nanoTime();
 
         try {
             log.info("[R-04] 주소 변환 API 호출 시작 - 좌표: ({}, {})", latitude, longitude);
 
             // 캐시 키 생성 (좌표 기반, 형식: "address:{latitude}:{longitude}")
             String cacheKey = "address:" + latitude + ":" + longitude;
-            addressApiResult.setCacheKey(cacheKey);
+            // [계측 주석 처리] addressApiResult.setCacheKey(cacheKey);
 
             // Redis 2단계 캐시 조회 시도
             String cachedAddress = redisSingleDataService.getSingleData(cacheKey);
@@ -806,12 +806,12 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                 AddressDto addressDto = objectMapper.readValue(cachedAddress, AddressDto.class);
                 result.setAddress(addressDto);
 
-                // 로깅 DTO 설정 (캐시 히트)
-                addressApiResult.setCached(true);
-                addressApiResult.setRoadAddress(addressDto.getRoadAddress());
-                addressApiResult.setJibunAddress(addressDto.getJibunAddress());
-                addressApiResult.setResponseSize(cachedAddress.length());
-                addressApiResult.setSuccess(true);
+                // [계측 주석 처리] 로깅 DTO 설정 (캐시 히트)
+                // addressApiResult.setCached(true);
+                // addressApiResult.setRoadAddress(addressDto.getRoadAddress());
+                // addressApiResult.setJibunAddress(addressDto.getJibunAddress());
+                // addressApiResult.setResponseSize(cachedAddress.length());
+                // addressApiResult.setSuccess(true);
 
             } else {
                 log.info("[R-04] 주소 변환 캐시 미스 - API 호출");
@@ -829,43 +829,45 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
                 log.info("[R-04] 주소 변환 결과 캐싱 완료");
 
-                // 로깅 DTO 설정 (캐시 미스)
-                addressApiResult.setCached(false);
-                addressApiResult.setRoadAddress(addressDto.getRoadAddress());
-                addressApiResult.setJibunAddress(addressDto.getJibunAddress());
-                addressApiResult.setResponseSize(addressJson.length());
-                addressApiResult.setSuccess(true);
+                // [계측 주석 처리] 로깅 DTO 설정 (캐시 미스)
+                // addressApiResult.setCached(false);
+                // addressApiResult.setRoadAddress(addressDto.getRoadAddress());
+                // addressApiResult.setJibunAddress(addressDto.getJibunAddress());
+                // addressApiResult.setResponseSize(addressJson.length());
+                // addressApiResult.setSuccess(true);
             }
 
         } catch (Exception e) {
             log.error("[R-04] 주소 변환 API 호출 중 오류 발생", e);
             result.addError("주소 변환 실패: " + e.getMessage());
 
-            // 로깅 DTO 설정 (실패)
-            addressApiResult.setSuccess(false);
-            addressApiResult.setErrorMessage(e.getMessage());
+            // [계측 주석 처리] 로깅 DTO 설정 (실패)
+            // addressApiResult.setSuccess(false);
+            // addressApiResult.setErrorMessage(e.getMessage());
         }
 
-        long addressEndNs = System.nanoTime();
-        addressApiResult.setExecutionTimeNs(addressEndNs - addressStartNs);
+        // [계측 주석 처리] 시간 측정
+        // long addressEndNs = System.nanoTime();
+        // addressApiResult.setExecutionTimeNs(addressEndNs - addressStartNs);
 
         // ============================================
         // 2. 편의시설 조회 API 호출 (카카오맵 로컬 검색, 15개 카테고리)
         // ============================================
 
-        R04AmenityApiResult amenityApiResult = R04AmenityApiResult.builder()
-                .cached(false)
-                .cacheKey(null)
-                .categoryCount(0)
-                .placesByCategory(new HashMap<>())
-                .totalPlaces(0)
-                .responseSize(null)
-                .executionTimeNs(0)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R04AmenityApiResult
+        // R04AmenityApiResult amenityApiResult = R04AmenityApiResult.builder()
+        //         .cached(false)
+        //         .cacheKey(null)
+        //         .categoryCount(0)
+        //         .placesByCategory(new HashMap<>())
+        //         .totalPlaces(0)
+        //         .responseSize(null)
+        //         .executionTimeNs(0)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
-        long amenityStartNs = System.nanoTime();
+        // long amenityStartNs = System.nanoTime();
 
         /* 모든 편의시설(Kakao Map API 15개 코드) */
 
@@ -874,7 +876,7 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
             // 캐시 키 생성 (좌표 + 반경 기반, 형식: "amenity:{lat}:{lon}:{radius}")
             String cacheKey = "amenity:" + latitude + ":" + longitude + ":" + radius;
-            amenityApiResult.setCacheKey(cacheKey);
+            // [계측 주석 처리] amenityApiResult.setCacheKey(cacheKey);
 
             // Redis 2단계 캐시 조회 시도
             String cachedAmenity = redisSingleDataService.getSingleData(cacheKey);
@@ -889,9 +891,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                         new TypeReference<Map<String, List<Map<String, Object>>>>() {});
                 result.setAmenityData(amenityData);
 
-                // 로깅 DTO 설정 (캐시 히트)
-                amenityApiResult.setCached(true);
-                amenityApiResult.setResponseSize(cachedAmenity.length());
+                // [계측 주석 처리] 로깅 DTO 설정 (캐시 히트)
+                // amenityApiResult.setCached(true);
+                // amenityApiResult.setResponseSize(cachedAmenity.length());
 
             } else {
                 log.info("[R-04] 편의시설 캐시 미스 - API 호출");
@@ -906,9 +908,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
                 log.info("[R-04] 편의시설 결과 캐싱 완료 - 총 카테고리: {}개", amenityData.size());
 
-                // 로깅 DTO 설정 (캐시 미스)
-                amenityApiResult.setCached(false);
-                amenityApiResult.setResponseSize(amenityJson.length());
+                // [계측 주석 처리] 로깅 DTO 설정 (캐시 미스)
+                // amenityApiResult.setCached(false);
+                // amenityApiResult.setResponseSize(amenityJson.length());
             }
 
             // 카테고리별 장소 개수 계산 (공통)
@@ -923,39 +925,42 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                 totalPlaces += count;
             }
 
-            amenityApiResult.setCategoryCount(amenityData.size());
-            amenityApiResult.setPlacesByCategory(placesByCategory);
-            amenityApiResult.setTotalPlaces(totalPlaces);
-            amenityApiResult.setSuccess(true);
+            // [계측 주석 처리] amenityApiResult 설정
+            // amenityApiResult.setCategoryCount(amenityData.size());
+            // amenityApiResult.setPlacesByCategory(placesByCategory);
+            // amenityApiResult.setTotalPlaces(totalPlaces);
+            // amenityApiResult.setSuccess(true);
 
         } catch (Exception e) {
             log.error("[R-04] 편의시설 조회 API 호출 중 오류 발생", e);
             result.addError("편의시설 조회 실패: " + e.getMessage());
 
-            // 로깅 DTO 설정 (실패)
-            amenityApiResult.setSuccess(false);
-            amenityApiResult.setErrorMessage(e.getMessage());
+            // [계측 주석 처리] 로깅 DTO 설정 (실패)
+            // amenityApiResult.setSuccess(false);
+            // amenityApiResult.setErrorMessage(e.getMessage());
         }
 
-        long amenityEndNs = System.nanoTime();
-        amenityApiResult.setExecutionTimeNs(amenityEndNs - amenityStartNs);
+        // [계측 주석 처리] 시간 측정
+        // long amenityEndNs = System.nanoTime();
+        // amenityApiResult.setExecutionTimeNs(amenityEndNs - amenityStartNs);
 
         // ============================================
         // 3. 검거율 조회 (내부 DB 조회, 주소 변환 결과 필요) - Redis 캐싱 추가
         // ============================================
 
-        R04ArrestRateResult arrestRateResult = R04ArrestRateResult.builder()
-                .cached(false)
-                .cacheKey(null)
-                .guName(null)
-                .arrestRate(null)
-                .dataFound(false)
-                .executionTimeNs(0)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R04ArrestRateResult
+        // R04ArrestRateResult arrestRateResult = R04ArrestRateResult.builder()
+        //         .cached(false)
+        //         .cacheKey(null)
+        //         .guName(null)
+        //         .arrestRate(null)
+        //         .dataFound(false)
+        //         .executionTimeNs(0)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
-        long arrestRateStartNs = System.nanoTime();
+        // long arrestRateStartNs = System.nanoTime();
 
         try {
             log.info("[R-04] 검거율 조회 시작");
@@ -969,11 +974,11 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                 if (gu != null) {
                     log.info("[R-04] 추출된 구: {}", gu);
 
-                    arrestRateResult.setGuName(gu);
+                    // [계측 주석 처리] arrestRateResult.setGuName(gu);
 
                     // 캐시 키 생성 (구 단위 기반, 형식: "arrest_rate:{구이름}")
                     String cacheKey = "arrest_rate:" + gu;
-                    arrestRateResult.setCacheKey(cacheKey);
+                    // [계측 주석 처리] arrestRateResult.setCacheKey(cacheKey);
 
                     // Redis 캐시 조회 시도
                     String cachedRate = redisSingleDataService.getSingleData(cacheKey);
@@ -984,11 +989,11 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                         double rate = Double.parseDouble(cachedRate);
                         result.setArrestRate(rate);
 
-                        // 로깅 DTO 설정 (캐시 히트)
-                        arrestRateResult.setCached(true);
-                        arrestRateResult.setArrestRate(rate);
-                        arrestRateResult.setDataFound(true);
-                        arrestRateResult.setSuccess(true);
+                        // [계측 주석 처리] 로깅 DTO 설정 (캐시 히트)
+                        // arrestRateResult.setCached(true);
+                        // arrestRateResult.setArrestRate(rate);
+                        // arrestRateResult.setDataFound(true);
+                        // arrestRateResult.setSuccess(true);
 
                     } else {
                         log.info("[R-04] 검거율 캐시 미스 - DB 조회");
@@ -1004,40 +1009,40 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                             redisSingleDataService.setSingleData(cacheKey, String.valueOf(rate), LEVEL2_CACHE_TTL);
                             log.info("[R-04] 검거율 조회 성공 및 캐싱 완료 - {}: {}", gu, rate);
 
-                            // 로깅 DTO 설정 (캐시 미스, 데이터 존재)
-                            arrestRateResult.setCached(false);
-                            arrestRateResult.setArrestRate(rate);
-                            arrestRateResult.setDataFound(true);
-                            arrestRateResult.setSuccess(true);
+                            // [계측 주석 처리] 로깅 DTO 설정 (캐시 미스, 데이터 존재)
+                            // arrestRateResult.setCached(false);
+                            // arrestRateResult.setArrestRate(rate);
+                            // arrestRateResult.setDataFound(true);
+                            // arrestRateResult.setSuccess(true);
 
                         } else {
                             log.warn("[R-04] 검거율 데이터 없음 - 구: {}", gu);
                             result.setArrestRate(0.0);
 
-                            // 로깅 DTO 설정 (캐시 미스, 데이터 없음)
-                            arrestRateResult.setCached(false);
-                            arrestRateResult.setArrestRate(0.0);
-                            arrestRateResult.setDataFound(false);
-                            arrestRateResult.setSuccess(true);
+                            // [계측 주석 처리] 로깅 DTO 설정 (캐시 미스, 데이터 없음)
+                            // arrestRateResult.setCached(false);
+                            // arrestRateResult.setArrestRate(0.0);
+                            // arrestRateResult.setDataFound(false);
+                            // arrestRateResult.setSuccess(true);
                         }
                     }
                 } else {
                     log.warn("[R-04] 주소에서 구 추출 실패: {}", address);
                     result.setArrestRate(0.0);
 
-                    // 로깅 DTO 설정 (구 추출 실패)
-                    arrestRateResult.setArrestRate(0.0);
-                    arrestRateResult.setDataFound(false);
-                    arrestRateResult.setSuccess(true);
+                    // [계측 주석 처리] 로깅 DTO 설정 (구 추출 실패)
+                    // arrestRateResult.setArrestRate(0.0);
+                    // arrestRateResult.setDataFound(false);
+                    // arrestRateResult.setSuccess(true);
                 }
             } else {
                 log.warn("[R-04] 주소 변환 결과 없음 - 검거율 조회 불가");
                 result.setArrestRate(0.0);
 
-                // 로깅 DTO 설정 (주소 없음)
-                arrestRateResult.setArrestRate(0.0);
-                arrestRateResult.setDataFound(false);
-                arrestRateResult.setSuccess(true);
+                // [계측 주석 처리] 로깅 DTO 설정 (주소 없음)
+                // arrestRateResult.setArrestRate(0.0);
+                // arrestRateResult.setDataFound(false);
+                // arrestRateResult.setSuccess(true);
             }
 
         } catch (Exception e) {
@@ -1045,29 +1050,30 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             result.addError("검거율 조회 실패: " + e.getMessage());
             result.setArrestRate(0.0);
 
-            // 로깅 DTO 설정 (실패)
-            arrestRateResult.setArrestRate(0.0);
-            arrestRateResult.setSuccess(false);
-            arrestRateResult.setErrorMessage(e.getMessage());
+            // [계측 주석 처리] 로깅 DTO 설정 (실패)
+            // arrestRateResult.setArrestRate(0.0);
+            // arrestRateResult.setSuccess(false);
+            // arrestRateResult.setErrorMessage(e.getMessage());
         }
 
-        long arrestRateEndNs = System.nanoTime();
-        arrestRateResult.setExecutionTimeNs(arrestRateEndNs - arrestRateStartNs);
+        // [계측 주석 처리] 시간 측정
+        // long arrestRateEndNs = System.nanoTime();
+        // arrestRateResult.setExecutionTimeNs(arrestRateEndNs - arrestRateStartNs);
 
-        // ============================================
+        // [계측 주석 처리] ============================================
         // R-04 메인 로깅 DTO 최종 설정
         // ============================================
 
-        long totalExecutionTimeNs = addressApiResult.getExecutionTimeNs()
-                + amenityApiResult.getExecutionTimeNs()
-                + arrestRateResult.getExecutionTimeNs();
+        // long totalExecutionTimeNs = addressApiResult.getExecutionTimeNs()
+        //         + amenityApiResult.getExecutionTimeNs()
+        //         + arrestRateResult.getExecutionTimeNs();
 
-        r04ApiResult.setAddressApiResult(addressApiResult);
-        r04ApiResult.setAmenityApiResult(amenityApiResult);
-        r04ApiResult.setArrestRateResult(arrestRateResult);
-        r04ApiResult.setTotalExecutionTimeNs(totalExecutionTimeNs);
-        r04ApiResult.setSuccess(true);
-        r04ApiResult.setErrorMessage(null);
+        // r04ApiResult.setAddressApiResult(addressApiResult);
+        // r04ApiResult.setAmenityApiResult(amenityApiResult);
+        // r04ApiResult.setArrestRateResult(arrestRateResult);
+        // r04ApiResult.setTotalExecutionTimeNs(totalExecutionTimeNs);
+        // r04ApiResult.setSuccess(true);
+        // r04ApiResult.setErrorMessage(null);
 
         // ============================================
         // 최종 결과 로깅
@@ -1083,9 +1089,9 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             log.warn("[R-04] 발생한 오류: {}", result.getErrors());
         }
 
-        // 로깅 후 종료
-        perfLogger.setResultData(r04ApiResult);
-        perfLogger.end();
+        // [계측 주석 처리] 로깅 후 종료
+        // perfLogger.setResultData(r04ApiResult);
+        // perfLogger.end();
 
         return result;
     }
@@ -1118,13 +1124,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             ExternalApiResult apiResult,
             List<String> nineBlockGeohashes) {
 
-        PerformanceLogger perfLogger = PerformanceLogger.start(
-                "R-05",
-                "integrateAndFilterData",
-                "Service",
-                "LocationAnalysisServiceImpl",
-                "integrateAndFilterData"
-        );
+        // [계측 주석 처리] R-05 PerformanceLogger
+        // PerformanceLogger perfLogger = PerformanceLogger.start(
+        //         "R-05",
+        //         "integrateAndFilterData",
+        //         "Service",
+        //         "LocationAnalysisServiceImpl",
+        //         "integrateAndFilterData"
+        // );
 
         log.info("[R-05] 데이터 통합 및 필터링 시작");
 
@@ -1134,15 +1141,15 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         IntegratedDataResult result = new IntegratedDataResult();
 
-        // R-05 메인 로깅 DTO 초기화
-        R05FilterResult r05FilterResult = R05FilterResult.builder()
-                .requestRadius(radius)
-                .cctvFilter(null)
-                .policeQuery(null)
-                .amenityFilter(null)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R-05 메인 로깅 DTO 초기화
+        // R05FilterResult r05FilterResult = R05FilterResult.builder()
+        //         .requestRadius(radius)
+        //         .cctvFilter(null)
+        //         .policeQuery(null)
+        //         .amenityFilter(null)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
         // ============================================
         // 1. CCTV 데이터 통합 및 필터링
@@ -1150,14 +1157,15 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         log.info("[R-05] CCTV 데이터 통합 및 반경 필터링 시작");
 
-        R05CctvFilterResult cctvFilterResult = R05CctvFilterResult.builder()
-                .totalCctvBeforeFilter(0)
-                .totalCctvAfterFilter(0)
-                .totalCameraCount(0)
-                .filterRate(0.0)
-                .filterExecutionTimeNs(0)
-                .isSuccess(false)
-                .build();
+        // [계측 주석 처리] R05CctvFilterResult
+        // R05CctvFilterResult cctvFilterResult = R05CctvFilterResult.builder()
+        //         .totalCctvBeforeFilter(0)
+        //         .totalCctvAfterFilter(0)
+        //         .totalCameraCount(0)
+        //         .filterRate(0.0)
+        //         .filterExecutionTimeNs(0)
+        //         .isSuccess(false)
+        //         .build();
 
         List<CctvGeo> allCctvList = new ArrayList<>();
 
@@ -1170,13 +1178,13 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         log.info("[R-05] 9개 격자에서 통합된 전체 CCTV 개수: {}개", allCctvList.size());
 
-        cctvFilterResult.setTotalCctvBeforeFilter(allCctvList.size());
+        // [계측 주석 처리] cctvFilterResult.setTotalCctvBeforeFilter(allCctvList.size());
 
         List<CctvGeo> filteredCctvList = new ArrayList<>();
         int totalCameraCount = 0;
 
-        // CCTV 필터링 루프 시간 측정 시작
-        long cctvFilterStartNs = System.nanoTime();
+        // [계측 주석 처리] CCTV 필터링 루프 시간 측정 시작
+        // long cctvFilterStartNs = System.nanoTime();
 
         for (CctvGeo cctv : allCctvList) {
             double distance = geohashService.calculateDistance(
@@ -1189,23 +1197,24 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             }
         }
 
-        // CCTV 필터링 루프 시간 측정 종료
-        long cctvFilterEndNs = System.nanoTime();
-        cctvFilterResult.setFilterExecutionTimeNs(cctvFilterEndNs - cctvFilterStartNs);
+        // [계측 주석 처리] CCTV 필터링 루프 시간 측정 종료
+        // long cctvFilterEndNs = System.nanoTime();
+        // cctvFilterResult.setFilterExecutionTimeNs(cctvFilterEndNs - cctvFilterStartNs);
 
         result.setFilteredCctvList(filteredCctvList);
         result.setTotalCameraCount(totalCameraCount);
 
-        cctvFilterResult.setTotalCctvAfterFilter(filteredCctvList.size());
-        cctvFilterResult.setTotalCameraCount(totalCameraCount);
+        // [계측 주석 처리] cctvFilterResult 설정
+        // cctvFilterResult.setTotalCctvAfterFilter(filteredCctvList.size());
+        // cctvFilterResult.setTotalCameraCount(totalCameraCount);
 
-        if (allCctvList.size() > 0) {
-            cctvFilterResult.setFilterRate((double) filteredCctvList.size() / allCctvList.size());
-        } else {
-            cctvFilterResult.setFilterRate(0.0);
-        }
+        // if (allCctvList.size() > 0) {
+        //     cctvFilterResult.setFilterRate((double) filteredCctvList.size() / allCctvList.size());
+        // } else {
+        //     cctvFilterResult.setFilterRate(0.0);
+        // }
 
-        cctvFilterResult.setSuccess(true);
+        // cctvFilterResult.setSuccess(true);
 
         log.info("[R-05] 반경 {}m 내 필터링된 CCTV: {}개 (총 카메라 대수: {}대)",
                 radius, filteredCctvList.size(), totalCameraCount);
@@ -1216,27 +1225,28 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
         log.info("[R-05] 가장 가까운 파출소 검색 시작");
 
-        R05PoliceQueryResult policeQueryResult = R05PoliceQueryResult.builder()
-                .queryDurationNs(0)
-                .found(false)
-                .nearestAddress(null)
-                .nearestDistance(null)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R05PoliceQueryResult
+        // R05PoliceQueryResult policeQueryResult = R05PoliceQueryResult.builder()
+        //         .queryDurationNs(0)
+        //         .found(false)
+        //         .nearestAddress(null)
+        //         .nearestDistance(null)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
         PoliceOfficeGeo nearestPolice = null;
         double minDistance = Double.MAX_VALUE;
 
-        long policeQueryStartNs = System.nanoTime();
+        // [계측 주석 처리] long policeQueryStartNs = System.nanoTime();
 
         try {
             // DB에서 직접 가장 가까운 파출소 1개 조회
             List<PoliceOfficeGeo> nearestPoliceList = policeOfficeGeoRepository
                     .findNearestPoliceStations(userLatitude, userLongitude, 1);
 
-            long policeQueryEndNs = System.nanoTime();
-            policeQueryResult.setQueryDurationNs(policeQueryEndNs - policeQueryStartNs);
+            // [계측 주석 처리] long policeQueryEndNs = System.nanoTime();
+            // policeQueryResult.setQueryDurationNs(policeQueryEndNs - policeQueryStartNs);
 
             if (!nearestPoliceList.isEmpty()) {
                 nearestPolice = nearestPoliceList.get(0);
@@ -1247,25 +1257,28 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                 log.info("[R-05] 가장 가까운 파출소 발견: {} (거리: {}m)",
                         nearestPolice.getAddress(), Math.round(minDistance));
 
-                policeQueryResult.setFound(true);
-                policeQueryResult.setNearestAddress(nearestPolice.getAddress());
-                policeQueryResult.setNearestDistance(minDistance);
-                policeQueryResult.setSuccess(true);
+                // [계측 주석 처리] policeQueryResult 설정
+                // policeQueryResult.setFound(true);
+                // policeQueryResult.setNearestAddress(nearestPolice.getAddress());
+                // policeQueryResult.setNearestDistance(minDistance);
+                // policeQueryResult.setSuccess(true);
 
             } else {
-                policeQueryResult.setFound(false);
-                policeQueryResult.setNearestDistance(Double.MAX_VALUE);
-                policeQueryResult.setSuccess(true);
+                // [계측 주석 처리] policeQueryResult 설정
+                // policeQueryResult.setFound(false);
+                // policeQueryResult.setNearestDistance(Double.MAX_VALUE);
+                // policeQueryResult.setSuccess(true);
             }
 
         } catch (Exception e) {
             log.error("[R-05] 파출소 검색 중 오류 발생", e);
 
-            long policeQueryEndNs = System.nanoTime();
-            policeQueryResult.setQueryDurationNs(policeQueryEndNs - policeQueryStartNs);
+            // [계측 주석 처리] 파출소 쿼리 시간 측정
+            // long policeQueryEndNs = System.nanoTime();
+            // policeQueryResult.setQueryDurationNs(policeQueryEndNs - policeQueryStartNs);
 
-            policeQueryResult.setSuccess(false);
-            policeQueryResult.setErrorMessage(e.getMessage());
+            // policeQueryResult.setSuccess(false);
+            // policeQueryResult.setErrorMessage(e.getMessage());
         }
 
         result.setNearestPolice(nearestPolice);
@@ -1288,15 +1301,16 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
         // 4. 편의시설 데이터 처리 - AmenityDetailDto 리스트 생성
         // ============================================
 
-        R05AmenityFilterResult amenityFilterResult = R05AmenityFilterResult.builder()
-                .placesBeforeFilter(new HashMap<>())
-                .placesAfterFilter(new HashMap<>())
-                .totalBeforeFilter(0)
-                .totalAfterFilter(0)
-                .filterRate(0.0)
-                .filterExecutionTimeNs(0)
-                .isSuccess(false)
-                .build();
+        // [계측 주석 처리] R05AmenityFilterResult
+        // R05AmenityFilterResult amenityFilterResult = R05AmenityFilterResult.builder()
+        //         .placesBeforeFilter(new HashMap<>())
+        //         .placesAfterFilter(new HashMap<>())
+        //         .totalBeforeFilter(0)
+        //         .totalAfterFilter(0)
+        //         .filterRate(0.0)
+        //         .filterExecutionTimeNs(0)
+        //         .isSuccess(false)
+        //         .build();
 
         if (apiResult.getAmenityData() != null) {
 
@@ -1305,13 +1319,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             List<AmenityDetailDto> amenityDetailsList = new ArrayList<>();
             Map<String, String> categoryNames = createCategoryNameMap();
 
-            Map<String, Integer> placesBeforeFilter = new HashMap<>();
-            Map<String, Integer> placesAfterFilter = new HashMap<>();
-            int totalBeforeFilter = 0;
-            int totalAfterFilter = 0;
+            // [계측 주석 처리] 편의시설 필터링 카운터
+            // Map<String, Integer> placesBeforeFilter = new HashMap<>();
+            // Map<String, Integer> placesAfterFilter = new HashMap<>();
+            // int totalBeforeFilter = 0;
+            // int totalAfterFilter = 0;
 
-            // 편의시설 필터링 루프 시간 측정 시작
-            long amenityFilterStartNs = System.nanoTime();
+            // [계측 주석 처리] 편의시설 필터링 루프 시간 측정 시작
+            // long amenityFilterStartNs = System.nanoTime();
 
             for (Map.Entry<String, List<Map<String, Object>>> entry : apiResult.getAmenityData().entrySet()) {
 
@@ -1322,9 +1337,10 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                     continue;
                 }
 
-                int beforeCount = places.size();
-                placesBeforeFilter.put(categoryCode, beforeCount);
-                totalBeforeFilter += beforeCount;
+                // [계측 주석 처리] 필터링 전 카운트
+                // int beforeCount = places.size();
+                // placesBeforeFilter.put(categoryCode, beforeCount);
+                // totalBeforeFilter += beforeCount;
 
                 List<PlaceDto> placeDtoList = new ArrayList<>();
 
@@ -1349,9 +1365,10 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                     }
                 }
 
-                int afterCount = placeDtoList.size();
-                placesAfterFilter.put(categoryCode, afterCount);
-                totalAfterFilter += afterCount;
+                // [계측 주석 처리] 필터링 후 카운트
+                // int afterCount = placeDtoList.size();
+                // placesAfterFilter.put(categoryCode, afterCount);
+                // totalAfterFilter += afterCount;
 
                 placeDtoList.sort((p1, p2) -> Integer.compare(p1.getDistance(), p2.getDistance()));
 
@@ -1370,24 +1387,25 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                         amenityDetail.getClosestDistance());
             }
 
-            // 편의시설 필터링 루프 시간 측정 종료
-            long amenityFilterEndNs = System.nanoTime();
-            amenityFilterResult.setFilterExecutionTimeNs(amenityFilterEndNs - amenityFilterStartNs);
+            // [계측 주석 처리] 편의시설 필터링 루프 시간 측정 종료
+            // long amenityFilterEndNs = System.nanoTime();
+            // amenityFilterResult.setFilterExecutionTimeNs(amenityFilterEndNs - amenityFilterStartNs);
 
             result.setAmenityDetails(amenityDetailsList);
 
-            amenityFilterResult.setPlacesBeforeFilter(placesBeforeFilter);
-            amenityFilterResult.setPlacesAfterFilter(placesAfterFilter);
-            amenityFilterResult.setTotalBeforeFilter(totalBeforeFilter);
-            amenityFilterResult.setTotalAfterFilter(totalAfterFilter);
+            // [계측 주석 처리] amenityFilterResult 설정
+            // amenityFilterResult.setPlacesBeforeFilter(placesBeforeFilter);
+            // amenityFilterResult.setPlacesAfterFilter(placesAfterFilter);
+            // amenityFilterResult.setTotalBeforeFilter(totalBeforeFilter);
+            // amenityFilterResult.setTotalAfterFilter(totalAfterFilter);
 
-            if (totalBeforeFilter > 0) {
-                amenityFilterResult.setFilterRate((double) totalAfterFilter / totalBeforeFilter);
-            } else {
-                amenityFilterResult.setFilterRate(0.0);
-            }
+            // if (totalBeforeFilter > 0) {
+            //     amenityFilterResult.setFilterRate((double) totalAfterFilter / totalBeforeFilter);
+            // } else {
+            //     amenityFilterResult.setFilterRate(0.0);
+            // }
 
-            amenityFilterResult.setSuccess(true);
+            // amenityFilterResult.setSuccess(true);
 
             log.info("[R-05] 편의시설 상세 정보 통합 완료: {}개 카테고리",
                     amenityDetailsList.size());
@@ -1397,23 +1415,23 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
             result.setAmenityDetails(new ArrayList<>());
 
-            amenityFilterResult.setSuccess(true);
+            // [계측 주석 처리] amenityFilterResult.setSuccess(true);
         }
 
         log.info("[R-05] 데이터 통합 및 필터링 완료");
 
-        // ============================================
+        // [계측 주석 처리] ============================================
         // R-05 메인 로깅 DTO 최종 설정
         // ============================================
 
-        r05FilterResult.setCctvFilter(cctvFilterResult);
-        r05FilterResult.setPoliceQuery(policeQueryResult);
-        r05FilterResult.setAmenityFilter(amenityFilterResult);
-        r05FilterResult.setSuccess(true);
-        r05FilterResult.setErrorMessage(null);
+        // r05FilterResult.setCctvFilter(cctvFilterResult);
+        // r05FilterResult.setPoliceQuery(policeQueryResult);
+        // r05FilterResult.setAmenityFilter(amenityFilterResult);
+        // r05FilterResult.setSuccess(true);
+        // r05FilterResult.setErrorMessage(null);
 
-        perfLogger.setResultData(r05FilterResult);
-        perfLogger.end();
+        // perfLogger.setResultData(r05FilterResult);
+        // perfLogger.end();
 
         return result;
     }
@@ -1464,47 +1482,48 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
      */
     private ScoringResult calculateScores(IntegratedDataResult integratedResult) {
 
-        PerformanceLogger perfLogger = PerformanceLogger.start(
-                "R-06",
-                "calculateScores",
-                "Service",
-                "LocationAnalysisServiceImpl",
-                "calculateScores"
-        );
+        // [계측 주석 처리] R-06 PerformanceLogger
+        // PerformanceLogger perfLogger = PerformanceLogger.start(
+        //         "R-06",
+        //         "calculateScores",
+        //         "Service",
+        //         "LocationAnalysisServiceImpl",
+        //         "calculateScores"
+        // );
 
         log.info("[R-06] 최종 점수 계산 시작");
 
         ScoringResult result = new ScoringResult();
 
-        // R-06 메인 로깅 DTO 초기화
-        R06ScoreResult r06ScoreResult = R06ScoreResult.builder()
-                .safetyScore(null)
-                .convenienceScore(null)
-                .overallScore(0.0)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R-06 메인 로깅 DTO 초기화
+        // R06ScoreResult r06ScoreResult = R06ScoreResult.builder()
+        //         .safetyScore(null)
+        //         .convenienceScore(null)
+        //         .overallScore(0.0)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
-        // 안전 점수 로깅 DTO (필드 레벨)
-        R06SafetyScoreResult r06SafetyScoreResult = null;
+        // [계측 주석 처리] 안전 점수 로깅 DTO (필드 레벨)
+        // R06SafetyScoreResult r06SafetyScoreResult = null;
 
-        // 편의성 점수 로깅 DTO (필드 레벨)
-        R06ConvenienceScoreResult r06ConvenienceScoreResult = null;
+        // [계측 주석 처리] 편의성 점수 로깅 DTO (필드 레벨)
+        // R06ConvenienceScoreResult r06ConvenienceScoreResult = null;
 
         try {
             // 1. 안전 점수 계산
             double safetyScore = calculateSafetyScore(integratedResult);
             result.setSafetyScore(safetyScore);
 
-            // 안전 점수 로깅 DTO 생성 (calculateSafetyScore 실행 후)
-            r06SafetyScoreResult = createSafetyScoreResult(integratedResult, safetyScore);
+            // [계측 주석 처리] 안전 점수 로깅 DTO 생성 (calculateSafetyScore 실행 후)
+            // r06SafetyScoreResult = createSafetyScoreResult(integratedResult, safetyScore);
 
             // 2. 편의성 점수 계산
             double convenienceScore = calculateConvenienceScore(integratedResult);
             result.setConvenienceScore(convenienceScore);
 
-            // 편의성 점수 로깅 DTO 생성 (calculateConvenienceScore 실행 후)
-            r06ConvenienceScoreResult = createConvenienceScoreResult(integratedResult, convenienceScore);
+            // [계측 주석 처리] 편의성 점수 로깅 DTO 생성 (calculateConvenienceScore 실행 후)
+            // r06ConvenienceScoreResult = createConvenienceScoreResult(integratedResult, convenienceScore);
 
             // 3. 종합 점수 계산 (안전 50%, 편의성 50%)
             double totalScore = (safetyScore + convenienceScore) / 2;
@@ -1515,22 +1534,24 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
                     String.format("%.2f", convenienceScore),
                     String.format("%.2f", totalScore));
 
-            // R-06 메인 로깅 DTO 최종 설정
-            r06ScoreResult.setSafetyScore(r06SafetyScoreResult);
-            r06ScoreResult.setConvenienceScore(r06ConvenienceScoreResult);
-            r06ScoreResult.setOverallScore(totalScore);
-            r06ScoreResult.setSuccess(true);
-            r06ScoreResult.setErrorMessage(null);
+            // [계측 주석 처리] R-06 메인 로깅 DTO 최종 설정
+            // r06ScoreResult.setSafetyScore(r06SafetyScoreResult);
+            // r06ScoreResult.setConvenienceScore(r06ConvenienceScoreResult);
+            // r06ScoreResult.setOverallScore(totalScore);
+            // r06ScoreResult.setSuccess(true);
+            // r06ScoreResult.setErrorMessage(null);
 
         } catch (Exception e) {
             log.error("[R-06] 점수 계산 중 오류 발생", e);
 
-            r06ScoreResult.setSuccess(false);
-            r06ScoreResult.setErrorMessage(e.getMessage());
+            // [계측 주석 처리] r06ScoreResult 실패 설정
+            // r06ScoreResult.setSuccess(false);
+            // r06ScoreResult.setErrorMessage(e.getMessage());
         }
 
-        perfLogger.setResultData(r06ScoreResult);
-        perfLogger.end();
+        // [계측 주석 처리] R-06 PerformanceLogger 종료
+        // perfLogger.setResultData(r06ScoreResult);
+        // perfLogger.end();
 
         return result;
     }
@@ -1914,36 +1935,37 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             ScoringResult scoringResult,
             String centerGeohashId) {
 
-        PerformanceLogger perfLogger = PerformanceLogger.start(
-                "R-07",
-                "buildFinalResponse",
-                "Service",
-                "LocationAnalysisServiceImpl",
-                "buildFinalResponse"
-        );
+        // [계측 주석 처리] R-07 PerformanceLogger
+        // PerformanceLogger perfLogger = PerformanceLogger.start(
+        //         "R-07",
+        //         "buildFinalResponse",
+        //         "Service",
+        //         "LocationAnalysisServiceImpl",
+        //         "buildFinalResponse"
+        // );
 
         log.info("[R-07] 최종 응답 생성 시작");
 
         LocationAnalysisResponseDTO response = new LocationAnalysisResponseDTO();
 
-        // R-07 메인 로깅 DTO 초기화
-        R07ResponseResult r07ResponseResult = R07ResponseResult.builder()
-                .analysisStatus(null)
-                .hasAddress(false)
-                .hasSafetyScore(false)
-                .hasConvenienceScore(false)
-                .recommendations(null)
-                .warnings(null)
-                .cacheWrite(null)
-                .responseSizeBytes(0)
-                .isSuccess(false)
-                .errorMessage(null)
-                .build();
+        // [계측 주석 처리] R-07 메인 로깅 DTO 초기화
+        // R07ResponseResult r07ResponseResult = R07ResponseResult.builder()
+        //         .analysisStatus(null)
+        //         .hasAddress(false)
+        //         .hasSafetyScore(false)
+        //         .hasConvenienceScore(false)
+        //         .recommendations(null)
+        //         .warnings(null)
+        //         .cacheWrite(null)
+        //         .responseSizeBytes(0)
+        //         .isSuccess(false)
+        //         .errorMessage(null)
+        //         .build();
 
         try {
             // 분석 상태 설정
             response.setAnalysisStatus("SUCCESS");
-            r07ResponseResult.setAnalysisStatus("SUCCESS");
+            // [계측 주석 처리] r07ResponseResult.setAnalysisStatus("SUCCESS");
 
             // 좌표 정보 설정
             CoordinateDto coordinate = new CoordinateDto();
@@ -1953,7 +1975,7 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
 
             // 주소 정보 설정
             response.setAddress(integratedResult.getAddress());
-            r07ResponseResult.setHasAddress(integratedResult.getAddress() != null);
+            // [계측 주석 처리] r07ResponseResult.setHasAddress(integratedResult.getAddress() != null);
 
             // 안전성 점수 정보 설정
             SafetyScoreDto safetyScore = new SafetyScoreDto();
@@ -2000,14 +2022,14 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             safetyScore.setArrestRate(integratedResult.getArrestRate());
 
             response.setSafetyScore(safetyScore);
-            r07ResponseResult.setHasSafetyScore(true);
+            // [계측 주석 처리] r07ResponseResult.setHasSafetyScore(true);
 
             // 편의성 점수 정보 설정
             ConvenienceScoreDto convenienceScore = new ConvenienceScoreDto();
             convenienceScore.setTotal((int) Math.round(scoringResult.getConvenienceScore()));
             convenienceScore.setAmenityDetails(convertToAmenityDetailDtos(integratedResult.getAmenityDetails()));
             response.setConvenienceScore(convenienceScore);
-            r07ResponseResult.setHasConvenienceScore(true);
+            // [계측 주석 처리] r07ResponseResult.setHasConvenienceScore(true);
 
             // 종합 점수 설정
             response.setOverallScore((int) Math.round(scoringResult.getTotalScore()));
@@ -2015,66 +2037,69 @@ public class LocationAnalysisServiceImpl implements ILocationAnalysisService {
             // 추천사항 생성
             List<String> recommendations = generateRecommendations(scoringResult, integratedResult);
             response.setRecommendations(recommendations);
-            r07ResponseResult.setRecommendations(recommendations);
+            // [계측 주석 처리] r07ResponseResult.setRecommendations(recommendations);
 
             // 경고사항 생성
             List<String> warnings = generateWarnings(scoringResult, integratedResult);
             response.setWarnings(warnings);
-            r07ResponseResult.setWarnings(warnings);
+            // [계측 주석 처리] r07ResponseResult.setWarnings(warnings);
 
             // 1단계 캐시에 저장 (TTL: 5분)
-            R07CacheWriteResult cacheWriteResult = R07CacheWriteResult.builder()
-                    .cacheKey(null)
-                    .dataSize(0)
-                    .ttlSeconds(0)
-                    .isSuccess(false)
-                    .errorMessage(null)
-                    .build();
+            // [계측 주석 처리] R07CacheWriteResult
+            // R07CacheWriteResult cacheWriteResult = R07CacheWriteResult.builder()
+            //         .cacheKey(null)
+            //         .dataSize(0)
+            //         .ttlSeconds(0)
+            //         .isSuccess(false)
+            //         .errorMessage(null)
+            //         .build();
 
             try {
                 String cacheKey = "dto:" + centerGeohashId;
                 String jsonData = objectMapper.writeValueAsString(response);
-                int dataSize = jsonData.getBytes().length;
 
                 redisSingleDataService.setSingleData(cacheKey, jsonData, LEVEL1_CACHE_TTL);
 
                 log.info("[R-07] 최종 응답 캐싱 완료 - Key: {}", cacheKey);
 
-                // 캐시 쓰기 성공
-                cacheWriteResult.setCacheKey(cacheKey);
-                cacheWriteResult.setDataSize(dataSize);
-                cacheWriteResult.setTtlSeconds(LEVEL1_CACHE_TTL.getSeconds());
-                cacheWriteResult.setSuccess(true);
-                cacheWriteResult.setErrorMessage(null);
+                // [계측 주석 처리] 캐시 쓰기 성공
+                // int dataSize = jsonData.getBytes().length;
+                // cacheWriteResult.setCacheKey(cacheKey);
+                // cacheWriteResult.setDataSize(dataSize);
+                // cacheWriteResult.setTtlSeconds(LEVEL1_CACHE_TTL.getSeconds());
+                // cacheWriteResult.setSuccess(true);
+                // cacheWriteResult.setErrorMessage(null);
 
-                // 응답 크기 설정
-                r07ResponseResult.setResponseSizeBytes(dataSize);
+                // [계측 주석 처리] 응답 크기 설정
+                // r07ResponseResult.setResponseSizeBytes(dataSize);
 
             } catch (Exception e) {
                 log.warn("[R-07] 최종 응답 캐싱 실패: {}", e.getMessage());
 
-                // 캐시 쓰기 실패
-                cacheWriteResult.setSuccess(false);
-                cacheWriteResult.setErrorMessage(e.getMessage());
+                // [계측 주석 처리] 캐시 쓰기 실패
+                // cacheWriteResult.setSuccess(false);
+                // cacheWriteResult.setErrorMessage(e.getMessage());
             }
 
-            r07ResponseResult.setCacheWrite(cacheWriteResult);
+            // [계측 주석 처리] r07ResponseResult.setCacheWrite(cacheWriteResult);
 
             log.info("[R-07] 최종 응답 생성 완료");
 
-            // R-07 메인 로깅 DTO 최종 설정
-            r07ResponseResult.setSuccess(true);
-            r07ResponseResult.setErrorMessage(null);
+            // [계측 주석 처리] R-07 메인 로깅 DTO 최종 설정
+            // r07ResponseResult.setSuccess(true);
+            // r07ResponseResult.setErrorMessage(null);
 
         } catch (Exception e) {
             log.error("[R-07] 최종 응답 생성 중 오류 발생", e);
 
-            r07ResponseResult.setSuccess(false);
-            r07ResponseResult.setErrorMessage(e.getMessage());
+            // [계측 주석 처리] r07ResponseResult 실패 설정
+            // r07ResponseResult.setSuccess(false);
+            // r07ResponseResult.setErrorMessage(e.getMessage());
         }
 
-        perfLogger.setResultData(r07ResponseResult);
-        perfLogger.end();
+        // [계측 주석 처리] R-07 PerformanceLogger 종료
+        // perfLogger.setResultData(r07ResponseResult);
+        // perfLogger.end();
 
         return response;
     }
