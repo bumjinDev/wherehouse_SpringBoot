@@ -17,13 +17,14 @@
 // const BASE_URL = 'http://wherehouse.it.kr:8185/wherehouse';  // 원격 미니 피씨.
 const BASE_URL = window.location.origin + '/wherehouse';    // 통합 수정
 const API_URL = BASE_URL + '/api/v1/reviews';
-const SEARCH_API_URL = BASE_URL + '/api/v1/properties/search';
+const SEARCH_API_URL = BASE_URL + '/api/v1/reviews/properties/search';
 
 let current_page = 1;
 let current_sort = 'rating_desc';
 let current_keyword = null;
 
 let current_review_id_for_delete = null;
+let current_property_type_for_delete = null;
 let current_review_id_for_detail = null;
 
 let debounce_timer = null;
@@ -152,9 +153,11 @@ function render_search_results(results, list_id, input_id, hidden_id) {
         `;
 
         li.addEventListener('click', () => {
+            const mapped_type = (p_type === '전세') ? 'charter' : 'monthly';
             select_search_result({
                 propertyName: p_name,
-                propertyId: p_id
+                propertyId: p_id,
+                propertyType: mapped_type
             }, list_id, input_id, hidden_id);
         });
 
@@ -173,6 +176,11 @@ function select_search_result(item, list_id, input_id, hidden_id) {
         const hidden_el = document.getElementById(hidden_id);
         if (hidden_el) {
             hidden_el.value = item.propertyId;
+        }
+        const type_el = document.getElementById('selected_property_type');
+        if (type_el && item.propertyType) {
+            type_el.value = item.propertyType;
+            update_type_badge('selected_type_badge', 'selected_type_display', item.propertyType);
         }
     }
     document.getElementById(list_id).style.display = 'none';
@@ -197,8 +205,12 @@ function load_reviews() {
     const sort_val = sort_select_el ? sort_select_el.value : 'rating_desc';
     const keyword_val = keyword_search_el ? keyword_search_el.value.trim() : '';
 
+    const prop_type_el = document.getElementById('property_type_filter');
+    const prop_type_val = prop_type_el ? prop_type_el.value : '';
+
     console.log('1. 필터 값:', {
         propertyName: prop_name_val,
+        propertyType: prop_type_val,
         sort: sort_val,
         keyword: keyword_val,
         page: current_page
@@ -209,6 +221,7 @@ function load_reviews() {
         sort: sort_val
     });
 
+    if (prop_type_val) params.append('propertyType', prop_type_val);
     if (prop_name_val) params.append('propertyName', prop_name_val);
     if (keyword_val) params.append('keyword', keyword_val);
 
@@ -271,6 +284,12 @@ function load_review_detail(review_id) {
             // 상세 모달에 데이터 바인딩
             document.getElementById('detail_user_id').textContent = data.userId || data.user_id || '익명';
             document.getElementById('detail_property_id').textContent = data.propertyId || data.property_id || '-';
+
+            const detailType = data.propertyType || data.property_type || '';
+            const detailTypeLabel = (detailType === 'charter' || detailType === '전세') ? '전세'
+                : (detailType === 'monthly' || detailType === '월세') ? '월세' : '-';
+            document.getElementById('detail_property_type').textContent = detailTypeLabel;
+
             document.getElementById('detail_rating').textContent = '⭐'.repeat(data.rating || 0) + ` (${data.rating}점)`;
             document.getElementById('detail_created_at').textContent = (data.createdAt || data.created_at || '').replace('T', ' ');
 
@@ -293,13 +312,15 @@ function load_review_detail(review_id) {
             const editBtn = document.getElementById('btn_edit_review');
             const delBtn = document.getElementById('btn_delete_review');
 
+            const detailPropertyType = data.propertyType || data.property_type;
+
             editBtn.onclick = function() {
                 close_detail_modal();
                 open_edit_modal(data);
             };
             delBtn.onclick = function() {
                 close_detail_modal();
-                open_delete_confirm_modal(data.reviewId || data.review_id);
+                open_delete_confirm_modal(data.reviewId || data.review_id, detailPropertyType);
             };
 
             document.getElementById('detail_review_modal').style.display = 'block';
@@ -360,8 +381,8 @@ function update_review(review_data) {
         });
 }
 
-function delete_review(review_id) {
-    fetch(API_URL + '/' + review_id, { method: 'DELETE' })
+function delete_review(review_id, propertyType) {
+    fetch(API_URL + '/' + review_id + '?propertyType=' + encodeURIComponent(propertyType), { method: 'DELETE' })
         .then(res => {
             if(!res.ok) throw new Error('삭제 실패');
             close_delete_confirm_modal();
@@ -402,6 +423,12 @@ function create_review_card(review) {
     const prop = escape_html(review.property_name || review.propertyName || review.apt_nm || '미확인');
     const tags = (review.tags || []).map(t => `<span class="tag">${escape_html(t)}</span>`).join('');
 
+    const rawType = review.property_type || review.propertyType || '';
+    const isCharter = (rawType === 'charter' || rawType === '전세');
+    const typeBadge = rawType
+        ? `<span class="type_badge ${isCharter ? 'charter' : 'monthly'}">${isCharter ? '전세' : '월세'}</span>`
+        : '';
+
     return `
         <div class="review_card">
             <div class="review_card_header">
@@ -411,7 +438,7 @@ function create_review_card(review) {
             <div class="review_user"><i class="fas fa-user"></i> ${user}</div>
             <div class="review_summary">${summary}</div>
             <div class="review_tags">${tags}</div>
-            <div class="review_property_info"><i class="fas fa-building"></i> ${prop}</div>
+            <div class="review_property_info"><i class="fas fa-building"></i> ${typeBadge} ${prop}</div>
         </div>
     `;
 }
@@ -503,6 +530,10 @@ function open_write_modal() {
 
     const hidden_id = document.getElementById('selected_property_id');
     if(hidden_id) hidden_id.value = '';
+    const hidden_type = document.getElementById('selected_property_type');
+    if(hidden_type) hidden_type.value = '';
+    const type_display = document.getElementById('selected_type_display');
+    if(type_display) type_display.style.display = 'none';
 
     hide_form_error('form_error_message');
     update_char_count('input_content', 'current_char_count');
@@ -514,6 +545,9 @@ function close_write_modal() { document.getElementById('write_review_modal').sty
 function open_edit_modal(data) {
     const r_id = data.reviewId || data.review_id;
     document.getElementById('edit_review_id').value = r_id;
+    const editType = data.propertyType || data.property_type || '';
+    document.getElementById('edit_property_type').value = editType;
+    update_type_badge('edit_type_badge', 'edit_type_display', editType);
 
     document.getElementById('edit_rating').value = data.rating;
     document.getElementById('edit_content').value = data.content;
@@ -525,8 +559,9 @@ function open_edit_modal(data) {
 
 function close_edit_modal() { document.getElementById('edit_review_modal').style.display = 'none'; }
 
-function open_delete_confirm_modal(id) {
+function open_delete_confirm_modal(id, propertyType) {
     current_review_id_for_delete = id;
+    current_property_type_for_delete = propertyType || null;
     document.getElementById('delete_confirm_modal').style.display = 'block';
 }
 
@@ -545,6 +580,7 @@ function submit_review(e) {
     e.preventDefault();
 
     const propId = document.getElementById('selected_property_id').value;
+    const propType = document.getElementById('selected_property_type').value;
     const rating = document.getElementById('input_rating').value;
     const content = document.getElementById('input_content').value;
 
@@ -555,6 +591,7 @@ function submit_review(e) {
 
     const payload = {
         propertyId: propId,
+        propertyType: propType,
         rating: parseInt(rating),
         content: content
     };
@@ -566,11 +603,13 @@ function submit_edit_review(e) {
     e.preventDefault();
 
     const reviewId = document.getElementById('edit_review_id').value;
+    const propType = document.getElementById('edit_property_type').value;
     const rating = document.getElementById('edit_rating').value;
     const content = document.getElementById('edit_content').value;
 
     const payload = {
         reviewId: parseInt(reviewId),
+        propertyType: propType,
         rating: parseInt(rating),
         content: content
     };
@@ -579,8 +618,8 @@ function submit_edit_review(e) {
 }
 
 function confirm_delete_review() {
-    if(current_review_id_for_delete) {
-        delete_review(current_review_id_for_delete);
+    if(current_review_id_for_delete && current_property_type_for_delete) {
+        delete_review(current_review_id_for_delete, current_property_type_for_delete);
     }
 }
 
@@ -634,6 +673,17 @@ function escape_html(t) {
 
 function update_char_count(tid, cid) {
     document.getElementById(cid).textContent = document.getElementById(tid).value.length;
+}
+
+function update_type_badge(badge_id, display_id, type) {
+    const badge = document.getElementById(badge_id);
+    const display = document.getElementById(display_id);
+    if (!badge) return;
+
+    const isCharter = (type === 'charter' || type === '전세');
+    badge.className = 'type_badge ' + (isCharter ? 'charter' : 'monthly');
+    badge.textContent = isCharter ? '전세' : '월세';
+    if (display) display.style.display = type ? 'block' : 'none';
 }
 
 function show_form_error(eid, msg) {

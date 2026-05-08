@@ -37,6 +37,15 @@
                     </div>
 
                     <div class="filter_item">
+                        <div class="filter_label">매물 유형:</div>
+                        <select class="filter_select" id="property_type_filter">
+                            <option value="">전체</option>
+                            <option value="charter">전세</option>
+                            <option value="monthly">월세</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_item">
                         <div class="filter_label">매물 이름 (선택):</div>
                         <div style="position: relative;">
                             <input type="text" class="filter_select" id="filter_property_name"
@@ -115,8 +124,12 @@
                                    placeholder="예: 삼성아파트" maxlength="50" required autocomplete="off">
 
                             <input type="hidden" id="selected_property_id">
+                            <input type="hidden" id="selected_property_type">
 
                             <ul id="modal_results" class="autocomplete_list"></ul>
+                        </div>
+                        <div id="selected_type_display" style="margin-top: 4px; display: none;">
+                            <span id="selected_type_badge" class="type_badge"></span>
                         </div>
                         <div class="form_desc">리뷰를 작성할 매물의 정확한 이름을 입력해주세요.</div>
                     </div>
@@ -178,6 +191,10 @@
                             <span class="detail_label">매물 ID:</span>
                             <span class="detail_value" id="detail_property_id"></span>
                         </div>
+                        <div class="detail_info_row">
+                            <span class="detail_label">매물 유형:</span>
+                            <span class="detail_value" id="detail_property_type"></span>
+                        </div>
                     </div>
                     <div class="detail_tags" id="detail_tags"></div>
                     <div class="detail_content" id="detail_content"></div>
@@ -208,6 +225,11 @@
             <div class="modal_body">
                 <form id="review_edit_form">
                     <input type="hidden" id="edit_review_id">
+                    <input type="hidden" id="edit_property_type">
+                    <div id="edit_type_display" style="margin-bottom: 12px;">
+                        <span style="font-weight: bold; margin-right: 6px;">매물 유형:</span>
+                        <span id="edit_type_badge" class="type_badge"></span>
+                    </div>
                     <div class="form_group">
                         <label for="edit_rating">별점 <span class="required">*</span></label>
                         <div class="rating_input">

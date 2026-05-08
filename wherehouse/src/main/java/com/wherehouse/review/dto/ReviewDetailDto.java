@@ -60,4 +60,9 @@ public class ReviewDetailDto {
      * 수정되지 않은 경우 null
      */
     private String updatedAt;
+
+    /**
+     * 매물 유형 (charter / monthly)
+     */
+    private String propertyType;
 }

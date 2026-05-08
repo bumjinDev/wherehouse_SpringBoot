@@ -11,17 +11,12 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/properties")
+@RequestMapping("/api/v1/reviews/properties")
 @RequiredArgsConstructor
 public class PropertySearchController {
 
     private final PropertySearchService propertySearchService;
 
-    /**
-     * 매물 이름 검색 API (자동완성용)
-     * * Endpoint: GET /api/v1/properties/search
-     * Query Param: keyword (검색어)
-     */
     @GetMapping("/search")
     public ResponseEntity<List<PropertySearchResultDto>> searchProperties(
             @RequestParam String keyword) {

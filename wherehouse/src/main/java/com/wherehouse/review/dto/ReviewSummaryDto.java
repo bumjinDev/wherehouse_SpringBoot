@@ -49,4 +49,9 @@ public class ReviewSummaryDto {
      * - 프론트엔드 JS가 content 필드를 참조하여 렌더링함
      */
     private String content;
+
+    /**
+     * 매물 유형 (charter / monthly)
+     */
+    private String propertyType;
 }

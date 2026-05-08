@@ -1,6 +1,7 @@
 package com.wherehouse.review.service;
 
 import com.wherehouse.review.domain.ReviewBase;
+import com.wherehouse.review.domain.ReviewCharter;
 import com.wherehouse.review.dto.FilterMetaDto;
 import com.wherehouse.review.dto.ReviewDetailDto;
 import com.wherehouse.review.dto.ReviewListRequestDto;
@@ -87,7 +88,12 @@ public class ReviewQueryService {
         FilterMetaDto filterMeta = createFilterMeta(propertyId, propertyType);
 
         List<ReviewSummaryDto> reviewDtos = reviews.stream()
-                .map(review -> convertToReviewSummaryDto(review, propertyNameMap))
+                .map(review -> {
+                    String type = isCharter ? "charter"
+                            : isMonthly ? "monthly"
+                            : (review instanceof ReviewCharter) ? "charter" : "monthly";
+                    return convertToReviewSummaryDto(review, propertyNameMap, type);
+                })
                 .collect(Collectors.toList());
 
         long methodEnd = System.currentTimeMillis();
@@ -130,7 +136,11 @@ public class ReviewQueryService {
                     new IllegalArgumentException("리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
         }
 
-        return convertToReviewDetailDto(review);
+        String resolvedType = isCharter ? "charter"
+                : isMonthly ? "monthly"
+                : (review instanceof ReviewCharter) ? "charter" : "monthly";
+
+        return convertToReviewDetailDto(review, resolvedType);
     }
 
     // ======================================================================
@@ -141,7 +151,7 @@ public class ReviewQueryService {
             String propertyName, String propertyId, String keyword, Pageable pageable) {
 
         if (propertyName != null && !propertyName.isBlank()) {
-            return reviewCharterRepository.findByPropertyName(propertyName, pageable);
+            return reviewCharterRepository.findByPropertyName(propertyName, toNativePageable(pageable));
         }
         return reviewCharterRepository.findReviews(propertyId, keyword, pageable);
     }
@@ -150,7 +160,7 @@ public class ReviewQueryService {
             String propertyName, String propertyId, String keyword, Pageable pageable) {
 
         if (propertyName != null && !propertyName.isBlank()) {
-            return reviewMonthlyRepository.findByPropertyName(propertyName, pageable);
+            return reviewMonthlyRepository.findByPropertyName(propertyName, toNativePageable(pageable));
         }
         return reviewMonthlyRepository.findReviews(propertyId, keyword, pageable);
     }
@@ -167,8 +177,9 @@ public class ReviewQueryService {
         Page<? extends ReviewBase> monthlyPage;
 
         if (propertyName != null && !propertyName.isBlank()) {
-            charterPage = reviewCharterRepository.findByPropertyName(propertyName, pageable);
-            monthlyPage = reviewMonthlyRepository.findByPropertyName(propertyName, pageable);
+            Pageable nativePageable = toNativePageable(pageable);
+            charterPage = reviewCharterRepository.findByPropertyName(propertyName, nativePageable);
+            monthlyPage = reviewMonthlyRepository.findByPropertyName(propertyName, nativePageable);
         } else {
             charterPage = reviewCharterRepository.findReviews(propertyId, keyword, pageable);
             monthlyPage = reviewMonthlyRepository.findReviews(propertyId, keyword, pageable);
@@ -190,6 +201,16 @@ public class ReviewQueryService {
 
         long totalElements = charterPage.getTotalElements() + monthlyPage.getTotalElements();
         return new PageImpl<>(merged, pageable, totalElements);
+    }
+
+    /**
+     * 네이티브 쿼리용 Pageable 변환 — Java 필드명(createdAt) → DB 컬럼명(CREATED_AT)
+     */
+    private Pageable toNativePageable(Pageable pageable) {
+        Sort.Direction dir = pageable.getSort().stream().findFirst()
+                .map(Sort.Order::getDirection)
+                .orElse(Sort.Direction.DESC);
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(dir, "CREATED_AT"));
     }
 
     // ======================================================================
@@ -271,7 +292,8 @@ public class ReviewQueryService {
 
     private ReviewSummaryDto convertToReviewSummaryDto(
             ReviewBase review,
-            Map<String, String> propertyNameMap) {
+            Map<String, String> propertyNameMap,
+            String propertyType) {
 
         return ReviewSummaryDto.builder()
                 .reviewId(review.getReviewId())
@@ -280,16 +302,18 @@ public class ReviewQueryService {
                 .userId(maskUserId(review.getUserId()))
                 .rating(review.getRating())
                 .content(review.getContent())
+                .propertyType(propertyType)
                 .build();
     }
 
-    private ReviewDetailDto convertToReviewDetailDto(ReviewBase review) {
+    private ReviewDetailDto convertToReviewDetailDto(ReviewBase review, String propertyType) {
         return ReviewDetailDto.builder()
                 .reviewId(review.getReviewId())
                 .propertyId(review.getPropertyId())
                 .userId(maskUserId(review.getUserId()))
                 .rating(review.getRating())
                 .content(review.getContent())
+                .propertyType(propertyType)
                 .build();
     }
 
