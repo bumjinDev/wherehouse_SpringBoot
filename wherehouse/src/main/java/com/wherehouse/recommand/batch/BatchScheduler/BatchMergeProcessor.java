@@ -178,6 +178,7 @@ public class BatchMergeProcessor {
      */
     private Integer resolvePrice(Integer batchPrice, Integer userPrice,
                                  String existingDealDate, String batchDealDate) {
+
         if (userPrice == null || userPrice == 0) return batchPrice;
         if (batchPrice == null) return userPrice;
 
