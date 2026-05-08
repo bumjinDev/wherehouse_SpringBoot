@@ -85,6 +85,9 @@ public class RdbSyncListener {
     // RedisHandler
     private final RedisHandler redisHandler;
 
+    // [F007] 배치-사용자 머지 프로세서
+    private final BatchMergeProcessor batchMergeProcessor;
+
     // [2차 테스트] 영속성 컨텍스트 초기화용 EntityManager
     private final EntityManager entityManager;
 
@@ -360,23 +363,15 @@ public class RdbSyncListener {
     private void saveCharterPropertiesToRdb(List<Property> properties) {
         if (properties == null || properties.isEmpty()) return;
 
-        List<PropertyCharter> entities = properties.stream()
-                .map(PropertyCharter::from)
-                .collect(Collectors.toList());
-
-        propertyCharterRepository.saveAll(entities);
-        log.info("RDB: 전세 매물 {}건 저장 완료", entities.size());
+        batchMergeProcessor.saveCharterWithMerge(properties);
+        log.info("RDB: 전세 매물 {}건 저장 완료 (F007 머지 적용)", properties.size());
     }
 
     private void saveMonthlyPropertiesToRdb(List<Property> properties) {
         if (properties == null || properties.isEmpty()) return;
 
-        List<PropertyMonthly> entities = properties.stream()
-                .map(PropertyMonthly::from)
-                .collect(Collectors.toList());
-
-        propertyMonthlyRepository.saveAll(entities);
-        log.info("RDB: 월세 매물 {}건 저장 완료", entities.size());
+        batchMergeProcessor.saveMonthlyWithMerge(properties);
+        log.info("RDB: 월세 매물 {}건 저장 완료 (F007 머지 적용)", properties.size());
     }
 
     // =================================================================================

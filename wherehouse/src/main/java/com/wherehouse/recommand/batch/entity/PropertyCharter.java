@@ -143,6 +143,9 @@ public class PropertyCharter {
     @Column(name = "MODIFIED_AT")
     private LocalDateTime modifiedAt;
 
+    @Column(name = "USER_PROPOSED_DEPOSIT", precision = 15)
+    private Long userProposedDeposit;
+
     /**
      * 배치용 DTO(Property)를 엔티티(PropertyCharter)로 변환하는 정적 팩토리 메서드
      *

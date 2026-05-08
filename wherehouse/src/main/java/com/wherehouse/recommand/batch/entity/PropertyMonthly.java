@@ -150,6 +150,12 @@ public class PropertyMonthly {
     @Column(name = "MODIFIED_AT")
     private LocalDateTime modifiedAt;
 
+    @Column(name = "USER_PROPOSED_DEPOSIT", precision = 15)
+    private Long userProposedDeposit;
+
+    @Column(name = "USER_PROPOSED_MONTHLY_RENT", precision = 10)
+    private Long userProposedMonthlyRent;
+
     /**
      * 배치용 DTO(Property)를 엔티티(PropertyMonthly)로 변환하는 정적 팩토리 메서드
      *
