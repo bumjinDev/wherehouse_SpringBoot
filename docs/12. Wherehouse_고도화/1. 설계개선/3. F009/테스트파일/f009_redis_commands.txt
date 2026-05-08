@@ -1,0 +1,11 @@
+DEL property:charter:F009_TARGET_A0000000000000000000 property:charter:F009_DUMMY_B00000000000000000000 property:charter:F009_DUMMY_C00000000000000000000
+ZREM idx:charterPrice:강남구 F009_TARGET_A0000000000000000000 F009_DUMMY_B00000000000000000000 F009_DUMMY_C00000000000000000000
+ZREM idx:area:강남구:전세 F009_TARGET_A0000000000000000000 F009_DUMMY_B00000000000000000000 F009_DUMMY_C00000000000000000000
+DEL bounds:강남구:전세 safety:강남구
+HMSET bounds:강남구:전세 minPrice 40000 maxPrice 80000 minArea 20 maxArea 40 propertyCount 3 lastUpdated 2026-05-07T00:00:00
+HMSET safety:강남구 districtName 강남구 safetyScore 70 lastUpdated 2026-05-07T00:00:00 version 1.0
+HMSET property:charter:F009_TARGET_A0000000000000000000 propertyId F009_TARGET_A0000000000000000000 aptNm F009_TEST_APT_A excluUseAr 99.17 floor 10 buildYear 2020 dealDate 2026-05-06 deposit 50000 leaseType 전세 umdNm 역삼동 jibun 100-1 sggCd 11680 address GANGNAM_YEOKSAM_100-1 areaInPyeong 30 rgstDate "" districtName 강남구 dataSource USER status ACTIVE registeredUserId f009-user registeredAt 2026-05-07T00:00:00 modifiedAt ""
+HMSET property:charter:F009_DUMMY_B00000000000000000000 propertyId F009_DUMMY_B00000000000000000000 aptNm F009_TEST_APT_B excluUseAr 102.48 floor 11 buildYear 2020 dealDate 2026-05-06 deposit 52000 leaseType 전세 umdNm 역삼동 jibun 100-2 sggCd 11680 address GANGNAM_YEOKSAM_100-2 areaInPyeong 31 rgstDate "" districtName 강남구 dataSource USER status ACTIVE registeredUserId f009-user registeredAt 2026-05-07T00:00:00 modifiedAt ""
+HMSET property:charter:F009_DUMMY_C00000000000000000000 propertyId F009_DUMMY_C00000000000000000000 aptNm F009_TEST_APT_C excluUseAr 105.79 floor 12 buildYear 2020 dealDate 2026-05-06 deposit 54000 leaseType 전세 umdNm 역삼동 jibun 100-3 sggCd 11680 address GANGNAM_YEOKSAM_100-3 areaInPyeong 32 rgstDate "" districtName 강남구 dataSource USER status ACTIVE registeredUserId f009-user registeredAt 2026-05-07T00:00:00 modifiedAt ""
+ZADD idx:charterPrice:강남구 50000 F009_TARGET_A0000000000000000000 52000 F009_DUMMY_B00000000000000000000 54000 F009_DUMMY_C00000000000000000000
+ZADD idx:area:강남구:전세 30 F009_TARGET_A0000000000000000000 31 F009_DUMMY_B00000000000000000000 32 F009_DUMMY_C00000000000000000000
