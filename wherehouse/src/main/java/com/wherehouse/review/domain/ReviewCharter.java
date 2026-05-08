@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReviewCharter {
+public class ReviewCharter implements ReviewBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_review_charter_id")

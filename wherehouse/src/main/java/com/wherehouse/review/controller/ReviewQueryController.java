@@ -11,12 +11,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
-/**
- * 리뷰 조회 API 컨트롤러
- *
- * 설계 명세서: 6.3 리뷰 목록 조회 API, 6.4 리뷰 단건 상세 조회 API
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/reviews")
@@ -25,18 +22,18 @@ import jakarta.validation.Valid;
 public class ReviewQueryController {
 
     private final ReviewQueryService reviewQueryService;
+
     /**
      * 리뷰 목록 조회
-     * * 변경 사항:
-     * 1. Method: GET 유지
-     * 2. Path: /list (작성 API와 구분)
-     * 3. Param: @RequestBody -> @ModelAttribute (Query String 수신)
+     *
+     * @param requestDto propertyType(필수), propertyId, propertyName, page, sort, keyword
      */
     @GetMapping("/list")
     public ResponseEntity<ReviewListResponseDto> getReviews(
-            @Valid @ModelAttribute ReviewListRequestDto requestDto) { // @RequestBody 제거
+            @Valid @ModelAttribute ReviewListRequestDto requestDto) {
 
-        log.info("리뷰 조회 요청: propertyId={}, page={}, sort={}, keyword={}",
+        log.info("리뷰 조회 요청: propertyType={}, propertyId={}, page={}, sort={}, keyword={}",
+                requestDto.getPropertyType(),
                 requestDto.getPropertyId(),
                 requestDto.getPage(),
                 requestDto.getSort(),
@@ -50,30 +47,20 @@ public class ReviewQueryController {
     /**
      * 리뷰 단건 상세 조회
      *
-     * 설계 명세서: 6.4 리뷰 단건 상세 조회 API
-     *
      * @param reviewId 리뷰 ID
-     * @return 200 OK - 리뷰 상세 정보
+     * @param propertyType 매물 유형 ("charter" 또는 "monthly")
      */
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewDetailDto> getReviewDetail(
-            @PathVariable Long reviewId) {
+            @PathVariable Long reviewId,
+            @RequestParam
+            @NotBlank(message = "매물 유형은 필수입니다")
+            @Pattern(regexp = "^(charter|monthly)$", message = "매물 유형은 charter 또는 monthly만 가능합니다")
+            String propertyType) {
 
-        log.info("리뷰 상세 조회 요청: reviewId={}", reviewId);
+        log.info("리뷰 상세 조회 요청: reviewId={}, propertyType={}", reviewId, propertyType);
 
-        ReviewDetailDto response = reviewQueryService.getReviewDetail(reviewId);
-
-        System.out.println(response.getReviewId());
-        System.out.println(response.getPropertyId());
-        System.out.println(response.getUserId());
-        System.out.println(response.getRating());
-        System.out.println(response.getContent());
-        System.out.println(response.getTags());
-        System.out.println(response.getCreatedAt());
-        System.out.println(response.getUpdatedAt());
-
-
-        log.info("리뷰 상세 조회 완료: reviewId={}", reviewId);
+        ReviewDetailDto response = reviewQueryService.getReviewDetail(reviewId, propertyType);
 
         return ResponseEntity.ok(response);
     }

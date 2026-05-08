@@ -2,6 +2,7 @@ package com.wherehouse.review.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,6 +62,17 @@ public class ReviewListRequestDto {
     @Pattern(regexp = "^$|^(rating_desc|rating_asc)$", message = "정렬 기준은 rating_desc 또는 rating_asc여야 합니다")
     @Builder.Default
     private String sort = "rating_desc";
+
+    /**
+     * 매물 유형 (전세/월세 구분)
+     *
+     * - 필수 필드
+     * - "charter": 전세, "monthly": 월세
+     * - 서비스 레이어에서 해당 유형의 리포지토리로 라우팅
+     */
+    @NotBlank(message = "매물 유형은 필수입니다 (charter 또는 monthly)")
+    @Pattern(regexp = "^(charter|monthly)$", message = "매물 유형은 charter 또는 monthly만 가능합니다")
+    private String propertyType;
 
     /**
      * 검색 키워드 (리뷰 내용/태그 검색용)
