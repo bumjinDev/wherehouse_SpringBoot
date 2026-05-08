@@ -13,16 +13,21 @@ import com.wherehouse.review.repository.ReviewStatisticsMonthlyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +45,10 @@ public class ReviewQueryService {
     /**
      * 리뷰 목록 조회
      *
-     * propertyType에 따라 전세/월세 리포지토리로 분기하여 조회한다.
+     * propertyType 분기:
+     *  - "charter"  → 전세 리포지토리만 조회
+     *  - "monthly"  → 월세 리포지토리만 조회
+     *  - null/빈값  → 양쪽 모두 조회 후 병합
      */
     public ReviewListResponseDto getReviews(ReviewListRequestDto requestDto) {
 
@@ -60,43 +68,24 @@ public class ReviewQueryService {
         Pageable pageable = PageRequest.of(page - 1, 10, sortCondition);
 
         boolean isCharter = "charter".equalsIgnoreCase(propertyType);
+        boolean isMonthly = "monthly".equalsIgnoreCase(propertyType);
 
-        // [Step 1] 검색 조건에 따른 조회 분기
         Page<? extends ReviewBase> reviewPage;
 
-        if (propertyName != null && !propertyName.isBlank()) {
-            long q1Start = System.currentTimeMillis();
-
-            List<String> targetPropertyIds = isCharter
-                    ? reviewCharterRepository.findPropertyIdsByName(propertyName)
-                    : reviewMonthlyRepository.findPropertyIdsByName(propertyName);
-
-            log.info("[PERF] findPropertyIdsByName | 소요={}ms | 입력='{}' | 결과건수={}",
-                    (System.currentTimeMillis() - q1Start), propertyName, targetPropertyIds.size());
-
-            if (targetPropertyIds.isEmpty()) {
-                reviewPage = Page.empty(pageable);
-            } else {
-                reviewPage = isCharter
-                        ? reviewCharterRepository.findByPropertyIdIn(targetPropertyIds, pageable)
-                        : reviewMonthlyRepository.findByPropertyIdIn(targetPropertyIds, pageable);
-            }
+        if (isCharter) {
+            reviewPage = queryCharter(propertyName, propertyId, keyword, pageable);
+        } else if (isMonthly) {
+            reviewPage = queryMonthly(propertyName, propertyId, keyword, pageable);
         } else {
-            reviewPage = isCharter
-                    ? reviewCharterRepository.findReviews(propertyId, keyword, pageable)
-                    : reviewMonthlyRepository.findReviews(propertyId, keyword, pageable);
+            reviewPage = queryCombined(propertyName, propertyId, keyword, sort, pageable);
         }
 
         List<? extends ReviewBase> reviews = reviewPage.getContent();
         log.info("리뷰 조회 완료: 조회 건수={}", reviews.size());
 
-        // [Step 2] 매물명 조회
-        Map<String, String> propertyNameMap = getPropertyNames(reviews, isCharter);
+        Map<String, String> propertyNameMap = getPropertyNames(reviews, propertyType);
+        FilterMetaDto filterMeta = createFilterMeta(propertyId, propertyType);
 
-        // [Step 3] filterMeta 생성
-        FilterMetaDto filterMeta = createFilterMeta(propertyId, isCharter);
-
-        // [Step 4] DTO 변환
         List<ReviewSummaryDto> reviewDtos = reviews.stream()
                 .map(review -> convertToReviewSummaryDto(review, propertyNameMap))
                 .collect(Collectors.toList());
@@ -116,21 +105,104 @@ public class ReviewQueryService {
     /**
      * 리뷰 단건 상세 조회
      *
-     * @param reviewId 리뷰 ID
-     * @param propertyType "charter" 또는 "monthly"
+     * propertyType이 null이면 전세 → 월세 순서로 탐색한다.
      */
     public ReviewDetailDto getReviewDetail(Long reviewId, String propertyType) {
         log.info("리뷰 상세 조회 요청: reviewId={}, propertyType={}", reviewId, propertyType);
 
         boolean isCharter = "charter".equalsIgnoreCase(propertyType);
+        boolean isMonthly = "monthly".equalsIgnoreCase(propertyType);
 
-        ReviewBase review = isCharter
-                ? reviewCharterRepository.findById(reviewId)
-                    .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다: reviewId=" + reviewId))
-                : reviewMonthlyRepository.findById(reviewId)
+        ReviewBase review;
+
+        if (isCharter) {
+            review = reviewCharterRepository.findById(reviewId)
                     .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
+        } else if (isMonthly) {
+            review = reviewMonthlyRepository.findById(reviewId)
+                    .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
+        } else {
+            Optional<? extends ReviewBase> found = reviewCharterRepository.findById(reviewId);
+            if (found.isEmpty()) {
+                found = reviewMonthlyRepository.findById(reviewId);
+            }
+            review = found.orElseThrow(() ->
+                    new IllegalArgumentException("리뷰를 찾을 수 없습니다: reviewId=" + reviewId));
+        }
 
         return convertToReviewDetailDto(review);
+    }
+
+    // ======================================================================
+    // 단일 리포지토리 조회
+    // ======================================================================
+
+    private Page<? extends ReviewBase> queryCharter(
+            String propertyName, String propertyId, String keyword, Pageable pageable) {
+
+        if (propertyName != null && !propertyName.isBlank()) {
+            List<String> ids = reviewCharterRepository.findPropertyIdsByName(propertyName);
+            return ids.isEmpty()
+                    ? Page.empty(pageable)
+                    : reviewCharterRepository.findByPropertyIdIn(ids, pageable);
+        }
+        return reviewCharterRepository.findReviews(propertyId, keyword, pageable);
+    }
+
+    private Page<? extends ReviewBase> queryMonthly(
+            String propertyName, String propertyId, String keyword, Pageable pageable) {
+
+        if (propertyName != null && !propertyName.isBlank()) {
+            List<String> ids = reviewMonthlyRepository.findPropertyIdsByName(propertyName);
+            return ids.isEmpty()
+                    ? Page.empty(pageable)
+                    : reviewMonthlyRepository.findByPropertyIdIn(ids, pageable);
+        }
+        return reviewMonthlyRepository.findReviews(propertyId, keyword, pageable);
+    }
+
+    // ======================================================================
+    // 통합 조회 (propertyType 미지정)
+    // ======================================================================
+
+    private Page<ReviewBase> queryCombined(
+            String propertyName, String propertyId, String keyword,
+            String sort, Pageable pageable) {
+
+        Page<? extends ReviewBase> charterPage;
+        Page<? extends ReviewBase> monthlyPage;
+
+        if (propertyName != null && !propertyName.isBlank()) {
+            List<String> charterIds = reviewCharterRepository.findPropertyIdsByName(propertyName);
+            List<String> monthlyIds = reviewMonthlyRepository.findPropertyIdsByName(propertyName);
+
+            charterPage = charterIds.isEmpty()
+                    ? Page.empty(pageable)
+                    : reviewCharterRepository.findByPropertyIdIn(charterIds, pageable);
+            monthlyPage = monthlyIds.isEmpty()
+                    ? Page.empty(pageable)
+                    : reviewMonthlyRepository.findByPropertyIdIn(monthlyIds, pageable);
+        } else {
+            charterPage = reviewCharterRepository.findReviews(propertyId, keyword, pageable);
+            monthlyPage = reviewMonthlyRepository.findReviews(propertyId, keyword, pageable);
+        }
+
+        List<ReviewBase> merged = new ArrayList<>();
+        merged.addAll(charterPage.getContent());
+        merged.addAll(monthlyPage.getContent());
+
+        boolean ascending = "rating_asc".equals(sort);
+        Comparator<LocalDateTime> dateOrder = ascending
+                ? Comparator.naturalOrder()
+                : Comparator.<LocalDateTime>reverseOrder();
+        merged.sort(Comparator.comparing(ReviewBase::getCreatedAt, Comparator.nullsLast(dateOrder)));
+
+        if (merged.size() > pageable.getPageSize()) {
+            merged = new ArrayList<>(merged.subList(0, pageable.getPageSize()));
+        }
+
+        long totalElements = charterPage.getTotalElements() + monthlyPage.getTotalElements();
+        return new PageImpl<>(merged, pageable, totalElements);
     }
 
     // ======================================================================
@@ -144,7 +216,7 @@ public class ReviewQueryService {
         return Sort.by(Sort.Direction.DESC, "createdAt");
     }
 
-    private Map<String, String> getPropertyNames(List<? extends ReviewBase> reviews, boolean isCharter) {
+    private Map<String, String> getPropertyNames(List<? extends ReviewBase> reviews, String propertyType) {
         Set<String> propertyIds = reviews.stream()
                 .map(ReviewBase::getPropertyId)
                 .collect(Collectors.toSet());
@@ -153,37 +225,61 @@ public class ReviewQueryService {
             return Collections.emptyMap();
         }
 
-        List<Object[]> results = isCharter
-                ? reviewCharterRepository.findPropertyNames(propertyIds)
-                : reviewMonthlyRepository.findPropertyNames(propertyIds);
+        boolean isCharter = "charter".equalsIgnoreCase(propertyType);
+        boolean isMonthly = "monthly".equalsIgnoreCase(propertyType);
+        boolean isCombined = !isCharter && !isMonthly;
 
-        Map<String, String> resultMap = new HashMap<>();
-        for (Object[] row : results) {
-            resultMap.put((String) row[0], (String) row[1]);
+        Map<String, String> result = new HashMap<>();
+
+        if (isCharter || isCombined) {
+            for (Object[] row : reviewCharterRepository.findPropertyNames(propertyIds)) {
+                result.put((String) row[0], (String) row[1]);
+            }
         }
-        return resultMap;
+        if (isMonthly || isCombined) {
+            for (Object[] row : reviewMonthlyRepository.findPropertyNames(propertyIds)) {
+                result.putIfAbsent((String) row[0], (String) row[1]);
+            }
+        }
+
+        return result;
     }
 
-    private FilterMetaDto createFilterMeta(String propertyId, boolean isCharter) {
+    private FilterMetaDto createFilterMeta(String propertyId, String propertyType) {
         if (propertyId == null || propertyId.isBlank()) {
             return null;
         }
 
+        boolean isCharter = "charter".equalsIgnoreCase(propertyType);
+        boolean isMonthly = "monthly".equalsIgnoreCase(propertyType);
+
         if (isCharter) {
             return reviewStatisticsCharterRepository.findById(propertyId)
-                    .map(stats -> FilterMetaDto.builder()
-                            .targetPropertyId(propertyId)
-                            .propertyAvgRating(stats.getAvgRating().doubleValue())
-                            .build())
-                    .orElse(null);
-        } else {
-            return reviewStatisticsMonthlyRepository.findById(propertyId)
-                    .map(stats -> FilterMetaDto.builder()
-                            .targetPropertyId(propertyId)
-                            .propertyAvgRating(stats.getAvgRating().doubleValue())
-                            .build())
+                    .map(s -> buildFilterMetaDto(propertyId, s.getAvgRating().doubleValue()))
                     .orElse(null);
         }
+        if (isMonthly) {
+            return reviewStatisticsMonthlyRepository.findById(propertyId)
+                    .map(s -> buildFilterMetaDto(propertyId, s.getAvgRating().doubleValue()))
+                    .orElse(null);
+        }
+
+        // 타입 미지정 → 전세 먼저, 없으면 월세
+        Optional<FilterMetaDto> meta = reviewStatisticsCharterRepository.findById(propertyId)
+                .map(s -> buildFilterMetaDto(propertyId, s.getAvgRating().doubleValue()));
+        if (meta.isPresent()) {
+            return meta.get();
+        }
+        return reviewStatisticsMonthlyRepository.findById(propertyId)
+                .map(s -> buildFilterMetaDto(propertyId, s.getAvgRating().doubleValue()))
+                .orElse(null);
+    }
+
+    private FilterMetaDto buildFilterMetaDto(String propertyId, double avgRating) {
+        return FilterMetaDto.builder()
+                .targetPropertyId(propertyId)
+                .propertyAvgRating(avgRating)
+                .build();
     }
 
     private ReviewSummaryDto convertToReviewSummaryDto(

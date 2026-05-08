@@ -11,8 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 
 @Slf4j
 @RestController
@@ -26,7 +24,7 @@ public class ReviewQueryController {
     /**
      * 리뷰 목록 조회
      *
-     * @param requestDto propertyType(필수), propertyId, propertyName, page, sort, keyword
+     * @param requestDto propertyType(선택), propertyId, propertyName, page, sort, keyword
      */
     @GetMapping("/list")
     public ResponseEntity<ReviewListResponseDto> getReviews(
@@ -48,15 +46,12 @@ public class ReviewQueryController {
      * 리뷰 단건 상세 조회
      *
      * @param reviewId 리뷰 ID
-     * @param propertyType 매물 유형 ("charter" 또는 "monthly")
+     * @param propertyType 매물 유형 (선택 — null이면 양쪽 테이블 모두 탐색)
      */
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewDetailDto> getReviewDetail(
             @PathVariable Long reviewId,
-            @RequestParam
-            @NotBlank(message = "매물 유형은 필수입니다")
-            @Pattern(regexp = "^(charter|monthly)$", message = "매물 유형은 charter 또는 monthly만 가능합니다")
-            String propertyType) {
+            @RequestParam(required = false) String propertyType) {
 
         log.info("리뷰 상세 조회 요청: reviewId={}, propertyType={}", reviewId, propertyType);
 
