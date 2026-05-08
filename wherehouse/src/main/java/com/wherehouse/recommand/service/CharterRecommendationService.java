@@ -2,8 +2,8 @@ package com.wherehouse.recommand.service;
 
 import com.wherehouse.recommand.model.*;
 import com.wherehouse.redis.handler.RedisHandler;
-import com.wherehouse.review.domain.ReviewStatistics;
-import com.wherehouse.review.repository.ReviewStatisticsRepository;
+import com.wherehouse.review.domain.ReviewStatisticsCharter;
+import com.wherehouse.review.repository.ReviewStatisticsCharterRepository;
 //import com.wherehouse.test.F009RaceLatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  *
  * 역할:
  * 1. Redis 인덱스를 활용한 매물 1차 검색 (가격, 평수 조건)
- * 2. RDB(ReviewStatistics) 조회 및 하이브리드 점수 계산 (정량+정성)
+ * 2. RDB(ReviewStatisticsCharter) 조회 및 하이브리드 점수 계산 (정량+정성)
  * 3. 최종 추천 리스트 생성 및 반환
  */
 @Service
@@ -33,7 +33,7 @@ public class CharterRecommendationService {
 
     private final RedisHandler redisHandler;
     // [Phase 2 추가] 리뷰 통계 조회를 위한 Repository 주입 (RDB 접근)
-    private final ReviewStatisticsRepository reviewStatisticsRepository;
+    private final ReviewStatisticsCharterRepository reviewStatisticsRepository;
 
 //    @Autowired(required = false)
 //    private F009RaceLatch f009RaceLatch;
@@ -458,16 +458,16 @@ public class CharterRecommendationService {
                 .distinct()
                 .collect(Collectors.toList());
 
-        Map<String, ReviewStatistics> globalReviewStatsMap = new HashMap<>();
+        Map<String, ReviewStatisticsCharter> globalReviewStatsMap = new HashMap<>();
 
         // 1-2. Chunking (61개 단위 분할 조회) 적용
         if (!allPropertyIds.isEmpty()) {
             List<List<String>> chunks = partitionList(allPropertyIds, 61);
 
             for (List<String> chunk : chunks) {
-                List<ReviewStatistics> chunkStats = reviewStatisticsRepository.findAllById(chunk);
+                List<ReviewStatisticsCharter> chunkStats = reviewStatisticsRepository.findAllById(chunk);
 
-                for (ReviewStatistics stat : chunkStats) {
+                for (ReviewStatisticsCharter stat : chunkStats) {
                     globalReviewStatsMap.put(stat.getPropertyId(), stat);
                 }
             }
@@ -507,8 +507,8 @@ public class CharterRecommendationService {
 
                     String propertyId = propertyDetail.getPropertyId();
 
-                    ReviewStatistics stats = globalReviewStatsMap.getOrDefault(propertyId,
-                            ReviewStatistics.builder().propertyId(propertyId).build());
+                    ReviewStatisticsCharter stats = globalReviewStatsMap.getOrDefault(propertyId,
+                            ReviewStatisticsCharter.builder().propertyId(propertyId).build());
 
                     double finalScore = calculateHybridScore(legacyScore, stats);
 
@@ -543,7 +543,7 @@ public class CharterRecommendationService {
      * FinalScore = (LegacyScore * 0.5) + (ReviewScore * 0.5)
      * 단, 리뷰 개수가 5개 미만인 경우 LegacyScore 100% 반영
      */
-    private double calculateHybridScore(double legacyScore, ReviewStatistics stats) {
+    private double calculateHybridScore(double legacyScore, ReviewStatisticsCharter stats) {
         // Cold Start 방어 로직
         if (stats.getReviewCount() < COLD_START_REVIEW_COUNT) {
             return legacyScore;
@@ -560,7 +560,7 @@ public class CharterRecommendationService {
      * 리뷰 점수 자체 계산 로직 : 긍정 키워드 개수 및 부정 키워드 개수 합산 처리
      * ReviewScore = (RatingScore * 0.5) + (KeywordScore * 0.5)
      */
-    private double calculateReviewScoreOnly(ReviewStatistics stats) {
+    private double calculateReviewScoreOnly(ReviewStatisticsCharter stats) {
         // 1. 평점 점수 (100점 만점 환산)
         double ratingScore = (stats.getAvgRating().doubleValue() / 5.0) * 100.0;
 
@@ -581,16 +581,16 @@ public class CharterRecommendationService {
      * [Phase 2] RDB에서 리뷰 통계 조회
      * Redis Pipeline 대신 RDB 조회 방식을 사용하여 병목 지점 생성
      */
-    private Map<String, ReviewStatistics> getReviewStatisticsFromRDB(List<String> propertyIds) {
+    private Map<String, ReviewStatisticsCharter> getReviewStatisticsCharterFromRDB(List<String> propertyIds) {
         if (propertyIds.isEmpty()) {
             return Collections.emptyMap();
         }
 
         // SELECT * FROM REVIEW_STATISTICS WHERE PROPERTY_ID IN (...)
-        List<ReviewStatistics> statsList = reviewStatisticsRepository.findAllById(propertyIds);
+        List<ReviewStatisticsCharter> statsList = reviewStatisticsRepository.findAllById(propertyIds);
 
         return statsList.stream()
-                .collect(Collectors.toMap(ReviewStatistics::getPropertyId, stats -> stats));
+                .collect(Collectors.toMap(ReviewStatisticsCharter::getPropertyId, stats -> stats));
     }
 
 

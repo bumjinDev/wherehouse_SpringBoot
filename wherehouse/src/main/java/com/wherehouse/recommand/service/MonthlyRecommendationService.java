@@ -2,8 +2,8 @@ package com.wherehouse.recommand.service;
 
 import com.wherehouse.recommand.model.*;
 import com.wherehouse.redis.handler.RedisHandler;
-import com.wherehouse.review.domain.ReviewStatistics;
-import com.wherehouse.review.repository.ReviewStatisticsRepository;
+import com.wherehouse.review.domain.ReviewStatisticsMonthly;
+import com.wherehouse.review.repository.ReviewStatisticsMonthlyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  *
  * 역할:
  * 1. Redis 인덱스를 활용한 매물 1차 검색 (보증금, 월세, 평수 조건)
- * 2. RDB(ReviewStatistics) 조회 및 하이브리드 점수 계산 (정량+정성)
+ * 2. RDB(ReviewStatisticsMonthly) 조회 및 하이브리드 점수 계산 (정량+정성)
  * 3. 최종 추천 리스트 생성 및 반환
  */
 @Service
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class MonthlyRecommendationService {
 
     private final RedisHandler redisHandler;
-    private final ReviewStatisticsRepository reviewStatisticsRepository;
+    private final ReviewStatisticsMonthlyRepository reviewStatisticsRepository;
 
     private static final List<String> SEOUL_DISTRICTS = Arrays.asList(
             "종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구",
@@ -440,13 +440,13 @@ public class MonthlyRecommendationService {
                 .distinct()
                 .collect(Collectors.toList());
 
-        Map<String, ReviewStatistics> globalReviewStatsMap = new HashMap<>();
+        Map<String, ReviewStatisticsMonthly> globalReviewStatsMap = new HashMap<>();
 
         if (!allPropertyIds.isEmpty()) {
             List<List<String>> chunks = partitionList(allPropertyIds, 61);
             for (List<String> chunk : chunks) {
-                List<ReviewStatistics> chunkStats = reviewStatisticsRepository.findAllById(chunk);
-                for (ReviewStatistics stat : chunkStats) {
+                List<ReviewStatisticsMonthly> chunkStats = reviewStatisticsRepository.findAllById(chunk);
+                for (ReviewStatisticsMonthly stat : chunkStats) {
                     globalReviewStatsMap.put(stat.getPropertyId(), stat);
                 }
             }
@@ -484,8 +484,8 @@ public class MonthlyRecommendationService {
                             request.getPriority1(), request.getPriority2(), request.getPriority3());
 
                     String propertyId = propertyDetail.getPropertyId();
-                    ReviewStatistics stats = globalReviewStatsMap.getOrDefault(propertyId,
-                            ReviewStatistics.builder().propertyId(propertyId).build());
+                    ReviewStatisticsMonthly stats = globalReviewStatsMap.getOrDefault(propertyId,
+                            ReviewStatisticsMonthly.builder().propertyId(propertyId).build());
 
                     double finalScore = calculateHybridScore(legacyScore, stats);
 
@@ -515,7 +515,7 @@ public class MonthlyRecommendationService {
         return result;
     }
 
-    private double calculateHybridScore(double legacyScore, ReviewStatistics stats) {
+    private double calculateHybridScore(double legacyScore, ReviewStatisticsMonthly stats) {
         if (stats.getReviewCount() < COLD_START_REVIEW_COUNT) {
             return legacyScore;
         }
@@ -523,7 +523,7 @@ public class MonthlyRecommendationService {
         return (legacyScore * 0.5) + (reviewScore * 0.5);
     }
 
-    private double calculateReviewScoreOnly(ReviewStatistics stats) {
+    private double calculateReviewScoreOnly(ReviewStatisticsMonthly stats) {
         double ratingScore = (stats.getAvgRating().doubleValue() / 5.0) * 100.0;
         int positive = stats.getPositiveKeywordCount();
         int negative = stats.getNegativeKeywordCount();
