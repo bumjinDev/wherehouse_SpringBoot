@@ -42,6 +42,13 @@ public class Property {
     private String rgstDate;          // 등록일자
     private String districtName;      // 지역구명 (서울시 XX구)
 
+    // F005 확장 필드 (설계 명세서 8.1.1)
+    private String dataSource;        // 데이터 출처 (BATCH / USER / MERGED)
+    private String status;            // 매물 상태 (ACTIVE / COMPLETED / DELETED)
+    private String registeredUserId;  // 등록자 식별자
+    private String registeredAt;      // 사용자 등록 시각
+    private String modifiedAt;        // 사용자 수정 시각
+
     /**
      * 전용면적을 평수로 변환
      */

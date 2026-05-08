@@ -1,10 +1,9 @@
 package com.wherehouse.recommand.batch.entity;
 
+import com.wherehouse.PropertyManagement.entity.DataSource;
+import com.wherehouse.PropertyManagement.entity.PropertyStatus;
 import com.wherehouse.recommand.batch.dto.Property;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -125,6 +124,25 @@ public class PropertyCharter {
     @Column(name = "LAST_UPDATED")
     private LocalDateTime lastUpdated;
 
+    // F005 확장 필드 (설계 명세서 8.1.1)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "DATA_SOURCE", length = 10, nullable = false)
+    private DataSource dataSource;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", length = 10, nullable = false)
+    private PropertyStatus status;
+
+    @Column(name = "REGISTERED_USER_ID", length = 100)
+    private String registeredUserId;
+
+    @Column(name = "REGISTERED_AT")
+    private LocalDateTime registeredAt;
+
+    @Column(name = "MODIFIED_AT")
+    private LocalDateTime modifiedAt;
+
     /**
      * 배치용 DTO(Property)를 엔티티(PropertyCharter)로 변환하는 정적 팩토리 메서드
      *
@@ -140,7 +158,7 @@ public class PropertyCharter {
                 .buildYear(dto.getBuildYear())
                 .dealDate(dto.getDealDate())
                 .deposit(dto.getDeposit())
-                .leaseType("전세") // 고정값 주입
+                .leaseType("전세")
                 .umdNm(dto.getUmdNm())
                 .jibun(dto.getJibun())
                 .sggCd(dto.getSggCd())
@@ -148,7 +166,12 @@ public class PropertyCharter {
                 .areaInPyeong(dto.getAreaInPyeong())
                 .rgstDate(dto.getRgstDate())
                 .districtName(dto.getDistrictName())
-                .lastUpdated(LocalDateTime.now()) // 생성/갱신 시점 기록
+                .lastUpdated(LocalDateTime.now())
+                .dataSource(dto.getDataSource() != null ? DataSource.valueOf(dto.getDataSource()) : DataSource.BATCH)
+                .status(dto.getStatus() != null ? PropertyStatus.valueOf(dto.getStatus()) : PropertyStatus.ACTIVE)
+                .registeredUserId(dto.getRegisteredUserId())
+                .registeredAt(dto.getRegisteredAt() != null ? LocalDateTime.parse(dto.getRegisteredAt()) : null)
+                .modifiedAt(dto.getModifiedAt() != null ? LocalDateTime.parse(dto.getModifiedAt()) : null)
                 .build();
     }
 }

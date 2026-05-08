@@ -310,7 +310,7 @@ public class RdbSyncListener {
                 .buildYear(entity.getBuildYear())
                 .dealDate(entity.getDealDate())
                 .deposit(entity.getDeposit())
-                .monthlyRent(null)  // 전세는 월세금 없음
+                .monthlyRent(null)
                 .leaseType("전세")
                 .umdNm(entity.getUmdNm())
                 .jibun(entity.getJibun())
@@ -319,6 +319,11 @@ public class RdbSyncListener {
                 .areaInPyeong(entity.getAreaInPyeong())
                 .rgstDate(entity.getRgstDate())
                 .districtName(entity.getDistrictName())
+                .dataSource(entity.getDataSource() != null ? entity.getDataSource().name() : "BATCH")
+                .status(entity.getStatus() != null ? entity.getStatus().name() : "ACTIVE")
+                .registeredUserId(entity.getRegisteredUserId())
+                .registeredAt(entity.getRegisteredAt() != null ? entity.getRegisteredAt().toString() : null)
+                .modifiedAt(entity.getModifiedAt() != null ? entity.getModifiedAt().toString() : null)
                 .build();
     }
 
@@ -340,6 +345,11 @@ public class RdbSyncListener {
                 .areaInPyeong(entity.getAreaInPyeong())
                 .rgstDate(entity.getRgstDate())
                 .districtName(entity.getDistrictName())
+                .dataSource(entity.getDataSource() != null ? entity.getDataSource().name() : "BATCH")
+                .status(entity.getStatus() != null ? entity.getStatus().name() : "ACTIVE")
+                .registeredUserId(entity.getRegisteredUserId())
+                .registeredAt(entity.getRegisteredAt() != null ? entity.getRegisteredAt().toString() : null)
+                .modifiedAt(entity.getModifiedAt() != null ? entity.getModifiedAt().toString() : null)
                 .build();
     }
 
@@ -596,6 +606,11 @@ public class RdbSyncListener {
         hash.put("rgstDate", nvl(property.getRgstDate()));
         hash.put("districtName", nvl(property.getDistrictName()));
         hash.put("deposit", property.getDeposit() != null ? property.getDeposit().toString() : "0");
+        hash.put("dataSource", nvl(property.getDataSource()));
+        hash.put("status", nvl(property.getStatus()));
+        hash.put("registeredUserId", nvl(property.getRegisteredUserId()));
+        hash.put("registeredAt", nvl(property.getRegisteredAt()));
+        hash.put("modifiedAt", nvl(property.getModifiedAt()));
         return hash;
     }
 
