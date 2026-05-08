@@ -141,10 +141,7 @@ public class ReviewQueryService {
             String propertyName, String propertyId, String keyword, Pageable pageable) {
 
         if (propertyName != null && !propertyName.isBlank()) {
-            List<String> ids = reviewCharterRepository.findPropertyIdsByName(propertyName);
-            return ids.isEmpty()
-                    ? Page.empty(pageable)
-                    : reviewCharterRepository.findByPropertyIdIn(ids, pageable);
+            return reviewCharterRepository.findByPropertyName(propertyName, pageable);
         }
         return reviewCharterRepository.findReviews(propertyId, keyword, pageable);
     }
@@ -153,10 +150,7 @@ public class ReviewQueryService {
             String propertyName, String propertyId, String keyword, Pageable pageable) {
 
         if (propertyName != null && !propertyName.isBlank()) {
-            List<String> ids = reviewMonthlyRepository.findPropertyIdsByName(propertyName);
-            return ids.isEmpty()
-                    ? Page.empty(pageable)
-                    : reviewMonthlyRepository.findByPropertyIdIn(ids, pageable);
+            return reviewMonthlyRepository.findByPropertyName(propertyName, pageable);
         }
         return reviewMonthlyRepository.findReviews(propertyId, keyword, pageable);
     }
@@ -173,15 +167,8 @@ public class ReviewQueryService {
         Page<? extends ReviewBase> monthlyPage;
 
         if (propertyName != null && !propertyName.isBlank()) {
-            List<String> charterIds = reviewCharterRepository.findPropertyIdsByName(propertyName);
-            List<String> monthlyIds = reviewMonthlyRepository.findPropertyIdsByName(propertyName);
-
-            charterPage = charterIds.isEmpty()
-                    ? Page.empty(pageable)
-                    : reviewCharterRepository.findByPropertyIdIn(charterIds, pageable);
-            monthlyPage = monthlyIds.isEmpty()
-                    ? Page.empty(pageable)
-                    : reviewMonthlyRepository.findByPropertyIdIn(monthlyIds, pageable);
+            charterPage = reviewCharterRepository.findByPropertyName(propertyName, pageable);
+            monthlyPage = reviewMonthlyRepository.findByPropertyName(propertyName, pageable);
         } else {
             charterPage = reviewCharterRepository.findReviews(propertyId, keyword, pageable);
             monthlyPage = reviewMonthlyRepository.findReviews(propertyId, keyword, pageable);

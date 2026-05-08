@@ -27,12 +27,15 @@ public interface ReviewMonthlyRepository extends JpaRepository<ReviewMonthly, Lo
     );
 
     @Query(value =
-            "SELECT property_id FROM properties_monthly WHERE apt_nm LIKE :name || '%'",
+            "SELECT r.* FROM REVIEWS_MONTHLY r " +
+                    "INNER JOIN PROPERTIES_MONTHLY p ON r.PROPERTY_ID = p.PROPERTY_ID " +
+                    "WHERE p.APT_NM LIKE :name || '%'",
+            countQuery =
+            "SELECT COUNT(*) FROM REVIEWS_MONTHLY r " +
+                    "INNER JOIN PROPERTIES_MONTHLY p ON r.PROPERTY_ID = p.PROPERTY_ID " +
+                    "WHERE p.APT_NM LIKE :name || '%'",
             nativeQuery = true)
-    List<String> findPropertyIdsByName(@Param("name") String name);
-
-    @Query("SELECT r FROM ReviewMonthly r WHERE r.propertyId IN :propertyIds")
-    Page<ReviewMonthly> findByPropertyIdIn(@Param("propertyIds") List<String> propertyIds, Pageable pageable);
+    Page<ReviewMonthly> findByPropertyName(@Param("name") String name, Pageable pageable);
 
     @Query(value =
             "SELECT property_id, apt_nm FROM properties_monthly " +

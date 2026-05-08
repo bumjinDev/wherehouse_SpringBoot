@@ -27,12 +27,15 @@ public interface ReviewCharterRepository extends JpaRepository<ReviewCharter, Lo
     );
 
     @Query(value =
-            "SELECT property_id FROM properties_charter WHERE apt_nm LIKE :name || '%'",
+            "SELECT r.* FROM REVIEWS_CHARTER r " +
+                    "INNER JOIN PROPERTIES_CHARTER p ON r.PROPERTY_ID = p.PROPERTY_ID " +
+                    "WHERE p.APT_NM LIKE :name || '%'",
+            countQuery =
+            "SELECT COUNT(*) FROM REVIEWS_CHARTER r " +
+                    "INNER JOIN PROPERTIES_CHARTER p ON r.PROPERTY_ID = p.PROPERTY_ID " +
+                    "WHERE p.APT_NM LIKE :name || '%'",
             nativeQuery = true)
-    List<String> findPropertyIdsByName(@Param("name") String name);
-
-    @Query("SELECT r FROM ReviewCharter r WHERE r.propertyId IN :propertyIds")
-    Page<ReviewCharter> findByPropertyIdIn(@Param("propertyIds") List<String> propertyIds, Pageable pageable);
+    Page<ReviewCharter> findByPropertyName(@Param("name") String name, Pageable pageable);
 
     @Query(value =
             "SELECT property_id, apt_nm FROM properties_charter " +
