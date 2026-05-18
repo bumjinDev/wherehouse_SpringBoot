@@ -11,8 +11,10 @@ import com.wherehouse.PropertyManagement.entity.PropertyStatus;
 import com.wherehouse.PropertyManagement.execption.customExceptions.PropertyNotFoundException;
 import com.wherehouse.PropertyManagement.repository.PropertyCharterRegistrationRepository;
 import com.wherehouse.PropertyManagement.repository.PropertyMonthlyRegistrationRepository;
-import com.wherehouse.review.domain.ReviewStatistics;
-import com.wherehouse.review.repository.ReviewStatisticsRepository;
+import com.wherehouse.review.domain.ReviewStatisticsCharter;
+import com.wherehouse.review.domain.ReviewStatisticsMonthly;
+import com.wherehouse.review.repository.ReviewStatisticsCharterRepository;
+import com.wherehouse.review.repository.ReviewStatisticsMonthlyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -50,7 +52,8 @@ public class PropertyQueryService {
 
     private final PropertyCharterRegistrationRepository charterRepository;
     private final PropertyMonthlyRegistrationRepository monthlyRepository;
-    private final ReviewStatisticsRepository reviewStatisticsRepository;
+    private final ReviewStatisticsCharterRepository reviewStatisticsCharterRepository;
+    private final ReviewStatisticsMonthlyRepository reviewStatisticsMonthlyRepository;
 
     // ============================================================
     // F004 매물 목록 조회
@@ -93,36 +96,35 @@ public class PropertyQueryService {
      * 반환값: 최소 1건, 최대 2건의 PropertyDetailDto 배열.
      * 양쪽 모두 미존재 또는 DELETED 이면 E4201.
      *
-     * 리뷰 통계는 propertyId 기준으로 REVIEW_STATISTICS 테이블에서 1회 조회 후
-     * 양쪽 Detail DTO 에 동일하게 주입한다.
+     * 리뷰 통계는 각 임대유형별 분리 테이블에서 조회한다.
      */
     public List<PropertyDetailDto> getPropertyDetail(String propertyId) {
 
-        // 양쪽 테이블 동시 조회 + DELETED 필터링
         Optional<PropertyCharterEntity> charterOpt = charterRepository.findById(propertyId)
                 .filter(e -> e.getStatus() != PropertyStatus.DELETED);
 
         Optional<PropertyMonthlyEntity> monthlyOpt = monthlyRepository.findById(propertyId)
                 .filter(e -> e.getStatus() != PropertyStatus.DELETED);
 
-        // 양쪽 모두 미존재 또는 DELETED → E4201
         if (charterOpt.isEmpty() && monthlyOpt.isEmpty()) {
             throw new PropertyNotFoundException("매물을 찾을 수 없습니다. propertyId=" + propertyId);
         }
 
-        // 리뷰 통계 1회 조회 (propertyId 기준, 리뷰 통계 데이터는 양쪽 공유)
-        ReviewStatistics stats = reviewStatisticsRepository.findById(propertyId).orElse(null);
-        int reviewCount = (stats != null) ? stats.getReviewCount() : 0;
-        BigDecimal avgRating = (stats != null) ? stats.getAvgRating() : BigDecimal.ZERO;
-
-        // 유효 레코드 수집
         List<PropertyDetailDto> results = new ArrayList<>();
 
-        charterOpt.ifPresent(entity -> results.add(
-                buildCharterDetail(entity, reviewCount, avgRating)));
+        charterOpt.ifPresent(entity -> {
+            ReviewStatisticsCharter stats = reviewStatisticsCharterRepository.findById(propertyId).orElse(null);
+            int reviewCount = (stats != null) ? stats.getReviewCount() : 0;
+            BigDecimal avgRating = (stats != null) ? stats.getAvgRating() : BigDecimal.ZERO;
+            results.add(buildCharterDetail(entity, reviewCount, avgRating));
+        });
 
-        monthlyOpt.ifPresent(entity -> results.add(
-                buildMonthlyDetail(entity, reviewCount, avgRating)));
+        monthlyOpt.ifPresent(entity -> {
+            ReviewStatisticsMonthly stats = reviewStatisticsMonthlyRepository.findById(propertyId).orElse(null);
+            int reviewCount = (stats != null) ? stats.getReviewCount() : 0;
+            BigDecimal avgRating = (stats != null) ? stats.getAvgRating() : BigDecimal.ZERO;
+            results.add(buildMonthlyDetail(entity, reviewCount, avgRating));
+        });
 
         return results;
     }
