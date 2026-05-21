@@ -1,0 +1,172 @@
+--------------------------------------------------------------------------------
+-- Wherehouse 매물 방문 예약 기능 — 테이블 생성 스크립트
+-- 기준: 설계 명세서 v1.4 섹션 4.1.1 ~ 4.1.5
+-- 실행 순서: 1번 (가장 먼저 실행)
+-- 의존성: 없음
+-- 비고: 테이블 컬럼 표의 인라인 제약(NOT NULL, CHECK, DEFAULT, PK, FK)만 포함.
+--       시퀀스(02), 추가 유일 제약(03), 성능 인덱스(04)는 이후 스크립트에서 적용한다.
+--------------------------------------------------------------------------------
+
+
+--==============================================================================
+-- 1) VISIT_WINDOW (방문 윈도우)
+--    등록자가 공개한 방문 가능 시간 구간
+--    설계 명세서 4.1.1
+--==============================================================================
+CREATE TABLE VISIT_WINDOW (
+    WINDOW_ID               NUMBER(19)      NOT NULL,
+    PROPERTY_ID             CHAR(32)        NOT NULL,
+    LEASE_TYPE              VARCHAR2(10)    NOT NULL,
+    START_TIME              TIMESTAMP       NOT NULL,
+    END_TIME                TIMESTAMP       NOT NULL,
+    SLOT_DURATION_MINUTES   NUMBER(3)       DEFAULT 30      NOT NULL,
+    STATUS                  VARCHAR2(10)    DEFAULT 'ACTIVE' NOT NULL,
+    CREATED_AT              TIMESTAMP       NOT NULL,
+    WITHDRAWN_AT            TIMESTAMP,
+    CONSTRAINT PK_VISIT_WINDOW PRIMARY KEY (WINDOW_ID),
+    CONSTRAINT CK_VISIT_WINDOW_LEASE_TYPE
+        CHECK (LEASE_TYPE IN ('CHARTER','MONTHLY')),
+    CONSTRAINT CK_VISIT_WINDOW_TIME
+        CHECK (END_TIME > START_TIME),
+    CONSTRAINT CK_VISIT_WINDOW_STATUS
+        CHECK (STATUS IN ('ACTIVE','WITHDRAWN'))
+);
+
+COMMENT ON TABLE  VISIT_WINDOW                          IS '등록자가 공개한 방문 가능 시간 윈도우';
+COMMENT ON COLUMN VISIT_WINDOW.WINDOW_ID                IS '윈도우 식별자';
+COMMENT ON COLUMN VISIT_WINDOW.PROPERTY_ID              IS '대상 매물 식별자 (PROPERTIES_CHARTER/MONTHLY 참조)';
+COMMENT ON COLUMN VISIT_WINDOW.LEASE_TYPE               IS '임대 유형 (CHARTER/MONTHLY)';
+COMMENT ON COLUMN VISIT_WINDOW.START_TIME               IS '윈도우 시작 시각';
+COMMENT ON COLUMN VISIT_WINDOW.END_TIME                 IS '윈도우 종료 시각';
+COMMENT ON COLUMN VISIT_WINDOW.SLOT_DURATION_MINUTES    IS '슬롯 분할 단위(분)';
+COMMENT ON COLUMN VISIT_WINDOW.STATUS                   IS '윈도우 상태 (ACTIVE/WITHDRAWN)';
+COMMENT ON COLUMN VISIT_WINDOW.CREATED_AT               IS '생성 시각';
+COMMENT ON COLUMN VISIT_WINDOW.WITHDRAWN_AT             IS '철회 시각 (STATUS=WITHDRAWN일 때만 값)';
+
+
+--==============================================================================
+-- 2) VISIT_SLOT (방문 슬롯)
+--    윈도우를 분할한 고정 길이 슬롯, 예약 대상 단위 자원
+--    설계 명세서 4.1.2
+--==============================================================================
+CREATE TABLE VISIT_SLOT (
+    SLOT_ID         NUMBER(19)      NOT NULL,
+    WINDOW_ID       NUMBER(19)      NOT NULL,
+    START_TIME      TIMESTAMP       NOT NULL,
+    END_TIME        TIMESTAMP       NOT NULL,
+    STATUS          VARCHAR2(15)    DEFAULT 'AVAILABLE' NOT NULL,
+    CREATED_AT      TIMESTAMP       NOT NULL,
+    CONSTRAINT PK_VISIT_SLOT PRIMARY KEY (SLOT_ID),
+    CONSTRAINT FK_VISIT_SLOT_WINDOW FOREIGN KEY (WINDOW_ID)
+        REFERENCES VISIT_WINDOW (WINDOW_ID),
+    CONSTRAINT CK_VISIT_SLOT_TIME
+        CHECK (END_TIME > START_TIME),
+    CONSTRAINT CK_VISIT_SLOT_STATUS
+        CHECK (STATUS IN ('AVAILABLE','RESERVED','CLOSED','WITHDRAWN'))
+);
+
+COMMENT ON TABLE  VISIT_SLOT             IS '방문 슬롯 (예약 단위 자원)';
+COMMENT ON COLUMN VISIT_SLOT.SLOT_ID     IS '슬롯 식별자';
+COMMENT ON COLUMN VISIT_SLOT.WINDOW_ID   IS '소속 윈도우 식별자';
+COMMENT ON COLUMN VISIT_SLOT.START_TIME  IS '슬롯 시작 시각';
+COMMENT ON COLUMN VISIT_SLOT.END_TIME    IS '슬롯 종료 시각';
+COMMENT ON COLUMN VISIT_SLOT.STATUS      IS '슬롯 상태 (AVAILABLE/RESERVED/CLOSED/WITHDRAWN)';
+COMMENT ON COLUMN VISIT_SLOT.CREATED_AT  IS '생성 시각';
+
+
+--==============================================================================
+-- 3) VISIT_RESERVATION (방문 예약)
+--    탐색자가 슬롯을 예약한 결과
+--    설계 명세서 4.1.3
+--==============================================================================
+CREATE TABLE VISIT_RESERVATION (
+    RESERVATION_ID          NUMBER(19)      NOT NULL,
+    SLOT_ID                 NUMBER(19)      NOT NULL,
+    SEARCHER_USER_ID        VARCHAR2(100)   NOT NULL,
+    STATUS                  VARCHAR2(15)    DEFAULT 'CONFIRMED' NOT NULL,
+    CONFIRMED_AT            TIMESTAMP       NOT NULL,
+    CANCELLED_AT            TIMESTAMP,
+    INVALIDATED_AT          TIMESTAMP,
+    VISIT_RESULT            VARCHAR2(10),
+    RESULT_CLASSIFIED_AT    TIMESTAMP,
+    CONSTRAINT PK_VISIT_RESERVATION PRIMARY KEY (RESERVATION_ID),
+    CONSTRAINT FK_VISIT_RESERVATION_SLOT FOREIGN KEY (SLOT_ID)
+        REFERENCES VISIT_SLOT (SLOT_ID),
+    CONSTRAINT CK_VISIT_RESERVATION_STATUS
+        CHECK (STATUS IN ('CONFIRMED','CANCELLED','INVALIDATED','COMPLETED')),
+    CONSTRAINT CK_VISIT_RESERVATION_RESULT
+        CHECK (VISIT_RESULT IS NULL OR VISIT_RESULT IN ('VISITED','NO_SHOW'))
+);
+
+COMMENT ON TABLE  VISIT_RESERVATION                       IS '방문 예약';
+COMMENT ON COLUMN VISIT_RESERVATION.RESERVATION_ID        IS '예약 식별자';
+COMMENT ON COLUMN VISIT_RESERVATION.SLOT_ID               IS '대상 슬롯 식별자';
+COMMENT ON COLUMN VISIT_RESERVATION.SEARCHER_USER_ID      IS '예약 탐색자 식별자';
+COMMENT ON COLUMN VISIT_RESERVATION.STATUS                IS '예약 상태 (CONFIRMED/CANCELLED/INVALIDATED/COMPLETED)';
+COMMENT ON COLUMN VISIT_RESERVATION.CONFIRMED_AT          IS '확정 시각';
+COMMENT ON COLUMN VISIT_RESERVATION.CANCELLED_AT          IS '취소 시각';
+COMMENT ON COLUMN VISIT_RESERVATION.INVALIDATED_AT        IS '무효화 시각';
+COMMENT ON COLUMN VISIT_RESERVATION.VISIT_RESULT          IS '방문 결과 (VISITED/NO_SHOW), STATUS=COMPLETED일 때만 의미';
+COMMENT ON COLUMN VISIT_RESERVATION.RESULT_CLASSIFIED_AT  IS '결과 분류 시각';
+
+
+--==============================================================================
+-- 4) REOPEN_SUBSCRIPTION (재개방 알림 구독)
+--    예약된 슬롯이 다시 열릴 때 알림을 받기 위한 신청
+--    설계 명세서 4.1.4
+--==============================================================================
+CREATE TABLE REOPEN_SUBSCRIPTION (
+    SUBSCRIPTION_ID         NUMBER(19)      NOT NULL,
+    SLOT_ID                 NUMBER(19)      NOT NULL,
+    SEARCHER_USER_ID        VARCHAR2(100)   NOT NULL,
+    STATUS                  VARCHAR2(15)    DEFAULT 'ACTIVE' NOT NULL,
+    SUBSCRIBED_AT           TIMESTAMP       NOT NULL,
+    TERMINATED_AT           TIMESTAMP,
+    TERMINATION_REASON      VARCHAR2(20),
+    CONSTRAINT PK_REOPEN_SUBSCRIPTION PRIMARY KEY (SUBSCRIPTION_ID),
+    CONSTRAINT FK_REOPEN_SUBSCRIPTION_SLOT FOREIGN KEY (SLOT_ID)
+        REFERENCES VISIT_SLOT (SLOT_ID),
+    CONSTRAINT CK_REOPEN_SUBSCRIPTION_STATUS
+        CHECK (STATUS IN ('ACTIVE','FULFILLED','CANCELLED','EXPIRED'))
+);
+
+COMMENT ON TABLE  REOPEN_SUBSCRIPTION                       IS '재개방 알림 구독';
+COMMENT ON COLUMN REOPEN_SUBSCRIPTION.SUBSCRIPTION_ID       IS '구독 식별자';
+COMMENT ON COLUMN REOPEN_SUBSCRIPTION.SLOT_ID               IS '대상 슬롯 식별자';
+COMMENT ON COLUMN REOPEN_SUBSCRIPTION.SEARCHER_USER_ID      IS '구독자 식별자';
+COMMENT ON COLUMN REOPEN_SUBSCRIPTION.STATUS                IS '구독 상태 (ACTIVE/FULFILLED/CANCELLED/EXPIRED)';
+COMMENT ON COLUMN REOPEN_SUBSCRIPTION.SUBSCRIBED_AT         IS '구독 시각';
+COMMENT ON COLUMN REOPEN_SUBSCRIPTION.TERMINATED_AT         IS '종료 시각';
+COMMENT ON COLUMN REOPEN_SUBSCRIPTION.TERMINATION_REASON    IS '종료 사유 (SLOT_CLOSED/RESERVED/USER_CANCELLED)';
+
+
+--==============================================================================
+-- 5) VISIT_NOTIFICATION (방문 예약 알림)
+--    비동기 통지 저장
+--    설계 명세서 4.1.5
+--==============================================================================
+CREATE TABLE VISIT_NOTIFICATION (
+    NOTIFICATION_ID         NUMBER(19)      NOT NULL,
+    USER_ID                 VARCHAR2(100)   NOT NULL,
+    NOTIFICATION_TYPE       VARCHAR2(30)    NOT NULL,
+    RELATED_SLOT_ID         NUMBER(19),
+    RELATED_RESERVATION_ID  NUMBER(19),
+    RELATED_PROPERTY_ID     CHAR(32),
+    MESSAGE                 VARCHAR2(500)   NOT NULL,
+    IS_READ                 CHAR(1)         DEFAULT 'N' NOT NULL,
+    CREATED_AT              TIMESTAMP       NOT NULL,
+    CONSTRAINT PK_VISIT_NOTIFICATION PRIMARY KEY (NOTIFICATION_ID),
+    CONSTRAINT CK_VISIT_NOTIFICATION_IS_READ
+        CHECK (IS_READ IN ('Y','N'))
+);
+
+COMMENT ON TABLE  VISIT_NOTIFICATION                          IS '방문 예약 알림';
+COMMENT ON COLUMN VISIT_NOTIFICATION.NOTIFICATION_ID          IS '알림 식별자';
+COMMENT ON COLUMN VISIT_NOTIFICATION.USER_ID                  IS '수신자 식별자';
+COMMENT ON COLUMN VISIT_NOTIFICATION.NOTIFICATION_TYPE        IS '알림 유형 (SLOT_RESERVED/RESERVATION_INVALIDATED/SLOT_REOPENED/PROPERTY_DEACTIVATED)';
+COMMENT ON COLUMN VISIT_NOTIFICATION.RELATED_SLOT_ID          IS '관련 슬롯 식별자';
+COMMENT ON COLUMN VISIT_NOTIFICATION.RELATED_RESERVATION_ID   IS '관련 예약 식별자';
+COMMENT ON COLUMN VISIT_NOTIFICATION.RELATED_PROPERTY_ID      IS '관련 매물 식별자';
+COMMENT ON COLUMN VISIT_NOTIFICATION.MESSAGE                  IS '알림 메시지';
+COMMENT ON COLUMN VISIT_NOTIFICATION.IS_READ                  IS '읽음 여부 (Y/N)';
+COMMENT ON COLUMN VISIT_NOTIFICATION.CREATED_AT               IS '생성 시각';
