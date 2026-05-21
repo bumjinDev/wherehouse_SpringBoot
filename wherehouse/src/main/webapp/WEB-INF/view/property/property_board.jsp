@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wherehouse - 매물 게시판</title>
     <link rel="stylesheet" href="/wherehouse/css/property_board.css">
+    <!-- 방문 예약 슬롯 선택 모달(공통) -->
+    <link rel="stylesheet" href="/wherehouse/css/visit_slot_picker.css">
     <link rel="icon" href="/wherehouse/images/home_icon.png">
 </head>
 <body>
@@ -181,5 +183,7 @@
 </div>
 
 <script src="/wherehouse/js/property_board.js"></script>
+<!-- 방문 예약 슬롯 선택 모달(공통) — 매물 카드의 "방문 예약" 버튼이 호출 -->
+<script src="/wherehouse/js/visit_slot_picker.js"></script>
 </body>
 </html>

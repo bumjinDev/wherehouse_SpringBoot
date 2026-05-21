@@ -693,7 +693,10 @@ public class MonthlyRecommendationService {
                 .ownedByCurrentUser(
                         currentUserId != null
                         && currentUserId.equals(detail.getRegisteredUserId()))
-                .canEdit(currentUserId != null)
+                // 방문 예약 도입에 따른 정책 강화: 수정·상태 변경 모두 등록자 본인만 가능.
+                .canEdit(
+                        currentUserId != null
+                        && currentUserId.equals(detail.getRegisteredUserId()))
                 .canChangeStatus(
                         currentUserId != null
                         && currentUserId.equals(detail.getRegisteredUserId()))

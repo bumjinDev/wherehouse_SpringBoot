@@ -8,6 +8,7 @@ import com.wherehouse.PropertyManagement.execption.customExceptions.*;
 import com.wherehouse.PropertyManagement.integration.BoundsUpdater;
 import com.wherehouse.PropertyManagement.integration.PropertyHashBuilder;
 import com.wherehouse.PropertyManagement.repository.PropertyMonthlyRegistrationRepository;
+import com.wherehouse.VisitReservation.service.VisitReservationWriteService;
 import com.wherehouse.recommand.batch.util.IdGenerator;
 import com.wherehouse.redis.handler.RedisHandler;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,9 @@ public class MonthlyPropertyWriteService {
     private final PropertyHashBuilder propertyHashBuilder;
     private final BoundsUpdater boundsUpdater;
     private final IdGenerator idGenerator;
+
+    /* 방문 예약 연동 (설계 명세서 섹션 2.1 매물 상태 변경 연동) — 비활성 전이 시 활성 윈도우 일괄 철회 */
+    private final VisitReservationWriteService visitReservationWriteService;
 
     private static final String LEASE_MONTHLY_CODE = "MONTHLY";
     private static final String LEASE_MONTHLY_KOR = "월세";
@@ -119,7 +123,9 @@ public class MonthlyPropertyWriteService {
                         "매물을 찾을 수 없습니다. propertyId=" + propertyId));
 
 
-//        verifyOwnership(entity, userId);   // 요구사항 수정 : 모든 사용자가 등록자 외에도 접근하여 수정 가능하도록.
+        // 방문 예약 도입에 따른 정책 강화: 매물 수정은 등록자 본인만 가능.
+        // 등록자가 매물을 관리해야 그 매물의 방문 윈도우/슬롯/예약 책임 주체가 일관된다.
+        verifyOwnership(entity, userId);
         verifyActiveForUpdate(entity.getStatus());
 
         List<String> changedFields = new ArrayList<>();
@@ -192,6 +198,11 @@ public class MonthlyPropertyWriteService {
 
         // 5. RDB 저장
         monthlyRepository.save(entity);
+
+        // 5b. 방문 예약 연동 (설계 명세서 섹션 2.1) — ACTIVE → COMPLETED/DELETED 전이 시
+        //     해당 매물의 활성 윈도우를 일괄 철회하고 영향받은 탐색자에게 PROPERTY_DEACTIVATED 통지.
+        //     활성 윈도우가 없으면 내부에서 즉시 종료되며 부작용 없음.
+        visitReservationWriteService.withdrawAllActiveWindowsForProperty(entity.getPropertyId());
 
         // 6. Redis 동기화
         syncRedisAfterStatusChange(entity, target);

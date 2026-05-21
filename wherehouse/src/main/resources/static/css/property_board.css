@@ -286,6 +286,10 @@ body {
 .pb_card_btn_edit     { background: #e0ecff; color: #0B5ED7; }
 .pb_card_btn_complete { background: #fef3c7; color: #92400e; }
 .pb_card_btn_delete   { background: #fee2e2; color: #b91c1c; }
+.pb_card_btn_reserve  { background: #2563eb; color: #fff; }
+.pb_card_btn_reserve:hover { background: #1e40af; opacity: 1; }
+.pb_card_btn_slots    { background: #ecfdf5; color: #065f46; }
+.pb_card_btn_slots:hover { background: #d1fae5; }
 
 /* ========== 페이지네이션 ========== */
 #pb_pagination {

@@ -110,21 +110,32 @@ function buildCard(p) {
 
     // 버튼 영역
     var actionsHtml = '';
-    if (currentUserId && p.status === 'ACTIVE') {
-        var canEdit = true; // 인증된 사용자 누구나 수정 가능
-        var canChangeStatus = (p.registered_user_id && currentUserId === p.registered_user_id);
+    var isOwner = !!(currentUserId && p.registered_user_id && currentUserId === p.registered_user_id);
 
+    if (p.status === 'ACTIVE') {
+        // 방문 예약 버튼은 ACTIVE 매물에 한해 노출.
+        //  - 등록자 본인에게는 자기 매물 예약이 불가하므로 비표시.
+        //  - 비로그인 사용자에게도 표시 — 클릭 시 로그인 유도.
         actionsHtml = '<div class="pb_card_actions" onclick="event.stopPropagation();">';
-        if (canEdit) {
+
+        if (!isOwner) {
+            var aptNmEscaped = (p.apt_nm || '').replace(/'/g, "\\'");
+            actionsHtml += '<button class="pb_card_btn pb_card_btn_reserve" onclick="window.openVisitSlotPicker(\'' +
+                p.property_id + '\',\'' + p.lease_type + '\',\'' + aptNmEscaped + '\')">방문 예약</button>';
+        }
+
+        if (currentUserId && isOwner) {
+            // 방문 예약 도입에 따른 정책 강화: 수정·상태 변경 모두 등록자 본인만 가능.
             actionsHtml += '<button class="pb_card_btn pb_card_btn_edit" onclick="openEditModal(\'' +
                 p.property_id + '\',\'' + p.lease_type + '\',' + (p.deposit || '') + ',' +
                 (p.monthly_rent || 'null') + ',' + (p.build_year || 'null') + ')">수정</button>';
-        }
-        if (canChangeStatus) {
             actionsHtml += '<button class="pb_card_btn pb_card_btn_complete" onclick="openStatusModal(\'' +
                 p.property_id + '\',\'' + p.lease_type + '\',\'COMPLETED\')">거래완료</button>';
             actionsHtml += '<button class="pb_card_btn pb_card_btn_delete" onclick="openStatusModal(\'' +
                 p.property_id + '\',\'' + p.lease_type + '\',\'DELETED\')">삭제</button>';
+            // 방문 예약 슬롯 관리 진입
+            actionsHtml += '<button class="pb_card_btn pb_card_btn_slots" onclick="window.location.href=\'/wherehouse/visit/me/slots?propertyId=' +
+                p.property_id + '&leaseType=' + p.lease_type + '\'">슬롯 관리</button>';
         }
         actionsHtml += '</div>';
     }

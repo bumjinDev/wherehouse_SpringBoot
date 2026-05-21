@@ -12,6 +12,8 @@
     <script src="https://kit.fontawesome.com/09b067fdc5.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="/wherehouse/css/house_rec.css">
+    <!-- 방문 예약 슬롯 선택 모달(공통) -->
+    <link rel="stylesheet" href="/wherehouse/css/visit_slot_picker.css">
     <style>
         #side-bar div.priority_selection > p {
             margin-bottom: 8px !important;
@@ -339,6 +341,8 @@
 </div>
 
 <script src="/wherehouse/js/house_rec.js"></script>
+<!-- 방문 예약 슬롯 선택 모달(공통) — 추천 결과 카드의 "방문 예약" 버튼이 호출 -->
+<script src="/wherehouse/js/visit_slot_picker.js"></script>
 
 <!-- [F005] 매물 수정 모달 -->
 <div id="property_edit_modal" style="display: none;">

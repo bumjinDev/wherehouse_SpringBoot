@@ -1696,18 +1696,21 @@ function createCharterPropertyCard(property, rank) {
     const scoreText = property.final_score ? `${Math.floor(property.final_score * 100) / 100}점` : '-';
 
     // [F005] 버튼 HTML — 서버가 결정한 can_edit, can_change_status 기반
-    let buttonsHtml = '';
-    if (property.can_edit || property.can_change_status) {
-        buttonsHtml = '<div class="property_card_actions">';
-        if (property.can_edit) {
-            buttonsHtml += `<button class="property_action_btn edit" onclick="openEditModal('${property.property_id}', '전세', ${property.price || 0}, null, ${property.build_year || 'null'}, null)">수정</button>`;
-        }
-        if (property.can_change_status) {
-            buttonsHtml += `<button class="property_action_btn complete" onclick="changePropertyStatus('${property.property_id}', '전세', 'COMPLETED')">거래완료</button>`;
-            buttonsHtml += `<button class="property_action_btn delete" onclick="changePropertyStatus('${property.property_id}', '전세', 'DELETED')">삭제</button>`;
-        }
-        buttonsHtml += '</div>';
+    // 방문 예약 기능: 등록자 본인이 아닌 경우(또는 비로그인) "방문 예약" 버튼을 항상 노출.
+    //                ACTIVE 상태인 매물에 한해 노출하며, 자기 매물 예약 불가는 서버가 거부한다.
+    let buttonsHtml = '<div class="property_card_actions">';
+    const propertyNameForBtn = (property.property_name || '').replace(/'/g, "\\'");
+    if (!property.owned_by_current_user && property.status !== 'COMPLETED' && property.status !== 'DELETED') {
+        buttonsHtml += `<button class="property_action_btn reserve" onclick="window.openVisitSlotPicker('${property.property_id}', 'CHARTER', '${propertyNameForBtn}')">방문 예약</button>`;
     }
+    if (property.can_edit) {
+        buttonsHtml += `<button class="property_action_btn edit" onclick="openEditModal('${property.property_id}', '전세', ${property.price || 0}, null, ${property.build_year || 'null'}, null)">수정</button>`;
+    }
+    if (property.can_change_status) {
+        buttonsHtml += `<button class="property_action_btn complete" onclick="changePropertyStatus('${property.property_id}', '전세', 'COMPLETED')">거래완료</button>`;
+        buttonsHtml += `<button class="property_action_btn delete" onclick="changePropertyStatus('${property.property_id}', '전세', 'DELETED')">삭제</button>`;
+    }
+    buttonsHtml += '</div>';
 
     card.innerHTML = `
         <div class="charter_property_header">
@@ -1771,19 +1774,20 @@ function createMonthlyPropertyCard(property, rank) {
     const floorText = property.floor ? `${property.floor}층` : '정보없음';
     const scoreText = property.final_score ? `${Math.floor(property.final_score * 100) / 100}점` : '-';
 
-    // [F005] 버튼 HTML
-    let buttonsHtml = '';
-    if (property.can_edit || property.can_change_status) {
-        buttonsHtml = '<div class="property_card_actions">';
-        if (property.can_edit) {
-            buttonsHtml += `<button class="property_action_btn edit" onclick="openEditModal('${property.property_id}', '월세', ${property.price || 0}, ${property.monthly_rent || 0}, ${property.build_year || 'null'}, null)">수정</button>`;
-        }
-        if (property.can_change_status) {
-            buttonsHtml += `<button class="property_action_btn complete" onclick="changePropertyStatus('${property.property_id}', '월세', 'COMPLETED')">거래완료</button>`;
-            buttonsHtml += `<button class="property_action_btn delete" onclick="changePropertyStatus('${property.property_id}', '월세', 'DELETED')">삭제</button>`;
-        }
-        buttonsHtml += '</div>';
+    // [F005] 버튼 HTML — can_edit/can_change_status 외 방문 예약 버튼 추가.
+    let buttonsHtml = '<div class="property_card_actions">';
+    const propertyNameForBtnM = (property.property_name || '').replace(/'/g, "\\'");
+    if (!property.owned_by_current_user && property.status !== 'COMPLETED' && property.status !== 'DELETED') {
+        buttonsHtml += `<button class="property_action_btn reserve" onclick="window.openVisitSlotPicker('${property.property_id}', 'MONTHLY', '${propertyNameForBtnM}')">방문 예약</button>`;
     }
+    if (property.can_edit) {
+        buttonsHtml += `<button class="property_action_btn edit" onclick="openEditModal('${property.property_id}', '월세', ${property.price || 0}, ${property.monthly_rent || 0}, ${property.build_year || 'null'}, null)">수정</button>`;
+    }
+    if (property.can_change_status) {
+        buttonsHtml += `<button class="property_action_btn complete" onclick="changePropertyStatus('${property.property_id}', '월세', 'COMPLETED')">거래완료</button>`;
+        buttonsHtml += `<button class="property_action_btn delete" onclick="changePropertyStatus('${property.property_id}', '월세', 'DELETED')">삭제</button>`;
+    }
+    buttonsHtml += '</div>';
 
     card.innerHTML = `
         <div class="monthly_property_header">

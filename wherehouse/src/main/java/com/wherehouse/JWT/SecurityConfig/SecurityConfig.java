@@ -231,4 +231,55 @@ public class SecurityConfig {
                 );
         return http.build();
     }
+
+    /* [매물 방문 예약 서비스 - 회원 페이지] : 본인 자원 조회 페이지 4 종 (/visit/me/**).
+     *
+     *   /visit/me/reservations  — 탐색자 예약 현황
+     *   /visit/me/subscriptions — 탐색자 구독 현황
+     *   /visit/me/slots         — 등록자 슬롯 관리
+     *   /visit/me/notifications — 방문 예약 알림
+     *
+     *   모든 경로는 JWT 인증 필수. 비인증 접근은 401 — 페이지 컨텍스트에서는 JS 가 로그인 페이지로 유도. */
+    @Bean
+    public SecurityFilterChain visitReservationPageFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/visit/me/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler())
+                                .accessDeniedHandler(new JwtAccessDeniedHandler())
+                );
+        return http.build();
+    }
+
+    /* [매물 방문 예약 서비스 - API] : 방문 예약 기능 전체 경로 (설계 명세서 섹션 3.1).
+     *
+     *   GET /api/v1/visit/properties/{propertyId}/slots 는 비인증 허용 (선택적 인증).
+     *   그 외 모든 메서드·경로는 JWT 인증 필수.
+     *
+     *   인증 정보 추출은 기존 JwtAuthProcessorFilter 를 재사용한다. 인증 실패는
+     *   ApiAuthenticationEntryPoint 가 401 로 응답하고, 인가 실패는 JwtAccessDeniedHandler
+     *   가 403 으로 응답한다. 비즈니스 예외 (E7xxx) 는 GlobalExceptionHandlerVisit 가 처리. */
+    @Bean
+    public SecurityFilterChain visitReservationServiceFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/api/v1/visit/**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/v1/visit/properties/*/slots").permitAll()  // F003 선택적 인증
+                        .requestMatchers(HttpMethod.POST,   "/api/v1/visit/**").authenticated()           // 윈도우 공개, 슬롯 예약, 구독 신청
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/visit/**").authenticated()           // 윈도우 철회, 예약 취소, 구독 해제
+                        .requestMatchers(HttpMethod.PATCH,  "/api/v1/visit/**").authenticated()           // 결과 분류, 알림 읽음
+                        .requestMatchers(HttpMethod.GET,    "/api/v1/visit/**").authenticated()           // 그 외 GET 은 본인 자원 조회
+                        .anyRequest().denyAll()
+                )
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(new ApiAuthenticationEntryPoint())
+                                .accessDeniedHandler(new JwtAccessDeniedHandler())
+                );
+        return http.build();
+    }
 }

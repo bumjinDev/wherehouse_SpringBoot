@@ -1929,6 +1929,18 @@ body.modal_open {
     color: #fff;
 }
 
+/* 방문 예약 버튼 — 매물 카드 좌측에 강조 표시 */
+.property_action_btn.reserve {
+    border: 1.5px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+}
+
+.property_action_btn.reserve:hover {
+    background: #1e40af;
+    border-color: #1e40af;
+}
+
 @media (max-width: 768px) {
     .edit_modal_content {
         width: 95%;

@@ -108,6 +108,11 @@
 									</form>
 
                                 </li>
+                                <!-- 방문 예약 회원 페이지 메뉴 (4 종) -->
+                                <li><a class="dropdown-item nav_choose nav_item" href="/wherehouse/visit/me/reservations">내 예약</a></li>
+                                <li><a class="dropdown-item nav_choose nav_item" href="/wherehouse/visit/me/subscriptions">내 구독</a></li>
+                                <li><a class="dropdown-item nav_choose nav_item" href="/wherehouse/visit/me/slots">매물 슬롯 관리</a></li>
+                                <li><a class="dropdown-item nav_choose nav_item" href="/wherehouse/visit/me/notifications">방문 예약 알림</a></li>
                                 <li>
 	                                <form action="/wherehouse/logout" id="logoutform" method="post">	<!-- session으로 가져온 Id 값을 기준으로 조회. -->
 	                                    <a class="dropdown-item nav_choose nav_item" >
