@@ -246,6 +246,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // iframe 내 로드를 위해 X-Frame-Options: SAMEORIGIN 설정 필수.
+                // Spring Security 기본값이 DENY 이므로 명시적으로 sameOrigin 지정.
+                // 부모 페이지 /wherehouse/main 의 iframe 에서 본 페이지 4종 (reservations/subscriptions/slots/notifications) 진입을 허용.
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler())

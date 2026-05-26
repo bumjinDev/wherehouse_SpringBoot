@@ -232,41 +232,52 @@ public class VisitReservationWriteService {
         window.setWithdrawnAt(now);
         windowRepository.save(window);
 
-        // 소속 활성 슬롯 식별
+        // 철폐 윈도우 소속 활성 슬롯 목록 식별 - VisitSlotRepository.slotRepository -> VisitSlotEntity -> VISIT_SLOT 테이블 : 각 슬롯 별 Window id 와 그에 대한 현재 슬롯 상태를 표기
         List<VisitSlotEntity> activeSlots = slotRepository.findByWindowIdAndStatusIn(
                 window.getWindowId(),
-                List.of(VisitSlotStatus.AVAILABLE, VisitSlotStatus.RESERVED));
+                List.of(VisitSlotStatus.AVAILABLE, VisitSlotStatus.RESERVED));     // AVAILABLE : 슬롯이 활성화된 상태, RESERVED : 활성화된 슬롯에 실제 예약이 확정된 상태
+
+        // 철폐할 윈도우 내 소속된 슬롯 목록들에 대한 Ids만 추출
         List<Long> slotIds = activeSlots.stream()
                 .map(VisitSlotEntity::getSlotId)
                 .collect(Collectors.toList());
 
-        // 확정 예약 무효화
+        // 확정 예약 무효화 작업 수행 : 슬롯 목록(ids)순회 하면서 순차적으로 2가지 작업 수행
         List<WindowWithdrawResponseDto.InvalidatedReservation> invalidatedList = new ArrayList<>();
         if (!slotIds.isEmpty()) {
+
+            // 철폐할 윈도우 내 예약 확정한 슬롯들만 선별.
             List<VisitReservationEntity> confirmedReservations =
-                    reservationRepository.findBySlotIdInAndStatus(slotIds,
-                            VisitReservationStatus.CONFIRMED);
+                    reservationRepository.findBySlotIdInAndStatus(  // VisitReservationRepository -> VisitReservationEntity -> VISIT_RESERVATION : 방문 예약 번호 별 슬롯에 실 예약 상태 및 예약자 이름 등록 내역
+                            slotIds,
+                            VisitReservationStatus.CONFIRMED);      // Confirmed : 예약이 확정, CANCELLED : 예약 취소, INVALIDATED : 윈도우 등록자의 철폐로 강제로 예약 취소된 상태
+
             for (VisitReservationEntity res : confirmedReservations) {
+
+                // 해당 슬롯들에 대한 윈도우 철폐 따른 슬롯 상태 변경
                 res.setStatus(VisitReservationStatus.INVALIDATED);
                 res.setInvalidatedAt(now);
                 reservationRepository.save(res);
 
+                // 슬롯 상태를 철폐로 변경 따른 탐색자에게 통지
+                notificationService.notify(
+                        res.getSearcherUserId(), notifyType,
+                        res.getSlotId(), res.getReservationId(), window.getPropertyId(),
+                        notifyMessage);
+
+                // 현재 매물에 대한 윈도우 철폐한 위도우 소유자에게 응답할 실제 윈도우 내 철폐된 예약 id 들과 그에 대한 슬롯id 들, 그리고 실제로 예약 확정한 유저 id 들을 응답으로 전달 목적.
                 invalidatedList.add(WindowWithdrawResponseDto.InvalidatedReservation.builder()
                         .reservationId(res.getReservationId())
                         .slotId(res.getSlotId())
                         .searcherUserId(res.getSearcherUserId())
                         .build());
 
-                // 탐색자에게 통지
-                notificationService.notify(
-                        res.getSearcherUserId(), notifyType,
-                        res.getSlotId(), res.getReservationId(), window.getPropertyId(),
-                        notifyMessage);
             }
 
-            // 활성 구독 폐기
+            // 활성 구독 목록 각각에 대해서 폐기(EXPIRED) 처리
             List<ReopenSubscriptionEntity> activeSubs =
                     subscriptionRepository.findBySlotIdInAndStatus(slotIds, SubscriptionStatus.ACTIVE);
+
             for (ReopenSubscriptionEntity sub : activeSubs) {
                 sub.setStatus(SubscriptionStatus.EXPIRED);
                 sub.setTerminatedAt(now);
@@ -275,7 +286,7 @@ public class VisitReservationWriteService {
             }
         }
 
-        // 슬롯 WITHDRAWN 전이
+        // 슬롯 WITHDRAWN 전이 - WITHDRAWN : 윈도우 철폐에 따른 슬롯 폐쇄 상태 표시
         for (VisitSlotEntity slot : activeSlots) {
             slot.setStatus(VisitSlotStatus.WITHDRAWN);
             slotRepository.save(slot);
@@ -284,6 +295,7 @@ public class VisitReservationWriteService {
         log.info("[VISIT_WINDOW_WITHDRAWN] windowId={}, slots={}, invalidatedReservations={}",
                 window.getWindowId(), activeSlots.size(), invalidatedList.size());
 
+        /* 윈도우 철폐 따른 응답 생성 및 반환 */
         return WindowWithdrawResponseDto.builder()
                 .windowId(window.getWindowId())
                 .status(window.getStatus().name())
@@ -302,7 +314,7 @@ public class VisitReservationWriteService {
         Long slotId = dto.getSlotId();
         LocalDateTime now = LocalDateTime.now();
 
-        // 1·2단계: 슬롯 유효성 및 시점 확인
+        // 1단계: 슬롯 유효성 및 시점 확인
         VisitSlotEntity slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new VisitSlotNotFoundException(
                         "슬롯을 찾을 수 없습니다. slotId=" + slotId));
@@ -311,11 +323,13 @@ public class VisitReservationWriteService {
                 .orElseThrow(() -> new VisitWindowNotFoundException(
                         "슬롯의 윈도우를 찾을 수 없습니다. windowId=" + slot.getWindowId()));
 
+        // 2 단계 : 현재 슬롯이 활성화 되어 있으며 예약이 되어 있는지 확인.
         if (slot.getStatus() != VisitSlotStatus.AVAILABLE) {
             throw SlotUnavailableException.alreadyReserved(
                     window.getLeaseType(),
                     findAvailableSlotItems(window.getPropertyId(), window.getLeaseType()));
         }
+
         if (!slot.getStartTime().isAfter(now)) {
             throw SlotUnavailableException.startTimeExpired(
                     window.getLeaseType(),
@@ -329,32 +343,38 @@ public class VisitReservationWriteService {
                     "자신이 등록한 매물의 슬롯은 예약할 수 없습니다.");
         }
 
-        // 4·5단계: 동일 매물 중복 예약 / 시간 겹침 검증
+        // 4·5단계: 동일 매물 중복 예약 및 시간 겹침을 확인 위해 실제 슬롯 별 예약 내역 조회
+        /* !! 현재 로직은 각 슬롯(슬롯id 기준) 데이터 행 별로 실제 어느 매물 ID 인지 확인 하기 위해 윈도우 테이블 까지 거슬러 올라가는데(하나의 테이블(VISIT_RESERVATION) 내
+            모든 매물에 대한 예약 정보가 포함되어 있기 때문)
+        *    */
         List<VisitReservationEntity> activeReservations =
                 reservationRepository.findBySearcherUserIdAndStatus(userId, VisitReservationStatus.CONFIRMED);
 
         for (VisitReservationEntity existing : activeReservations) {
+
             VisitSlotEntity existingSlot = slotRepository.findById(existing.getSlotId()).orElse(null);
             if (existingSlot == null) continue;
+
             VisitWindowEntity existingWindow = windowRepository.findById(existingSlot.getWindowId()).orElse(null);
             if (existingWindow == null) continue;
 
             if (existingWindow.getPropertyId().equals(window.getPropertyId())
                     && existingWindow.getLeaseType() == window.getLeaseType()) {
                 throw new DuplicateReservationException(
-                        "같은 매물에 이미 활성 예약이 있습니다.");
+                        "같은 매물에 대해 이미 다른 시간대 본인의 예약이 이미 있습니다.");
             }
             if (existingSlot.getStartTime().isBefore(slot.getEndTime())
                     && existingSlot.getEndTime().isAfter(slot.getStartTime())) {
                 throw new ReservationTimeOverlapException(
-                        "기존 활성 예약의 방문 시간과 겹칩니다.");
+                        "현재 시도하신 예약 시간 대에 대한 동일한 시간 대의 다른 매물에 대한 예약이 이미 존재 합니다.");
             }
         }
 
-        // 6단계: 슬롯 상태 전이 + 예약 생성
-        slot.setStatus(VisitSlotStatus.RESERVED);
+        // 6단계: 슬롯 상태 전이  : 현재 요청자가 현재 매물에 대한 이미 활성 예약도 없고 다른 유저의 기존 방문 시각과 겹치지 않는다면 진행
+        slot.setStatus(VisitSlotStatus.RESERVED);       // 해당 슬롯에 대한 상태(테이블 "VISIT_SLOT")에 대해서 활성 상태로 변경
         slotRepository.save(slot);
 
+        // 예약 생성 : 해당 슬롯에 대한 예약 상태에 대한 구체적인 정보(테이블 "VISIT_RESERVATION")를 저장
         VisitReservationEntity reservation = VisitReservationEntity.builder()
                 .slotId(slot.getSlotId())
                 .searcherUserId(userId)
@@ -363,10 +383,11 @@ public class VisitReservationWriteService {
                 .build();
         VisitReservationEntity savedReservation = reservationRepository.save(reservation);
 
-        // 구독자가 본 슬롯에 활성 구독을 가지고 있었다면 FULFILLED 로 마감
+        // 구독자가 본 슬롯에 활성 구독을 가지고 있었다면 FULFILLED(성취) 로 마감
         Optional<ReopenSubscriptionEntity> ownSubscription =
                 subscriptionRepository.findBySlotIdAndSearcherUserIdAndStatus(
                         slot.getSlotId(), userId, SubscriptionStatus.ACTIVE);
+
         ownSubscription.ifPresent(sub -> {
             sub.setStatus(SubscriptionStatus.FULFILLED);
             sub.setTerminatedAt(now);
@@ -406,6 +427,8 @@ public class VisitReservationWriteService {
         VisitReservationEntity reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new VisitReservationNotFoundException(
                         "예약을 찾을 수 없습니다. reservationId=" + reservationId));
+
+        log.info("reservationId={}, reservation.status={}", reservationId, reservation.getStatus());
 
         if (reservation.getStatus() != VisitReservationStatus.CONFIRMED) {
             throw new InvalidStateTransitionException(
@@ -604,7 +627,9 @@ public class VisitReservationWriteService {
      * 매물은 E7204 로 거부.
      */
     private PropertyOwner lookupPropertyOwner(String propertyId, LeaseType leaseType) {
+
         if (leaseType == LeaseType.CHARTER) {
+
             PropertyCharterEntity p = charterRepository.findById(propertyId)
                     .orElseThrow(() -> new PropertyNotFoundOrInactiveException(
                             "매물을 찾을 수 없습니다. propertyId=" + propertyId));

@@ -122,15 +122,18 @@ public class VisitReservationQueryService {
         return SearcherReservationListDto.builder().reservations(items).build();
     }
 
-    private SearcherReservationListDto.ReservationItem toSearcherReservationItem(
-            VisitReservationEntity r) {
+    private SearcherReservationListDto.ReservationItem toSearcherReservationItem(VisitReservationEntity r) {
+
         VisitSlotEntity slot = slotRepository.findById(r.getSlotId()).orElse(null);
         VisitWindowEntity window = slot == null ? null
                 : windowRepository.findById(slot.getWindowId()).orElse(null);
 
-        // 등록자 연락 정보 — CONFIRMED 또는 COMPLETED 일 때만 노출
+        // 예약 등록자 연락 정보 — 슬롯에 대한 예약 내역(테이블 VISIT_RESRVATION)이 CONFIRMED 또는 COMPLETED 일 때만 노출
         ContactInfoDto registrant = null;
+
+        /* 윈도우(테이블 VISIT_WINDOW) 내 포함된 매물 정보를 따라 매물 등록자 정보 찾기 - 매물 예약 정보는 매물 정보 뿐만 아니라 매물 등록자 정보(유저 ID, 유저 이름, 유저 전화번호) 포함 응답. */
         if (window != null && shouldExposeContact(r.getStatus())) {
+
             String registrantId = findRegistrantUserId(window.getPropertyId(), window.getLeaseType());
             if (registrantId != null) {
                 MembersEntity m = memberRepository.findById(registrantId).orElse(null);
@@ -163,9 +166,11 @@ public class VisitReservationQueryService {
 
         List<SearcherSubscriptionListDto.SubscriptionItem> items = subscriptions.stream()
                 .map(s -> {
+
                     VisitSlotEntity slot = slotRepository.findById(s.getSlotId()).orElse(null);
                     VisitWindowEntity window = slot == null ? null
                             : windowRepository.findById(slot.getWindowId()).orElse(null);
+
                     return SearcherSubscriptionListDto.SubscriptionItem.builder()
                             .subscriptionId(s.getSubscriptionId())
                             .slotId(s.getSlotId())

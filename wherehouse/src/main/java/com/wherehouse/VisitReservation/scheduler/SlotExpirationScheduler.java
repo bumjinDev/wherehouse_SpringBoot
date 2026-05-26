@@ -44,7 +44,8 @@ public class SlotExpirationScheduler {
      * fixedDelay = 60000: 이전 실행 완료 후 60 초 뒤 다음 실행.
      * 실행 중 예외가 발생해도 스케줄러 자체는 중단되지 않는다 (Spring 기본 동작).
      */
-    @Scheduled(fixedDelay = 60000)
+//    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 1000)   // 테스트용
     @Transactional
     public void closeExpiredSlots() {
         LocalDateTime now = LocalDateTime.now();
@@ -67,13 +68,14 @@ public class SlotExpirationScheduler {
     }
 
     private void processOneSlot(VisitSlotEntity slot, LocalDateTime now) {
+
         // RESERVED 였다면 연결 예약을 COMPLETED 로 전이
         if (slot.getStatus() == VisitSlotStatus.RESERVED) {
             Optional<VisitReservationEntity> confirmed = reservationRepository
                     .findBySlotIdAndStatus(slot.getSlotId(), VisitReservationStatus.CONFIRMED);
             confirmed.ifPresent(r -> {
                 r.setStatus(VisitReservationStatus.COMPLETED);
-                // VISIT_RESULT 는 NULL 유지 — 등록자가 F007 로 분류한다.
+                // 예약 방문 결과 처리(VISIT_RESULT)는 NULL 유지 — 등록자가 직접 분류 한다.(F007)
                 reservationRepository.save(r);
             });
         }
@@ -82,10 +84,11 @@ public class SlotExpirationScheduler {
         slot.setStatus(VisitSlotStatus.CLOSED);
         slotRepository.save(slot);
 
-        // 활성 구독 폐기 — SLOT_CLOSED 사유
+        // 활성 구독 폐기 — SLOT_CLOSED 사유 : 활성 슬롯이었던 것이 예약을 받지 못한 상태로 시간이 지난 것들임
         List<ReopenSubscriptionEntity> activeSubs = subscriptionRepository
                 .findBySlotIdInAndStatus(Collections.singletonList(slot.getSlotId()),
                         SubscriptionStatus.ACTIVE);
+        
         for (ReopenSubscriptionEntity sub : activeSubs) {
             sub.setStatus(SubscriptionStatus.EXPIRED);
             sub.setTerminatedAt(now);
