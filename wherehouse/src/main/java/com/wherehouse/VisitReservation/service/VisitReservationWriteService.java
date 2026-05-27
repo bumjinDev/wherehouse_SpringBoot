@@ -343,31 +343,26 @@ public class VisitReservationWriteService {
                     "자신이 등록한 매물의 슬롯은 예약할 수 없습니다.");
         }
 
-        // 4·5단계: 동일 매물 중복 예약 및 시간 겹침을 확인 위해 실제 슬롯 별 예약 내역 조회
-        /* !! 현재 로직은 각 슬롯(슬롯id 기준) 데이터 행 별로 실제 어느 매물 ID 인지 확인 하기 위해 윈도우 테이블 까지 거슬러 올라가는데(하나의 테이블(VISIT_RESERVATION) 내
-            모든 매물에 대한 예약 정보가 포함되어 있기 때문)
-        *    */
-        List<VisitReservationEntity> activeReservations =
-                reservationRepository.findBySearcherUserIdAndStatus(userId, VisitReservationStatus.CONFIRMED);
+        // 4·5단계: 동일 매물 중복 예약 / 시간 겹침 검증 (DB 측 JOIN 필터링)
+        //
+        // 기존 구현은 본인 활성 예약 N건을 가져온 뒤 각 예약마다 slotRepository.findById +
+        // windowRepository.findById 를 호출하여 총 1 + 2N 쿼리를 발생시켰다 (N+1).
+        // 검증을 DB 측 JOIN 으로 옮겨 활성 예약 수와 무관하게 항상 2 COUNT 쿼리로 고정.
+        // VISIT_RESERVATION 은 모든 매물의 예약을 한 테이블에 보관하므로 슬롯의 매물 식별은
+        // VISIT_SLOT → VISIT_WINDOW JOIN 으로 한 번에 해결한다.
+        // 인덱스 활용: IX_VISIT_RESERVATION_SEARCHER 드라이빙 → PK NL JOIN.
+        // 자세한 쿼리 동작은 VisitReservationRepository 의 두 메서드 주석 참조.
 
-        for (VisitReservationEntity existing : activeReservations) {
+        if (reservationRepository.countDuplicatePropertyReservation(
+                userId, window.getPropertyId(), window.getLeaseType()) > 0) {
+            throw new DuplicateReservationException(
+                    "같은 매물에 대해 이미 다른 시간대 본인의 예약이 이미 있습니다.");
+        }
 
-            VisitSlotEntity existingSlot = slotRepository.findById(existing.getSlotId()).orElse(null);
-            if (existingSlot == null) continue;
-
-            VisitWindowEntity existingWindow = windowRepository.findById(existingSlot.getWindowId()).orElse(null);
-            if (existingWindow == null) continue;
-
-            if (existingWindow.getPropertyId().equals(window.getPropertyId())
-                    && existingWindow.getLeaseType() == window.getLeaseType()) {
-                throw new DuplicateReservationException(
-                        "같은 매물에 대해 이미 다른 시간대 본인의 예약이 이미 있습니다.");
-            }
-            if (existingSlot.getStartTime().isBefore(slot.getEndTime())
-                    && existingSlot.getEndTime().isAfter(slot.getStartTime())) {
-                throw new ReservationTimeOverlapException(
-                        "현재 시도하신 예약 시간 대에 대한 동일한 시간 대의 다른 매물에 대한 예약이 이미 존재 합니다.");
-            }
+        if (reservationRepository.countTimeOverlappingReservation(
+                userId, slot.getStartTime(), slot.getEndTime()) > 0) {
+            throw new ReservationTimeOverlapException(
+                    "현재 시도하신 예약 시간 대에 대한 동일한 시간 대의 다른 매물에 대한 예약이 이미 존재 합니다.");
         }
 
         // 6단계: 슬롯 상태 전이  : 현재 요청자가 현재 매물에 대한 이미 활성 예약도 없고 다른 유저의 기존 방문 시각과 겹치지 않는다면 진행
