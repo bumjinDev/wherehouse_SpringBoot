@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="F004 시나리오 1 — 동시 예약 부하 테스트" enabled="true">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="F004 시나리오 1 — 동시 예약 부하 테스트">
       <stringProp name="TestPlan.comments">F004 슬롯 예약 동시성 측정. 같은 슬롯 ID 에 N 개 동시 요청 (Synchronizing Timer 로 진짜 동시 출발).&#xd;
 T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 jmx 로 실행한다.</stringProp>
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
-      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments">
           <elementProp name="BASE_HOST" elementType="Argument">
             <stringProp name="Argument.name">BASE_HOST</stringProp>
@@ -31,39 +29,33 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
           </elementProp>
           <elementProp name="USERS_CSV" elementType="Argument">
             <stringProp name="Argument.name">USERS_CSV</stringProp>
-            <stringProp name="Argument.value">${__P(USERS_CSV,users.csv)}</stringProp>
+            <stringProp name="Argument.value">${__P(USERS_CSV,users_sample_T1.csv)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
-            <stringProp name="Argument.desc">탐색자 토큰·슬롯 ID 가 담긴 CSV 파일 경로 (jmx 와 같은 폴더 기준 상대 경로 가능).</stringProp>
+            <stringProp name="Argument.desc">탐색자 토큰·슬롯 ID 가 담긴 CSV 파일 경로 (jmx 와 같은 폴더 기준 상대 경로 가능). GUI 실행 시 회차 변경하려면 이 기본값을 users_sample_T2.csv / T3.csv 로 변경.</stringProp>
           </elementProp>
           <elementProp name="RESULT_JTL" elementType="Argument">
             <stringProp name="Argument.name">RESULT_JTL</stringProp>
-            <stringProp name="Argument.value">${__P(RESULT_JTL,result.jtl)}</stringProp>
+            <stringProp name="Argument.value">${__P(RESULT_JTL,result_T1_N5.jtl)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
-            <stringProp name="Argument.desc">결과 .jtl 파일 경로. 회차별로 다르게 지정 권장 (예: result_N5.jtl).</stringProp>
+            <stringProp name="Argument.desc">결과 .jtl 파일 경로. 회차별로 다르게 지정 권장. GUI 실행 시 result_T2_N5.jtl / result_T3_N5.jtl 로 변경.</stringProp>
           </elementProp>
         </collectionProp>
       </elementProp>
-      <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
-
-      <!-- HTTP Request Defaults — 모든 HTTP 요청이 공유하는 host/port/protocol -->
-      <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-          <collectionProp name="Arguments.arguments"/>
-        </elementProp>
+      <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults">
+        <intProp name="HTTPSampler.connect_timeout">10000</intProp>
+        <intProp name="HTTPSampler.response_timeout">30000</intProp>
         <stringProp name="HTTPSampler.domain">${BASE_HOST}</stringProp>
         <stringProp name="HTTPSampler.port">${BASE_PORT}</stringProp>
         <stringProp name="HTTPSampler.protocol">http</stringProp>
         <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-        <stringProp name="HTTPSampler.path"></stringProp>
-        <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
-        <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
-        <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="사용자 정의 변수들">
+          <collectionProp name="Arguments.arguments"/>
+        </elementProp>
+        <stringProp name="HTTPSampler.implementation"></stringProp>
       </ConfigTestElement>
       <hashTree/>
-
-      <!-- HTTP Header Manager — JSON + JWT Bearer -->
       <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
         <collectionProp name="HeaderManager.headers">
           <elementProp name="" elementType="Header">
@@ -81,8 +73,6 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
         </collectionProp>
       </HeaderManager>
       <hashTree/>
-
-      <!-- CSV Data Set Config — 한 줄 = 한 스레드의 (slot_id, jwt_token, user_id) -->
       <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV — 탐색자 토큰 + 슬롯 ID" enabled="true">
         <stringProp name="filename">${USERS_CSV}</stringProp>
         <stringProp name="fileEncoding">UTF-8</stringProp>
@@ -95,32 +85,26 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
         <boolProp name="ignoreFirstLine">true</boolProp>
       </CSVDataSet>
       <hashTree/>
-
-      <!-- Thread Group — 한 회차 = N 스레드 동시 1 회 시도 -->
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="동일 슬롯 N 개 동시 예약 시도 (T-1 / T-2 / T-3 공용)" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
-        </elementProp>
         <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
+        <intProp name="ThreadGroup.ramp_time">0</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
       </ThreadGroup>
       <hashTree>
-
-        <!-- Synchronizing Timer — N 개 스레드가 모두 도달할 때까지 대기 후 동시 출발 -->
         <SyncTimer guiclass="TestBeanGUI" testclass="SyncTimer" testname="Synchronizing Timer (N 개 스레드 동시 출발)" enabled="true">
           <stringProp name="groupSize">${THREADS}</stringProp>
-          <stringProp name="timeoutInMs">3000</stringProp>
+          <longProp name="timeoutInMs">3000</longProp>
         </SyncTimer>
         <hashTree/>
-
-        <!-- HTTP Request — POST /api/v1/visit/reservations -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/v1/visit/reservations" enabled="true">
+          <stringProp name="HTTPSampler.path">${BASE_PATH}/api/v1/visit/reservations</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -131,19 +115,11 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.path">${BASE_PATH}/api/v1/visit/reservations</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree>
-
-          <!-- Response Assertion — 정상 응답 = 201 (성공) 또는 409 (정합성 거부) -->
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="응답 코드 검증 (201 성공 / 409 거부 만 정상)" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="0">^(201|409)$</stringProp>
+              <stringProp name="1034362693">^(201|409)$</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">예상치 못한 응답 코드 — 201(성공) / 409(정합성 거부) 외 응답.</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -152,8 +128,6 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
           </ResponseAssertion>
           <hashTree/>
         </hashTree>
-
-        <!-- .jtl 파일 저장 — 요청·응답 본문 포함 -->
         <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="결과 저장 (.jtl + 응답 본문)" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
@@ -191,8 +165,6 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
           <stringProp name="filename">${RESULT_JTL}</stringProp>
         </ResultCollector>
         <hashTree/>
-
-        <!-- View Results Tree — GUI 확인용 (CLI 실행 시에는 영향 없음) -->
         <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree (GUI 확인용)" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
@@ -227,8 +199,6 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-
-        <!-- Aggregate Report — 요약 (평균·p95·p99·error %) -->
         <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report (요약 통계)" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
@@ -263,7 +233,6 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-
       </hashTree>
     </hashTree>
   </hashTree>

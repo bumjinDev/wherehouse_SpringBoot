@@ -1,0 +1,6 @@
+cd "E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\docs\13. Wherehouse_고도화_주거지예약시스템\2. 문제해결\1. 테스트시나리오_1"
+
+py -3.13 "결과/report.py" `
+  --log "1_unique적용=결과/Step1_unique적용_T1/wherehouse.log" `
+  --log "2_unique제거=결과/Step2_unique삭제_T1/wherehouse.log" `
+  --out "결과/F004_측정결과.xlsx"
