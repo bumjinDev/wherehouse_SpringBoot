@@ -1,0 +1,402 @@
+{
+  "info": {
+    "name": "F004 시나리오 1 — 테스트용 계정 생성 + 로그인 (JWT 추출)",
+    "description": "F004 슬롯 예약 동시성 측정용 계정 11개를 일괄 생성하고 로그인하여 JWT 토큰을 collection 변수에 저장한다.\n\n실행 순서:\n  1) Folder '1. 회원가입 (11개)' 을 Collection Runner 로 한 번 실행 — 모든 계정 생성\n  2) Folder '2. 로그인 (11개)' 을 Collection Runner 로 한 번 실행 — JWT_OWNER1 / JWT_SEARCHER01 ~ JWT_SEARCHER10 변수가 collection 변수에 자동 저장\n  3) Collection 의 Variables 탭에서 토큰 값 확인 → users_sample_T1/T2/T3.csv 의 JWT_TOKEN 컬럼에 옮겨 붙이기\n\n주의:\n  - 백엔드가 8185 포트가 아니면 collection 변수 BASE_URL 을 수정.\n  - 회원가입 두 번째 실행 시 'UserIdAlreadyExists' 또는 'NicknameAlreadyExists' 로 거부됨 — 정상.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. 회원가입 (11개)",
+      "item": [
+        {
+          "name": "01. ownerTest1 회원가입 (매물 등록자)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\":       \"ownerTest1\",\n  \"pw\":       \"Owner1234!\",\n  \"nick_name\": \"매물등록자1\",\n  \"tel\":      \"010-0000-0001\",\n  \"email\":    \"ownerTest1@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/members/join",
+              "host": ["{{BASE_URL}}"],
+              "path": ["members", "join"]
+            }
+          }
+        },
+        {
+          "name": "02. searcher01 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher01\",\n  \"pw\":       \"Searcher01!\",\n  \"nick_name\": \"탐색자01\",\n  \"tel\":      \"010-0000-1001\",\n  \"email\":    \"searcher01@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "03. searcher02 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher02\",\n  \"pw\":       \"Searcher02!\",\n  \"nick_name\": \"탐색자02\",\n  \"tel\":      \"010-0000-1002\",\n  \"email\":    \"searcher02@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "04. searcher03 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher03\",\n  \"pw\":       \"Searcher03!\",\n  \"nick_name\": \"탐색자03\",\n  \"tel\":      \"010-0000-1003\",\n  \"email\":    \"searcher03@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "05. searcher04 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher04\",\n  \"pw\":       \"Searcher04!\",\n  \"nick_name\": \"탐색자04\",\n  \"tel\":      \"010-0000-1004\",\n  \"email\":    \"searcher04@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "06. searcher05 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher05\",\n  \"pw\":       \"Searcher05!\",\n  \"nick_name\": \"탐색자05\",\n  \"tel\":      \"010-0000-1005\",\n  \"email\":    \"searcher05@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "07. searcher06 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher06\",\n  \"pw\":       \"Searcher06!\",\n  \"nick_name\": \"탐색자06\",\n  \"tel\":      \"010-0000-1006\",\n  \"email\":    \"searcher06@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "08. searcher07 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher07\",\n  \"pw\":       \"Searcher07!\",\n  \"nick_name\": \"탐색자07\",\n  \"tel\":      \"010-0000-1007\",\n  \"email\":    \"searcher07@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "09. searcher08 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher08\",\n  \"pw\":       \"Searcher08!\",\n  \"nick_name\": \"탐색자08\",\n  \"tel\":      \"010-0000-1008\",\n  \"email\":    \"searcher08@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "10. searcher09 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher09\",\n  \"pw\":       \"Searcher09!\",\n  \"nick_name\": \"탐색자09\",\n  \"tel\":      \"010-0000-1009\",\n  \"email\":    \"searcher09@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        },
+        {
+          "name": "11. searcher10 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\":       \"searcher10\",\n  \"pw\":       \"Searcher10!\",\n  \"nick_name\": \"탐색자10\",\n  \"tel\":      \"010-0000-1010\",\n  \"email\":    \"searcher10@example.com\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/members/join", "host": ["{{BASE_URL}}"], "path": ["members", "join"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. 로그인 (11개) — Set-Cookie 의 JWT 자동 추출",
+      "item": [
+        {
+          "name": "01. ownerTest1 로그인 → JWT_OWNER1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const setCookie = pm.response.headers.get('Set-Cookie');",
+                  "if (setCookie) {",
+                  "    const m = setCookie.match(/Authorization=([^;]+)/);",
+                  "    if (m) {",
+                  "        pm.collectionVariables.set('JWT_OWNER1', m[1]);",
+                  "        console.log('JWT_OWNER1 =', m[1]);",
+                  "    } else {",
+                  "        console.warn('Set-Cookie 에서 Authorization 쿠키를 못 찾음');",
+                  "    }",
+                  "} else {",
+                  "    console.warn('Set-Cookie 헤더 없음');",
+                  "}",
+                  "pm.test('로그인 응답 코드 200/302', function() {",
+                  "    pm.expect([200, 302]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"ownerTest1\",\n  \"password\": \"Owner1234!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "02. searcher01 로그인 → JWT_SEARCHER01",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER01', m[1]); console.log('JWT_SEARCHER01 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher01\",\n  \"password\": \"Searcher01!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "03. searcher02 로그인 → JWT_SEARCHER02",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER02', m[1]); console.log('JWT_SEARCHER02 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher02\",\n  \"password\": \"Searcher02!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "04. searcher03 로그인 → JWT_SEARCHER03",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER03', m[1]); console.log('JWT_SEARCHER03 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher03\",\n  \"password\": \"Searcher03!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "05. searcher04 로그인 → JWT_SEARCHER04",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER04', m[1]); console.log('JWT_SEARCHER04 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher04\",\n  \"password\": \"Searcher04!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "06. searcher05 로그인 → JWT_SEARCHER05",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER05', m[1]); console.log('JWT_SEARCHER05 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher05\",\n  \"password\": \"Searcher05!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "07. searcher06 로그인 → JWT_SEARCHER06",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER06', m[1]); console.log('JWT_SEARCHER06 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher06\",\n  \"password\": \"Searcher06!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "08. searcher07 로그인 → JWT_SEARCHER07",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER07', m[1]); console.log('JWT_SEARCHER07 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher07\",\n  \"password\": \"Searcher07!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "09. searcher08 로그인 → JWT_SEARCHER08",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER08', m[1]); console.log('JWT_SEARCHER08 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher08\",\n  \"password\": \"Searcher08!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "10. searcher09 로그인 → JWT_SEARCHER09",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER09', m[1]); console.log('JWT_SEARCHER09 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher09\",\n  \"password\": \"Searcher09!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "11. searcher10 로그인 → JWT_SEARCHER10",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const setCookie = pm.response.headers.get('Set-Cookie');",
+            "if (setCookie) { const m = setCookie.match(/Authorization=([^;]+)/); if (m) { pm.collectionVariables.set('JWT_SEARCHER10', m[1]); console.log('JWT_SEARCHER10 =', m[1]); } }"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userid\":   \"searcher10\",\n  \"password\": \"Searcher10!\"\n}" },
+            "url": { "raw": "{{BASE_URL}}/login", "host": ["{{BASE_URL}}"], "path": ["login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. 매물 등록 (ownerTest1) → PROPERTY_ID",
+      "item": [
+        {
+          "name": "POST /api/v1/properties/charter — 테스트 전세 매물 등록",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', function() { pm.expect(pm.response.code).to.equal(201); });",
+                  "try {",
+                  "    const j = pm.response.json();",
+                  "    if (j && j.property_id) {",
+                  "        pm.collectionVariables.set('PROPERTY_ID', j.property_id);",
+                  "        console.log('PROPERTY_ID =', j.property_id);",
+                  "    } else {",
+                  "        console.warn('응답에 property_id 가 없음');",
+                  "    }",
+                  "} catch (e) { console.warn('응답 JSON 파싱 실패:', e.message); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"apt_nm\":       \"테스트아파트\",\n  \"sgg_cd\":       \"11680\",\n  \"umd_nm\":       \"역삼동\",\n  \"jibun\":        \"123-45\",\n  \"floor\":        5,\n  \"exclu_use_ar\": 84.50,\n  \"deposit\":      50000,\n  \"build_year\":   2020\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/v1/properties/charter",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "v1", "properties", "charter"]
+            },
+            "description": "Postman Cookie Jar 에 저장된 localhost 의 Authorization 쿠키가 자동 전송된다. 본 요청 직전에 폴더 2 의 01. ownerTest1 로그인 을 한 번 더 실행하여 Cookie Jar 의 Authorization 값을 ownerTest1 토큰으로 갱신해 두는 것이 안전."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. 방문 윈도우 공개 (ownerTest1) → 48 슬롯",
+      "item": [
+        {
+          "name": "POST /api/v1/visit/windows — 24h 윈도우, 30분 슬롯",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', function() { pm.expect(pm.response.code).to.equal(201); });",
+                  "try {",
+                  "    const j = pm.response.json();",
+                  "    if (j && j.slots && Array.isArray(j.slots)) {",
+                  "        const ids = j.slots.map(s => s.slot_id);",
+                  "        pm.collectionVariables.set('SLOT_IDS', ids.join(','));",
+                  "        pm.collectionVariables.set('SLOT_FIRST', ids[0]);",
+                  "        pm.collectionVariables.set('SLOT_LAST',  ids[ids.length-1]);",
+                  "        console.log('생성된 슬롯 수:', ids.length);",
+                  "        console.log('슬롯 ID 전체:', ids.join(', '));",
+                  "        console.log('처음 시각:', j.slots[0].start_time, '~ 마지막 시각:', j.slots[ids.length-1].end_time);",
+                  "    } else {",
+                  "        console.warn('응답에 slots 배열이 없음');",
+                  "    }",
+                  "} catch (e) { console.warn('응답 JSON 파싱 실패:', e.message); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_id\":           \"{{PROPERTY_ID}}\",\n  \"lease_type\":            \"CHARTER\",\n  \"start_time\":            \"2026-05-28T12:55:00\",\n  \"end_time\":              \"2026-05-29T12:55:00\",\n  \"slot_duration_minutes\": 30\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/v1/visit/windows",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "v1", "visit", "windows"]
+            },
+            "description": "Postman Cookie Jar 의 localhost Authorization 쿠키가 자동 전송된다. 폴더 3 의 매물 등록을 직전에 (즉 ownerTest1 로그인 상태에서) 끝낸 직후 본 요청을 Send 해야 안전."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "BASE_URL", "value": "http://localhost:8185/wherehouse", "type": "string" },
+    { "key": "JWT_OWNER1", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER01", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER02", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER03", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER04", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER05", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER06", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER07", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER08", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER09", "value": "", "type": "string" },
+    { "key": "JWT_SEARCHER10", "value": "", "type": "string" },
+    { "key": "PROPERTY_ID",    "value": "", "type": "string" },
+    { "key": "SLOT_IDS",       "value": "", "type": "string" },
+    { "key": "SLOT_FIRST",     "value": "", "type": "string" },
+    { "key": "SLOT_LAST",      "value": "", "type": "string" }
+  ]
+}
