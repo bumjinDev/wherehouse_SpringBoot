@@ -415,9 +415,10 @@ RAW_FIELD_COLUMNS: List[Tuple[str, str]] = [
 class RunResult:
     """한 회차의 측정 결과를 담는 컨테이너."""
 
-    def __init__(self, name: str, log_path: Path):
+    def __init__(self, name: str, log_path: Path, meta: Optional[Dict[str, str]] = None):
         self.name = name
         self.log_path = log_path
+        self.meta: Dict[str, str] = meta or {}
 
         # 요청별 요약
         fb_pid, fb_lt = collect_property_fallback(log_path)
@@ -566,12 +567,23 @@ def write_sheet_comparison(ws: Worksheet, runs: List[RunResult]):
     ws.cell(row=4, column=1, value='측정 대상 코드').font = Font(bold=True)
     ws.cell(row=4, column=2, value='com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation')
 
-    # 회차 정보
+    # 회차 정보 / 측정 환경
     cur = 6
-    write_section(ws, cur, '■ 회차 정보', span); cur += 1
+    write_section(ws, cur, '■ 회차 정보 / 측정 환경', span); cur += 1
     write_table_header(ws, cur, ['항목'] + [r.name for r in runs]); cur += 1
     write_label_value(ws, cur, '입력 로그 경로', *(str(r.log_path) for r in runs)); cur += 1
     write_label_value(ws, cur, '총 요청 수',     *(r.total for r in runs)); cur += 1
+
+    # 회차별 메타 정보 (--meta 로 전달된 키들의 합집합, 첫 등장 순서 유지)
+    all_meta_keys: List[str] = []
+    for r in runs:
+        for k in r.meta:
+            if k not in all_meta_keys:
+                all_meta_keys.append(k)
+    for key in all_meta_keys:
+        write_label_value(ws, cur, key, *(r.meta.get(key, '—') for r in runs))
+        cur += 1
+
     cur += 1
 
     # 단계별 통과 분포
@@ -963,6 +975,31 @@ def parse_run_arg(s: str) -> Tuple[str, Path]:
     return name, path_obj
 
 
+def parse_meta_arg(s: str) -> Tuple[str, Dict[str, str]]:
+    """--meta 인자 파싱: NAME=KEY1:VALUE1;KEY2:VALUE2;... → (name, {KEY1:VALUE1, ...})"""
+    if '=' not in s:
+        raise argparse.ArgumentTypeError(
+            f'--meta 인자는 NAME=KEY:VALUE;KEY:VALUE;... 형식이어야 합니다: {s!r}'
+        )
+    name, body = s.split('=', 1)
+    name = name.strip()
+    if not name:
+        raise argparse.ArgumentTypeError(f'--meta 의 NAME 이 비어있습니다: {s!r}')
+    meta: Dict[str, str] = {}
+    for item in body.split(';'):
+        item = item.strip()
+        if not item:
+            continue
+        if ':' not in item:
+            raise argparse.ArgumentTypeError(
+                f'--meta 의 각 항목은 KEY:VALUE 형식이어야 합니다 '
+                f'(잘못된 항목: {item!r}, 전체: {s!r})'
+            )
+        k, v = item.split(':', 1)
+        meta[k.strip()] = v.strip()
+    return name, meta
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='F004 동시성 측정 다회차 비교 보고서 생성기',
@@ -972,12 +1009,20 @@ def main():
             '  py -3.13 report.py \\\n'
             '    --log "1_unique적용=결과/Step1_unique적용_T1/wherehouse.log" \\\n'
             '    --log "2_unique제거=결과/Step2_unique삭제_T1/wherehouse.log" \\\n'
+            '    --meta "1_unique적용=격리:READ COMMITTED;UQ제약:적용;동시성제어:DB 부분 유일 인덱스" \\\n'
+            '    --meta "2_unique제거=격리:READ COMMITTED;UQ제약:제거;동시성제어:없음 (baseline)" \\\n'
             '    --out 결과/F004_측정결과.xlsx\n'
         ),
     )
     parser.add_argument(
         '--log', type=parse_run_arg, action='append', required=True, metavar='NAME=PATH',
         help='회차 이름과 wherehouse.log 경로 (여러 번 지정 가능, 회차 이름이 표 컬럼명으로 사용됨)',
+    )
+    parser.add_argument(
+        '--meta', type=parse_meta_arg, action='append', default=None,
+        metavar='NAME=KEY:VALUE;KEY:VALUE;...',
+        help='(선택) 회차의 측정 환경 메타 정보. NAME 은 --log 의 NAME 과 매칭. '
+             '예: --meta "1_unique적용=격리:READ COMMITTED;UQ제약:적용;동시성제어:DB 부분 유일 인덱스"',
     )
     parser.add_argument(
         '--out', type=Path, required=True, metavar='PATH',
@@ -991,7 +1036,17 @@ def main():
     if len(set(names)) != len(names):
         sys.exit(f'[ERROR] --log NAME 이 중복됩니다: {names}')
 
-    runs = [RunResult(name, path) for name, path in args.log]
+    # --meta 매핑 (선택). 매칭 안 되는 NAME 은 경고
+    meta_map: Dict[str, Dict[str, str]] = {}
+    if args.meta:
+        log_names = set(names)
+        for meta_name, meta_dict in args.meta:
+            if meta_name not in log_names:
+                print(f'[WARN] --meta NAME 이 --log NAME 과 매칭되지 않음: {meta_name!r}',
+                      file=sys.stderr)
+            meta_map[meta_name] = meta_dict
+
+    runs = [RunResult(name, path, meta_map.get(name, {})) for name, path in args.log]
     write_workbook(runs, args.out)
 
     print(f'[OK] {len(runs)} 회차 정리 -> {args.out}')

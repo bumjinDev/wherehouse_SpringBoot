@@ -1,6 +1,17 @@
-cd "E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\docs\13. Wherehouse_고도화_주거지예약시스템\2. 문제해결\1. 테스트시나리오_1"
-
-py -3.13 "결과/report.py" `
+py -3.13 결과/report.py `
   --log "1_unique적용=결과/Step1_unique적용_T1/wherehouse.log" `
   --log "2_unique제거=결과/Step2_unique삭제_T1/wherehouse.log" `
-  --out "결과/F004_측정결과.xlsx"
+  --log "3_SERIALIZABLE=결과/Step4_E_SERIALIZABLE_T1/wherehouse.log" `
+  --log "4_FOR_UPDATE=결과/Step4_B_FORUPDATE_T1/wherehouse.log" `
+  --meta "1_unique적용=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:적용;동시성제어:DB 부분 유일 인덱스" `
+  --meta "2_unique제거=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:없음 (baseline)" `
+  --meta "3_SERIALIZABLE=격리:SERIALIZABLE;Propagation:REQUIRED;UQ제약:제거;동시성제어:격리 수준 상향" `
+  --meta "4_FOR_UPDATE=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:비관적 락 (FOR UPDATE)" `
+  --out 결과/F004_측정결과.xlsx
+
+py -3.13 결과/report.py `
+  --log "1_unique적용=결과/Step1_unique적용_T1/wherehouse.log" `
+  --log "2_unique제거=결과/Step2_unique삭제_T1/wherehouse.log" `
+  --meta "1_unique적용=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:적용;동시성제어:DB 부분 유일 인덱스" `
+  --meta "2_unique제거=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:없음 (baseline)" `
+  --out 결과/F004_측정결과.xlsx
