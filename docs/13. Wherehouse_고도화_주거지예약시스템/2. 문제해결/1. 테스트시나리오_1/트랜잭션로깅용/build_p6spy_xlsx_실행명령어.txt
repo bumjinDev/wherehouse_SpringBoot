@@ -1,6 +1,0 @@
-py -3.13 "docs/13. Wherehouse_고도화_주거지예약시스템/2. 문제해결/1. 테스트시나리오_1/트랜잭션로깅용/build_p6spy_xlsx.py"
-
-[전제]
-- Python 3.13 + openpyxl >= 3.1 설치
-- P6Spy 가 활성화되고 enable-logging: true 인 상태 (현재 설정 그대로)
-- 측정 사이클이 wherehouse.log 안에 한 번 이상 있어야 함

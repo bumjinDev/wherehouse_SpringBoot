@@ -1,0 +1,33 @@
+# F004 회차 비교 보고서 생성기 (report.py) 실행 명령어
+# 실행 위치: 이 파일이 있는 "1. 결과_Application계측" 디렉토리에서 실행 (상대경로 기준).
+# 주의: 한글 경로 인자는 사용자 대화형 PowerShell 에서만 정상 (AI 비대화형/PS5.1 에선 깨짐).
+# 로그 마커: 현재 baseline 로그는 구(舊) 계측 마커(CP1-AFTER-AVAILABLE-CHECK 등) — report.py 가 그대로 파싱함.
+
+py -3.13 report.py `
+  --log "1_baseline_무조건UPDATE=1_baseline_무조건UPDATE/wherehouse_baseline.log" `
+  --meta "1_baseline_무조건UPDATE=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:없음 (baseline, 무조건 UPDATE)" `
+  --out F004_측정결과.xlsx
+
+py -3.13 report_cp.py `
+  --in  "2_D_조건부UPDATE/wherehouse_D.log" `
+  --out "F004_측정결과_D_조건부UPDATE.xlsx" `
+  --n 5 `
+  --env "조건부 UPDATE (WHERE status=AVAILABLE), slot 1219" `
+  --meta "격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:조건부 UPDATE"
+
+py -3.13 report.py `
+  --in  "3_B_비관적락/wherehouse_B.log" `
+  --out "F004_측정결과_B_비관적락.xlsx" `
+  --n 5 `
+  --env "B_비관적락, slot 1237" `
+  --meta "격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:select_insert"
+
+# ───────────────────────────────────────────────────────────────────────────
+# 다음 회차(D·B·C) 측정 후, 아래 --log/--meta 줄을 위 명령의 --out 앞에 끼워넣어 누적 비교.
+# (경로/이름은 baseline 패턴을 따른 예시 — 실제 저장 위치/마커에 맞게 조정)
+#   --log  "2_D_조건부UPDATE=2_D_조건부UPDATE/wherehouse_D.log" `
+#   --meta "2_D_조건부UPDATE=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:조건부 UPDATE (WHERE status=AVAILABLE)" `
+#   --log  "3_B_비관적락=3_B_비관적락/wherehouse_B.log" `
+#   --meta "3_B_비관적락=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:비관적 락 (SELECT FOR UPDATE)" `
+#   --log  "4_C_낙관적락=4_C_낙관적락/wherehouse_C.log" `
+#   --meta "4_C_낙관적락=격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:낙관적 락 (@Version)" `

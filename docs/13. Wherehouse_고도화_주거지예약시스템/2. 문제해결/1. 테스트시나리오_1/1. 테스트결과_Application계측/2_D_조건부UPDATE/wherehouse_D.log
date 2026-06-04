@@ -1,0 +1,919 @@
+2026-06-02 15:04:08.672 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-06-02 15:04:08.708 [main] INFO  c.wherehouse.WherehouseApplication - Starting WherehouseApplication using Java 17.0.11 with PID 7256 (E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\wherehouse\build\classes\java\main started by wjdqj in E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\wherehouse)
+2026-06-02 15:04:08.709 [main] INFO  c.wherehouse.WherehouseApplication - No active profile set, falling back to 1 default profile: "default"
+2026-06-02 15:04:09.547 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-06-02 15:04:09.551 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2026-06-02 15:04:09.612 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.BoardEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.614 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.CommentEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.616 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.ArrestRateRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.617 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.CctvGeoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.619 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.PoliceOfficeGeoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.620 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.JWT.Repository.UserEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.621 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.members.dao.MemberEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.624 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.PropertyManagement.repository.PropertyCharterRegistrationRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.626 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.PropertyManagement.repository.PropertyMonthlyRegistrationRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.627 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.PropertyManagement.repository.PropertySyncFailureRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.628 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisCrimeRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.631 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisEntertainmentRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.633 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisPopulationDensityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.634 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyCharterRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.637 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyMonthlyRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.639 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.restapi.mapdata.dao.MapDataEntityRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.641 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewCharterRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.642 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordCharterRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.645 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordMonthlyRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.646 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.647 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewMonthlyRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.648 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.650 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsCharterRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.652 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsMonthlyRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.653 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.654 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.ReopenSubscriptionRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.655 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitNotificationRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.657 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitReservationRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.659 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitSlotRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.660 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitWindowRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-06-02 15:04:09.661 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 105 ms. Found 0 JDBC repository interfaces.
+2026-06-02 15:04:09.673 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-06-02 15:04:09.674 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-02 15:04:09.863 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 186 ms. Found 30 JPA repository interfaces.
+2026-06-02 15:04:09.884 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-06-02 15:04:09.885 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-06-02 15:04:09.910 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.BoardEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.910 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.board.dao.CommentEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.910 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.ArrestRateRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.910 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.CctvGeoRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.information.dao.PoliceOfficeGeoRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.JWT.Repository.UserEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.members.dao.MemberEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.PropertyManagement.repository.PropertyCharterRegistrationRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.PropertyManagement.repository.PropertyMonthlyRegistrationRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.PropertyManagement.repository.PropertySyncFailureRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisCrimeRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisEntertainmentRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.AnalysisPopulationDensityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyCharterRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.911 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.recommand.batch.repository.PropertyMonthlyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.restapi.mapdata.dao.MapDataEntityRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewCharterRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordCharterRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordMonthlyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewKeywordRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewMonthlyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsCharterRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.912 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsMonthlyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.913 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.review.repository.ReviewStatisticsRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.913 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.ReopenSubscriptionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.913 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitNotificationRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.913 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitReservationRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.913 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitSlotRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.913 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.wherehouse.VisitReservation.repository.VisitWindowRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-02 15:04:09.913 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 22 ms. Found 0 Redis repository interfaces.
+2026-06-02 15:04:10.379 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8185 (http)
+2026-06-02 15:04:10.386 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8185"]
+2026-06-02 15:04:10.389 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-02 15:04:10.390 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-06-02 15:04:10.545 [main] INFO  o.apache.jasper.servlet.TldScanner - At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2026-06-02 15:04:10.550 [main] INFO  o.a.c.c.C.[.[.[/wherehouse] - Initializing Spring embedded WebApplicationContext
+2026-06-02 15:04:10.550 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1808 ms
+2026-06-02 15:04:10.604 [main] DEBUG com.zaxxer.hikari.HikariConfig - Driver class oracle.jdbc.OracleDriver found in Thread context class loader jdk.internal.loader.ClassLoaders$AppClassLoader@63947c6b
+2026-06-02 15:04:10.726 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-02 15:04:10.773 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-06-02 15:04:10.798 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-06-02 15:04:11.000 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-02 15:04:11.023 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - keepaliveTime is less than 30000ms, disabling it.
+2026-06-02 15:04:11.023 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2026-06-02 15:04:11.023 [main] DEBUG com.zaxxer.hikari.HikariConfig - HikariPool-1 - configuration:
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - allowPoolSuspension.............false
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - autoCommit......................false
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - catalog.........................none
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionInitSql...............none
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionTestQuery.............none
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - connectionTimeout...............30000
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSource......................none
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceClassName.............none
+2026-06-02 15:04:11.025 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceJNDI..................none
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceProperties............{oracle.net.RECV_BUF_SIZE=65536, oracle.net.SEND_BUF_SIZE=65536, password=<masked>, oracle.net.SDU=32768}
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - driverClassName................."oracle.jdbc.OracleDriver"
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - exceptionOverrideClassName......none
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckProperties...........{}
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckRegistry.............none
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - idleTimeout.....................30000
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - initializationFailTimeout.......1
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - isolateInternalQueries..........false
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - jdbcUrl.........................jdbc:oracle:thin:@127.0.0.1:1521:xe
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - keepaliveTime...................0
+2026-06-02 15:04:11.026 [main] DEBUG com.zaxxer.hikari.HikariConfig - leakDetectionThreshold..........60000
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - maxLifetime.....................1800000
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - maximumPoolSize.................12
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - metricRegistry..................none
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - metricsTrackerFactory...........none
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - minimumIdle.....................12
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - password........................<masked>
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - poolName........................"HikariPool-1"
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - readOnly........................false
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - registerMbeans..................false
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - scheduledExecutor...............none
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - schema..........................none
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - threadFactory...................internal
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - transactionIsolation............default
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - username........................"SCOTT"
+2026-06-02 15:04:11.027 [main] DEBUG com.zaxxer.hikari.HikariConfig - validationTimeout...............5000
+2026-06-02 15:04:11.027 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-02 15:04:11.199 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@6e355249
+2026-06-02 15:04:11.201 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-02 15:04:11.289 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: OracleDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-02 15:04:11.302 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=1, active=1, idle=0, waiting=0)
+2026-06-02 15:04:11.308 [main] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection oracle.jdbc.driver.T4CConnection@6e355249 due to dirty commit state on close().
+2026-06-02 15:04:11.363 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@3ec89f46
+2026-06-02 15:04:11.394 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=2, active=0, idle=2, waiting=0)
+2026-06-02 15:04:11.460 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@3488636b
+2026-06-02 15:04:11.492 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=3, active=0, idle=3, waiting=0)
+2026-06-02 15:04:11.541 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@4cd740a8
+2026-06-02 15:04:11.573 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=4, active=0, idle=4, waiting=0)
+2026-06-02 15:04:11.627 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@57d36a7b
+2026-06-02 15:04:11.658 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=5, active=0, idle=5, waiting=0)
+2026-06-02 15:04:11.703 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@538b9ab
+2026-06-02 15:04:11.736 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=6, active=0, idle=6, waiting=0)
+2026-06-02 15:04:11.780 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@2e6888e4
+2026-06-02 15:04:11.811 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=7, active=0, idle=7, waiting=0)
+2026-06-02 15:04:11.863 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@386150e
+2026-06-02 15:04:11.895 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=8, active=0, idle=8, waiting=0)
+2026-06-02 15:04:11.941 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@10e74726
+2026-06-02 15:04:11.972 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=9, active=0, idle=9, waiting=0)
+2026-06-02 15:04:12.016 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@56df9ca5
+2026-06-02 15:04:12.047 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=10, active=0, idle=10, waiting=0)
+2026-06-02 15:04:12.097 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@f6308b7
+2026-06-02 15:04:12.130 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=11, active=0, idle=11, waiting=0)
+2026-06-02 15:04:12.189 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection@12d5bd9c
+2026-06-02 15:04:12.220 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=12, active=0, idle=12, waiting=0)
+2026-06-02 15:04:12.220 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=0, idle=12, waiting=0)
+2026-06-02 15:04:12.457 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-02 15:04:12.460 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-02 15:04:12.629 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-02 15:04:14.040 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly
+2026-06-02 15:04:14.041 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(576371998<open>)] for JPA transaction
+2026-06-02 15:04:14.045 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@8235997]
+2026-06-02 15:04:14.046 [main] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll]
+2026-06-02 15:04:14.119 [main] INFO  p6spy - #1780380254118 | took 3ms | statement | connection 1| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rsc1_0.PROPERTY_ID,rsc1_0.AVG_RATING,rsc1_0.LAST_CALCED,rsc1_0.NEGATIVE_KEYWORD_COUNT,rsc1_0.POSITIVE_KEYWORD_COUNT,rsc1_0.REVIEW_COUNT from REVIEW_STATISTICS_CHARTER rsc1_0
+select rsc1_0.PROPERTY_ID,rsc1_0.AVG_RATING,rsc1_0.LAST_CALCED,rsc1_0.NEGATIVE_KEYWORD_COUNT,rsc1_0.POSITIVE_KEYWORD_COUNT,rsc1_0.REVIEW_COUNT from REVIEW_STATISTICS_CHARTER rsc1_0;
+2026-06-02 15:04:14.121 [main] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll]
+2026-06-02 15:04:14.121 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:14.121 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(576371998<open>)]
+2026-06-02 15:04:14.122 [main] INFO  p6spy - #1780380254122 | took 0ms | commit | connection 1| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:14.122 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(576371998<open>)] after transaction
+2026-06-02 15:04:14.124 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly
+2026-06-02 15:04:14.124 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(1571802567<open>)] for JPA transaction
+2026-06-02 15:04:14.124 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@1c8f1c73]
+2026-06-02 15:04:14.124 [main] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll]
+2026-06-02 15:04:14.125 [main] INFO  p6spy - #1780380254125 | took 0ms | statement | connection 2| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rsm1_0.PROPERTY_ID,rsm1_0.AVG_RATING,rsm1_0.LAST_CALCED,rsm1_0.NEGATIVE_KEYWORD_COUNT,rsm1_0.POSITIVE_KEYWORD_COUNT,rsm1_0.REVIEW_COUNT from REVIEW_STATISTICS_MONTHLY rsm1_0
+select rsm1_0.PROPERTY_ID,rsm1_0.AVG_RATING,rsm1_0.LAST_CALCED,rsm1_0.NEGATIVE_KEYWORD_COUNT,rsm1_0.POSITIVE_KEYWORD_COUNT,rsm1_0.REVIEW_COUNT from REVIEW_STATISTICS_MONTHLY rsm1_0;
+2026-06-02 15:04:14.125 [main] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll]
+2026-06-02 15:04:14.125 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:14.125 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(1571802567<open>)]
+2026-06-02 15:04:14.125 [main] INFO  p6spy - #1780380254125 | took 0ms | commit | connection 2| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:14.125 [main] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(1571802567<open>)] after transaction
+2026-06-02 15:04:14.126 [main] INFO  c.w.r.service.ReviewWriteService - [CACHE_INIT] 완료: 유효=0건, 스킵=0건, 성공=0건
+2026-06-02 15:04:14.179 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name userAuthenticationProvider
+2026-06-02 15:04:14.180 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-06-02 15:04:14.522 [main] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection oracle.jdbc.driver.T4CConnection@6e355249 due to dirty commit state on close().
+2026-06-02 15:04:14.642 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8185"]
+2026-06-02 15:04:14.658 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8185 (http) with context path '/wherehouse'
+2026-06-02 15:04:14.670 [main] INFO  c.wherehouse.WherehouseApplication - Started WherehouseApplication in 6.375 seconds (process running for 6.918)
+2026-06-02 15:04:14.674 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByResolvedOrderByFailTimeAsc]: This method is not transactional.
+2026-06-02 15:04:14.705 [scheduling-1] INFO  p6spy - #1780380254705 | took 0ms | statement | connection 4| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select psf1_0.FAILURE_ID,psf1_0.FAIL_REASON,psf1_0.FAIL_STEP,psf1_0.FAIL_TIME,psf1_0.LEASE_TYPE,psf1_0.MAX_RETRIES,psf1_0.OPERATION_TYPE,psf1_0.PROPERTY_ID,psf1_0.RESOLVED,psf1_0.RESOLVED_METHOD,psf1_0.RESOLVED_TIME,psf1_0.RETRY_COUNT from PROPERTY_SYNC_FAILURES psf1_0 where psf1_0.RESOLVED=? order by psf1_0.FAIL_TIME
+select psf1_0.FAILURE_ID,psf1_0.FAIL_REASON,psf1_0.FAIL_STEP,psf1_0.FAIL_TIME,psf1_0.LEASE_TYPE,psf1_0.MAX_RETRIES,psf1_0.OPERATION_TYPE,psf1_0.PROPERTY_ID,psf1_0.RESOLVED,psf1_0.RESOLVED_METHOD,psf1_0.RESOLVED_TIME,psf1_0.RETRY_COUNT from PROPERTY_SYNC_FAILURES psf1_0 where psf1_0.RESOLVED='N' order by psf1_0.FAIL_TIME;
+2026-06-02 15:04:14.706 [scheduling-1] DEBUG c.zaxxer.hikari.pool.ProxyConnection - HikariPool-1 - Executed rollback on connection oracle.jdbc.driver.T4CConnection@6e355249 due to dirty commit state on close().
+2026-06-02 15:04:14.708 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:14.709 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(1994916156<open>)] for JPA transaction
+2026-06-02 15:04:14.709 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@4a23230]
+2026-06-02 15:04:14.709 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:14.709 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:14.713 [scheduling-1] INFO  p6spy - #1780380254713 | took 0ms | statement | connection 5| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:14.709+0900';
+2026-06-02 15:04:14.719 [scheduling-1] INFO  c.w.V.s.SlotExpirationScheduler - [SLOT_EXPIRATION_SCHEDULER] expiredSlots=1
+2026-06-02 15:04:14.719 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1994916156<open>)] for JPA transaction
+2026-06-02 15:04:14.719 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:14.719 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]
+2026-06-02 15:04:14.725 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]
+2026-06-02 15:04:14.725 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findBySlotIdInAndStatus]: This method is not transactional.
+2026-06-02 15:04:14.737 [scheduling-1] INFO  p6spy - #1780380254737 | took 3ms | statement | connection 5| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rse1_0.SUBSCRIPTION_ID,rse1_0.SEARCHER_USER_ID,rse1_0.SLOT_ID,rse1_0.STATUS,rse1_0.SUBSCRIBED_AT,rse1_0.TERMINATED_AT,rse1_0.TERMINATION_REASON from REOPEN_SUBSCRIPTION rse1_0 where rse1_0.SLOT_ID in (?) and rse1_0.STATUS=?
+select rse1_0.SUBSCRIPTION_ID,rse1_0.SEARCHER_USER_ID,rse1_0.SLOT_ID,rse1_0.STATUS,rse1_0.SUBSCRIBED_AT,rse1_0.TERMINATED_AT,rse1_0.TERMINATION_REASON from REOPEN_SUBSCRIPTION rse1_0 where rse1_0.SLOT_ID in (883) and rse1_0.STATUS='ACTIVE';
+2026-06-02 15:04:14.737 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:14.737 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:14.737 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(1994916156<open>)]
+2026-06-02 15:04:14.750 [scheduling-1] INFO  p6spy - #1780380254750 | took 0ms | statement | connection 5| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+update VISIT_SLOT set STATUS=? where SLOT_ID=?
+update VISIT_SLOT set STATUS='CLOSED' where SLOT_ID=883;
+2026-06-02 15:04:14.753 [scheduling-1] INFO  p6spy - #1780380254753 | took 1ms | commit | connection 5| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:14.753 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(1994916156<open>)] after transaction
+2026-06-02 15:04:15.674 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.recommand.batch.BatchScheduler.RdbSyncListener.handleDataCollectionCompletedEvent]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:15.675 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(264331391<open>)] for JPA transaction
+2026-06-02 15:04:15.675 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@3ced10bd]
+2026-06-02 15:04:15.675 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.recommand.batch.BatchScheduler.RdbSyncListener.handleDataCollectionCompletedEvent]
+2026-06-02 15:04:15.675 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:BATCH:TOTAL] thread=scheduling-1 | phase=START | ts=1780380255675
+2026-06-02 15:04:15.675 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-1] RDB 적재 완료. RDB 기준 데이터 재조회 시작.
+2026-06-02 15:04:15.675 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:CHARTER] thread=scheduling-1 | phase=START | ts=1780380255675 | chunkSize=10000
+2026-06-02 15:04:15.676 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAllBy]: This method is not transactional.
+2026-06-02 15:04:15.710 [scheduling-1] INFO  p6spy - #1780380255710 | took 9ms | statement | connection 6| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DATA_SOURCE,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.MODIFIED_AT,pc1_0.REGISTERED_AT,pc1_0.REGISTERED_USER_ID,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.STATUS,pc1_0.UMD_NM,pc1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID fetch first ? rows only
+select pc1_0.PROPERTY_ID,pc1_0.ADDRESS,pc1_0.APT_NM,pc1_0.AREA_IN_PYEONG,pc1_0.BUILD_YEAR,pc1_0.DATA_SOURCE,pc1_0.DEAL_DATE,pc1_0.DEPOSIT,pc1_0.DISTRICT_NAME,pc1_0.EXCLU_USE_AR,pc1_0.FLOOR,pc1_0.JIBUN,pc1_0.LAST_UPDATED,pc1_0.LEASE_TYPE,pc1_0.MODIFIED_AT,pc1_0.REGISTERED_AT,pc1_0.REGISTERED_USER_ID,pc1_0.RGST_DATE,pc1_0.SGG_CD,pc1_0.STATUS,pc1_0.UMD_NM,pc1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pc1_0 order by pc1_0.PROPERTY_ID fetch first 10001 rows only;
+2026-06-02 15:04:15.995 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:CHARTER] thread=scheduling-1 | phase=COMPLETE | chunkIndex=0 | chunkSize=10000 | cumulative=10000 | load_ms=314 | transform_ms=5 | total_ms=319 | hasNext=true
+2026-06-02 15:04:16.001 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:CHARTER] thread=scheduling-1 | phase=END | ts=1780380256001 | totalCount=10000 | totalChunks=1 | elapsed_ms=326
+2026-06-02 15:04:16.001 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:MONTHLY] thread=scheduling-1 | phase=START | ts=1780380256001 | chunkSize=10000
+2026-06-02 15:04:16.001 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAllBy]: This method is not transactional.
+2026-06-02 15:04:16.004 [scheduling-1] INFO  p6spy - #1780380256004 | took 1ms | statement | connection 6| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DATA_SOURCE,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MODIFIED_AT,pm1_0.MONTHLY_RENT,pm1_0.REGISTERED_AT,pm1_0.REGISTERED_USER_ID,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.STATUS,pm1_0.UMD_NM,pm1_0.USER_PROPOSED_DEPOSIT,pm1_0.USER_PROPOSED_MONTHLY_RENT from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID fetch first ? rows only
+select pm1_0.PROPERTY_ID,pm1_0.ADDRESS,pm1_0.APT_NM,pm1_0.AREA_IN_PYEONG,pm1_0.BUILD_YEAR,pm1_0.DATA_SOURCE,pm1_0.DEAL_DATE,pm1_0.DEPOSIT,pm1_0.DISTRICT_NAME,pm1_0.EXCLU_USE_AR,pm1_0.FLOOR,pm1_0.JIBUN,pm1_0.LAST_UPDATED,pm1_0.LEASE_TYPE,pm1_0.MODIFIED_AT,pm1_0.MONTHLY_RENT,pm1_0.REGISTERED_AT,pm1_0.REGISTERED_USER_ID,pm1_0.RGST_DATE,pm1_0.SGG_CD,pm1_0.STATUS,pm1_0.UMD_NM,pm1_0.USER_PROPOSED_DEPOSIT,pm1_0.USER_PROPOSED_MONTHLY_RENT from PROPERTIES_MONTHLY pm1_0 order by pm1_0.PROPERTY_ID fetch first 10001 rows only;
+2026-06-02 15:04:16.206 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:CHUNK:MONTHLY] thread=scheduling-1 | phase=COMPLETE | chunkIndex=0 | chunkSize=10000 | cumulative=10000 | load_ms=200 | transform_ms=5 | total_ms=205 | hasNext=true
+2026-06-02 15:04:16.209 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:DBLOAD:MONTHLY] thread=scheduling-1 | phase=END | ts=1780380256209 | totalCount=10000 | totalChunks=1 | elapsed_ms=208
+2026-06-02 15:04:16.209 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-2] RDB 재조회 완료. (전세: 10000건, 월세: 10000건)
+2026-06-02 15:04:16.209 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2-3] Entity → Property 변환 완료. Redis 동기화 시작.
+2026-06-02 15:04:16.209 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH START (range: 0-2000)
+2026-06-02 15:04:16.566 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:17.200 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH COMPLETE (range: 0-2000, closePipeline 완료)
+2026-06-02 15:04:17.200 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH START (range: 2000-4000)
+2026-06-02 15:04:17.201 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:17.510 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH COMPLETE (range: 2000-4000, closePipeline 완료)
+2026-06-02 15:04:17.510 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH START (range: 4000-6000)
+2026-06-02 15:04:17.510 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:17.740 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH COMPLETE (range: 4000-6000, closePipeline 완료)
+2026-06-02 15:04:17.740 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH START (range: 6000-8000)
+2026-06-02 15:04:17.740 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:17.940 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH COMPLETE (range: 6000-8000, closePipeline 완료)
+2026-06-02 15:04:17.940 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH START (range: 8000-10000)
+2026-06-02 15:04:17.940 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:18.142 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:CHARTER] BATCH COMPLETE (range: 8000-10000, closePipeline 완료)
+2026-06-02 15:04:18.143 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Pipeline]: 전세 매물 저장 완료 - 성공: 10000건, 소요: 1933ms
+2026-06-02 15:04:18.143 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH START (range: 0-2000)
+2026-06-02 15:04:18.143 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:18.647 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH COMPLETE (range: 0-2000, closePipeline 완료)
+2026-06-02 15:04:18.647 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH START (range: 2000-4000)
+2026-06-02 15:04:18.647 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:18.938 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH COMPLETE (range: 2000-4000, closePipeline 완료)
+2026-06-02 15:04:18.938 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH START (range: 4000-6000)
+2026-06-02 15:04:18.939 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:19.162 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH COMPLETE (range: 4000-6000, closePipeline 완료)
+2026-06-02 15:04:19.163 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH START (range: 6000-8000)
+2026-06-02 15:04:19.163 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:19.371 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH COMPLETE (range: 6000-8000, closePipeline 완료)
+2026-06-02 15:04:19.372 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH START (range: 8000-10000)
+2026-06-02 15:04:19.372 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:19.586 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:MONTHLY] BATCH COMPLETE (range: 8000-10000, closePipeline 완료)
+2026-06-02 15:04:19.586 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Pipeline]: 월세 매물 저장 완료 - 성공: 10000건, 소요: 1443ms
+2026-06-02 15:04:19.586 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 정규화 범위 계산 및 저장 시작 ===
+2026-06-02 15:04:19.597 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:서대문구:월세, Count: 400, Deposit[1010.0-19966.0], Rent[30.0-300.0], Area[10.28-49.91]
+2026-06-02 15:04:19.598 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:중구:월세, Count: 423, Deposit[1121.0-19978.0], Rent[31.0-300.0], Area[10.07-49.77]
+2026-06-02 15:04:19.599 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:노원구:월세, Count: 417, Deposit[1062.0-19927.0], Rent[30.0-300.0], Area[10.03-49.88]
+2026-06-02 15:04:19.599 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:광진구:월세, Count: 404, Deposit[1004.0-19892.0], Rent[30.0-299.0], Area[10.03-49.73]
+2026-06-02 15:04:19.600 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:영등포구:월세, Count: 408, Deposit[1050.0-19878.0], Rent[30.0-300.0], Area[10.05-49.9]
+2026-06-02 15:04:19.600 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:중랑구:월세, Count: 417, Deposit[1006.0-19942.0], Rent[31.0-299.0], Area[10.21-49.91]
+2026-06-02 15:04:19.601 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:강동구:월세, Count: 379, Deposit[1015.0-19952.0], Rent[30.0-300.0], Area[10.12-49.52]
+2026-06-02 15:04:19.602 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:구로구:월세, Count: 427, Deposit[1015.0-19976.0], Rent[30.0-300.0], Area[10.25-49.8]
+2026-06-02 15:04:19.603 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:양천구:월세, Count: 395, Deposit[1124.0-20000.0], Rent[30.0-300.0], Area[10.0-49.63]
+2026-06-02 15:04:19.603 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:종로구:월세, Count: 415, Deposit[1094.0-19845.0], Rent[30.0-300.0], Area[9.98-49.76]
+2026-06-02 15:04:19.604 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:송파구:월세, Count: 371, Deposit[1014.0-19911.0], Rent[30.0-299.0], Area[10.11-49.89]
+2026-06-02 15:04:19.604 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:동대문구:월세, Count: 407, Deposit[1020.0-19833.0], Rent[30.0-300.0], Area[10.04-49.9]
+2026-06-02 15:04:19.605 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:관악구:월세, Count: 370, Deposit[1115.0-19930.0], Rent[32.0-300.0], Area[10.07-49.85]
+2026-06-02 15:04:19.605 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:도봉구:월세, Count: 388, Deposit[1014.0-19955.0], Rent[31.0-299.0], Area[10.32-49.87]
+2026-06-02 15:04:19.606 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:은평구:월세, Count: 403, Deposit[1046.0-19994.0], Rent[31.0-300.0], Area[10.04-49.82]
+2026-06-02 15:04:19.606 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:성동구:월세, Count: 391, Deposit[1037.0-19972.0], Rent[30.0-298.0], Area[10.09-49.65]
+2026-06-02 15:04:19.607 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:강서구:월세, Count: 410, Deposit[1018.0-19978.0], Rent[30.0-300.0], Area[10.09-49.87]
+2026-06-02 15:04:19.608 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:강남구:월세, Count: 418, Deposit[1018.0-19916.0], Rent[30.0-300.0], Area[10.1-49.88]
+2026-06-02 15:04:19.609 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:서초구:월세, Count: 381, Deposit[1099.0-19993.0], Rent[30.0-300.0], Area[10.09-49.86]
+2026-06-02 15:04:19.610 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:금천구:월세, Count: 362, Deposit[1133.0-19985.0], Rent[30.0-299.0], Area[10.04-49.82]
+2026-06-02 15:04:19.611 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:성북구:월세, Count: 415, Deposit[1007.0-19955.0], Rent[30.0-300.0], Area[9.99-49.85]
+2026-06-02 15:04:19.612 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:용산구:월세, Count: 392, Deposit[1081.0-19920.0], Rent[30.0-299.0], Area[10.01-49.79]
+2026-06-02 15:04:19.612 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:마포구:월세, Count: 422, Deposit[1076.0-19921.0], Rent[30.0-300.0], Area[9.99-49.84]
+2026-06-02 15:04:19.612 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:동작구:월세, Count: 390, Deposit[1022.0-19995.0], Rent[30.0-300.0], Area[10.06-49.76]
+2026-06-02 15:04:19.613 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - Redis [Bounds] 준비 완료 - Key: bounds:강북구:월세, Count: 395, Deposit[1002.0-19990.0], Rent[30.0-299.0], Area[10.0-49.71]
+2026-06-02 15:04:19.613 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:BOUNDS] BATCH START (총 50개 그룹)
+2026-06-02 15:04:19.613 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:BOUNDS] isPipelined = true, connection class = jdk.proxy2.$Proxy219
+2026-06-02 15:04:19.615 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:BOUNDS] BATCH COMPLETE (50개 그룹, closePipeline 완료)
+2026-06-02 15:04:19.615 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 정규화 범위 계산 완료 ===
+2026-06-02 15:04:19.615 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 안전성 점수 계산 및 저장 시작 ===
+2026-06-02 15:04:19.615 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findCrimeCount]: This method is not transactional.
+2026-06-02 15:04:19.620 [scheduling-1] INFO  p6spy - #1780380259620 | took 0ms | statement | connection 6| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0
+select acs1_0.DISTRICT_NAME,acs1_0.TOTAL_OCCURRENCE,acs1_0.TOTAL_ARREST,acs1_0.MURDER_OCCURRENCE,acs1_0.MURDER_ARREST,acs1_0.ROBBERY_OCCURRENCE,acs1_0.ROBBERY_ARREST,acs1_0.SEXUAL_CRIME_OCCURRENCE,acs1_0.SEXUAL_CRIME_ARREST,acs1_0.THEFT_OCCURRENCE,acs1_0.THEFT_ARREST,acs1_0.VIOLENCE_OCCURRENCE,acs1_0.VIOLENCE_ARREST from ANALYSIS_CRIME_STATISTICS acs1_0;
+2026-06-02 15:04:19.622 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findPopulationCountByDistrict]: This method is not transactional.
+2026-06-02 15:04:19.638 [scheduling-1] INFO  p6spy - #1780380259638 | took 0ms | statement | connection 6| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC
+SELECT     p.DISTRICT_NAME,     p.POPULATION_COUNT FROM ANALYSIS_POPULATION_DENSITY p WHERE p.YEAR = (SELECT MAX(YEAR) FROM ANALYSIS_POPULATION_DENSITY) ORDER BY p.POPULATION_COUNT DESC;
+2026-06-02 15:04:19.645 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findActiveEntertainmentCountByDistrict]: This method is not transactional.
+2026-06-02 15:04:19.654 [scheduling-1] INFO  p6spy - #1780380259654 | took 7ms | statement | connection 6| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC
+SELECT district, COUNT(*) AS count FROM (     SELECT         CASE             WHEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.ROAD_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             WHEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1) IS NOT NULL             THEN REGEXP_SUBSTR(e.JIBUN_ADDRESS, '서울특별시\s*(강남구|강동구|강북구|강서구|관악구|광진구|구로구|금천구|노원구|도봉구|동대문구|동작구|마포구|서대문구|서초구|성동구|성북구|송파구|양천구|영등포구|용산구|은평구|종로구|중구|중랑구)', 1, 1, '', 1)             ELSE NULL         END AS district     FROM ANALYSIS_ENTERTAINMENT_STATISTICS e     WHERE (e.ROAD_ADDRESS LIKE '서울특별시%' OR e.JIBUN_ADDRESS LIKE '서울특별시%')       AND e.BUSINESS_STATUS_NAME = '영업/정상' ) WHERE district IS NOT NULL GROUP BY district ORDER BY count DESC;
+2026-06-02 15:04:19.659 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:SAFETY] BATCH START (총 25개 자치구)
+2026-06-02 15:04:19.659 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:SAFETY] isPipelined=true, connectionClass=jdk.proxy2.$Proxy219
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [DEBUG:PIPELINE:SAFETY] BATCH COMPLETE (25개 자치구, closePipeline 완료)
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - === 안전성 점수 계산 완료: 25개 지역구 ===
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> [Phase 2] 배치 동기화 프로세스 정상 종료. 총 소요시간: 3986ms
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - [PERF:BATCH:TOTAL] thread=scheduling-1 | phase=END | ts=1780380259661 | elapsed_ms=3986
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - ====================================================================
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - >>> 측정 결과 요약 (Slice 청크 처리) <<<
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   CHUNK_SIZE          = 10000 건/청크
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   PIPELINE_BATCH_SIZE = 2000 건/파이프라인
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   DBLOAD:CHARTER      = 326 ms (10000건, 1청크)
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   DBLOAD:MONTHLY      = 208 ms (10000건, 1청크)
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   TRANSFORM:CHARTER   = 5 ms (누적)
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   TRANSFORM:MONTHLY   = 5 ms (누적)
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener -   BATCH:TOTAL         = 3986 ms
+2026-06-02 15:04:19.661 [scheduling-1] INFO  c.w.r.b.B.RdbSyncListener - ====================================================================
+2026-06-02 15:04:19.661 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.recommand.batch.BatchScheduler.RdbSyncListener.handleDataCollectionCompletedEvent]
+2026-06-02 15:04:19.661 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:19.661 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(264331391<open>)]
+2026-06-02 15:04:19.662 [scheduling-1] INFO  p6spy - #1780380259661 | took 0ms | commit | connection 6| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:19.662 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(264331391<open>)] after transaction
+2026-06-02 15:04:19.662 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:19.662 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(333995234<open>)] for JPA transaction
+2026-06-02 15:04:19.662 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@5b6e3602]
+2026-06-02 15:04:19.662 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:19.662 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:19.665 [scheduling-1] INFO  p6spy - #1780380259665 | took 0ms | statement | connection 7| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:19.662+0900';
+2026-06-02 15:04:19.666 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:19.666 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:19.666 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(333995234<open>)]
+2026-06-02 15:04:19.666 [scheduling-1] INFO  p6spy - #1780380259666 | took 0ms | commit | connection 7| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:19.666 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(333995234<open>)] after transaction
+2026-06-02 15:04:20.680 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:20.680 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(2042398605<open>)] for JPA transaction
+2026-06-02 15:04:20.680 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@1bc40514]
+2026-06-02 15:04:20.680 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:20.680 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:20.683 [scheduling-1] INFO  p6spy - #1780380260683 | took 0ms | statement | connection 8| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:20.680+0900';
+2026-06-02 15:04:20.683 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:20.683 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:20.683 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(2042398605<open>)]
+2026-06-02 15:04:20.684 [scheduling-1] INFO  p6spy - #1780380260684 | took 0ms | commit | connection 8| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:20.684 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(2042398605<open>)] after transaction
+2026-06-02 15:04:21.694 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:21.694 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(469376407<open>)] for JPA transaction
+2026-06-02 15:04:21.694 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@5283c15]
+2026-06-02 15:04:21.694 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:21.694 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:21.697 [scheduling-1] INFO  p6spy - #1780380261697 | took 0ms | statement | connection 9| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:21.694+0900';
+2026-06-02 15:04:21.698 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:21.698 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:21.698 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(469376407<open>)]
+2026-06-02 15:04:21.698 [scheduling-1] INFO  p6spy - #1780380261698 | took 0ms | commit | connection 9| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:21.698 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(469376407<open>)] after transaction
+2026-06-02 15:04:22.701 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:22.701 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(40643251<open>)] for JPA transaction
+2026-06-02 15:04:22.701 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@1cf1b468]
+2026-06-02 15:04:22.701 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:22.701 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:22.703 [scheduling-1] INFO  p6spy - #1780380262703 | took 0ms | statement | connection 10| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:22.701+0900';
+2026-06-02 15:04:22.704 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:22.704 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:22.704 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(40643251<open>)]
+2026-06-02 15:04:22.704 [scheduling-1] INFO  p6spy - #1780380262704 | took 0ms | commit | connection 10| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:22.704 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(40643251<open>)] after transaction
+2026-06-02 15:04:23.713 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:23.713 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(1673891277<open>)] for JPA transaction
+2026-06-02 15:04:23.713 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@6a9b6c57]
+2026-06-02 15:04:23.713 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:23.713 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:23.716 [scheduling-1] INFO  p6spy - #1780380263716 | took 0ms | statement | connection 11| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:23.713+0900';
+2026-06-02 15:04:23.716 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:23.716 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:23.716 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(1673891277<open>)]
+2026-06-02 15:04:23.717 [scheduling-1] INFO  p6spy - #1780380263717 | took 0ms | commit | connection 11| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:23.717 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(1673891277<open>)] after transaction
+2026-06-02 15:04:24.137 [http-nio-8185-exec-2] INFO  o.a.c.c.C.[.[.[/wherehouse] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-02 15:04:24.137 [http-nio-8185-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-06-02 15:04:24.138 [http-nio-8185-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-06-02 15:04:24.160 [http-nio-8185-exec-3] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWTAuthenticationFilter - 요청 처리 시작
+2026-06-02 15:04:24.160 [http-nio-8185-exec-4] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWTAuthenticationFilter - 요청 처리 시작
+2026-06-02 15:04:24.160 [http-nio-8185-exec-2] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWTAuthenticationFilter - 요청 처리 시작
+2026-06-02 15:04:24.160 [http-nio-8185-exec-6] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWTAuthenticationFilter - 요청 처리 시작
+2026-06-02 15:04:24.160 [http-nio-8185-exec-1] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWTAuthenticationFilter - 요청 처리 시작
+2026-06-02 15:04:24.160 [http-nio-8185-exec-3] INFO  c.w.J.Filter.JwtAuthProcessorFilter - HTTP Method: POST, URL: http://localhost:8185/wherehouse/api/v1/visit/reservations
+2026-06-02 15:04:24.160 [http-nio-8185-exec-1] INFO  c.w.J.Filter.JwtAuthProcessorFilter - HTTP Method: POST, URL: http://localhost:8185/wherehouse/api/v1/visit/reservations
+2026-06-02 15:04:24.160 [http-nio-8185-exec-2] INFO  c.w.J.Filter.JwtAuthProcessorFilter - HTTP Method: POST, URL: http://localhost:8185/wherehouse/api/v1/visit/reservations
+2026-06-02 15:04:24.160 [http-nio-8185-exec-6] INFO  c.w.J.Filter.JwtAuthProcessorFilter - HTTP Method: POST, URL: http://localhost:8185/wherehouse/api/v1/visit/reservations
+2026-06-02 15:04:24.160 [http-nio-8185-exec-4] INFO  c.w.J.Filter.JwtAuthProcessorFilter - HTTP Method: POST, URL: http://localhost:8185/wherehouse/api/v1/visit/reservations
+2026-06-02 15:04:24.212 [http-nio-8185-exec-3] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWT 인증 성공: 사용자 ID = searcher01
+2026-06-02 15:04:24.212 [http-nio-8185-exec-2] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWT 인증 성공: 사용자 ID = searcher03
+2026-06-02 15:04:24.212 [http-nio-8185-exec-4] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWT 인증 성공: 사용자 ID = searcher04
+2026-06-02 15:04:24.212 [http-nio-8185-exec-1] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWT 인증 성공: 사용자 ID = searcher05
+2026-06-02 15:04:24.212 [http-nio-8185-exec-6] INFO  c.w.J.Filter.JwtAuthProcessorFilter - JWT 인증 성공: 사용자 ID = searcher02
+2026-06-02 15:04:24.317 [http-nio-8185-exec-3] INFO  c.w.V.c.VisitReservationController - [VISIT_RESERVATION_CREATE_REQ] userId=searcher01, slotId=1221
+2026-06-02 15:04:24.317 [http-nio-8185-exec-2] INFO  c.w.V.c.VisitReservationController - [VISIT_RESERVATION_CREATE_REQ] userId=searcher03, slotId=1221
+2026-06-02 15:04:24.317 [http-nio-8185-exec-1] INFO  c.w.V.c.VisitReservationController - [VISIT_RESERVATION_CREATE_REQ] userId=searcher05, slotId=1221
+2026-06-02 15:04:24.317 [http-nio-8185-exec-4] INFO  c.w.V.c.VisitReservationController - [VISIT_RESERVATION_CREATE_REQ] userId=searcher04, slotId=1221
+2026-06-02 15:04:24.317 [http-nio-8185-exec-6] INFO  c.w.V.c.VisitReservationController - [VISIT_RESERVATION_CREATE_REQ] userId=searcher02, slotId=1221
+2026-06-02 15:04:24.318 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:24.318 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:24.318 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:24.318 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:24.318 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:24.318 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(1687595657<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(2089359595<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(1920246079<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(709874781<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@27d5f1b4]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@75c03afb]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@5c01f0dd]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@17d4145c]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@3f6cea77]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]
+2026-06-02 15:04:24.318 [http-nio-8185-exec-3] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP0-ENTER] thread=http-nio-8185-exec-3 nano=12373014364300 slot=1221 user=searcher01
+2026-06-02 15:04:24.318 [http-nio-8185-exec-6] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP0-ENTER] thread=http-nio-8185-exec-6 nano=12373014404400 slot=1221 user=searcher02
+2026-06-02 15:04:24.318 [http-nio-8185-exec-2] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP0-ENTER] thread=http-nio-8185-exec-2 nano=12373014396100 slot=1221 user=searcher03
+2026-06-02 15:04:24.318 [http-nio-8185-exec-4] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP0-ENTER] thread=http-nio-8185-exec-4 nano=12373014471100 slot=1221 user=searcher04
+2026-06-02 15:04:24.318 [http-nio-8185-exec-1] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP0-ENTER] thread=http-nio-8185-exec-1 nano=12373014476400 slot=1221 user=searcher05
+2026-06-02 15:04:24.318 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1687595657<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(709874781<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1920246079<open>)] for JPA transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.318 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(2089359595<open>)] for JPA transaction
+2026-06-02 15:04:24.319 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.319 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.319 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.319 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.319 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.319 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.319 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.319 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.326 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=5, idle=7, waiting=0)
+2026-06-02 15:04:24.326 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=5, idle=7, waiting=0)
+2026-06-02 15:04:24.326 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=5, idle=7, waiting=0)
+2026-06-02 15:04:24.326 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Connection not added, stats (total=12, active=5, idle=7, waiting=0)
+2026-06-02 15:04:24.326 [http-nio-8185-exec-3] INFO  p6spy - #1780380264326 | took 0ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=1221;
+2026-06-02 15:04:24.326 [http-nio-8185-exec-2] INFO  p6spy - #1780380264326 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=1221;
+2026-06-02 15:04:24.326 [http-nio-8185-exec-6] INFO  p6spy - #1780380264326 | took 0ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=1221;
+2026-06-02 15:04:24.327 [http-nio-8185-exec-4] INFO  p6spy - #1780380264327 | took 0ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=1221;
+2026-06-02 15:04:24.327 [http-nio-8185-exec-1] INFO  p6spy - #1780380264327 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.SLOT_ID=1221;
+2026-06-02 15:04:24.327 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.327 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.327 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.327 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.327 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.328 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(2089359595<open>)] for JPA transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(709874781<open>)] for JPA transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1920246079<open>)] for JPA transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.328 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.328 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1687595657<open>)] for JPA transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.328 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.328 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.328 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.330 [http-nio-8185-exec-1] INFO  p6spy - #1780380264330 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=81;
+2026-06-02 15:04:24.330 [http-nio-8185-exec-6] INFO  p6spy - #1780380264330 | took 0ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=81;
+2026-06-02 15:04:24.330 [http-nio-8185-exec-3] INFO  p6spy - #1780380264330 | took 0ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=81;
+2026-06-02 15:04:24.330 [http-nio-8185-exec-2] INFO  p6spy - #1780380264330 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=81;
+2026-06-02 15:04:24.330 [http-nio-8185-exec-4] INFO  p6spy - #1780380264330 | took 0ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.WINDOW_ID=81;
+2026-06-02 15:04:24.330 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.330 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.330 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.330 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.330 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.331 [http-nio-8185-exec-1] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP1-READ] thread=http-nio-8185-exec-1 nano=12373027003900 status=AVAILABLE
+2026-06-02 15:04:24.331 [http-nio-8185-exec-6] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP1-READ] thread=http-nio-8185-exec-6 nano=12373026998500 status=AVAILABLE
+2026-06-02 15:04:24.331 [http-nio-8185-exec-3] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP1-READ] thread=http-nio-8185-exec-3 nano=12373027010300 status=AVAILABLE
+2026-06-02 15:04:24.331 [http-nio-8185-exec-4] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP1-READ] thread=http-nio-8185-exec-4 nano=12373026998800 status=AVAILABLE
+2026-06-02 15:04:24.331 [http-nio-8185-exec-2] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP1-READ] thread=http-nio-8185-exec-2 nano=12373027015400 status=AVAILABLE
+2026-06-02 15:04:24.331 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(2089359595<open>)] for JPA transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1920246079<open>)] for JPA transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.331 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(709874781<open>)] for JPA transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1687595657<open>)] for JPA transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.331 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.331 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.331 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.331 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.333 [http-nio-8185-exec-6] INFO  p6spy - #1780380264333 | took 0ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID=?
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5';
+2026-06-02 15:04:24.333 [http-nio-8185-exec-4] INFO  p6spy - #1780380264333 | took 0ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID=?
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5';
+2026-06-02 15:04:24.333 [http-nio-8185-exec-3] INFO  p6spy - #1780380264333 | took 0ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID=?
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5';
+2026-06-02 15:04:24.333 [http-nio-8185-exec-1] INFO  p6spy - #1780380264333 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID=?
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5';
+2026-06-02 15:04:24.333 [http-nio-8185-exec-2] INFO  p6spy - #1780380264333 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID=?
+select pce1_0.PROPERTY_ID,pce1_0.ADDRESS,pce1_0.APT_NM,pce1_0.AREA_IN_PYEONG,pce1_0.BUILD_YEAR,pce1_0.DATA_SOURCE,pce1_0.DEAL_DATE,pce1_0.DEPOSIT,pce1_0.DISTRICT_NAME,pce1_0.EXCLU_USE_AR,pce1_0.FLOOR,pce1_0.JIBUN,pce1_0.LAST_UPDATED,pce1_0.LEASE_TYPE,pce1_0.MODIFIED_AT,pce1_0.REGISTERED_AT,pce1_0.REGISTERED_USER_ID,pce1_0.RGST_DATE,pce1_0.SGG_CD,pce1_0.STATUS,pce1_0.UMD_NM,pce1_0.USER_PROPOSED_DEPOSIT from PROPERTIES_CHARTER pce1_0 where pce1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5';
+2026-06-02 15:04:24.333 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.333 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.333 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.333 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.333 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.334 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1687595657<open>)] for JPA transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(2089359595<open>)] for JPA transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(709874781<open>)] for JPA transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(1920246079<open>)] for JPA transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.334 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.334 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.334 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.334 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.334 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.336 [http-nio-8185-exec-4] INFO  p6spy - #1780380264336 | took 1ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id=?
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id='ownerTest1';
+2026-06-02 15:04:24.336 [http-nio-8185-exec-2] INFO  p6spy - #1780380264336 | took 1ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id=?
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id='ownerTest1';
+2026-06-02 15:04:24.336 [http-nio-8185-exec-6] INFO  p6spy - #1780380264336 | took 1ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id=?
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id='ownerTest1';
+2026-06-02 15:04:24.336 [http-nio-8185-exec-1] INFO  p6spy - #1780380264336 | took 1ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id=?
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id='ownerTest1';
+2026-06-02 15:04:24.336 [http-nio-8185-exec-3] INFO  p6spy - #1780380264336 | took 1ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id=?
+select me1_0.id,me1_0.email,me1_0.joinDate,me1_0.nickName,me1_0.pw,me1_0.tel from membertbl me1_0 where me1_0.id='ownerTest1';
+2026-06-02 15:04:24.337 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.337 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.337 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.337 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.337 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]
+2026-06-02 15:04:24.337 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countDuplicatePropertyReservation]: This method is not transactional.
+2026-06-02 15:04:24.337 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countDuplicatePropertyReservation]: This method is not transactional.
+2026-06-02 15:04:24.337 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countDuplicatePropertyReservation]: This method is not transactional.
+2026-06-02 15:04:24.337 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countDuplicatePropertyReservation]: This method is not transactional.
+2026-06-02 15:04:24.337 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countDuplicatePropertyReservation]: This method is not transactional.
+2026-06-02 15:04:24.346 [http-nio-8185-exec-2] INFO  p6spy - #1780380264346 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID='searcher03' and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER';
+2026-06-02 15:04:24.346 [http-nio-8185-exec-1] INFO  p6spy - #1780380264346 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID='searcher05' and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER';
+2026-06-02 15:04:24.346 [http-nio-8185-exec-6] INFO  p6spy - #1780380264346 | took 0ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID='searcher02' and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER';
+2026-06-02 15:04:24.346 [http-nio-8185-exec-3] INFO  p6spy - #1780380264346 | took 0ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID='searcher01' and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER';
+2026-06-02 15:04:24.346 [http-nio-8185-exec-4] INFO  p6spy - #1780380264346 | took 0ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID join VISIT_WINDOW vwe1_0 on vwe1_0.WINDOW_ID=vse1_0.WINDOW_ID where vre1_0.SEARCHER_USER_ID='searcher04' and vre1_0.STATUS='CONFIRMED' and vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER';
+2026-06-02 15:04:24.346 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countTimeOverlappingReservation]: This method is not transactional.
+2026-06-02 15:04:24.346 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countTimeOverlappingReservation]: This method is not transactional.
+2026-06-02 15:04:24.346 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countTimeOverlappingReservation]: This method is not transactional.
+2026-06-02 15:04:24.346 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countTimeOverlappingReservation]: This method is not transactional.
+2026-06-02 15:04:24.346 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.countTimeOverlappingReservation]: This method is not transactional.
+2026-06-02 15:04:24.349 [http-nio-8185-exec-1] INFO  p6spy - #1780380264349 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<? and vse1_0.END_TIME>?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID='searcher05' and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<'2026-06-09T15:35:00.000+0900' and vse1_0.END_TIME>'2026-06-09T15:05:00.000+0900';
+2026-06-02 15:04:24.349 [http-nio-8185-exec-6] INFO  p6spy - #1780380264349 | took 0ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<? and vse1_0.END_TIME>?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID='searcher02' and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<'2026-06-09T15:35:00.000+0900' and vse1_0.END_TIME>'2026-06-09T15:05:00.000+0900';
+2026-06-02 15:04:24.349 [http-nio-8185-exec-2] INFO  p6spy - #1780380264349 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<? and vse1_0.END_TIME>?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID='searcher03' and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<'2026-06-09T15:35:00.000+0900' and vse1_0.END_TIME>'2026-06-09T15:05:00.000+0900';
+2026-06-02 15:04:24.349 [http-nio-8185-exec-3] INFO  p6spy - #1780380264349 | took 0ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<? and vse1_0.END_TIME>?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID='searcher01' and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<'2026-06-09T15:35:00.000+0900' and vse1_0.END_TIME>'2026-06-09T15:05:00.000+0900';
+2026-06-02 15:04:24.349 [http-nio-8185-exec-4] INFO  p6spy - #1780380264349 | took 0ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID=? and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<? and vse1_0.END_TIME>?
+select count(vre1_0.RESERVATION_ID) from VISIT_RESERVATION vre1_0 join VISIT_SLOT vse1_0 on vse1_0.SLOT_ID=vre1_0.SLOT_ID where vre1_0.SEARCHER_USER_ID='searcher04' and vre1_0.STATUS='CONFIRMED' and vse1_0.START_TIME<'2026-06-09T15:35:00.000+0900' and vse1_0.END_TIME>'2026-06-09T15:05:00.000+0900';
+2026-06-02 15:04:24.350 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.reserveSlotIfAvailable]: This method is not transactional.
+2026-06-02 15:04:24.350 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.reserveSlotIfAvailable]: This method is not transactional.
+2026-06-02 15:04:24.350 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.reserveSlotIfAvailable]: This method is not transactional.
+2026-06-02 15:04:24.350 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.reserveSlotIfAvailable]: This method is not transactional.
+2026-06-02 15:04:24.350 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.reserveSlotIfAvailable]: This method is not transactional.
+2026-06-02 15:04:24.361 [http-nio-8185-exec-2] INFO  p6spy - #1780380264361 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=? and vse1_0.STATUS='AVAILABLE'
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=1221 and vse1_0.STATUS='AVAILABLE';
+2026-06-02 15:04:24.362 [http-nio-8185-exec-2] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP2-WRITE] thread=http-nio-8185-exec-2 nano=12373057953000 affected=1 (조건부)
+2026-06-02 15:04:24.362 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.362 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.362 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]
+2026-06-02 15:04:24.365 [http-nio-8185-exec-2] INFO  p6spy - #1780380264365 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select SEQ_VISIT_RESERVATION.nextval from dual
+select SEQ_VISIT_RESERVATION.nextval from dual;
+2026-06-02 15:04:24.370 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]
+2026-06-02 15:04:24.370 [http-nio-8185-exec-2] INFO  c.w.V.s.VisitReservationWriteService - [F004-CP3-INSERT] thread=http-nio-8185-exec-2 nano=12373066271500 resId=87
+2026-06-02 15:04:24.370 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findBySlotIdAndSearcherUserIdAndStatus]: This method is not transactional.
+2026-06-02 15:04:24.373 [http-nio-8185-exec-2] INFO  p6spy - #1780380264373 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select rse1_0.SUBSCRIPTION_ID,rse1_0.SEARCHER_USER_ID,rse1_0.SLOT_ID,rse1_0.STATUS,rse1_0.SUBSCRIBED_AT,rse1_0.TERMINATED_AT,rse1_0.TERMINATION_REASON from REOPEN_SUBSCRIPTION rse1_0 where rse1_0.SLOT_ID=? and rse1_0.SEARCHER_USER_ID=? and rse1_0.STATUS=?
+select rse1_0.SUBSCRIPTION_ID,rse1_0.SEARCHER_USER_ID,rse1_0.SLOT_ID,rse1_0.STATUS,rse1_0.SUBSCRIBED_AT,rse1_0.TERMINATED_AT,rse1_0.TERMINATION_REASON from REOPEN_SUBSCRIPTION rse1_0 where rse1_0.SLOT_ID=1221 and rse1_0.SEARCHER_USER_ID='searcher03' and rse1_0.STATUS='ACTIVE';
+2026-06-02 15:04:24.374 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.374 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.374 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.service.VisitNotificationService.notify]
+2026-06-02 15:04:24.374 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Found thread-bound EntityManager [SessionImpl(384980567<open>)] for JPA transaction
+2026-06-02 15:04:24.374 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Participating in existing transaction
+2026-06-02 15:04:24.374 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]
+2026-06-02 15:04:24.375 [http-nio-8185-exec-2] INFO  p6spy - #1780380264375 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select SEQ_VISIT_NOTIFICATION.nextval from dual
+select SEQ_VISIT_NOTIFICATION.nextval from dual;
+2026-06-02 15:04:24.375 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]
+2026-06-02 15:04:24.375 [http-nio-8185-exec-2] INFO  c.w.V.s.VisitNotificationService - [VISIT_NOTIFY] type=SLOT_RESERVED, userId=ownerTest1, notificationId=107
+2026-06-02 15:04:24.375 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.service.VisitNotificationService.notify]
+2026-06-02 15:04:24.375 [http-nio-8185-exec-2] INFO  c.w.V.s.VisitReservationWriteService - [VISIT_RESERVATION_CONFIRMED] reservationId=87, slotId=1221, searcher=searcher03, registrant=ownerTest1
+2026-06-02 15:04:24.377 [http-nio-8185-exec-2] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation]
+2026-06-02 15:04:24.377 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:24.377 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(384980567<open>)]
+2026-06-02 15:04:24.382 [http-nio-8185-exec-2] INFO  p6spy - #1780380264381 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+insert into VISIT_RESERVATION (CONFIRMED_AT,SEARCHER_USER_ID,SLOT_ID,STATUS,RESERVATION_ID) values (?,?,?,?,?)
+insert into VISIT_RESERVATION (CONFIRMED_AT,SEARCHER_USER_ID,SLOT_ID,STATUS,RESERVATION_ID) values ('2026-06-02T15:04:24.318+0900','searcher03',1221,'CONFIRMED',87);
+2026-06-02 15:04:24.384 [http-nio-8185-exec-2] INFO  p6spy - #1780380264384 | took 0ms | statement | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+insert into VISIT_NOTIFICATION (CREATED_AT,IS_READ,MESSAGE,NOTIFICATION_TYPE,RELATED_PROPERTY_ID,RELATED_RESERVATION_ID,RELATED_SLOT_ID,USER_ID,NOTIFICATION_ID) values (?,?,?,?,?,?,?,?,?)
+insert into VISIT_NOTIFICATION (CREATED_AT,IS_READ,MESSAGE,NOTIFICATION_TYPE,RELATED_PROPERTY_ID,RELATED_RESERVATION_ID,RELATED_SLOT_ID,USER_ID,NOTIFICATION_ID) values ('2026-06-02T15:04:24.374+0900','N','회원님의 슬롯이 예약되었습니다.','SLOT_RESERVED','693c35731a5ebe74463679d39787c0c5',87,1221,'ownerTest1',107);
+2026-06-02 15:04:24.385 [http-nio-8185-exec-1] INFO  p6spy - #1780380264385 | took 24ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=? and vse1_0.STATUS='AVAILABLE'
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=1221 and vse1_0.STATUS='AVAILABLE';
+2026-06-02 15:04:24.385 [http-nio-8185-exec-6] INFO  p6spy - #1780380264385 | took 24ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=? and vse1_0.STATUS='AVAILABLE'
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=1221 and vse1_0.STATUS='AVAILABLE';
+2026-06-02 15:04:24.385 [http-nio-8185-exec-3] INFO  p6spy - #1780380264385 | took 24ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=? and vse1_0.STATUS='AVAILABLE'
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=1221 and vse1_0.STATUS='AVAILABLE';
+2026-06-02 15:04:24.385 [http-nio-8185-exec-4] INFO  p6spy - #1780380264385 | took 24ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=? and vse1_0.STATUS='AVAILABLE'
+update VISIT_SLOT vse1_0 set vse1_0.STATUS='RESERVED' where vse1_0.SLOT_ID=1221 and vse1_0.STATUS='AVAILABLE';
+2026-06-02 15:04:24.385 [http-nio-8185-exec-4] INFO  c.w.V.s.VisitReservationWriteService - [F004-REJECT] thread=http-nio-8185-exec-4 nano=12373081078300 reason=WRITE_RACE at=WRITE
+2026-06-02 15:04:24.385 [http-nio-8185-exec-6] INFO  c.w.V.s.VisitReservationWriteService - [F004-REJECT] thread=http-nio-8185-exec-6 nano=12373081078800 reason=WRITE_RACE at=WRITE
+2026-06-02 15:04:24.385 [http-nio-8185-exec-3] INFO  c.w.V.s.VisitReservationWriteService - [F004-REJECT] thread=http-nio-8185-exec-3 nano=12373081078800 reason=WRITE_RACE at=WRITE
+2026-06-02 15:04:24.385 [http-nio-8185-exec-1] INFO  c.w.V.s.VisitReservationWriteService - [F004-REJECT] thread=http-nio-8185-exec-1 nano=12373081078800 reason=WRITE_RACE at=WRITE
+2026-06-02 15:04:24.385 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByPropertyIdAndLeaseTypeAndStatus]: This method is not transactional.
+2026-06-02 15:04:24.385 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByPropertyIdAndLeaseTypeAndStatus]: This method is not transactional.
+2026-06-02 15:04:24.385 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByPropertyIdAndLeaseTypeAndStatus]: This method is not transactional.
+2026-06-02 15:04:24.385 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByPropertyIdAndLeaseTypeAndStatus]: This method is not transactional.
+2026-06-02 15:04:24.386 [http-nio-8185-exec-2] INFO  p6spy - #1780380264386 | took 1ms | commit | connection 16| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:24.386 [http-nio-8185-exec-2] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(384980567<open>)] after transaction
+2026-06-02 15:04:24.388 [http-nio-8185-exec-1] INFO  p6spy - #1780380264388 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=? and vwe1_0.STATUS=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER' and vwe1_0.STATUS='ACTIVE';
+2026-06-02 15:04:24.388 [http-nio-8185-exec-6] INFO  p6spy - #1780380264388 | took 0ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=? and vwe1_0.STATUS=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER' and vwe1_0.STATUS='ACTIVE';
+2026-06-02 15:04:24.388 [http-nio-8185-exec-3] INFO  p6spy - #1780380264388 | took 0ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=? and vwe1_0.STATUS=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER' and vwe1_0.STATUS='ACTIVE';
+2026-06-02 15:04:24.388 [http-nio-8185-exec-4] INFO  p6spy - #1780380264388 | took 0ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID=? and vwe1_0.LEASE_TYPE=? and vwe1_0.STATUS=?
+select vwe1_0.WINDOW_ID,vwe1_0.CREATED_AT,vwe1_0.END_TIME,vwe1_0.LEASE_TYPE,vwe1_0.PROPERTY_ID,vwe1_0.SLOT_DURATION_MINUTES,vwe1_0.START_TIME,vwe1_0.STATUS,vwe1_0.WITHDRAWN_AT from VISIT_WINDOW vwe1_0 where vwe1_0.PROPERTY_ID='693c35731a5ebe74463679d39787c0c5' and vwe1_0.LEASE_TYPE='CHARTER' and vwe1_0.STATUS='ACTIVE';
+2026-06-02 15:04:24.389 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByWindowIdInAndStatusIn]: This method is not transactional.
+2026-06-02 15:04:24.389 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByWindowIdInAndStatusIn]: This method is not transactional.
+2026-06-02 15:04:24.389 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByWindowIdInAndStatusIn]: This method is not transactional.
+2026-06-02 15:04:24.389 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findByWindowIdInAndStatusIn]: This method is not transactional.
+2026-06-02 15:04:24.392 [http-nio-8185-exec-4] INFO  p6spy - #1780380264392 | took 1ms | statement | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (?) and vse1_0.STATUS in (?)
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (81) and vse1_0.STATUS in ('AVAILABLE');
+2026-06-02 15:04:24.392 [http-nio-8185-exec-3] INFO  p6spy - #1780380264392 | took 1ms | statement | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (?) and vse1_0.STATUS in (?)
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (81) and vse1_0.STATUS in ('AVAILABLE');
+2026-06-02 15:04:24.392 [http-nio-8185-exec-6] INFO  p6spy - #1780380264392 | took 1ms | statement | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (?) and vse1_0.STATUS in (?)
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (81) and vse1_0.STATUS in ('AVAILABLE');
+2026-06-02 15:04:24.393 [http-nio-8185-exec-1] INFO  p6spy - #1780380264393 | took 0ms | statement | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (?) and vse1_0.STATUS in (?)
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.WINDOW_ID in (81) and vse1_0.STATUS in ('AVAILABLE');
+2026-06-02 15:04:24.401 [http-nio-8185-exec-3] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation] after exception: com.wherehouse.VisitReservation.exception.customExceptions.SlotUnavailableException: 해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.401 [http-nio-8185-exec-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation] after exception: com.wherehouse.VisitReservation.exception.customExceptions.SlotUnavailableException: 해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.401 [http-nio-8185-exec-6] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation] after exception: com.wherehouse.VisitReservation.exception.customExceptions.SlotUnavailableException: 해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.401 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction rollback
+2026-06-02 15:04:24.401 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction rollback
+2026-06-02 15:04:24.401 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction rollback
+2026-06-02 15:04:24.401 [http-nio-8185-exec-4] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.service.VisitReservationWriteService.createReservation] after exception: com.wherehouse.VisitReservation.exception.customExceptions.SlotUnavailableException: 해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.401 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction rollback
+2026-06-02 15:04:24.401 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Rolling back JPA transaction on EntityManager [SessionImpl(709874781<open>)]
+2026-06-02 15:04:24.401 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Rolling back JPA transaction on EntityManager [SessionImpl(1920246079<open>)]
+2026-06-02 15:04:24.401 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Rolling back JPA transaction on EntityManager [SessionImpl(2089359595<open>)]
+2026-06-02 15:04:24.401 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Rolling back JPA transaction on EntityManager [SessionImpl(1687595657<open>)]
+2026-06-02 15:04:24.402 [http-nio-8185-exec-3] INFO  p6spy - #1780380264402 | took 0ms | rollback | connection 15| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:24.402 [http-nio-8185-exec-4] INFO  p6spy - #1780380264402 | took 0ms | rollback | connection 12| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:24.402 [http-nio-8185-exec-6] INFO  p6spy - #1780380264402 | took 0ms | rollback | connection 13| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:24.402 [http-nio-8185-exec-1] INFO  p6spy - #1780380264402 | took 0ms | rollback | connection 14| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:24.403 [http-nio-8185-exec-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(1920246079<open>)] after transaction
+2026-06-02 15:04:24.403 [http-nio-8185-exec-3] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(2089359595<open>)] after transaction
+2026-06-02 15:04:24.403 [http-nio-8185-exec-6] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(709874781<open>)] after transaction
+2026-06-02 15:04:24.403 [http-nio-8185-exec-4] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(1687595657<open>)] after transaction
+2026-06-02 15:04:24.405 [http-nio-8185-exec-1] WARN  c.w.V.e.GlobalExceptionHandlerVisit - [VISIT_SLOT_UNAVAILABLE] code=E7007, message=해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.405 [http-nio-8185-exec-3] WARN  c.w.V.e.GlobalExceptionHandlerVisit - [VISIT_SLOT_UNAVAILABLE] code=E7007, message=해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.405 [http-nio-8185-exec-4] WARN  c.w.V.e.GlobalExceptionHandlerVisit - [VISIT_SLOT_UNAVAILABLE] code=E7007, message=해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.405 [http-nio-8185-exec-6] WARN  c.w.V.e.GlobalExceptionHandlerVisit - [VISIT_SLOT_UNAVAILABLE] code=E7007, message=해당 슬롯은 이미 예약되었습니다.
+2026-06-02 15:04:24.719 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:24.719 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(121796585<open>)] for JPA transaction
+2026-06-02 15:04:24.719 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@76e74c51]
+2026-06-02 15:04:24.719 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:24.719 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:24.722 [scheduling-1] INFO  p6spy - #1780380264722 | took 0ms | statement | connection 17| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:24.719+0900';
+2026-06-02 15:04:24.722 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:24.722 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:24.722 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(121796585<open>)]
+2026-06-02 15:04:24.722 [scheduling-1] INFO  p6spy - #1780380264722 | took 0ms | commit | connection 17| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:24.722 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(121796585<open>)] after transaction
+2026-06-02 15:04:25.727 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:25.727 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(1386639357<open>)] for JPA transaction
+2026-06-02 15:04:25.728 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@16c8ffc4]
+2026-06-02 15:04:25.728 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:25.728 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:25.731 [scheduling-1] INFO  p6spy - #1780380265731 | took 0ms | statement | connection 18| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:25.728+0900';
+2026-06-02 15:04:25.732 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:25.732 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:25.732 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(1386639357<open>)]
+2026-06-02 15:04:25.732 [scheduling-1] INFO  p6spy - #1780380265732 | took 0ms | commit | connection 18| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:25.732 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(1386639357<open>)] after transaction
+2026-06-02 15:04:26.747 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:26.747 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(256672519<open>)] for JPA transaction
+2026-06-02 15:04:26.747 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@31a7210c]
+2026-06-02 15:04:26.747 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:26.747 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:26.751 [scheduling-1] INFO  p6spy - #1780380266750 | took 0ms | statement | connection 19| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:26.747+0900';
+2026-06-02 15:04:26.751 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:26.751 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:26.751 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(256672519<open>)]
+2026-06-02 15:04:26.751 [scheduling-1] INFO  p6spy - #1780380266751 | took 0ms | commit | connection 19| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:26.751 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(256672519<open>)] after transaction
+2026-06-02 15:04:27.752 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:27.752 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(816246381<open>)] for JPA transaction
+2026-06-02 15:04:27.752 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@1c285a4b]
+2026-06-02 15:04:27.752 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:27.752 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:27.755 [scheduling-1] INFO  p6spy - #1780380267755 | took 0ms | statement | connection 20| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:27.752+0900';
+2026-06-02 15:04:27.755 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:27.755 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:27.755 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(816246381<open>)]
+2026-06-02 15:04:27.756 [scheduling-1] INFO  p6spy - #1780380267756 | took 0ms | commit | connection 20| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:27.756 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(816246381<open>)] after transaction
+2026-06-02 15:04:28.759 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:28.759 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(651216271<open>)] for JPA transaction
+2026-06-02 15:04:28.759 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@1ff81dd1]
+2026-06-02 15:04:28.759 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:28.759 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:28.762 [scheduling-1] INFO  p6spy - #1780380268762 | took 0ms | statement | connection 21| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:28.759+0900';
+2026-06-02 15:04:28.762 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:28.762 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:28.762 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(651216271<open>)]
+2026-06-02 15:04:28.763 [scheduling-1] INFO  p6spy - #1780380268763 | took 0ms | commit | connection 21| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:28.763 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(651216271<open>)] after transaction
+2026-06-02 15:04:29.774 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:29.774 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(1947080481<open>)] for JPA transaction
+2026-06-02 15:04:29.774 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@56015e38]
+2026-06-02 15:04:29.774 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:29.774 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:29.777 [scheduling-1] INFO  p6spy - #1780380269777 | took 0ms | statement | connection 22| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:29.774+0900';
+2026-06-02 15:04:29.777 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:29.777 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:29.777 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(1947080481<open>)]
+2026-06-02 15:04:29.778 [scheduling-1] INFO  p6spy - #1780380269778 | took 0ms | commit | connection 22| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:29.778 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(1947080481<open>)] after transaction
+2026-06-02 15:04:30.779 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:30.779 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(617881218<open>)] for JPA transaction
+2026-06-02 15:04:30.779 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@66e9e11b]
+2026-06-02 15:04:30.779 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:30.779 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:30.782 [scheduling-1] INFO  p6spy - #1780380270782 | took 0ms | statement | connection 23| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:30.779+0900';
+2026-06-02 15:04:30.782 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:30.782 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:30.782 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(617881218<open>)]
+2026-06-02 15:04:30.783 [scheduling-1] INFO  p6spy - #1780380270783 | took 0ms | commit | connection 23| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:30.783 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(617881218<open>)] after transaction
+2026-06-02 15:04:31.785 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Creating new transaction with name [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2026-06-02 15:04:31.785 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Opened new EntityManager [SessionImpl(84380402<open>)] for JPA transaction
+2026-06-02 15:04:31.785 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@5e0fb098]
+2026-06-02 15:04:31.785 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Getting transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:31.785 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - No need to create transaction for [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findExpiredActiveSlots]: This method is not transactional.
+2026-06-02 15:04:31.788 [scheduling-1] INFO  p6spy - #1780380271788 | took 0ms | statement | connection 24| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in (?,?) and vse1_0.END_TIME<=?
+select vse1_0.SLOT_ID,vse1_0.CREATED_AT,vse1_0.END_TIME,vse1_0.START_TIME,vse1_0.STATUS,vse1_0.WINDOW_ID from VISIT_SLOT vse1_0 where vse1_0.STATUS in ('AVAILABLE','RESERVED') and vse1_0.END_TIME<='2026-06-02T15:04:31.785+0900';
+2026-06-02 15:04:31.788 [scheduling-1] TRACE o.s.t.i.TransactionInterceptor - Completing transaction for [com.wherehouse.VisitReservation.scheduler.SlotExpirationScheduler.closeExpiredSlots]
+2026-06-02 15:04:31.788 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Initiating transaction commit
+2026-06-02 15:04:31.788 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Committing JPA transaction on EntityManager [SessionImpl(84380402<open>)]
+2026-06-02 15:04:31.788 [scheduling-1] INFO  p6spy - #1780380271788 | took 0ms | commit | connection 24| url jdbc:oracle:thin:@127.0.0.1:1521:xe
+
+;
+2026-06-02 15:04:31.788 [scheduling-1] DEBUG o.s.orm.jpa.JpaTransactionManager - Closing JPA EntityManager [SessionImpl(84380402<open>)] after transaction
+2026-06-02 15:04:32.735 [SpringApplicationShutdownHook] INFO  c.w.information.util.KakaoApiService - [KakaoApiService] 스레드 풀 종료 시작
+2026-06-02 15:04:32.735 [SpringApplicationShutdownHook] INFO  c.w.information.util.KakaoApiService - [KakaoApiService] 스레드 풀 종료 완료
+2026-06-02 15:04:32.739 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-02 15:04:32.742 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-02 15:04:32.742 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before shutdown stats (total=12, active=0, idle=12, waiting=0)
+2026-06-02 15:04:32.745 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@6e355249: (connection evicted)
+2026-06-02 15:04:32.746 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@3ec89f46: (connection evicted)
+2026-06-02 15:04:32.748 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@3488636b: (connection evicted)
+2026-06-02 15:04:32.750 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@4cd740a8: (connection evicted)
+2026-06-02 15:04:32.752 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@57d36a7b: (connection evicted)
+2026-06-02 15:04:32.754 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@538b9ab: (connection evicted)
+2026-06-02 15:04:32.759 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@2e6888e4: (connection evicted)
+2026-06-02 15:04:32.760 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@386150e: (connection evicted)
+2026-06-02 15:04:32.761 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@10e74726: (connection evicted)
+2026-06-02 15:04:32.770 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@56df9ca5: (connection evicted)
+2026-06-02 15:04:32.772 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@f6308b7: (connection evicted)
+2026-06-02 15:04:32.774 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection oracle.jdbc.driver.T4CConnection@12d5bd9c: (connection evicted)
+2026-06-02 15:04:32.797 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After shutdown stats (total=0, active=0, idle=0, waiting=0)
+2026-06-02 15:04:32.797 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
