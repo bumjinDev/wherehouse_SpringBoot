@@ -73,7 +73,7 @@ T-1 / T-2 / T-3 시나리오는 CSV 파일 내용만 다르게 준비해 같은 
         </collectionProp>
       </HeaderManager>
       <hashTree/>
-      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV — 탐색자 토큰 + 슬롯 ID">
+      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV — 탐색자 토큰 + 슬롯 ID" enabled="true">
         <stringProp name="filename">${USERS_CSV}</stringProp>
         <stringProp name="fileEncoding">UTF-8</stringProp>
         <stringProp name="variableNames">SLOT_ID,JWT_TOKEN,USER_ID</stringProp>

@@ -16,11 +16,11 @@ py -3.13 "E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\docs\13. W
   --n 5 `
   --env "2_D_조건부UPDATE, slot 1221"
 
-py -3.13 "E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\docs\13. Wherehouse_고도화_주거지예약시스템\2. 문제해결\1. 테스트시나리오_1\2. 결과_p6spy로깅\build_p6spy_xlsx.py" `
-  --in  "E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\docs\13. Wherehouse_고도화_주거지예약시스템\2. 문제해결\1. 테스트시나리오_1\2. 결과_p6spy로깅\3_B_비관적락\wherehouse.log" `
-  --out "E:\devSpace\SpringBootProjects\wherehouse_SpringBoot-master\docs\13. Wherehouse_고도화_주거지예약시스템\2. 문제해결\1. 테스트시나리오_1\2. 결과_p6spy로깅\3_B_비관적락\3_B_비관적락_타임라인.xlsx" `
+py -3.13 build_p6spy_xlsx.py `
+  --in  "4_C_낙관적락/wherehouse_C.log" `
+  --out "4_C_낙관적락/4_C_낙관적락_타임라인.xlsx" `
   --n 5 `
-  --env "B_비관적락_타, slot 1240"
+  --env "낙관적 락 (@Version), slot 1170"
 
 # ── 다음 회차(D·B·C)는 --in/--out/--env 만 바꿔 같은 명령 재실행 (경로 축약, 실제는 절대경로) ──
 #   D: --in "...\2. 결과_p6spy로깅\2_D_조건부UPDATE\wherehouse_D.log"  --out "...\2_D_조건부UPDATE\2_D_조건부UPDATE_타임라인.xlsx"  --env "조건부 UPDATE (WHERE status=AVAILABLE), slot ###"

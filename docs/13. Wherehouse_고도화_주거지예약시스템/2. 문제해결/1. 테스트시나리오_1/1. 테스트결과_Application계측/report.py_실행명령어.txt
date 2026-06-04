@@ -22,6 +22,13 @@ py -3.13 report.py `
   --env "B_비관적락, slot 1237" `
   --meta "격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:select_insert"
 
+py -3.13 report.py `
+  --in  "4_C_낙관적락/wherehouse_C.log" `
+  --out "F004_측정결과_C_낙관적락.xlsx" `
+  --n 5 `
+  --env "B_비관적락, slot 1237" `
+  --meta "격리:READ COMMITTED;Propagation:REQUIRED;UQ제약:제거;동시성제어:select_insert"
+
 # ───────────────────────────────────────────────────────────────────────────
 # 다음 회차(D·B·C) 측정 후, 아래 --log/--meta 줄을 위 명령의 --out 앞에 끼워넣어 누적 비교.
 # (경로/이름은 baseline 패턴을 따른 예시 — 실제 저장 위치/마커에 맞게 조정)
