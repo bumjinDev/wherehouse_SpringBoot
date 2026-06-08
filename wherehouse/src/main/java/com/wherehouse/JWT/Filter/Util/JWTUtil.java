@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class JWTUtil {
 
-    private static final long EXPIRATION_TIME = 3600000;
+    // [측정 임시] F004 시나리오 1 부하 테스트 동안 JWT 만료시간을 24 시간으로 연장.
+    // 측정 종료 후 원래 값 (3600000 = 1 시간) 으로 반드시 복원해야 한다.
+    private static final long EXPIRATION_TIME = 24L * 60L * 60L * 1000L;  // 24 hours = 86,400,000 ms
     private final Environment env;
 
     public JWTUtil(Environment env){

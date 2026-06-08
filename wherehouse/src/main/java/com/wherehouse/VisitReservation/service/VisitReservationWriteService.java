@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -308,13 +309,20 @@ public class VisitReservationWriteService {
     // F004 — 방문 슬롯 예약 (섹션 6.4)
     // ====================================================================
 
+    // === F004 시나리오 1 — ② 조건부 UPDATE (D) 채택 ===
+    // 슬롯 예약 동시성 1차 방어선. 사전 AVAILABLE 검증을 두지 않고, 상태 조건을 갱신문 WHERE 에 합쳐
+    //   (UPDATE … WHERE slotId=? AND status=AVAILABLE) 읽기-검증-쓰기를 한 문장으로 원자화한다.
+    //   경합 시 후착의 갱신은 affected=0 → 6단계에서 거부(차단 위치=쓰기). 거부 요청은 예약 INSERT 에
+    //   도달하지 않아 헛작업이 없고, 락 보유 구간은 갱신~커밋 으로 짧다.
+    //   동반 의존: VisitSlotRepository.reserveSlotIfAvailable (@Modifying 조건부 UPDATE).
+    //   ※ logSlotSnapshot/logReservationsOnSlot CP 로깅은 F004 측정 잔재 — 운영 정리 시 제거(별도 작업).
     @Transactional
     public ReservationCreateResponseDto createReservation(ReservationCreateRequestDto dto,
                                                           String userId) {
         Long slotId = dto.getSlotId();
         LocalDateTime now = LocalDateTime.now();
 
-        // 1단계: 슬롯 유효성 및 시점 확인
+        // 1단계: 슬롯 read — 무락 조회(findById). 윈도우 식별용. (AVAILABLE 게이트는 6단계 조건부 UPDATE.)
         VisitSlotEntity slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new VisitSlotNotFoundException(
                         "슬롯을 찾을 수 없습니다. slotId=" + slotId));
@@ -323,13 +331,11 @@ public class VisitReservationWriteService {
                 .orElseThrow(() -> new VisitWindowNotFoundException(
                         "슬롯의 윈도우를 찾을 수 없습니다. windowId=" + slot.getWindowId()));
 
-        // 2 단계 : 현재 슬롯이 활성화 되어 있으며 예약이 되어 있는지 확인.
-        if (slot.getStatus() != VisitSlotStatus.AVAILABLE) {
-            throw SlotUnavailableException.alreadyReserved(
-                    window.getLeaseType(),
-                    findAvailableSlotItems(window.getPropertyId(), window.getLeaseType()));
-        }
+        // === CP1: 진입(읽기) 직후 — 모든 스레드 도달. 슬롯 스냅샷 + 예약 목록 기록. ===
+        logSlotSnapshot("CP1-AFTER-AVAILABLE-CHECK", slotId);
+        logReservationsOnSlot("CP1-AFTER-AVAILABLE-CHECK", slotId);
 
+        // 2단계: 사전 AVAILABLE 검증 없음 — AVAILABLE 게이트는 6단계 조건부 UPDATE 가 원자적으로 담당한다.
         if (!slot.getStartTime().isAfter(now)) {
             throw SlotUnavailableException.startTimeExpired(
                     window.getLeaseType(),
@@ -343,33 +349,31 @@ public class VisitReservationWriteService {
                     "자신이 등록한 매물의 슬롯은 예약할 수 없습니다.");
         }
 
-        // 4·5단계: 동일 매물 중복 예약 / 시간 겹침 검증 (DB 측 JOIN 필터링)
-        //
-        // 기존 구현은 본인 활성 예약 N건을 가져온 뒤 각 예약마다 slotRepository.findById +
-        // windowRepository.findById 를 호출하여 총 1 + 2N 쿼리를 발생시켰다 (N+1).
-        // 검증을 DB 측 JOIN 으로 옮겨 활성 예약 수와 무관하게 항상 2 COUNT 쿼리로 고정.
-        // VISIT_RESERVATION 은 모든 매물의 예약을 한 테이블에 보관하므로 슬롯의 매물 식별은
-        // VISIT_SLOT → VISIT_WINDOW JOIN 으로 한 번에 해결한다.
-        // 인덱스 활용: IX_VISIT_RESERVATION_SEARCHER 드라이빙 → PK NL JOIN.
-        // 자세한 쿼리 동작은 VisitReservationRepository 의 두 메서드 주석 참조.
-
+        // 4·5단계: 동일 매물 중복 예약 / 시간 겹침 검증 (DB 측 JOIN, 항상 2 COUNT)
         if (reservationRepository.countDuplicatePropertyReservation(
                 userId, window.getPropertyId(), window.getLeaseType()) > 0) {
             throw new DuplicateReservationException(
                     "같은 매물에 대해 이미 다른 시간대 본인의 예약이 이미 있습니다.");
         }
-
         if (reservationRepository.countTimeOverlappingReservation(
                 userId, slot.getStartTime(), slot.getEndTime()) > 0) {
             throw new ReservationTimeOverlapException(
                     "현재 시도하신 예약 시간 대에 대한 동일한 시간 대의 다른 매물에 대한 예약이 이미 존재 합니다.");
         }
 
-        // 6단계: 슬롯 상태 전이  : 현재 요청자가 현재 매물에 대한 이미 활성 예약도 없고 다른 유저의 기존 방문 시각과 겹치지 않는다면 진행
-        slot.setStatus(VisitSlotStatus.RESERVED);       // 해당 슬롯에 대한 상태(테이블 "VISIT_SLOT")에 대해서 활성 상태로 변경
-        slotRepository.save(slot);
+        // 6단계: 슬롯 점유 — 조건부 UPDATE (UPDATE … WHERE status=AVAILABLE). 후착은 affected=0 →
+        //   여기서 차단(차단 위치=쓰기). 거부 요청은 아래 예약 INSERT 에 도달하지 않는다(헛작업 없음).
+        int affected = slotRepository.reserveSlotIfAvailable(slotId);
+        if (affected == 0) {
+            throw SlotUnavailableException.alreadyReserved(
+                    window.getLeaseType(),
+                    findAvailableSlotItems(window.getPropertyId(), window.getLeaseType()));
+        }
 
-        // 예약 생성 : 해당 슬롯에 대한 예약 상태에 대한 구체적인 정보(테이블 "VISIT_RESERVATION")를 저장
+        // === CP2: 점유 직후 — 승자만 도달. 슬롯 스냅샷. ===
+        logSlotSnapshot("CP2-AFTER-SLOT-UPDATE", slot.getSlotId());
+
+        // 예약 생성 — INSERT (승자만 도달)
         VisitReservationEntity reservation = VisitReservationEntity.builder()
                 .slotId(slot.getSlotId())
                 .searcherUserId(userId)
@@ -377,6 +381,9 @@ public class VisitReservationWriteService {
                 .confirmedAt(now)
                 .build();
         VisitReservationEntity savedReservation = reservationRepository.save(reservation);
+
+        // === CP3: 예약 INSERT 직후 — 승자만 도달. 예약 목록. ===
+        logReservationsOnSlot("CP3-AFTER-RESERVATION-INSERT", slot.getSlotId());
 
         // 구독자가 본 슬롯에 활성 구독을 가지고 있었다면 FULFILLED(성취) 로 마감
         Optional<ReopenSubscriptionEntity> ownSubscription =
@@ -715,6 +722,73 @@ public class VisitReservationWriteService {
                 .username(member.getNickName())
                 .contact(member.getTel())
                 .build();
+    }
+
+    // ====================================================================
+    // F004 시나리오 1 측정 로깅 헬퍼
+    //
+    // 같은 슬롯에 N개 동시 예약 요청이 들어왔을 때 각 트랜잭션이 인지하는 슬롯 상태와
+    // 슬롯에 묶인 예약 목록을 체크포인트 단위로 기록한다.
+    //   - 스레드 식별:  Thread.currentThread().getName() / getId()
+    //   - 단조 시각:    System.nanoTime()   (스레드 간 상대 순서 비교 — JVM 공유 단조 클럭)
+    //   - 절대 시각:    Instant.now()       (OS 정밀도에 따른 나노초 표시 — 절대 시각)
+    //
+    // 재조회 동작상 주의:
+    //   - 슬롯 (PK find) 은 JPA 1차 캐시 (영속성 컨텍스트) 를 통한다. 같은 트랜잭션 안에서
+    //     본 스레드의 메모리 변경분은 반영되지만, 다른 트랜잭션이 commit 한 변경은 본 트랜잭션
+    //     종료 전까지 보이지 않을 수 있다.
+    //   - 예약 (JPQL) 은 매번 DB 를 호출하므로 본 트랜잭션의 flush 분과 다른 트랜잭션의 commit
+    //     분을 함께 반영한다 (READ_COMMITTED 격리 가정).
+    // ====================================================================
+
+    private void logSlotSnapshot(String checkpoint, Long slotId) {
+        Thread t = Thread.currentThread();
+        long mono = System.nanoTime();
+
+        Instant wall = Instant.now();
+
+        VisitSlotEntity s = slotRepository.findById(slotId).orElse(null);
+
+        if (s == null) {
+            log.info("[F004-{}] thread=[name={}, id={}] nanoTime={} instant={} slotId={} SLOT_NOT_FOUND",
+                    checkpoint, t.getName(), t.getId(), mono, wall, slotId);
+            return;
+        }
+
+        // 매물 식별을 위해 슬롯이 속한 윈도우의 propertyId / leaseType 도 함께 출력.
+        // 한 트랜잭션 안에서 같은 PK 조회는 1차 캐시로 들어와 추가 비용이 거의 0 이다.
+        VisitWindowEntity w = windowRepository.findById(s.getWindowId()).orElse(null);
+        String propertyId = (w == null) ? null : w.getPropertyId();
+        String leaseType  = (w == null || w.getLeaseType() == null) ? null : w.getLeaseType().name();
+
+        log.info("[F004-{}] thread=[name={}, id={}] nanoTime={} instant={} slot=(slotId={}, windowId={}, " +
+                        "propertyId={}, leaseType={}, startTime={}, endTime={}, status={}, createdAt={})",
+                checkpoint, t.getName(), t.getId(), mono, wall,
+                s.getSlotId(), s.getWindowId(), propertyId, leaseType,
+                s.getStartTime(), s.getEndTime(), s.getStatus(), s.getCreatedAt());
+    }
+
+    private void logReservationsOnSlot(String checkpoint, Long slotId) {
+
+        Thread t = Thread.currentThread();
+        long mono = System.nanoTime();
+        Instant wall = Instant.now();
+
+        List<VisitReservationEntity> list =
+                reservationRepository.findBySlotIdOrderByConfirmedAtDesc(slotId);
+
+        log.info("[F004-{}] thread=[name={}, id={}] nanoTime={} instant={} slotId={} reservationsCount={}",
+                checkpoint, t.getName(), t.getId(), mono, wall, slotId, list.size());
+
+        for (VisitReservationEntity r : list) {
+            log.info("[F004-{}] thread=[name={}, id={}] nanoTime={} reservation=(reservationId={}, slotId={}, " +
+                            "searcherUserId={}, status={}, confirmedAt={}, cancelledAt={}, " +
+                            "invalidatedAt={}, visitResult={}, resultClassifiedAt={})",
+                    checkpoint, t.getName(), t.getId(), mono,
+                    r.getReservationId(), r.getSlotId(), r.getSearcherUserId(),
+                    r.getStatus(), r.getConfirmedAt(), r.getCancelledAt(),
+                    r.getInvalidatedAt(), r.getVisitResult(), r.getResultClassifiedAt());
+        }
     }
 
     /** 매물 등록자 식별자와 회원 엔티티를 함께 운반하는 내부 holder. */

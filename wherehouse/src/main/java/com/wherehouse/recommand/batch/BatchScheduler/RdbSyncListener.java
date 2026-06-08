@@ -205,9 +205,9 @@ public class RdbSyncListener {
             charterChunkIndex++;
             
             // [ 테스트 ] 매물 개수 개수 토탈 10000 개라면 바로 종료
-            if(charterTotalCount >= 10000) {
-                break;
-            }
+//            if(charterTotalCount >= 100) {
+//                break;
+//            }
 
         } while (charterSlice.hasNext());
 
@@ -259,9 +259,9 @@ public class RdbSyncListener {
             monthlyChunkIndex++;
 
             // [ 테스트 ] 매물 개수 토탈 10000 개라면 바로 종료 (CHARTER 측과 동일 패턴)
-            if(monthlyTotalCount >= 10000) {
-                break;
-            }
+//            if(monthlyTotalCount >= 100) {
+//                break;
+//            }
 
         } while (monthlySlice.hasNext());
 

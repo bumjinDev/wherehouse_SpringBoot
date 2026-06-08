@@ -4,20 +4,18 @@ spring:
 
   # 데이터베이스 연결 설정
   datasource:
-    # [수정: P6Spy 적용] JDBC 드라이버 교체 (Driver Wrapping)
-    # 기술적 원리: JDBC 인터페이스 구현체를 P6Spy로 교체(Swap)하여 SQL 실행 흐름을 제어합니다.
-    # 기존 'oracle.jdbc.OracleDriver' 대신 'P6SpyDriver'가 애플리케이션의 연결 요청을 1차적으로 수신(Intercept)합니다.
-#    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    # [P6Spy] SQL 로깅은 p6spy-spring-boot-starter(아래 decorator.datasource.p6spy)가 DataSource 를
+    # 단일 레벨에서 래핑해 처리한다. 과거의 'jdbc:p6spy:' URL + P6SpyDriver(드라이버 레벨 래핑)는
+    # 디코레이터와 중복되어 같은 SQL 이 두 번 찍혔으므로(connection 1/jdbc:p6spy + connection N/jdbc:oracle)
+    # 제거하고 평범한 Oracle 드라이버/URL 로 되돌린다. → 한 문장당 로그 한 줄.
+    driver-class-name: oracle.jdbc.OracleDriver
 
-    # [수정: P6Spy 적용] 프로토콜 식별자 변경
-    # URL 스키마에 'p6spy'를 추가하여 Java DriverManager가 P6Spy 드라이버를 선택하도록 강제합니다.
-    # P6Spy는 내부적으로 'p6spy' 문자열을 제거한 원본 URL을 파싱하여 실제 DB와 연결을 맺습니다.
-#    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버) -- p6spy 로그 기록 용도
-    url: jdbc:oracle:thin:@127.0.0.1:1521:xe
-#    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
+#    url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle SID 기반 URL (로컬 서버)
+#    url: jdbc:p6spy:oracle:thin:@127.0.0.1:1521:xe  # (구) 드라이버 레벨 P6Spy — 디코레이터와 이중로깅되어 비활성
+    url: jdbc:oracle:thin:@61.75.54.208:1521:xe # Minipc
     username: SCOTT
-#    password: ${ORACLE_PASSWORD}  # 환경변수에서 로드 : 운영 미미 pc
-    password: tiger
+    password: ${ORACLE_PASSWORD}  # 환경변수에서 로드 : 운영 미미 pc
+#    password: tiger
 
     # HikariCP 커넥션 풀 설정
     hikari:
@@ -45,10 +43,10 @@ spring:
   # Redis 연결 설정
   data:
     redis:
-      #host: 61.75.54.208 # MiniPc
-      host: 127.0.0.1  # Local(no 127.0.0.1)
+      host: 61.75.54.208 # MiniPc
+#      host: 127.0.0.1  # Local(no 127.0.0.1)
       port: 6379
-     # password: ${REDIS_PASSWORD} #MiniPC / Local 은 패스워드 없음
+      password: ${REDIS_PASSWORD} #MiniPC / Local 은 패스워드 없음
       #password: AZPKMzETCSPRyjixRE9sNGTZLtoktcXZ # 원격 미니피씨
       timeout: 10s
       connect-timeout: 10s    # 이거 추가
@@ -143,7 +141,7 @@ spring:
       max-file-size: 10MB      # 단일 파일 최대 크기
       max-request-size: 10MB   # 전체 요청 최대 크기
 
-# [추가] P6Spy 상세 로깅 설정 (p6spy-spring-boot-starter)
+# [추가] P6Spy 상세 로깅 설정 (p6spy-spring-boot-starter) — 측정 종료 후 의존성/설정 모두 비활성화 복원
 # 가로챈(Intercepted) SQL 정보를 콘솔에 어떻게 출력할지 정의합니다.
 #decorator:
 #  datasource:
@@ -190,8 +188,8 @@ batch:
 # 로깅 설정
 logging:
   file:
-#    name: log/wherehouse.log  # 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
-    name: /opt/tomcat/logs/wherehouse.log  # 배포 위치
+#    name: log/wherehouse.log  # 로컬, 프로젝트 루트 디렉토리를 기준으로 상대경로로써 로그 파일 위치 설정
+    name: /opt/tomcat/logs/wherehouse.log  # 배포
   level:
     root: info
     com.zaxxer.hikari.pool: DEBUG
