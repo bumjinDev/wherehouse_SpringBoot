@@ -50,6 +50,9 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
+    @Value("${spring.data.redis.password:}")   // 로컬은 미설정(빈 값) → 인증 스킵 / 미니PC는 ${REDIS_PASSWORD} 주입
+    private String password;
+
     //    @Bean
 //    public RedisConnectionFactory redisConnectionFactory() {
 //        return new LettuceConnectionFactory(host, port);
@@ -113,7 +116,15 @@ public class RedisConfig {
 
         /* Redis 서버 접속 정보 (host, port는 application.properties에서 주입) */
         RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration(host, port);
-//        serverConfig.setPassword("abed1234");   // 로컬은 패스워드 없음. 원격 서버(61.75.54.208) 접속 시 사용하고 로컬 접속할 때는 이 부분 주석 처리 해야됨
+        /*
+         * 비밀번호는 application.yml(spring.data.redis.password = ${REDIS_PASSWORD})에서 주입한다.
+         * 값이 있으면(미니PC: requirepass 설정됨) 인증에 사용하고,
+         * 비어 있으면(로컬: 패스워드 없음) setPassword 자체를 건너뛴다.
+         * → 환경 전환을 코드 수정 없이 환경변수만으로 제어하고, 소스에 비번을 하드코딩하지 않는다.
+         */
+        if (password != null && !password.isBlank()) {
+            serverConfig.setPassword(password);
+        }
 
         LettuceConnectionFactory factory = new LettuceConnectionFactory(serverConfig, clientConfig);
 
