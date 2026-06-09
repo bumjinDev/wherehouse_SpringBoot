@@ -163,7 +163,10 @@ public class RdbSyncListener {
         log.info("[PERF:DBLOAD:CHARTER] thread={} | phase=START | ts={} | chunkSize={}",
                 threadName, charterStartTs, CHUNK_SIZE);
 
-        List<Property> charterProperties = new ArrayList<>();
+        // [운영장애 OPS-001] 전체 누적 제거 → 청크 스트리밍.
+        //   Bounds 집계기를 전세·월세 공용으로 두고, 청크를 읽는 즉시 Redis 적재 + 통계 누적 후 버린다. → 힙 O(청크)
+        BoundsAccumulator boundsAcc = new BoundsAccumulator();
+
         Pageable charterPageable = PageRequest.of(0, CHUNK_SIZE, Sort.by("propertyId"));
         Slice<PropertyCharter> charterSlice;
 
@@ -177,37 +180,32 @@ public class RdbSyncListener {
             charterSlice = propertyCharterRepository.findAllBy(charterPageable);
             List<PropertyCharter> chunkEntities = charterSlice.getContent();
 
-            long chunkLoadEndTs = System.currentTimeMillis();
-            long chunkLoadMs = chunkLoadEndTs - chunkStartTs;
+            long chunkLoadMs = System.currentTimeMillis() - chunkStartTs;
 
-            // 즉시 DTO 변환 → charterProperties에 누적
-            long transformStartTs = System.currentTimeMillis(); // 단순 로깅
-            
+            // 청크만 DTO 변환 (전체 리스트 누적 안 함)
+            long transformStartTs = System.currentTimeMillis();
+            List<Property> chunk = new ArrayList<>(chunkEntities.size());
             for (PropertyCharter entity : chunkEntities) {
-                charterProperties.add(convertCharterEntityToProperty(entity));
+                chunk.add(convertCharterEntityToProperty(entity));
             }
-            
-            long transformEndTs = System.currentTimeMillis();   // 단순 로깅
-            long chunkTransformMs = transformEndTs - transformStartTs;
+            long chunkTransformMs = System.currentTimeMillis() - transformStartTs;
             charterTransformTotalMs += chunkTransformMs;
 
+            // [핵심] 청크를 즉시 Redis 적재 + Bounds 집계 후 버림
+            syncCharterToRedis(chunk);
+            boundsAcc.update(chunk);
+
             charterTotalCount += chunkEntities.size();
-            long chunkEndTs = System.currentTimeMillis();
 
             log.info("[PERF:CHUNK:CHARTER] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={}",
                     threadName, charterChunkIndex, chunkEntities.size(), charterTotalCount,
-                    chunkLoadMs, chunkTransformMs, (chunkEndTs - chunkStartTs), charterSlice.hasNext());
+                    chunkLoadMs, chunkTransformMs, (System.currentTimeMillis() - chunkStartTs), charterSlice.hasNext());
 
             // 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
             entityManager.clear();
 
             charterPageable = charterSlice.nextPageable();
             charterChunkIndex++;
-            
-            // [ 테스트 ] 매물 개수 개수 토탈 10000 개라면 바로 종료
-//            if(charterTotalCount >= 100) {
-//                break;
-//            }
 
         } while (charterSlice.hasNext());
 
@@ -215,12 +213,11 @@ public class RdbSyncListener {
         log.info("[PERF:DBLOAD:CHARTER] thread={} | phase=END | ts={} | totalCount={} | totalChunks={} | elapsed_ms={}",
                 threadName, charterEndTs, charterTotalCount, charterChunkIndex, (charterEndTs - charterStartTs));
 
-        // === 월세 데이터: Slice 청크 로드 + DTO 변환 ===
+        // === 월세 데이터: Slice 청크 → 즉시 Redis 동기화 + Bounds 집계 ===
         long monthlyStartTs = System.currentTimeMillis();
         log.info("[PERF:DBLOAD:MONTHLY] thread={} | phase=START | ts={} | chunkSize={}",
                 threadName, monthlyStartTs, CHUNK_SIZE);
 
-        List<Property> monthlyProperties = new ArrayList<>();
         Pageable monthlyPageable = PageRequest.of(0, CHUNK_SIZE, Sort.by("propertyId"));
         Slice<PropertyMonthly> monthlySlice;
         int monthlyChunkIndex = 0;
@@ -233,35 +230,29 @@ public class RdbSyncListener {
             monthlySlice = propertyMonthlyRepository.findAllBy(monthlyPageable);
             List<PropertyMonthly> chunkEntities = monthlySlice.getContent();
 
-            long chunkLoadEndTs = System.currentTimeMillis();
-            long chunkLoadMs = chunkLoadEndTs - chunkStartTs;
+            long chunkLoadMs = System.currentTimeMillis() - chunkStartTs;
 
-            // 즉시 DTO 변환 → monthlyProperties에 누적
             long transformStartTs = System.currentTimeMillis();
+            List<Property> chunk = new ArrayList<>(chunkEntities.size());
             for (PropertyMonthly entity : chunkEntities) {
-                monthlyProperties.add(convertMonthlyEntityToProperty(entity));
+                chunk.add(convertMonthlyEntityToProperty(entity));
             }
-            long transformEndTs = System.currentTimeMillis();
-            long chunkTransformMs = transformEndTs - transformStartTs;
+            long chunkTransformMs = System.currentTimeMillis() - transformStartTs;
             monthlyTransformTotalMs += chunkTransformMs;
 
+            syncMonthlyToRedis(chunk);
+            boundsAcc.update(chunk);
+
             monthlyTotalCount += chunkEntities.size();
-            long chunkEndTs = System.currentTimeMillis();
 
             log.info("[PERF:CHUNK:MONTHLY] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={}",
                     threadName, monthlyChunkIndex, chunkEntities.size(), monthlyTotalCount,
-                    chunkLoadMs, chunkTransformMs, (chunkEndTs - chunkStartTs), monthlySlice.hasNext());
+                    chunkLoadMs, chunkTransformMs, (System.currentTimeMillis() - chunkStartTs), monthlySlice.hasNext());
 
-            // 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
             entityManager.clear();
 
             monthlyPageable = monthlySlice.nextPageable();
             monthlyChunkIndex++;
-
-            // [ 테스트 ] 매물 개수 토탈 10000 개라면 바로 종료 (CHARTER 측과 동일 패턴)
-//            if(monthlyTotalCount >= 100) {
-//                break;
-//            }
 
         } while (monthlySlice.hasNext());
 
@@ -269,21 +260,11 @@ public class RdbSyncListener {
         log.info("[PERF:DBLOAD:MONTHLY] thread={} | phase=END | ts={} | totalCount={} | totalChunks={} | elapsed_ms={}",
                 threadName, monthlyEndTs, monthlyTotalCount, monthlyChunkIndex, (monthlyEndTs - monthlyStartTs));
 
-        log.info(">>> [Phase 2-2] RDB 재조회 완료. (전세: {}건, 월세: {}건)",
-                charterProperties.size(), monthlyProperties.size());
+        log.info(">>> [Phase 2-2/2-3] RDB 재조회 + Redis 동기화 완료 (스트리밍). 전세 {}건, 월세 {}건",
+                charterTotalCount, monthlyTotalCount);
 
-        log.info(">>> [Phase 2-3] Entity → Property 변환 완료. Redis 동기화 시작.");
-
-        // Step 4. [Redis] 매물 정보 및 검색 인덱스 동기화 (RDB 기준)
-        syncCharterToRedis(charterProperties);
-        syncMonthlyToRedis(monthlyProperties);
-
-        // Step 5. [Redis] 정규화 범위(Bounds) 계산 및 적재
-        List<Property> allProperties = new ArrayList<>();
-        allProperties.addAll(charterProperties);
-        allProperties.addAll(monthlyProperties);
-
-        calculateAndStoreNormalizationBounds(allProperties);
+        // Step 5. [Redis] 정규화 범위(Bounds) — 스트리밍 집계 결과로 저장
+        storeNormalizationBoundsStreaming(boundsAcc);
 
         // Step 6. [Redis] 안전성 점수(Safety Score) 계산 및 적재
         calculateAndStoreSafetyScores();
@@ -713,192 +694,139 @@ public class RdbSyncListener {
     }
 
     // =================================================================================
-    // 정규화 범위 계산 및 저장
+    // 정규화 범위 계산 및 저장 (스트리밍 집계)
+    // [운영장애 OPS-001] 전체 Property 누적 방식을 폐기하고, 청크 스트리밍 중 그룹별 min/max 통계만
+    //   집계(BoundsAccumulator)한 결과로 bounds 를 저장한다. 매물 DTO 를 메모리에 모으지 않는다.
     // =================================================================================
 
-    private void calculateAndStoreNormalizationBounds(List<Property> properties) {
-        log.info("=== 정규화 범위 계산 및 저장 시작 ===");
-
-        Map<String, List<Property>> groupedProperties = groupPropertiesByDistrictAndLeaseType(properties);
+    private void storeNormalizationBoundsStreaming(BoundsAccumulator acc) {
+        log.info("=== 정규화 범위 계산 및 저장 시작 (스트리밍 집계) ===");
         String currentTime = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-        // =====================================================================
-        // [Pipeline 변환] 모든 그룹의 bounds 해시를 먼저 수집한 뒤 한 번의 Pipeline으로 전송
-        // 변경 전: 그룹별 개별 putAll() → 그룹 수만큼 RTT 발생
-        // 변경 후: 전체 그룹을 한 Pipeline에 적재 → 1 RTT
-        // =====================================================================
         Map<String, Map<String, Object>> boundsEntries = new LinkedHashMap<>();
 
-        for (Map.Entry<String, List<Property>> entry : groupedProperties.entrySet()) {
+        for (Map.Entry<String, BoundsAccumulator.Stat> entry : acc.getGroups().entrySet()) {
             String groupKey = entry.getKey();
-            List<Property> groupProperties = entry.getValue();
+            BoundsAccumulator.Stat s = entry.getValue();
 
-            try {
-                if (groupProperties.size() < 1) continue;
+            // 기존 calculateBoundsForGroupFixed 와 동등: deposit/area 가 각각 1건 이상이어야 유효
+            if (s.depositCount == 0 || s.areaCount == 0) continue;
 
-                NormalizationBounds bounds = calculateBoundsForGroupFixed(groupProperties, groupKey);
-                if (bounds == null) continue;
+            String[] keyParts = groupKey.split(":");
+            if (keyParts.length != 2) continue;
+            String districtName = keyParts[0];
+            String leaseType = keyParts[1];
 
-                // Redis에 저장할 해시 데이터를 수집만 하고, 실제 전송은 아래 Pipeline에서 일괄 처리
-                Map<String, Object> boundsHash = buildBoundsHash(groupKey, bounds, groupProperties, currentTime);
-                if (boundsHash != null) {
-                    String[] keyParts = groupKey.split(":");
-                    String districtName = keyParts[0];
-                    String leaseType = keyParts[1];
-                    String redisKey = "bounds:" + districtName + ":" + leaseType;
-                    boundsEntries.put(redisKey, boundsHash);
-                }
+            double minPrice = s.minDeposit;
+            double maxPrice = s.maxDeposit;
+            double minArea = s.minArea;
+            double maxArea = s.maxArea;
+            if (minPrice == maxPrice) maxPrice = minPrice + 1000.0;
+            if (minArea == maxArea) maxArea = minArea + 5.0;
 
-            } catch (Exception e) {
-                log.error("그룹 [{}] 정규화 범위 계산 실패", groupKey, e);
+            Map<String, Object> boundsHash = new HashMap<>();
+
+            if ("전세".equals(leaseType)) {
+                boundsHash.put("minPrice", String.valueOf(minPrice));
+                boundsHash.put("maxPrice", String.valueOf(maxPrice));
+                boundsHash.put("minArea", String.valueOf(minArea));
+                boundsHash.put("maxArea", String.valueOf(maxArea));
+                boundsHash.put("propertyCount", String.valueOf(s.propertyCount));
+                boundsHash.put("lastUpdated", currentTime);
+
+            } else if ("월세".equals(leaseType)) {
+                double minMonthlyRent = s.monthlyRentCount == 0 ? 0.0 : s.minMonthlyRent;
+                double maxMonthlyRent = s.monthlyRentCount == 0 ? 500.0 : s.maxMonthlyRent;
+                if (minMonthlyRent == maxMonthlyRent) maxMonthlyRent = minMonthlyRent + 10.0;
+
+                boundsHash.put("minDeposit", String.valueOf(minPrice));
+                boundsHash.put("maxDeposit", String.valueOf(maxPrice));
+                boundsHash.put("minMonthlyRent", String.valueOf(minMonthlyRent));
+                boundsHash.put("maxMonthlyRent", String.valueOf(maxMonthlyRent));
+                boundsHash.put("minArea", String.valueOf(minArea));
+                boundsHash.put("maxArea", String.valueOf(maxArea));
+                boundsHash.put("propertyCount", String.valueOf(s.propertyCount));
+                boundsHash.put("lastUpdated", currentTime);
+
+                log.info("Redis [Bounds] 준비 완료 - Key: bounds:{}:{}, Count: {}, Deposit[{}-{}], Rent[{}-{}], Area[{}-{}]",
+                        districtName, leaseType, s.propertyCount, minPrice, maxPrice,
+                        minMonthlyRent, maxMonthlyRent, minArea, maxArea);
+            } else {
+                continue;
             }
+
+            boundsEntries.put("bounds:" + districtName + ":" + leaseType, boundsHash);
         }
 
-        // Pipeline 일괄 전송
         if (!boundsEntries.isEmpty()) {
             try {
                 log.info(">>> [DEBUG:PIPELINE:BOUNDS] BATCH START (총 {}개 그룹)", boundsEntries.size());
 
                 redisHandler.redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-
-                    // ====== [DEBUG] Pipeline 상태 확인 ======
-                    log.info(">>> [DEBUG:PIPELINE:BOUNDS] isPipelined = {}, connection class = {}",
-                            connection.isPipelined(), connection.getClass().getName());
-                    // ====== [DEBUG] END ======
-
                     for (Map.Entry<String, Map<String, Object>> entry : boundsEntries.entrySet()) {
                         byte[] key = serializeKey(entry.getKey());
                         Map<byte[], byte[]> rawHash = serializeHashEntries(entry.getValue());
                         connection.hashCommands().hMSet(key, rawHash);
                     }
-
                     return null;
                 });
 
-                log.info(">>> [DEBUG:PIPELINE:BOUNDS] BATCH COMPLETE ({}개 그룹, closePipeline 완료)", boundsEntries.size());
+                log.info(">>> [DEBUG:PIPELINE:BOUNDS] BATCH COMPLETE ({}개 그룹)", boundsEntries.size());
 
             } catch (Exception e) {
                 log.error("Bounds Pipeline 저장 실패", e);
             }
         }
 
-        log.info("=== 정규화 범위 계산 완료 ===");
-    }
-
-    private Map<String, List<Property>> groupPropertiesByDistrictAndLeaseType(List<Property> properties) {
-        Map<String, List<Property>> grouped = new HashMap<>();
-
-        for (Property property : properties) {
-            String districtName = property.getDistrictName();
-            String leaseType = property.getLeaseType();
-
-            if (districtName == null || leaseType == null) continue;
-
-            String groupKey = districtName + ":" + leaseType;
-            grouped.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(property);
-        }
-
-        return grouped;
-    }
-
-    private NormalizationBounds calculateBoundsForGroupFixed(List<Property> groupProperties, String groupKey) {
-        String[] keyParts = groupKey.split(":");
-        if (keyParts.length != 2) return null;
-
-        String leaseType = keyParts[1];
-        List<Double> prices = new ArrayList<>();
-        List<Double> areas = new ArrayList<>();
-
-        for (Property property : groupProperties) {
-            if ("전세".equals(leaseType) || "월세".equals(leaseType)) {
-                if (property.getDeposit() != null && property.getDeposit() > 0) {
-                    prices.add(property.getDeposit().doubleValue());
-                }
-            }
-
-            if (property.getAreaInPyeong() != null && property.getAreaInPyeong() > 0) {
-                areas.add(property.getAreaInPyeong());
-            }
-        }
-
-        if (prices.isEmpty() || areas.isEmpty()) return null;
-
-        double minPrice = Collections.min(prices);
-        double maxPrice = Collections.max(prices);
-        double minArea = Collections.min(areas);
-        double maxArea = Collections.max(areas);
-
-        if (minPrice == maxPrice) maxPrice = minPrice + 1000.0;
-        if (minArea == maxArea) maxArea = minArea + 5.0;
-
-        return new NormalizationBounds(minPrice, maxPrice, minArea, maxArea);
+        log.info("=== 정규화 범위 계산 완료 (그룹 {}개) ===", boundsEntries.size());
     }
 
     /**
-     * Bounds 해시 데이터 빌드 (Redis 전송 없이 Map만 반환)
-     *
-     * Pipeline에서 일괄 전송하기 위해 데이터 수집 전용으로 분리.
-     * 기존 storeBoundsToRedisFixed()의 해시 빌드 로직만 추출한 것.
+     * Bounds 스트리밍 집계기 — 그룹(자치구:전월세)별 min/max/count 통계만 유지한다.
+     * 전체 Property 리스트를 메모리에 모으지 않고, 청크마다 update() 로 누적한다. (힙 O(그룹 수) = 상수)
      */
-    private Map<String, Object> buildBoundsHash(String groupKey, NormalizationBounds bounds,
-                                                List<Property> groupProperties, String currentTime) {
-        String[] keyParts = groupKey.split(":");
-        String districtName = keyParts[0];
-        String leaseType = keyParts[1];
-        int propertyCount = groupProperties.size();
+    private static class BoundsAccumulator {
+        static class Stat {
+            double minDeposit = Double.MAX_VALUE, maxDeposit = -Double.MAX_VALUE;
+            double minArea = Double.MAX_VALUE, maxArea = -Double.MAX_VALUE;
+            double minMonthlyRent = Double.MAX_VALUE, maxMonthlyRent = -Double.MAX_VALUE;
+            long depositCount = 0, areaCount = 0, monthlyRentCount = 0;
+            long propertyCount = 0;
+        }
 
-        Map<String, Object> boundsHash = new HashMap<>();
+        private final Map<String, Stat> groups = new LinkedHashMap<>();
 
-        if ("전세".equals(leaseType)) {
-            boundsHash.put("minPrice", String.valueOf(bounds.minPrice));
-            boundsHash.put("maxPrice", String.valueOf(bounds.maxPrice));
-            boundsHash.put("minArea", String.valueOf(bounds.minArea));
-            boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
-            boundsHash.put("propertyCount", String.valueOf(propertyCount));
-            boundsHash.put("lastUpdated", currentTime);
-            return boundsHash;
+        void update(List<Property> chunk) {
+            for (Property p : chunk) {
+                String districtName = p.getDistrictName();
+                String leaseType = p.getLeaseType();
+                if (districtName == null || leaseType == null) continue;
 
-        } else if ("월세".equals(leaseType)) {
-            List<Double> monthlyRents = new ArrayList<>();
-            for (Property property : groupProperties) {
-                if (property.getMonthlyRent() != null && property.getMonthlyRent() > 0) {
-                    monthlyRents.add(property.getMonthlyRent().doubleValue());
+                Stat s = groups.computeIfAbsent(districtName + ":" + leaseType, k -> new Stat());
+                s.propertyCount++;
+
+                if (p.getDeposit() != null && p.getDeposit() > 0) {
+                    double v = p.getDeposit().doubleValue();
+                    if (v < s.minDeposit) s.minDeposit = v;
+                    if (v > s.maxDeposit) s.maxDeposit = v;
+                    s.depositCount++;
+                }
+                if (p.getAreaInPyeong() != null && p.getAreaInPyeong() > 0) {
+                    double v = p.getAreaInPyeong();
+                    if (v < s.minArea) s.minArea = v;
+                    if (v > s.maxArea) s.maxArea = v;
+                    s.areaCount++;
+                }
+                if (p.getMonthlyRent() != null && p.getMonthlyRent() > 0) {
+                    double v = p.getMonthlyRent().doubleValue();
+                    if (v < s.minMonthlyRent) s.minMonthlyRent = v;
+                    if (v > s.maxMonthlyRent) s.maxMonthlyRent = v;
+                    s.monthlyRentCount++;
                 }
             }
-            double minMonthlyRent = monthlyRents.isEmpty() ? 0.0 : Collections.min(monthlyRents);
-            double maxMonthlyRent = monthlyRents.isEmpty() ? 500.0 : Collections.max(monthlyRents);
-            if (minMonthlyRent == maxMonthlyRent) maxMonthlyRent = minMonthlyRent + 10.0;
-
-            boundsHash.put("minDeposit", String.valueOf(bounds.minPrice));
-            boundsHash.put("maxDeposit", String.valueOf(bounds.maxPrice));
-            boundsHash.put("minMonthlyRent", String.valueOf(minMonthlyRent));
-            boundsHash.put("maxMonthlyRent", String.valueOf(maxMonthlyRent));
-            boundsHash.put("minArea", String.valueOf(bounds.minArea));
-            boundsHash.put("maxArea", String.valueOf(bounds.maxArea));
-            boundsHash.put("propertyCount", String.valueOf(propertyCount));
-            boundsHash.put("lastUpdated", currentTime);
-
-            log.info("Redis [Bounds] 준비 완료 - Key: bounds:{}:{}, Count: {}, Deposit[{}-{}], Rent[{}-{}], Area[{}-{}]",
-                    districtName, leaseType, propertyCount, bounds.minPrice, bounds.maxPrice,
-                    minMonthlyRent, maxMonthlyRent, bounds.minArea, bounds.maxArea);
-            return boundsHash;
         }
 
-        return null;
-    }
-
-    private static class NormalizationBounds {
-        final double minPrice;
-        final double maxPrice;
-        final double minArea;
-        final double maxArea;
-
-        NormalizationBounds(double minPrice, double maxPrice, double minArea, double maxArea) {
-            this.minPrice = minPrice;
-            this.maxPrice = maxPrice;
-            this.minArea = minArea;
-            this.maxArea = maxArea;
-        }
+        Map<String, Stat> getGroups() { return groups; }
     }
 
     // =================================================================================
