@@ -86,7 +86,7 @@ public class BatchScheduler {
     @Scheduled(cron = "0 0 4 * * ?")
     // [운영장애 OPS-001] 부팅 시 자동 배치는 평소엔 비활성(주석) 유지.
     //   [검증中] 스트리밍 OOM 수정 확인을 위해 한시적으로 활성화함 — 검증 끝나면 반드시 다시 주석 처리할 것.
-    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)    // 테스트 용도(재부팅마다 매물 데이터 로드)
+//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 1000)    // 테스트 용도(재부팅마다 매물 데이터 로드)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 (Data Collection Phase) ===");
 
