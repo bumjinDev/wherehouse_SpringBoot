@@ -145,6 +145,12 @@ public class RdbSyncListener {
         long batchStartTs = System.currentTimeMillis();
         log.info("[PERF:BATCH:TOTAL] thread={} | phase=START | ts={}", threadName, batchStartTs);
 
+        // [DEBUG:LISTENER] 리스너 진입 확인 — 이벤트 수신 건수 + 진입 시점 힙 (OOM 추적용)
+        log.info(">>> [DEBUG:LISTENER] handleDataCollectionCompletedEvent 진입 | 수신: 전세 {}건, 월세 {}건 | {}",
+                event.getCharterProperties() != null ? event.getCharterProperties().size() : 0,
+                event.getMonthlyProperties() != null ? event.getMonthlyProperties().size() : 0,
+                heapInfo());
+
         long startTime = System.currentTimeMillis();
 
         /* ** 이 위치 실제 사용하는 코드이나 임시 주석, 이유는 현재 테스트 환경에서 매번 저장하는 로직 발생 시 매우 시간 오래 걸림. */
@@ -197,9 +203,9 @@ public class RdbSyncListener {
 
             charterTotalCount += chunkEntities.size();
 
-            log.info("[PERF:CHUNK:CHARTER] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={}",
+            log.info("[PERF:CHUNK:CHARTER] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={} | {}",
                     threadName, charterChunkIndex, chunkEntities.size(), charterTotalCount,
-                    chunkLoadMs, chunkTransformMs, (System.currentTimeMillis() - chunkStartTs), charterSlice.hasNext());
+                    chunkLoadMs, chunkTransformMs, (System.currentTimeMillis() - chunkStartTs), charterSlice.hasNext(), heapInfo());
 
             // 영속성 컨텍스트 초기화 → Entity 참조 해제 → GC 가능
             entityManager.clear();
@@ -245,9 +251,9 @@ public class RdbSyncListener {
 
             monthlyTotalCount += chunkEntities.size();
 
-            log.info("[PERF:CHUNK:MONTHLY] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={}",
+            log.info("[PERF:CHUNK:MONTHLY] thread={} | phase=COMPLETE | chunkIndex={} | chunkSize={} | cumulative={} | load_ms={} | transform_ms={} | total_ms={} | hasNext={} | {}",
                     threadName, monthlyChunkIndex, chunkEntities.size(), monthlyTotalCount,
-                    chunkLoadMs, chunkTransformMs, (System.currentTimeMillis() - chunkStartTs), monthlySlice.hasNext());
+                    chunkLoadMs, chunkTransformMs, (System.currentTimeMillis() - chunkStartTs), monthlySlice.hasNext(), heapInfo());
 
             entityManager.clear();
 
@@ -276,8 +282,8 @@ public class RdbSyncListener {
         // 배치 종료 로깅 및 측정 결과 요약
         // =================================================================================
         long batchEndTs = System.currentTimeMillis();
-        log.info("[PERF:BATCH:TOTAL] thread={} | phase=END | ts={} | elapsed_ms={}",
-                threadName, batchEndTs, (batchEndTs - batchStartTs));
+        log.info("[PERF:BATCH:TOTAL] thread={} | phase=END | ts={} | elapsed_ms={} | {}",
+                threadName, batchEndTs, (batchEndTs - batchStartTs), heapInfo());
 
         log.info("====================================================================");
         log.info(">>> 측정 결과 요약 (Slice 청크 처리) <<<");
@@ -609,6 +615,18 @@ public class RdbSyncListener {
 
     private String nvl(String value) {
         return value != null ? value : "";
+    }
+
+    /**
+     * [DEBUG] 현재 힙 사용량 문자열 — 스트리밍이 메모리를 일정하게 유지하는지(OOM 해결) 추적용.
+     * 청크가 진행돼도 used 가 일정하면 정상(누적 없음), 계속 증가하면 어딘가 누적 중이라는 신호.
+     */
+    private String heapInfo() {
+        Runtime rt = Runtime.getRuntime();
+        long usedMb = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
+        long totalMb = rt.totalMemory() / (1024 * 1024);
+        long maxMb = rt.maxMemory() / (1024 * 1024);
+        return String.format("heap used=%dMB total=%dMB max=%dMB", usedMb, totalMb, maxMb);
     }
 
     // =================================================================================
