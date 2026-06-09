@@ -83,8 +83,8 @@ public class BatchScheduler {
     }
 
     // 매달 새벽 4시 수행
-     @Scheduled(cron = "0 0 4 * * ?")    // 테스트 시 주석 처리
-//    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)    // 테스트 용도로 활성화
+    @Scheduled(cron = "0 0 4 * * ?")    // 테스트 시 주석 처리
+    @Scheduled(fixedDelay = Long.MAX_VALUE, initialDelay = 5000)    // 테스트 용도(지금은 재부팅 마다 매물 데이터 로드 가능하도록 수정)
     public void executeBatchProcess() {
         log.info("=== 부동산 매물 데이터 배치 처리 시작 (Data Collection Phase) ===");
 
