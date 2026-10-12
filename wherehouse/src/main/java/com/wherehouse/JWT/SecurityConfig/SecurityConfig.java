@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     @Bean
@@ -91,7 +91,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterAt(new LoginFilter(authenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     /* [회원관리 서비스 - 로그 아웃] : Spring MVC Controller 아닌 Spring Security Handler 적용. */
@@ -104,7 +104,7 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .addLogoutHandler(cookieLogoutHandler)
                         .logoutSuccessUrl("/")
-                );  return http.build();
+                );  return buildWithHstsCleared(http);
     }
 
     /* [회원관리 서비스 - 모든 요청] : Spring MVC Controller 아닌 Spring Security Handler 적용. */
@@ -122,7 +122,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler()) // JWT 인증 실패 시 실행될 핸들러 등록
                                 .accessDeniedHandler(new JwtAccessDeniedHandler()));               // 인가 실패 처리
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     /* [게시글 서비스 - 모든 요청] : 각 요청 경로 및 HTTP Method 별 권한 필요한 위치 설정 */
@@ -162,7 +162,7 @@ public class SecurityConfig {
                                         "worker-src 'self'; " +
                                         "object-src 'none';"
                         )
-                ));  return http.build();
+                ));  return buildWithHstsCleared(http);
     }
 
     /* [추천 서비스] : 선택적 인증 — JWT 있으면 검증·주입, 없으면 비인증 통과 (F005 설계 섹션 3.2) */
@@ -175,7 +175,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     /* [매물 관리 서비스 - 뷰] : 매물 게시판·등록·수정 JSP 페이지. 선택적 인증 (F004 버튼 노출 제어용)
@@ -189,7 +189,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .addFilterAt(new JwtAuthProcessorFilter(cookieUtil, jwtUtil, env), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     /* [매물 관리 서비스 - API] : 등록·수정·상태변경(POST·PATCH)은 JWT 인증 필수, 조회(GET)는 비인증 허용 */
@@ -209,7 +209,7 @@ public class SecurityConfig {
                         exception.authenticationEntryPoint(new ApiAuthenticationEntryPoint())
                                 .accessDeniedHandler(new JwtAccessDeniedHandler())
                 );
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     /* [리뷰 서비스 - 모든 요청] : 리뷰 작성/수정/삭제는 인증 필요, 조회는 비인증 허용 */
@@ -229,7 +229,7 @@ public class SecurityConfig {
                         exception.authenticationEntryPoint(new ApiAuthenticationEntryPoint())
                                 .accessDeniedHandler(new JwtAccessDeniedHandler())
                 );
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     /* [매물 방문 예약 서비스 - 회원 페이지] : 본인 자원 조회 페이지 4 종 (/visit/me/**).
@@ -255,7 +255,7 @@ public class SecurityConfig {
                         exception.authenticationEntryPoint(new JwtAuthenticationFailureHandler())
                                 .accessDeniedHandler(new JwtAccessDeniedHandler())
                 );
-        return http.build();
+        return buildWithHstsCleared(http);
     }
 
     /* [매물 방문 예약 서비스 - API] : 방문 예약 기능 전체 경로 (설계 명세서 섹션 3.1).
@@ -284,6 +284,15 @@ public class SecurityConfig {
                         exception.authenticationEntryPoint(new ApiAuthenticationEntryPoint())
                                 .accessDeniedHandler(new JwtAccessDeniedHandler())
                 );
+        return buildWithHstsCleared(http);
+    }
+
+    /* [HSTS 해제] : 모든 필터 체인 공통. Spring Security 기본값(max-age=31536000; includeSubDomains)은 브라우저가
+     *   wherehouse.it.kr 의 모든 포트를 HTTPS 로 강제하게 만들어, 같은 호스트의 HTTP 서비스(:8186 ChatService)가
+     *   ERR_SSL_PROTOCOL_ERROR 로 차단된다. disable() 은 헤더를 보내지 않을 뿐 이미 기록된 정책을 지우지 못하므로
+     *   max-age=0 을 보내 브라우저에 저장된 HSTS 정책을 삭제시킨다. */
+    private SecurityFilterChain buildWithHstsCleared(HttpSecurity http) throws Exception {
+        http.headers(headers -> headers.httpStrictTransportSecurity(hsts -> hsts.maxAgeInSeconds(0)));
         return http.build();
     }
 }
